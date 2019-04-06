@@ -11,11 +11,13 @@ import Darwin.ncurses
 
 public protocol Driver {
     func Init ();
+    var cols : Int { get }
+    var rows : Int { get }
 }
 
 class CursesDriver : Driver {
-    var cols : Int32 = 0
-    var rows : Int32 = 0
+    var cols : Int = 0
+    var rows : Int = 0
     
     func Init ()
     {
@@ -26,8 +28,8 @@ class CursesDriver : Driver {
         init_pair (0, Int16(COLOR_BLACK), Int16(COLOR_GREEN))
         keypad (stdscr, true)
         
-        cols = getmaxx (stdscr)
-        rows = getmaxy (stdscr)
+        cols = Int (getmaxx (stdscr))
+        rows = Int (getmaxy (stdscr))
         
         clear ();
     }
@@ -47,8 +49,9 @@ open class View {
     var needDisplay : Rect = Rect.zero
     var _childNeedsDisplay : Bool = false
     var canFocus : Bool = false
+    var layoutNeeded : Bool = true
     
-    class var driver : Driver {
+    var driver : Driver {
         get {
             return Application.Shared.driver
         }
@@ -82,8 +85,6 @@ open class View {
             return Rect (origin: Point.Zero, size: frame.size)
         }
     }
-    
-    var layoutNeeded = true
     
     public func setNeedsDisplay ()
     {
@@ -119,9 +120,15 @@ open class View {
         }
     }
     
-    public func setNeedsLayout ()
+    func setNeedsLayout ()
     {
-        
+        if layoutNeeded {
+            return
+        }
+        layoutNeeded = true
+        if let container = superView {
+            container.layoutNeeded = true
+        }
     }
     
     public func childNeedsDisplay ()
@@ -149,7 +156,40 @@ open class View {
         }
     }
     
+    public func remove (view : View)
+    {
     
+    }
+    
+    public func removeAllSubviews ()
+    {
+        
+    }
+    
+    public func Clear ()
+    {
+        // TODO
+    }
+    
+    func viewToScreen (col: Int, row : Int, clipped : Bool = true) -> (rcol : Int, rrow : Int)
+    {
+        // Computes the real row, col relative to the screen.
+        var rrow = row + frame.minY
+        var rcol = col + frame.minX
+        var ccontainer = superView
+        while ccontainer != nil {
+            rrow += ccontainer!.frame.minY
+            rcol += ccontainer!.frame.minX
+            ccontainer = ccontainer?.superView
+        }
+        
+        // The following ensures that the cursor is always in the screen boundaries
+        if clipped {
+            rrow = max (0, min (rrow, driver.rows-1))
+            rcol = max (0, min (rcol, driver.cols-1))
+        }
+        return (rcol, rrow)
+    }
 }
 
 open class Toplevel : View {
