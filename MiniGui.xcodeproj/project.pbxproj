@@ -7,7 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		490C79572257EF050010F573 /* Point.swift in Sources */ = {isa = PBXBuildFile; fileRef = 490C79562257EF050010F573 /* Point.swift */; };
+		490C79592257EF460010F573 /* Size.swift in Sources */ = {isa = PBXBuildFile; fileRef = 490C79582257EF460010F573 /* Size.swift */; };
+		490C795B2257F2BA0010F573 /* Rect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 490C795A2257F2BA0010F573 /* Rect.swift */; };
+		490C795D2257F39A0010F573 /* PosDim.swift in Sources */ = {isa = PBXBuildFile; fileRef = 490C795C2257F39A0010F573 /* PosDim.swift */; };
 		4958E50E2230EA860030D085 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4958E50D2230EA860030D085 /* main.swift */; };
+		4958E5152230EAA80030D085 /* Application.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4958E5142230EAA80030D085 /* Application.swift */; };
+		4958E5182230EE790030D085 /* libncurses.5.4.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 4958E5172230EE790030D085 /* libncurses.5.4.tbd */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -23,8 +29,14 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		490C79562257EF050010F573 /* Point.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Point.swift; sourceTree = "<group>"; };
+		490C79582257EF460010F573 /* Size.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Size.swift; sourceTree = "<group>"; };
+		490C795A2257F2BA0010F573 /* Rect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Rect.swift; sourceTree = "<group>"; };
+		490C795C2257F39A0010F573 /* PosDim.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PosDim.swift; sourceTree = "<group>"; };
 		4958E50A2230EA860030D085 /* MiniGui */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = MiniGui; sourceTree = BUILT_PRODUCTS_DIR; };
 		4958E50D2230EA860030D085 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		4958E5142230EAA80030D085 /* Application.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Application.swift; sourceTree = "<group>"; };
+		4958E5172230EE790030D085 /* libncurses.5.4.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libncurses.5.4.tbd; path = usr/lib/libncurses.5.4.tbd; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -32,17 +44,44 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4958E5182230EE790030D085 /* libncurses.5.4.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		490C79532257EC040010F573 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		490C79542257EC130010F573 /* Drivers */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Drivers;
+			sourceTree = "<group>";
+		};
+		490C79552257EEE10010F573 /* Types */ = {
+			isa = PBXGroup;
+			children = (
+				490C79562257EF050010F573 /* Point.swift */,
+				490C79582257EF460010F573 /* Size.swift */,
+				490C795A2257F2BA0010F573 /* Rect.swift */,
+				490C795C2257F39A0010F573 /* PosDim.swift */,
+			);
+			path = Types;
+			sourceTree = "<group>";
+		};
 		4958E5012230EA860030D085 = {
 			isa = PBXGroup;
 			children = (
 				4958E50C2230EA860030D085 /* MiniGui */,
 				4958E50B2230EA860030D085 /* Products */,
+				4958E5162230EE790030D085 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -57,9 +96,21 @@
 		4958E50C2230EA860030D085 /* MiniGui */ = {
 			isa = PBXGroup;
 			children = (
+				490C79552257EEE10010F573 /* Types */,
+				490C79542257EC130010F573 /* Drivers */,
 				4958E50D2230EA860030D085 /* main.swift */,
+				4958E5142230EAA80030D085 /* Application.swift */,
+				490C79532257EC040010F573 /* Views */,
 			);
 			path = MiniGui;
+			sourceTree = "<group>";
+		};
+		4958E5162230EE790030D085 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				4958E5172230EE790030D085 /* libncurses.5.4.tbd */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -94,6 +145,7 @@
 				TargetAttributes = {
 					4958E5092230EA860030D085 = {
 						CreatedOnToolsVersion = 10.1;
+						LastSwiftMigration = 1020;
 					};
 				};
 			};
@@ -103,6 +155,7 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				Base,
 			);
 			mainGroup = 4958E5012230EA860030D085;
 			productRefGroup = 4958E50B2230EA860030D085 /* Products */;
@@ -119,7 +172,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				490C79592257EF460010F573 /* Size.swift in Sources */,
+				4958E5152230EAA80030D085 /* Application.swift in Sources */,
 				4958E50E2230EA860030D085 /* main.swift in Sources */,
+				490C795B2257F2BA0010F573 /* Rect.swift in Sources */,
+				490C79572257EF050010F573 /* Point.swift in Sources */,
+				490C795D2257F39A0010F573 /* PosDim.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -246,7 +304,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
@@ -255,7 +313,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};

@@ -7,6 +7,15 @@
 //
 
 import Foundation
+import Darwin.ncurses
 
 print("Hello, World!")
 
+var driver = CursesDriver ()
+driver.Init ()
+attron(COLOR_PAIR(0))
+addstr ("hello")
+refresh ()
+
+getchar()
+endwin()
