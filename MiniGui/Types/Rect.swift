@@ -9,81 +9,115 @@
 import Foundation
 
 public struct Rect {
-    var origin : Point;
-    var size : Size;
-    static public var Empty = Rect (origin: Point.Zero, size: Size.Empty)
+    public var origin : Point
+    public var size : Size;
+    static public var zero = Rect (origin: Point.Zero, size: Size.Empty)
     
-    init (origin : Point, size : Size)
+    public init (origin : Point, size : Size)
     {
         self.origin = origin
         self.size = size
     }
     
-    init (x: Int, y: Int, width: Int, height: Int)
+    public init (x: Int, y: Int, width: Int, height: Int)
     {
         origin = Point(x: x, y: y)
         size = Size (width: width, height: height)
     }
     
-    init (left: Int, right: Int, top: Int, bottom: Int)
+    public init (left: Int, top: Int, right: Int, bottom: Int)
     {
         origin = Point(x: left, y: right)
         size = Size (width: right-left, height: bottom-top)
     }
     
-    var IsEmpty : Bool {
+    public var isEmpty : Bool {
         get {
             return size.IsEmpty
         }
     }
     
-    var X : Int {
+    public var minX : Int {
         get {
-            return origin.X
+            return origin.x
         }
     }
 
-    var Y : Int {
+    public var midX : Int {
         get {
-            return origin.Y
+            return origin.x + (size.width/2)
         }
     }
     
-    var Width : Int {
+    public var maxX : Int {
         get {
-            return size.Width
-        }
-    }
-    
-    var Height : Int {
-        get {
-            return size.Height
-        }
-    }
-    
-    var Left : Int {
-        get {
-            return origin.X
+            return origin.x+size.width
         }
     }
 
-    var Right : Int {
+    public var minY : Int {
         get {
-            return origin.X+size.Width
-        }
-    }
-
-    var Top : Int {
-        get {
-            return origin.Y
-        }
-    }
-
-    var Bottom : Int {
-        get {
-            return origin.Y + size.Height
+            return origin.y
         }
     }
     
+    public var midY : Int {
+        get {
+            return origin.y + (size.height/2)
+        }
+    }
+    
+    public var maxY : Int {
+        get {
+            return origin.y + size.height
+        }
+    }
+    
+    public var width : Int {
+        get {
+            return size.width
+        }
+    }
+    
+    public var height : Int {
+        get {
+            return size.height
+        }
+    }
+    
+    public var left : Int {
+        get {
+            return origin.x
+        }
+    }
+
+    public var right : Int {
+        get {
+            return origin.x+size.width
+        }
+    }
+    
+    public var top : Int {
+        get {
+            return origin.y
+        }
+    }
+
+    public var bottom : Int {
+        get {
+            return origin.y + size.height
+        }
+    }
+
+    public func intersection (_ rect2 : Rect) -> Rect
+    {
+        return Rect (left: max (origin.x, rect2.origin.x), top: max (origin.y, rect2.origin.y),
+                     right: min (right, rect2.right), bottom: min (bottom, rect2.bottom))
+    }
+    
+    public func interescts (_ rect2 : Rect) -> Bool
+    {
+        return intersection(rect2).isEmpty
+    }
 }
 

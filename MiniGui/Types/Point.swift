@@ -8,41 +8,41 @@
 
 import Foundation
 
-struct Point {
-    var X : Int
-    var Y : Int
+public struct Point {
+    var x : Int
+    var y : Int
     static var Zero = Point(x: 0, y: 0)
     
     init (x: Int, y : Int)
     {
-        self.X = x
-        self.Y = y
+        self.x = x
+        self.y = y
     }
     
     init (point : Size)
     {
-        self.X = point.Width
-        self.Y = point.Height
+        self.x = point.width
+        self.y = point.height
     }
     
     static func +(lhs: Point, rhs: Point) -> Point
     {
-        return Point (x: lhs.X + rhs.X, y: lhs.Y + rhs.Y)
+        return Point (x: lhs.x + rhs.x, y: lhs.y + rhs.y)
     }
     
     static func -(lhs: Point, rhs: Point) -> Point
     {
-        return Point (x: lhs.X - rhs.X, y: lhs.Y - rhs.Y)
+        return Point (x: lhs.x - rhs.x, y: lhs.y - rhs.y)
     }
     
     static func ==(lhs: Point, rhs: Point) -> Bool
     {
-        return lhs.X == rhs.X && lhs.Y == rhs.Y
+        return lhs.x == rhs.x && lhs.y == rhs.y
     }
     
     static func !=(lhs: Point, rhs: Point) -> Bool
     {
-        return lhs.X != rhs.X || lhs.Y != rhs.Y
+        return lhs.x != rhs.x || lhs.y != rhs.y
     }
 
 }

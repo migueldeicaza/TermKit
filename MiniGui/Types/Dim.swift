@@ -27,7 +27,7 @@ public class Dim {
         }
     }
     
-    public static func Percent (n : Float) -> Dim
+    public static func percent (n : Float) -> Dim
     {
         let v = n < 0 || n > 100 ? 0 : n
         return DimFactor (v / 100)
@@ -63,7 +63,7 @@ public class Dim {
     
     static var zeroMargin = DimFill (0)
     
-    public static func Fill (_ margin : Int = 0) -> Dim
+    public static func fill (_ margin : Int = 0) -> Dim
     {
         if (margin == 0){
             return zeroMargin
@@ -124,19 +124,19 @@ public class Dim {
         {
             switch (side){
             case .Height:
-                return target.frame.Height
+                return target.frame.height
             case .Width:
-                return target.frame.Width
+                return target.frame.width
             }
         }
     }
     
-    public static func Width (view : View) -> Dim
+    public static func width (view : View) -> Dim
     {
         return DimView (view, side: .Width)
     }
     
-    public static func Height (view : View) -> Dim
+    public static func height (view : View) -> Dim
     {
         return DimView (view, side: .Height)
     }

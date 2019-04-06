@@ -9,44 +9,44 @@
 import Foundation
 
 public struct Size {
-    var Width = 0
-    var Height = 0
+    var width = 0
+    var height = 0
     static public var Empty : Size = Size (width: 0, height: 0)
     public var IsEmpty : Bool {
         get {
-            return Width == 0 && Height == 0
+            return width == 0 && height == 0
         }
     }
     
     init (width : Int, height : Int)
     {
-        self.Width = width
-        self.Height = height
+        self.width = width
+        self.height = height
     }
     
     init (point : Point)
     {
-        self.Width = point.X
-        self.Height = point.Y
+        self.width = point.x
+        self.height = point.y
     }
 
     static func +(lhs: Size, rhs: Size) -> Size
     {
-        return Size (width: lhs.Width + rhs.Width, height: lhs.Width + rhs.Width)
+        return Size (width: lhs.width + rhs.width, height: lhs.width + rhs.width)
     }
 
     static func -(lhs: Size, rhs: Size) -> Size
     {
-        return Size (width: lhs.Width - rhs.Width, height: lhs.Width - rhs.Width)
+        return Size (width: lhs.width - rhs.width, height: lhs.width - rhs.width)
     }
 
     static func ==(lhs: Size, rhs: Size) -> Bool
     {
-        return lhs.Height == rhs.Height && lhs.Width == rhs.Width
+        return lhs.height == rhs.height && lhs.width == rhs.width
     }
 
     static func !=(lhs: Size, rhs: Size) -> Bool
     {
-        return lhs.Height != rhs.Height || lhs.Width != rhs.Width
+        return lhs.height != rhs.height || lhs.width != rhs.width
     }
 }

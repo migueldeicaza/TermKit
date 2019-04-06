@@ -42,9 +42,9 @@ open class View {
     var superView : View? = nil
     var focused : View? = nil
     var subViews : [View] = []
-    var frame : Rect
+    var _frame : Rect = Rect.zero
     var id : String = ""
-    var needDisplay : Rect = Rect.Empty
+    var needDisplay : Rect = Rect.zero
     
     class var driver : Driver {
         get {
@@ -59,23 +59,23 @@ open class View {
     
     var WantMousePositionReports : Bool = false
     
-    var Frame : Rect {
+    var frame : Rect {
         get {
-            return frame
+            return _frame
         }
         
         set (value){
             if let parent = superView {
-                parent.SetNeedsDisplay (frame)
-                parent.SetNeedsDisplay (value)
+                parent.setNeedsDisplay (_frame)
+                parent.setNeedsDisplay (value)
             }
-            frame = value
-            SetNeedsLayout ()
-            SetNeedsDisplay (frame)
+            _frame = value
+            setNeedsLayout ()
+            setNeedsDisplay (frame)
         }
     }
     
-    var Bounds : Rect {
+    var bounds : Rect {
         get {
             return Rect (origin: Point.Zero, size: frame.size)
         }
@@ -83,25 +83,25 @@ open class View {
     
     var layoutNeeded = true
     
-    public func SetNeedsDisplay ()
+    public func setNeedsDisplay ()
     {
-        SetNeedsDisplay(Bounds)
+        setNeedsDisplay(bounds)
     }
     
-    public func SetNeedsDisplay (_ region : Rect)
+    public func setNeedsDisplay (_ region : Rect)
     {
-        if needDisplay.IsEmpty {
+        if needDisplay.isEmpty {
             needDisplay = region
         } else {
-            let x = min (needDisplay.X, region.X)
-            let y = min (needDisplay.Y, region.Y)
-            let w = max (needDisplay.X, region.X)
-            let h = max (needDisplay.Y, region.Y)
+            let x = min (needDisplay.minX, region.minX)
+            let y = min (needDisplay.minY, region.minY)
+            let w = max (needDisplay.maxX, region.maxX)
+            let h = max (needDisplay.maxY, region.maxY)
             needDisplay = Rect (x: x, y: y, width: w, height: h)
         }
         
         if let container = superView {
-            container.ChildNeedsDisplay ()
+            container.childNeedsDisplay ()
         }
         if subViews.count == 0 {
             return
@@ -112,43 +112,43 @@ open class View {
         }
     }
     
-    public func SetNeedsLayout ()
+    public func setNeedsLayout ()
     {
         
     }
     
-    public func ChildNeedsDisplay ()
+    public func childNeedsDisplay ()
     {
         
     }
 }
 
 open class Toplevel : View {
-    var running : Bool
+    var _running : Bool
     public var Running : Bool {
         get {
-            return running
+            return _running
         }
     }
     
     override init()
     {
-        running = false
+        _running = false
     }
 }
 
 public class Application {
     public static var Shared : Application = Application()
-    var top : Toplevel
-    var current : Toplevel
-    public var Top : Toplevel {
+    var _top : Toplevel
+    var _current : Toplevel
+    public var top : Toplevel {
         get {
-            return top
+            return _top
         }
     }
-    public var Current : Toplevel {
+    public var current : Toplevel {
         get {
-            return current
+            return _current
         }
     }
 
@@ -157,8 +157,8 @@ public class Application {
     init ()
     {
         driver = CursesDriver ()
-        top = Toplevel()
-        current = top
+        _top = Toplevel()
+        _current = _top
     }
     
     

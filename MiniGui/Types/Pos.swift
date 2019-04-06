@@ -141,13 +141,13 @@ public class Pos {
         {
             switch (side){
             case .X:
-                return target.frame.X
+                return target.frame.minX
             case .Y:
-                return target.frame.Y
+                return target.frame.minY
             case .Right:
-                return target.frame.Right
+                return target.frame.right
             case .Bottom:
-                return target.frame.Bottom
+                return target.frame.bottom
             }
         }
     }
