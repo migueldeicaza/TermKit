@@ -25,7 +25,7 @@ public class Pos {
         }
     }
     
-    public static func Percent (n : Float) throws -> Pos
+    public static func percent (n : Float) throws -> Pos
     {
         if (n < 0 || n > 100){
             throw SizeError ()
@@ -49,7 +49,7 @@ public class Pos {
     
     static var emptyAnchorEnd = PosAnchorEnd (0)
     
-    public static func AnchorEnd (margin : Int = 0) -> Pos
+    public static func anchorEnd (margin : Int = 0) -> Pos
     {
         let actual = margin < 0 ? 0 : margin
         if actual == 0 {
@@ -65,11 +65,11 @@ public class Pos {
         }
     }
     
-    static var center = PosCenter ()
+    static var _center = PosCenter ()
     
-    public static func Center () -> Pos
+    public static func center () -> Pos
     {
-        return center
+        return _center
     }
     
     class PosAbsolute : Pos {
@@ -86,7 +86,7 @@ public class Pos {
         }
     }
     
-    public static func Pos (n : Int) -> Pos
+    public static func pos (n : Int) -> Pos
     {
         return PosAbsolute (n)
     }
@@ -152,32 +152,32 @@ public class Pos {
         }
     }
     
-    public static func Left (of view : View) -> Pos
+    public static func left (of view : View) -> Pos
     {
         return PosView (view, side: .X)
     }
 
-    public static func X (of view : View) -> Pos
+    public static func x (of view : View) -> Pos
     {
         return PosView (view, side: .X)
     }
 
-    public static func Top (of view : View) -> Pos
+    public static func top (of view : View) -> Pos
     {
         return PosView (view, side: .Y)
     }
     
-    public static func Y (of view : View) -> Pos
+    public static func y (of view : View) -> Pos
     {
         return PosView (view, side: .Y)
     }
 
-    public static func Right (of view : View) -> Pos
+    public static func right (of view : View) -> Pos
     {
         return PosView (view, side: .Right)
     }
     
-    public static func Bottom (of view : View) -> Pos
+    public static func bottom (of view : View) -> Pos
     {
         return PosView (view, side: .Bottom)
     }

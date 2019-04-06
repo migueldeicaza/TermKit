@@ -45,6 +45,8 @@ open class View {
     var _frame : Rect = Rect.zero
     var id : String = ""
     var needDisplay : Rect = Rect.zero
+    var _childNeedsDisplay : Bool = false
+    var canFocus : Bool = false
     
     class var driver : Driver {
         get {
@@ -108,7 +110,12 @@ open class View {
         }
         
         for view in subViews {
-            // INTERSECTS
+            if view.frame.interescts(region){
+                var childRegion = view.frame.intersection(region)
+                childRegion.origin.x -= view.frame.minX
+                childRegion.origin.y -= view.frame.minY
+                view.setNeedsDisplay (childRegion)
+            }
         }
     }
     
@@ -119,8 +126,30 @@ open class View {
     
     public func childNeedsDisplay ()
     {
-        
+        _childNeedsDisplay = true
+        if let container = superView {
+            container.childNeedsDisplay()
+        }
     }
+    
+    public func addSubview (_ view : View)
+    {
+        subViews.append (view)
+        view.superView = self
+        if view.canFocus {
+            canFocus = true
+        }
+        setNeedsLayout()
+    }
+    
+    public func addSubviews (_ views : [View])
+    {
+        for view in views {
+            addSubview(view)
+        }
+    }
+    
+    
 }
 
 open class Toplevel : View {
