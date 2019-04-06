@@ -34,7 +34,7 @@
 		490C79582257EF460010F573 /* Size.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Size.swift; sourceTree = "<group>"; };
 		490C795A2257F2BA0010F573 /* Rect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Rect.swift; sourceTree = "<group>"; };
 		490C795C2257F39A0010F573 /* Pos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pos.swift; sourceTree = "<group>"; };
-		4958E50A2230EA860030D085 /* MiniGui */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = MiniGui; sourceTree = BUILT_PRODUCTS_DIR; };
+		4958E50A2230EA860030D085 /* TermKit */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = TermKit; sourceTree = BUILT_PRODUCTS_DIR; };
 		4958E50D2230EA860030D085 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		4958E5142230EAA80030D085 /* Application.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Application.swift; sourceTree = "<group>"; };
 		4958E5172230EE790030D085 /* libncurses.5.4.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libncurses.5.4.tbd; path = usr/lib/libncurses.5.4.tbd; sourceTree = SDKROOT; };
@@ -82,7 +82,7 @@
 		4958E5012230EA860030D085 = {
 			isa = PBXGroup;
 			children = (
-				4958E50C2230EA860030D085 /* MiniGui */,
+				4958E50C2230EA860030D085 /* TermKit */,
 				4958E50B2230EA860030D085 /* Products */,
 				4958E5162230EE790030D085 /* Frameworks */,
 			);
@@ -91,12 +91,12 @@
 		4958E50B2230EA860030D085 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				4958E50A2230EA860030D085 /* MiniGui */,
+				4958E50A2230EA860030D085 /* TermKit */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		4958E50C2230EA860030D085 /* MiniGui */ = {
+		4958E50C2230EA860030D085 /* TermKit */ = {
 			isa = PBXGroup;
 			children = (
 				490C79552257EEE10010F573 /* Types */,
@@ -105,7 +105,7 @@
 				4958E5142230EAA80030D085 /* Application.swift */,
 				490C79532257EC040010F573 /* Views */,
 			);
-			path = MiniGui;
+			path = TermKit;
 			sourceTree = "<group>";
 		};
 		4958E5162230EE790030D085 /* Frameworks */ = {
@@ -119,9 +119,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		4958E5092230EA860030D085 /* MiniGui */ = {
+		4958E5092230EA860030D085 /* TermKit */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 4958E5112230EA860030D085 /* Build configuration list for PBXNativeTarget "MiniGui" */;
+			buildConfigurationList = 4958E5112230EA860030D085 /* Build configuration list for PBXNativeTarget "TermKit" */;
 			buildPhases = (
 				4958E5062230EA860030D085 /* Sources */,
 				4958E5072230EA860030D085 /* Frameworks */,
@@ -131,9 +131,9 @@
 			);
 			dependencies = (
 			);
-			name = MiniGui;
+			name = TermKit;
 			productName = MiniGui;
-			productReference = 4958E50A2230EA860030D085 /* MiniGui */;
+			productReference = 4958E50A2230EA860030D085 /* TermKit */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -152,7 +152,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 4958E5052230EA860030D085 /* Build configuration list for PBXProject "MiniGui" */;
+			buildConfigurationList = 4958E5052230EA860030D085 /* Build configuration list for PBXProject "TermKit" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -165,7 +165,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				4958E5092230EA860030D085 /* MiniGui */,
+				4958E5092230EA860030D085 /* TermKit */,
 			);
 		};
 /* End PBXProject section */
@@ -324,7 +324,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		4958E5052230EA860030D085 /* Build configuration list for PBXProject "MiniGui" */ = {
+		4958E5052230EA860030D085 /* Build configuration list for PBXProject "TermKit" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4958E50F2230EA860030D085 /* Debug */,
@@ -333,7 +333,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		4958E5112230EA860030D085 /* Build configuration list for PBXNativeTarget "MiniGui" */ = {
+		4958E5112230EA860030D085 /* Build configuration list for PBXNativeTarget "TermKit" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4958E5122230EA860030D085 /* Debug */,
