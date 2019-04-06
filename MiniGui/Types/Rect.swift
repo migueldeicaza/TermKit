@@ -31,6 +31,12 @@ public struct Rect {
         size = Size (width: right-left, height: bottom-top)
     }
     
+    var IsEmpty : Bool {
+        get {
+            return size.IsEmpty
+        }
+    }
+    
     var X : Int {
         get {
             return origin.X

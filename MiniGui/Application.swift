@@ -39,10 +39,12 @@ class SizeError : Error {
 
 
 open class View {
-    var container : View? = nil
+    var superView : View? = nil
     var focused : View? = nil
     var subViews : [View] = []
     var frame : Rect
+    var id : String = ""
+    var needDisplay : Rect = Rect.Empty
     
     class var driver : Driver {
         get {
@@ -53,6 +55,71 @@ open class View {
     init ()
     {
         frame = Rect(x:0, y: 0, width: 0, height: 0)
+    }
+    
+    var WantMousePositionReports : Bool = false
+    
+    var Frame : Rect {
+        get {
+            return frame
+        }
+        
+        set (value){
+            if let parent = superView {
+                parent.SetNeedsDisplay (frame)
+                parent.SetNeedsDisplay (value)
+            }
+            frame = value
+            SetNeedsLayout ()
+            SetNeedsDisplay (frame)
+        }
+    }
+    
+    var Bounds : Rect {
+        get {
+            return Rect (origin: Point.Zero, size: frame.size)
+        }
+    }
+    
+    var layoutNeeded = true
+    
+    public func SetNeedsDisplay ()
+    {
+        SetNeedsDisplay(Bounds)
+    }
+    
+    public func SetNeedsDisplay (_ region : Rect)
+    {
+        if needDisplay.IsEmpty {
+            needDisplay = region
+        } else {
+            let x = min (needDisplay.X, region.X)
+            let y = min (needDisplay.Y, region.Y)
+            let w = max (needDisplay.X, region.X)
+            let h = max (needDisplay.Y, region.Y)
+            needDisplay = Rect (x: x, y: y, width: w, height: h)
+        }
+        
+        if let container = superView {
+            container.ChildNeedsDisplay ()
+        }
+        if subViews.count == 0 {
+            return
+        }
+        
+        for view in subViews {
+            // INTERSECTS
+        }
+    }
+    
+    public func SetNeedsLayout ()
+    {
+        
+    }
+    
+    public func ChildNeedsDisplay ()
+    {
+        
     }
 }
 
