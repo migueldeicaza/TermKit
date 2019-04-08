@@ -19,3 +19,4 @@ refresh ()
 
 getchar()
 endwin()
+

@@ -15,6 +15,7 @@
 		4958E5152230EAA80030D085 /* Application.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4958E5142230EAA80030D085 /* Application.swift */; };
 		4958E5182230EE790030D085 /* libncurses.5.4.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 4958E5172230EE790030D085 /* libncurses.5.4.tbd */; };
 		4967492C22583DBA0068A20D /* Dim.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4967492B22583DBA0068A20D /* Dim.swift */; };
+		4967492E225AE5920068A20D /* View.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4967492D225AE5920068A20D /* View.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -39,6 +40,7 @@
 		4958E5142230EAA80030D085 /* Application.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Application.swift; sourceTree = "<group>"; };
 		4958E5172230EE790030D085 /* libncurses.5.4.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libncurses.5.4.tbd; path = usr/lib/libncurses.5.4.tbd; sourceTree = SDKROOT; };
 		4967492B22583DBA0068A20D /* Dim.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dim.swift; sourceTree = "<group>"; };
+		4967492D225AE5920068A20D /* View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = View.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,6 +77,7 @@
 				490C795A2257F2BA0010F573 /* Rect.swift */,
 				490C795C2257F39A0010F573 /* Pos.swift */,
 				4967492B22583DBA0068A20D /* Dim.swift */,
+				4967492D225AE5920068A20D /* View.swift */,
 			);
 			path = Types;
 			sourceTree = "<group>";
@@ -175,6 +178,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4967492E225AE5920068A20D /* View.swift in Sources */,
 				4967492C22583DBA0068A20D /* Dim.swift in Sources */,
 				490C79592257EF460010F573 /* Size.swift in Sources */,
 				4958E5152230EAA80030D085 /* Application.swift in Sources */,
