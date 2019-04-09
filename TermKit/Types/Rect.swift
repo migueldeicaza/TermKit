@@ -119,5 +119,15 @@ public struct Rect {
     {
         return intersection(rect2).isEmpty
     }
+    
+    public func contains (x : Int, y: Int) -> Bool
+    {
+        return x >= left && x <= right && y >= top && y <= bottom
+    }
+    
+    public func contains (_ point : Point) -> Bool
+    {
+        return contains (x: point.x, y: point.y)
+    }
 }
 

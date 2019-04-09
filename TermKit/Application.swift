@@ -9,32 +9,6 @@
 import Foundation
 import Darwin.ncurses
 
-public protocol Driver {
-    func Init ();
-    var cols : Int { get }
-    var rows : Int { get }
-}
-
-class CursesDriver : Driver {
-    var cols : Int = 0
-    var rows : Int = 0
-    
-    func Init ()
-    {
-        initscr ()
-        start_color()
-        noecho()
-        curs_set (0)
-        init_pair (0, Int16(COLOR_BLACK), Int16(COLOR_GREEN))
-        keypad (stdscr, true)
-        
-        cols = Int (getmaxx (stdscr))
-        rows = Int (getmaxy (stdscr))
-        
-        clear ();
-    }
-}
-
 class SizeError : Error {
 
 }
@@ -70,7 +44,7 @@ public class Application {
         }
     }
 
-    var driver : Driver
+    var driver : ConsoleDriver
     
     init ()
     {

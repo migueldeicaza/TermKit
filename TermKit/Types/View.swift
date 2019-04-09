@@ -72,7 +72,7 @@ import Foundation
      * Points to the current driver in use by the view, it is a convenience property
      * for simplifying the development of new views.
      */
-    var driver : Driver {
+    var driver : ConsoleDriver {
         get {
             return Application.Shared.driver
         }
@@ -244,5 +244,52 @@ import Foundation
         return Rect (x: x, y: y, width: rect.width, height: rect.height)
     }
     
+     // Clips a rectangle in screen coordinates to the dimensions currently available on the screen
+    func screenClip (_ rect : Rect) -> Rect
+    {
+        let (minx, miny, maxx, maxy) = (rect.minX, rect.minY, rect.maxX, rect.maxY)
+        let x = minx < 0 ? 0 : minx
+        let y = miny < 0 ? 0 : miny
+        let w = maxx >= driver.cols ? driver.cols - minx : rect.width
+        let h = maxy >= driver.rows ? driver.rows - miny : rect.height
+        
+        return Rect(x: x, y: y, width: w, height: h)
+    }
     
+    /**
+     * Sets the Console driver's clip region to the current View's `bounds`.
+     * - Paramater rect: xx
+     * - Returns: The existing driver's Clip region, which can be then set by setting the Driver.clip property.
+     */
+    public func clipToBounds ()
+    {
+       self.setClip (bounds)
+    }
+    
+    /**
+     * Sets the clipping region to the specified region, the region is view-relative
+     * - Parameter rect: Rectangle region to clip into, the region is view-relative.
+     * - Returns: The previous clip region
+     */
+    public func setClip (_ rect: Rect) -> Rect
+    {
+        let bscreen = rectToScreen(rect)
+        let previous = driver.clip
+        driver.clip = screenClip (bscreen)
+        return previous
+    }
+    
+    public func drawFrame (_ rect : Rect, padding : Int = 0, fill : Bool = false)
+    {
+        let scrRect = rectToScreen(rect)
+        let savedClip = driver.clip
+        driver.clip = screenClip (rectToScreen(bounds))
+        driver.drawFrame (scrRect, padding: padding, fill: fill)
+        driver.clip = savedClip
+    }
+    
+    public func drawHotString (text : String, hotColor : Attribute, normalColor : Attribute)
+    {
+        
+    }
 }
