@@ -279,6 +279,12 @@ import Foundation
         return previous
     }
     
+    /**
+     * Draws a frame in the current view, clipped by the boundary of this view
+     * - Parameter rect: Rectangular region for the frame to be drawn.
+     * - Parameter padding: The padding to add to the drawn frame.
+     * - Parameter fill: If set to `true` it fill will the contents.
+     */
     public func drawFrame (_ rect : Rect, padding : Int = 0, fill : Bool = false)
     {
         let scrRect = rectToScreen(rect)
@@ -288,8 +294,61 @@ import Foundation
         driver.clip = savedClip
     }
     
+    /**
+     * Utility function to draw strings that contain a hotkey, the hotkey is indicated by an underline string
+     * - Parameter text: String to display, the underscoore before a letter flags the next letter as the hotkey.
+     * - Parameter hotColor: color used to draw the hotkey
+     * - Parameter normalColor: color used for the regular parts of the string
+     */
     public func drawHotString (text : String, hotColor : Attribute, normalColor : Attribute)
     {
-        
+        driver.setAttribute(normalColor)
+        for ch in text {
+            if ch == "_" {
+                driver.setAttribute(hotColor)
+            } else {
+                driver.addCharacter(ch)
+                driver.setAttribute(normalColor)
+            }
+        }
     }
+    
+    /**
+     * Utility function to draw strings that contains a hotkey using a colorscheme and the "focused" state.
+     * - Parameter text: String to display, the underscoore before a letter flags the next letter as the hotkey.
+     * - Parameter focused: If set to `true` this uses the focused colors from the color scheme, otherwise the regular ones.
+     * - Parameter scheme: The color scheme to use
+     */
+    public func drawHotString (text : String, focused : Bool, scheme : ColorScheme)
+    {
+        if focused {
+            drawHotString(text: text, hotColor: scheme.hotFocus, normalColor: scheme.focus)
+        } else {
+            drawHotString(text: text, hotColor: scheme.hotNormal, normalColor: scheme.normal)
+        }
+    }
+    
+    /**
+     * This moves the cursor to the specified column and row in the view, any additional drawing operation will start at the specified location
+     * - Parameter col: Column to move to
+     * - Parameter row: Row to move to.
+     */
+    public func moveTo (col : Int, row: Int)
+    {
+        let (rcol, rrow) = viewToScreen(col: col, row: row)
+        driver.moveTo(col: rcol, row: rrow)
+    }
+    
+    /**
+     * Positions the cursor in the right position based on the currently focused view in the chain.
+     */
+    public func positionCursor ()
+    {
+        if let f = focused {
+            f.positionCursor()
+        } else {
+            moveTo (col: frame.minX, row: frame.minY)
+        }
+    }
+    
 }

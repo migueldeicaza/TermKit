@@ -18,6 +18,8 @@
 		4967492E225AE5920068A20D /* View.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4967492D225AE5920068A20D /* View.swift */; };
 		49674930225C326F0068A20D /* ConsoleDriver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4967492F225C326F0068A20D /* ConsoleDriver.swift */; };
 		49674932225C32800068A20D /* CursesDriver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49674931225C32800068A20D /* CursesDriver.swift */; };
+		49674934225D90160068A20D /* Responder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49674933225D90160068A20D /* Responder.swift */; };
+		49674936225D907A0068A20D /* Events.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49674935225D907A0068A20D /* Events.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -45,6 +47,8 @@
 		4967492D225AE5920068A20D /* View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = View.swift; sourceTree = "<group>"; };
 		4967492F225C326F0068A20D /* ConsoleDriver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ConsoleDriver.swift; path = TermKit/Types/ConsoleDriver.swift; sourceTree = SOURCE_ROOT; };
 		49674931225C32800068A20D /* CursesDriver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CursesDriver.swift; path = TermKit/Types/CursesDriver.swift; sourceTree = SOURCE_ROOT; };
+		49674933225D90160068A20D /* Responder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Responder.swift; sourceTree = "<group>"; };
+		49674935225D907A0068A20D /* Events.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Events.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -84,6 +88,8 @@
 				490C795C2257F39A0010F573 /* Pos.swift */,
 				4967492B22583DBA0068A20D /* Dim.swift */,
 				4967492D225AE5920068A20D /* View.swift */,
+				49674933225D90160068A20D /* Responder.swift */,
+				49674935225D907A0068A20D /* Events.swift */,
 			);
 			path = Types;
 			sourceTree = "<group>";
@@ -184,6 +190,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				49674936225D907A0068A20D /* Events.swift in Sources */,
 				4967492E225AE5920068A20D /* View.swift in Sources */,
 				4967492C22583DBA0068A20D /* Dim.swift in Sources */,
 				490C79592257EF460010F573 /* Size.swift in Sources */,
@@ -192,6 +199,7 @@
 				490C795B2257F2BA0010F573 /* Rect.swift in Sources */,
 				49674932225C32800068A20D /* CursesDriver.swift in Sources */,
 				49674930225C326F0068A20D /* ConsoleDriver.swift in Sources */,
+				49674934225D90160068A20D /* Responder.swift in Sources */,
 				490C79572257EF050010F573 /* Point.swift in Sources */,
 				490C795D2257F39A0010F573 /* Pos.swift in Sources */,
 			);

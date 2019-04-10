@@ -61,13 +61,13 @@ public extension Int32 {
  * views contained inside.
  */
 public class ColorScheme {
-    //: The default color for text, when the view is not focused.
+    /// The default color for text, when the view is not focused.
     public var normal : Attribute
-    //: The color for text when the view has the focus.
+    /// The color for text when the view has the focus.
     public var focus : Attribute
-    //: The color for the hotkey when a view is not focused
+    /// The color for the hotkey when a view is not focused
     public var hotNormal : Attribute
-    //: The color for the hotkey when the view is focused.
+    /// The color for the hotkey when the view is focused.
     public var hotFocus : Attribute
     
     public init (normal: Attribute, focus: Attribute, hotNormal: Attribute, hotFocus: Attribute)
@@ -82,17 +82,30 @@ public class ColorScheme {
 /**
  * The default ColorSchemes for the application.
  */
-//public class Colors {
-//    public var base : ColorScheme
-//    public var dialog : ColorScheme
-//    public var menu : ColorScheme
-//    public var error : ColorScheme
-//
-//    init ()
-//    {
-//
-//    }
-//}
+public class Colors {
+    static var _base, _dialog, _menu, _error : ColorScheme?
+    
+    public static var base : ColorScheme {
+        get {
+            return _base!
+        }
+    }
+    public static var dialog : ColorScheme {
+        get {
+            return _dialog!
+        }
+    }
+    public static var menu : ColorScheme {
+        get {
+            return _menu!
+        }
+    }
+    public static var error : ColorScheme {
+        get {
+            return _error!
+        }
+    }
+}
 
 /**
  * Base class for implementing text drivers.
@@ -208,4 +221,40 @@ public class ConsoleDriver {
             }
         }
     }
+    
+    /**
+     * Platform specific, this takes a tuple with a foreground color and a background color - driver specific values and returns an attribute suitable to be used to draw
+     */
+    public func makeAttribute (_ colors : (Int32, Int32)) -> Attribute
+    {
+        return Attribute(0)
+    }
+    
+    public enum ColorSupport {
+        /// The terminal only supports black and white - generally, they are expected to at least have the VT100 capabilities: bold, italics, inverse, blink
+        case BlackAndWhite
+        /// The terminal supports 16 colors, usually the top 8 are bright colors
+        case SixteenColors
+        /// The terminal can configure colors based on R, G, B values
+        case RgbColors
+    }
+    
+    /**
+     * Returns the available color options for the current driver
+     *
+     * On some Unix terminals, there is only black and white available, others support 16 colors, others can
+     * support a larger range by setting the colors using an RGB set of properties.
+     */
+    public func colorSupport () -> ColorSupport
+    {
+        return .BlackAndWhite
+    }
+    
+    /**
+     * Sets the current attribute used to draw, any subsequence text output will use the specified attribute
+     */
+    public func setAttribute (_ attr: Attribute)
+    {
+    }
+    
 }

@@ -13,6 +13,7 @@ class CursesDriver : ConsoleDriver {
     var crow : Int32 = 0
     var needMove : Bool = false
     var sync : Bool = false
+    
     override init ()
     {
         super.init ()
@@ -84,5 +85,83 @@ class CursesDriver : ConsoleDriver {
             refresh ()
         }
         ccol += 1
+    }
+    
+    // Swift ncurses does not bind these
+    let A_NORMAL    : Int32 = 0x0;
+    let A_STANDOUT  : Int32 = 0x10000;
+    let A_UNDERLINE : Int32 = 0x20000
+    let A_REVERSE   : Int32 = 0x40000
+    let A_BLINK     : Int32 = 0x80000
+    let A_DIM       : Int32 = 0x100000
+    let A_BOLD      : Int32 = 0x200000
+    let A_PROTECT   : Int32 = 0x1000000
+    let A_INVIS     : Int32 = 0x800000
+
+    func selectBwColors ()
+    {
+        let base = ColorScheme(normal: Attribute (A_NORMAL), focus: Attribute(A_REVERSE), hotNormal: Attribute(A_BOLD), hotFocus: Attribute (A_BOLD | A_REVERSE))
+        let menu = ColorScheme(normal: Attribute (A_REVERSE), focus: Attribute (A_NORMAL), hotNormal: Attribute(A_BOLD), hotFocus: Attribute(A_NORMAL))
+        let dialog = ColorScheme(normal: Attribute(A_REVERSE), focus: Attribute(A_NORMAL), hotNormal: Attribute(A_BOLD), hotFocus: Attribute(A_NORMAL))
+        let error = ColorScheme(normal: Attribute(A_BOLD), focus: Attribute(A_BOLD|A_REVERSE), hotNormal: Attribute(A_BOLD|A_REVERSE), hotFocus: Attribute (A_REVERSE))
+        
+        Colors._base = base
+        Colors._menu = menu
+        Colors._dialog = dialog
+        Colors._error = error
+    }
+    
+    public override func colorSupport () -> ColorSupport
+    {
+        if (!has_colors()) {
+            return .BlackAndWhite
+        }
+        if can_change_color() {
+            return .RgbColors
+        }
+        return .SixteenColors
+    }
+    
+    static var lastColorPair : Int16 = 16
+    
+    func mkAttr (_ colors : (Int32, Int32), bold : Bool = false) -> Attribute
+    {
+        CursesDriver.lastColorPair += 1
+        init_pair(CursesDriver.lastColorPair, Int16(colors.0), Int16(colors.1))
+        return Attribute(Int32 (CursesDriver.lastColorPair * 256) | (bold ? A_BOLD : 0));
+
+    }
+    
+    func selectColors ()
+    {
+        let base = ColorScheme(normal:    mkAttr((COLOR_WHITE, COLOR_BLUE)),
+                               focus:     mkAttr((COLOR_BLACK,COLOR_CYAN)),
+                               hotNormal: mkAttr((COLOR_YELLOW, COLOR_BLUE), bold: true),
+                               hotFocus:  mkAttr((COLOR_YELLOW, COLOR_CYAN), bold: true))
+        
+        let menu = ColorScheme(normal:    mkAttr((COLOR_YELLOW, COLOR_BLACK), bold: true),
+                               focus:     mkAttr((COLOR_WHITE,  COLOR_BLACK), bold: true),
+                               hotNormal: mkAttr((COLOR_YELLOW, COLOR_CYAN), bold: true),
+                               hotFocus:  mkAttr((COLOR_WHITE,  COLOR_CYAN), bold: true))
+
+        let dialog = ColorScheme(normal:    mkAttr((COLOR_BLACK, COLOR_WHITE)),
+                                 focus:     mkAttr((COLOR_BLACK,COLOR_CYAN)),
+                                 hotNormal: mkAttr((COLOR_BLUE, COLOR_WHITE)),
+                                 hotFocus:  mkAttr((COLOR_BLUE, COLOR_CYAN)))
+        
+        let error = ColorScheme(normal:   mkAttr((COLOR_WHITE, COLOR_RED), bold: true),
+                               focus:     mkAttr((COLOR_BLACK, COLOR_WHITE)),
+                               hotNormal: mkAttr((COLOR_YELLOW, COLOR_RED), bold: true),
+                               hotFocus:  mkAttr((COLOR_YELLOW, COLOR_RED), bold: true))
+     
+        Colors._base = base
+        Colors._menu = menu
+        Colors._dialog = dialog
+        Colors._error = error
+    }
+    
+    public override func setAttribute (_ attr: Attribute)
+    {
+        attrset(attr.value)
     }
 }
