@@ -160,6 +160,52 @@ class CursesDriver : ConsoleDriver {
         Colors._error = error
     }
     
+    func mapColor (_ color: Color) -> (Int32, Bool)
+    {
+        switch color {
+        case .Black:
+            return (COLOR_BLACK, false)
+        case .Blue:
+            return (COLOR_BLUE, false)
+        case .Green:
+            return (COLOR_GREEN, false)
+        case .Cyan:
+            return (COLOR_CYAN, false)
+        case .Red:
+            return (COLOR_RED, false)
+        case .Magenta:
+            return (COLOR_MAGENTA, false)
+        case .Brown:
+            return (COLOR_YELLOW, false)
+        case .Gray:
+            return (COLOR_WHITE, false)
+        case .DarkGray:
+            return (COLOR_BLACK, true)
+        case .BrightBlue:
+            return (COLOR_BLUE, true)
+        case .BrightGreen:
+            return (COLOR_GREEN, true)
+        case .BrightCyan:
+            return (COLOR_CYAN, true)
+        case .BrightRed:
+            return (COLOR_RED, true)
+        case .BrightMagenta:
+            return (COLOR_MAGENTA, true)
+        case .BrightYellow:
+            return (COLOR_YELLOW, true)
+        case .White:
+            return (COLOR_WHITE, true)
+        }
+        return (A_NORMAL, false)
+    }
+    
+    public override func makeAttribute(fore: Color, back: Color) -> Attribute
+    {
+        let (fa, bold) = mapColor (fore)
+        let (ba, _) = mapColor (back)
+        
+        return mkAttr ((fa, ba), bold: bold)
+    }
     public override func setAttribute (_ attr: Attribute)
     {
         attrset(attr.value)

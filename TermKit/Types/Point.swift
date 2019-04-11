@@ -11,7 +11,7 @@ import Foundation
 public struct Point {
     var x : Int
     var y : Int
-    static var Zero = Point(x: 0, y: 0)
+    static var zero = Point(x: 0, y: 0)
     
     init (x: Int, y : Int)
     {

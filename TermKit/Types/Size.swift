@@ -11,7 +11,7 @@ import Foundation
 public struct Size {
     var width = 0
     var height = 0
-    static public var Empty : Size = Size (width: 0, height: 0)
+    static public var empty : Size = Size (width: 0, height: 0)
     public var IsEmpty : Bool {
         get {
             return width == 0 && height == 0

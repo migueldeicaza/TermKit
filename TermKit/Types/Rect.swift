@@ -11,7 +11,7 @@ import Foundation
 public struct Rect {
     public var origin : Point
     public var size : Size;
-    static public var zero = Rect (origin: Point.Zero, size: Size.Empty)
+    static public var zero = Rect (origin: Point.zero, size: Size.empty)
     
     public init (origin : Point, size : Size)
     {
@@ -115,7 +115,7 @@ public struct Rect {
                      right: min (right, rect2.right), bottom: min (bottom, rect2.bottom))
     }
     
-    public func interescts (_ rect2 : Rect) -> Bool
+    public func intersects (_ rect2 : Rect) -> Bool
     {
         return intersection(rect2).isEmpty
     }

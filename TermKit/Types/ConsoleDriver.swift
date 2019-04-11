@@ -46,6 +46,11 @@ public struct Attribute {
     {
         value = val
     }
+    
+    public static func make (fore : Color, back : Color) -> Attribute
+    {
+        return Application.Shared.driver.makeAttribute(fore: fore, back: back);
+    }
 }
 
 public extension Int32 {
@@ -56,9 +61,11 @@ public extension Int32 {
 }
 
 /**
- * Color scheme definitions, they cover some common scenarios and are used
- * typically in toplevel containers to set the scheme that is used by all the
- * views contained inside.
+ * Color scheme definitions, cover the four colors that are typically needed
+ * by views in a console applications to display text and show the focused state.
+ * They include the regular attribute (normal), the attribute used when the
+ * view is focused (focus) and the attributes use to highlight the hotkeys
+ * in a view both in normal mode and focused mode.
  */
 public class ColorScheme {
     /// The default color for text, when the view is not focused.
@@ -223,9 +230,9 @@ public class ConsoleDriver {
     }
     
     /**
-     * Platform specific, this takes a tuple with a foreground color and a background color - driver specific values and returns an attribute suitable to be used to draw
+     * This method takes the platform-agnostic Color enumeration for foreground and background and produces an attribute
      */
-    public func makeAttribute (_ colors : (Int32, Int32)) -> Attribute
+    public func makeAttribute (fore: Color, back: Color) -> Attribute
     {
         return Attribute(0)
     }
