@@ -747,17 +747,63 @@ open class View : Responder {
         return false
     }
     
-    public var x : Pos? = nil
-    public var y : Pos? = nil
-    public var width : Dim? = nil
-    public var height : Dim? = nil
+    var _x : Pos? = nil
+    /// Gets or sets the X position for the view (the column).  This is only used when the LayoutStyle is Computed, if the
+    /// LayoutStyle is set to Absolute, this value is ignored.
+    public var x : Pos? {
+        get { return _x }
+        set(value) {
+            _x = value
+            setNeedsLayout()
+        }
+    }
+    var _y : Pos? = nil
+    /// Gets or sets the Y position for the view (the row).  This is only used when the LayoutStyle is Computed, if the
+    /// LayoutStyle is set to Absolute, this value is ignored.
+    public var y : Pos? {
+        get { return _y }
+        set(value) {
+            _y = value
+            setNeedsLayout()
+        }
+    }
+    var _width : Dim? = nil
+    /// Gets or sets the width for the view. This is only used when the LayoutStyle is Computed, if the
+    /// LayoutStyle is set to Absolute, this value is ignored.
+    public var width : Dim? {
+        get { return _width }
+        set(value) {
+            _width = value
+            setNeedsLayout()
+        }
+    }
+    var _height : Dim? = nil
+    /// Gets or sets the height for the view. This is only used when the LayoutStyle is Computed, if the
+    /// LayoutStyle is set to Absolute, this value is ignored.
+    public var height : Dim? {
+        get { return _height }
+        set(value) {
+            _height = value
+            setNeedsLayout()
+        }
+    }
     
     // Computes the RelativeLayout for the view, given the frame for its container.
     // hostFrame is the frame for the host
     func relativeLayout (hostFrame : Rect)
     {
-        var w, h, _x, _y : Int
+        var ww, hh, xx, yy : Int
         
+        if _x != nil && x is Pos.PosCenter {
+            ww = _width == nil ? hostFrame.width : _width!.Anchor(hostFrame.width)
+            xx = _x!.Anchor(hostFrame.width - ww)
+        } else {
+            xx = _x == nil ? 0 : x!.Anchor(hostFrame.width)
+            ww = _width == nil ? hostFrame.width : _width!.Anchor(hostFrame.width-xx)
+        }
         
+        if _y != nil && y is Pos.PosCenter {
+            
+        }
     }
 }
