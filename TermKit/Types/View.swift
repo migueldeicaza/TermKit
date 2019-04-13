@@ -9,6 +9,18 @@
 import Foundation
 
 /**
+ * Determines the LayoutStyle for a view, if Absolute, during LayoutSubviews, the
+ * value from the Frame will be used, if the value is Computer, then the Frame
+ * will be updated from the X, Y Pos objets and the Width and Heigh Dim objects.
+ */
+public enum LayoutStyle {
+    /// The position and size of the view are based on the Frame value.
+    case fixed
+    /// The position and size of the view will be computed based on the x, y, width and height
+    /// properties and set on the Frame.
+    case computed
+}
+/**
  * View is the base class for all views on the screen and represents a visible element that can render itself and contains zero or more nested views.
  *
  * The View defines the base functionality for user interface elements in TermKit.  Views
@@ -57,17 +69,35 @@ import Foundation
  * frames for the vies that use LayoutKind.Computed.
 
  */
-open class View : Responder {
-
+open class View : Responder, Hashable {
     var superView : View? = nil
     var focused : View? = nil
     var subViews : [View] = []
     var _frame : Rect = Rect.zero
+    var viewId : Int
     var id : String = ""
     var needDisplay : Rect = Rect.zero
     var _childNeedsDisplay : Bool = false
     var _canFocus : Bool = false
+    static var globalId : Int = 0
+    var _layoutStyle : LayoutStyle = .computed
     
+    /**
+     * Controls how the view's `frame` is computed during the layoutSubviews method, if `absolute`, then
+     * `layoutSubviews` does not change the `frame` properties, otherwise the `frame` is updated from the
+     * values in x, y, width and height properties.
+     */
+    public var layoutStyle : LayoutStyle {
+        get {
+            return _layoutStyle
+        }
+        set(value) {
+            if value != _layoutStyle {
+                _layoutStyle = value
+                setNeedsLayout()
+            }
+        }
+    }
     public var canFocus : Bool {
         get {
             return _canFocus
@@ -107,9 +137,14 @@ open class View : Responder {
         }
     }
     
-    init ()
+    /**
+     * Constructor for a view that will use computed layout style
+     */
+    public init ()
     {
         _frame = Rect(x:0, y: 0, width: 0, height: 0)
+        viewId = View.globalId
+        View.globalId += 1
     }
     
     var WantMousePositionReports : Bool = false
@@ -490,7 +525,7 @@ open class View : Responder {
      */
     public func redraw(region : Rect)
     {
-        var clipRect = Rect (origin: Point.zero, size: Size.empty)
+        let clipRect = Rect (origin: Point.zero, size: Size.empty)
         for view in subViews {
             if !view.needDisplay.isEmpty || view._childNeedsDisplay {
                 if view.frame.intersects(clipRect) && view.frame.intersects(region){
@@ -721,7 +756,7 @@ open class View : Responder {
             return focused != nil
         }
         var focusedIdx = -1
-        var n = subViews.count
+        let n = subViews.count
         for i in 0..<n {
             let w = subViews [i]
             if w.hasFocus {
@@ -748,8 +783,8 @@ open class View : Responder {
     }
     
     var _x : Pos? = nil
-    /// Gets or sets the X position for the view (the column).  This is only used when the LayoutStyle is Computed, if the
-    /// LayoutStyle is set to Absolute, this value is ignored.
+    /// Gets or sets the X position for the view (the column).  This is only used when the LayoutStyle is `computed`, if the
+    /// LayoutStyle is set to `absolute`, this value is ignored.
     public var x : Pos? {
         get { return _x }
         set(value) {
@@ -758,8 +793,8 @@ open class View : Responder {
         }
     }
     var _y : Pos? = nil
-    /// Gets or sets the Y position for the view (the row).  This is only used when the LayoutStyle is Computed, if the
-    /// LayoutStyle is set to Absolute, this value is ignored.
+    /// Gets or sets the Y position for the view (the row).  This is only used when the LayoutStyle is `computed`, if the
+    /// LayoutStyle is set to `absolute`, this value is ignored.
     public var y : Pos? {
         get { return _y }
         set(value) {
@@ -768,8 +803,8 @@ open class View : Responder {
         }
     }
     var _width : Dim? = nil
-    /// Gets or sets the width for the view. This is only used when the LayoutStyle is Computed, if the
-    /// LayoutStyle is set to Absolute, this value is ignored.
+    /// Gets or sets the width for the view. This is only used when the LayoutStyle is `computed`, if the
+    /// LayoutStyle is set to `absolute`, this value is ignored.
     public var width : Dim? {
         get { return _width }
         set(value) {
@@ -778,8 +813,8 @@ open class View : Responder {
         }
     }
     var _height : Dim? = nil
-    /// Gets or sets the height for the view. This is only used when the LayoutStyle is Computed, if the
-    /// LayoutStyle is set to Absolute, this value is ignored.
+    /// Gets or sets the height for the view. This is only used when the LayoutStyle is `computed`, if the
+    /// LayoutStyle is set to `absolute`, this value is ignored.
     public var height : Dim? {
         get { return _height }
         set(value) {
@@ -803,7 +838,110 @@ open class View : Responder {
         }
         
         if _y != nil && y is Pos.PosCenter {
-            
+            hh = _height == nil ? hostFrame.height : _height!.Anchor(hostFrame.height)
+            yy = _y!.Anchor(hostFrame.height-hh)
+        } else {
+            yy = _y == nil ? 0 : y!.Anchor(hostFrame.height)
+            hh = _height == nil ? hostFrame.height : _height!.Anchor(hostFrame.height-yy)
         }
+        frame = Rect (x: xx, y: yy, width: ww, height: hh)
+    }
+    
+    public static func == (lhs: View, rhs: View) -> Bool {
+        return lhs === rhs
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(viewId)
+    }
+
+    struct Edge : Hashable {
+        var from, to: View
+    }
+    
+    // https://en.wikipedia.org/wiki/Topological_sorting
+    static func topologicalSort (nodes: Set<View>, edges: inout Set<Edge>) -> [View]?
+    {
+        var result : [View] = []
+
+        var s = Set (nodes.filter ({(n:View) -> Bool in
+            return edges.allSatisfy({$0.to !== n})
+        }))
+        
+        while s.count > 0 {
+            // remove a node n from S
+            let n = s.first!
+            s.remove(n)
+            
+            // add n to to tail of L
+            result.append(n)
+            
+            // for each node m with an edge e from n to m do
+            for e in edges.filter({$0.from === n}) {
+                let m = e.to
+                
+                // remove the edge from the graph
+                edges.remove(e)
+                
+                // if m has no other incoming edges then
+                if edges.allSatisfy({$0.to != n}) {
+                    // insert m into S
+                    s.insert(m)
+                }
+            }
+        }
+        // if graph has edges then
+        if edges.count > 0 {
+            // return error, graph has at least one cycle
+            return nil
+        }
+        // return L (a topologically sorted order)
+        return result
+    }
+    
+    enum layoutError : Error {
+        case recursive(msg:String)
+    }
+    
+    public func layoutSubviews () throws
+    {
+        if !layoutNeeded {
+            return
+        }
+        
+        // Sort out the dependencies of the X, Y, Width, Height properties
+        var nodes = Set<View>()
+        var edges = Set<Edge>()
+        
+        for v in subViews {
+            nodes.insert (v)
+            if v.layoutStyle == .computed {
+                if v.x is Pos.PosView {
+                    edges.insert (Edge(from:v, to: (v.x as! Pos.PosView).target))
+                }
+                if v.y is Pos.PosView {
+                    edges.insert (Edge(from:v, to: (v.y as! Pos.PosView).target))
+                }
+                if v.width is Dim.DimView {
+                    edges.insert (Edge (from: v, to: (v.width as! Dim.DimView).target))
+                }
+                if v.height is Dim.DimView {
+                    edges.insert (Edge (from: v, to: (v.height as! Dim.DimView).target))
+                }
+            }
+        }
+        let ordered = View.topologicalSort(nodes: nodes, edges: &edges)?.reversed()
+        if ordered == nil {
+            throw layoutError.recursive(msg: "There is a recursive cycle in the relative Pos/Dim in the views")
+        }
+        
+        for v in ordered! {
+            if v.layoutStyle == .computed {
+                relativeLayout(hostFrame: frame)
+            }
+            try v.layoutSubviews()
+            v.layoutNeeded = false
+        }
+        layoutNeeded = false
     }
 }
