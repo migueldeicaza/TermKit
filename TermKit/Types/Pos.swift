@@ -121,7 +121,7 @@ public class Pos {
      * Creates a new `Pos` object for the absolute position specified
      * - Parameter n: a specific location
      */
-    public static func pos (n : Int) -> Pos
+    public static func at (_ n : Int) -> Pos
     {
         return PosAbsolute (n)
     }

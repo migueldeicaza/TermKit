@@ -264,4 +264,10 @@ public class ConsoleDriver {
     {
     }
     
+    /**
+     * Should suspend execution of the application on Unix (implements Control-Z)
+     */
+    public func suspend ()
+    {
+    }
 }

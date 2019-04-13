@@ -14,21 +14,6 @@ class SizeError : Error {
 }
 
 
-
-open class Toplevel : View {
-    var _running : Bool
-    public var Running : Bool {
-        get {
-            return _running
-        }
-    }
-    
-    override init()
-    {
-        _running = false
-    }
-}
-
 public class Application {
     public static var Shared : Application = Application()
     var _top : Toplevel
