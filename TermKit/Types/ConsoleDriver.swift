@@ -49,7 +49,7 @@ public struct Attribute {
     
     public static func make (fore : Color, back : Color) -> Attribute
     {
-        return Application.Shared.driver.makeAttribute(fore: fore, back: back);
+        return Application.shared.driver.makeAttribute(fore: fore, back: back);
     }
 }
 
@@ -148,6 +148,18 @@ public class ConsoleDriver {
      * Adds a specified character at the current cursor position
      */
     public func addCharacter (_ char: Character) {}
+    
+    /**
+     * Adds the specified string at the current cursor position
+     * - Parameter str: the string to add to print at the current position
+     */
+    public func addStr (_ str: String)
+    {
+        for c in str {
+            addCharacter(c)
+        }
+    }
+
     
     /**
      * Moves the cursor to the screen to the specified column and row
@@ -269,5 +281,19 @@ public class ConsoleDriver {
      */
     public func suspend ()
     {
+    }
+    
+    /**
+     * Redraws the physical screen with the contents that have been queued up via any of the printing commands.
+     */
+    public func updateScreen ()
+    {
+        
+    }
+    
+    /// Updates the screen to reflect all the changes that have been done to the display buffer
+    public func refresh ()
+    {
+    
     }
 }

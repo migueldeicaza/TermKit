@@ -13,6 +13,7 @@ class CursesDriver : ConsoleDriver {
     var crow : Int32 = 0
     var needMove : Bool = false
     var sync : Bool = false
+    var cursesWindow : OpaquePointer!
     
     override init ()
     {
@@ -22,7 +23,7 @@ class CursesDriver : ConsoleDriver {
         crow = 0
         
         // Setup curses
-        initscr ()
+        cursesWindow = initscr()
         start_color()
         noecho()
         curs_set (0)
@@ -209,5 +210,15 @@ class CursesDriver : ConsoleDriver {
     public override func setAttribute (_ attr: Attribute)
     {
         attrset(attr.value)
+    }
+    
+    public override func updateScreen ()
+    {
+        redrawwin(cursesWindow)
+    }
+    
+    public override func refresh ()
+    {
+        refresh()
     }
 }

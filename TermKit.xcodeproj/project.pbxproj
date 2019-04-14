@@ -21,6 +21,7 @@
 		49674934225D90160068A20D /* Responder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49674933225D90160068A20D /* Responder.swift */; };
 		49674936225D907A0068A20D /* Events.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49674935225D907A0068A20D /* Events.swift */; };
 		49674938226192890068A20D /* Toplevel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49674937226192890068A20D /* Toplevel.swift */; };
+		4967493A226365920068A20D /* Window.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49674939226365920068A20D /* Window.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -51,6 +52,7 @@
 		49674933225D90160068A20D /* Responder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Responder.swift; sourceTree = "<group>"; };
 		49674935225D907A0068A20D /* Events.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Events.swift; sourceTree = "<group>"; };
 		49674937226192890068A20D /* Toplevel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Toplevel.swift; sourceTree = "<group>"; };
+		49674939226365920068A20D /* Window.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Window.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -93,6 +95,7 @@
 				49674933225D90160068A20D /* Responder.swift */,
 				49674935225D907A0068A20D /* Events.swift */,
 				49674937226192890068A20D /* Toplevel.swift */,
+				49674939226365920068A20D /* Window.swift */,
 			);
 			path = Types;
 			sourceTree = "<group>";
@@ -202,6 +205,7 @@
 				4958E50E2230EA860030D085 /* main.swift in Sources */,
 				490C795B2257F2BA0010F573 /* Rect.swift in Sources */,
 				49674932225C32800068A20D /* CursesDriver.swift in Sources */,
+				4967493A226365920068A20D /* Window.swift in Sources */,
 				49674930225C326F0068A20D /* ConsoleDriver.swift in Sources */,
 				49674934225D90160068A20D /* Responder.swift in Sources */,
 				490C79572257EF050010F573 /* Point.swift in Sources */,

@@ -72,9 +72,49 @@ open class Toplevel : View {
         case .ControlZ:
             driver.suspend ()
             return true
+
+        case .F5:
+            Application.debugDrawBounds.toggle ()
+            setNeedsDisplay()
+            return true
+            
+        case .ControlI, .CursorRight, .CursorDown:
+            let old = focused
+            if !focusNext() {
+                focusNext ()
+            }
+            if old != focused {
+                old?.setNeedsDisplay()
+                focused?.setNeedsDisplay()
+            }
+            return true
+            
+        case .CursorLeft, .CursorUp, .Backtab:
+            let old = focused
+            if !focusPrev(){
+                focusPrev()
+            }
+            if old != focused {
+                old?.setNeedsDisplay()
+                focused?.setNeedsDisplay()
+            }
+            return true
+            
+        case .ControlL:
+            Application.shared.refresh ()
+            return true
         default:
-            break
+            return false
         }
         return false
+    }
+    
+    /**
+     *  This method is invoked by Application.Begin as part of the Application.Run after
+     * the views have been laid out, and before the views are drawn for the first time.
+     */
+    public func willPresent ()
+    {
+        focusFirst()
     }
 }

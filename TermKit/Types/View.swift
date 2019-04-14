@@ -133,7 +133,7 @@ open class View : Responder, Hashable {
      */
     var driver : ConsoleDriver {
         get {
-            return Application.Shared.driver
+            return Application.shared.driver
         }
     }
     

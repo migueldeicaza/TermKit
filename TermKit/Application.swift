@@ -15,9 +15,11 @@ class SizeError : Error {
 
 
 public class Application {
-    public static var Shared : Application = Application()
+    public static var shared : Application = Application()
     var _top : Toplevel
     var _current : Toplevel
+    var toplevels : [View] = []
+    static var debugDrawBounds : Bool = false
     public var top : Toplevel {
         get {
             return _top
@@ -30,6 +32,22 @@ public class Application {
     }
 
     var driver : ConsoleDriver
+    
+    /**
+     * Triggers a refresh of the whole display
+     */
+    public func refresh ()
+    {
+        driver.updateScreen ()
+        var last : View? = nil
+        for var v in toplevels.reversed() {
+            v.setNeedsDisplay()
+            v.redraw(region: v.bounds)
+            last = v
+        }
+        last?.positionCursor()
+        driver.refresh()
+    }
     
     init ()
     {
