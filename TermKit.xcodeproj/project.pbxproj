@@ -83,7 +83,7 @@
 			path = Drivers;
 			sourceTree = "<group>";
 		};
-		490C79552257EEE10010F573 /* Types */ = {
+		490C79552257EEE10010F573 /* Core */ = {
 			isa = PBXGroup;
 			children = (
 				490C79562257EF050010F573 /* Point.swift */,
@@ -97,7 +97,7 @@
 				49674937226192890068A20D /* Toplevel.swift */,
 				49674939226365920068A20D /* Window.swift */,
 			);
-			path = Types;
+			path = Core;
 			sourceTree = "<group>";
 		};
 		4958E5012230EA860030D085 = {
@@ -120,7 +120,7 @@
 		4958E50C2230EA860030D085 /* TermKit */ = {
 			isa = PBXGroup;
 			children = (
-				490C79552257EEE10010F573 /* Types */,
+				490C79552257EEE10010F573 /* Core */,
 				490C79542257EC130010F573 /* Drivers */,
 				4958E50D2230EA860030D085 /* main.swift */,
 				4958E5142230EAA80030D085 /* Application.swift */,

@@ -41,7 +41,7 @@ open class Toplevel : View {
         height = Dim.fill ()
     }
     
-    /// Convenience factory method that creates a new toplevel with the current terminal dimensions.
+    /// driver.addRune (Unicode.Scalar(32)) factory method that creates a new toplevel with the current terminal dimensions.
     public static func create () -> Toplevel
     {
         let t = Toplevel()
