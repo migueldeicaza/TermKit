@@ -47,8 +47,8 @@
 		4958E5172230EE790030D085 /* libncurses.5.4.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libncurses.5.4.tbd; path = usr/lib/libncurses.5.4.tbd; sourceTree = SDKROOT; };
 		4967492B22583DBA0068A20D /* Dim.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dim.swift; sourceTree = "<group>"; };
 		4967492D225AE5920068A20D /* View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = View.swift; sourceTree = "<group>"; };
-		4967492F225C326F0068A20D /* ConsoleDriver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ConsoleDriver.swift; path = TermKit/Types/ConsoleDriver.swift; sourceTree = SOURCE_ROOT; };
-		49674931225C32800068A20D /* CursesDriver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CursesDriver.swift; path = TermKit/Types/CursesDriver.swift; sourceTree = SOURCE_ROOT; };
+		4967492F225C326F0068A20D /* ConsoleDriver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ConsoleDriver.swift; path = TermKit/Drivers/ConsoleDriver.swift; sourceTree = SOURCE_ROOT; };
+		49674931225C32800068A20D /* CursesDriver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CursesDriver.swift; path = TermKit/Drivers/CursesDriver.swift; sourceTree = SOURCE_ROOT; };
 		49674933225D90160068A20D /* Responder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Responder.swift; sourceTree = "<group>"; };
 		49674935225D907A0068A20D /* Events.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Events.swift; sourceTree = "<group>"; };
 		49674937226192890068A20D /* Toplevel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Toplevel.swift; sourceTree = "<group>"; };
@@ -77,8 +77,8 @@
 		490C79542257EC130010F573 /* Drivers */ = {
 			isa = PBXGroup;
 			children = (
-				4967492F225C326F0068A20D /* ConsoleDriver.swift */,
 				49674931225C32800068A20D /* CursesDriver.swift */,
+				4967492F225C326F0068A20D /* ConsoleDriver.swift */,
 			);
 			path = Drivers;
 			sourceTree = "<group>";
@@ -86,6 +86,7 @@
 		490C79552257EEE10010F573 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				4958E5142230EAA80030D085 /* Application.swift */,
 				490C79562257EF050010F573 /* Point.swift */,
 				490C79582257EF460010F573 /* Size.swift */,
 				490C795A2257F2BA0010F573 /* Rect.swift */,
@@ -123,7 +124,6 @@
 				490C79552257EEE10010F573 /* Core */,
 				490C79542257EC130010F573 /* Drivers */,
 				4958E50D2230EA860030D085 /* main.swift */,
-				4958E5142230EAA80030D085 /* Application.swift */,
 				490C79532257EC040010F573 /* Views */,
 			);
 			path = TermKit;

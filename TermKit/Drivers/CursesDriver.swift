@@ -8,6 +8,13 @@
 
 import Foundation
 
+class LameHack {
+    static func doRefresh ()
+    {
+        refresh ();
+    }
+}
+
 class CursesDriver : ConsoleDriver {
     var ccol : Int32 = 0
     var crow : Int32 = 0
@@ -219,6 +226,6 @@ class CursesDriver : ConsoleDriver {
     
     public override func refresh ()
     {
-        refresh()
+        LameHack.doRefresh()
     }
 }

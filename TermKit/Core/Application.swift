@@ -40,7 +40,7 @@ public class Application {
     {
         driver.updateScreen ()
         var last : View? = nil
-        for var v in toplevels.reversed() {
+        for v in toplevels.reversed() {
             v.setNeedsDisplay()
             v.redraw(region: v.bounds)
             last = v

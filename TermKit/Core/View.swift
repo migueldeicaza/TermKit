@@ -335,6 +335,7 @@ open class View : Responder, Hashable {
      * - Parameter rect: Rectangle region to clip into, the region is view-relative.
      * - Returns: The previous clip region
      */
+    @discardableResult
     public func setClip (_ rect: Rect) -> Rect
     {
         let bscreen = rectToScreen(rect)
@@ -701,6 +702,7 @@ open class View : Responder, Hashable {
      * Focuses the previous view in the focus chain
      * - Returns: `true` if previous was focused, `false` otherwise
      */
+    @discardableResult
     public func focusPrev () -> Bool
     {
         if subViews.count == 0 {
@@ -746,6 +748,7 @@ open class View : Responder, Hashable {
      * Focuses the next view in the focus chain
      * - Returns: `true` if previous was focused, `false` otherwise
      */
+    @discardableResult
     public func focusNext () -> Bool
     {
         if subViews.count == 0 {
