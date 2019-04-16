@@ -7,3 +7,16 @@
 //
 
 import Foundation
+
+public class MainLoop {
+    
+    public func eventsPending (_ wait: Bool) -> Bool
+    {
+        return false
+    }
+    
+    public func mainIteration ()
+    {
+    
+    }
+}

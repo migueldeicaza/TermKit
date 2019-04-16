@@ -133,7 +133,7 @@ open class View : Responder, Hashable {
      */
     var driver : ConsoleDriver {
         get {
-            return Application.shared.driver
+            return Application.driver
         }
     }
     
@@ -147,7 +147,7 @@ open class View : Responder, Hashable {
         View.globalId += 1
     }
     
-    var WantMousePositionReports : Bool = false
+    var wantMousePositionReports : Bool = false
     
     var frame : Rect {
         get {

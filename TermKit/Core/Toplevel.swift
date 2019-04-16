@@ -24,7 +24,7 @@ import Foundation
 open class Toplevel : View {
     var _running : Bool
     /// This flag is checked on each iteration of the mainloop and it continues running until this flag is set to false.
-    public var Running : Bool {
+    public var running : Bool {
         get {
             return _running
         }
@@ -101,7 +101,7 @@ open class Toplevel : View {
             return true
             
         case .ControlL:
-            Application.shared.refresh ()
+            Application.refresh ()
             return true
         default:
             return false

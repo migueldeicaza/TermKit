@@ -49,7 +49,7 @@ public struct Attribute {
     
     public static func make (fore : Color, back : Color) -> Attribute
     {
-        return Application.shared.driver.makeAttribute(fore: fore, back: back);
+        return Application.driver.makeAttribute(fore: fore, back: back);
     }
 }
 
@@ -278,9 +278,12 @@ public class ConsoleDriver {
     
     /**
      * Should suspend execution of the application on Unix (implements Control-Z)
+     *
+     * - Returns: True if the application did suspend
      */
-    public func suspend ()
+    public func suspend () -> Bool
     {
+        return true
     }
     
     /**
@@ -295,5 +298,16 @@ public class ConsoleDriver {
     public func refresh ()
     {
     
+    }
+    
+    /// Updates the location of the cursor position
+    public func updateCursor ()
+    {
+    }
+    
+    /// Ends the execution of the console driver.
+    public func end ()
+    {
+        
     }
 }
