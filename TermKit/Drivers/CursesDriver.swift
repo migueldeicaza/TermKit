@@ -62,6 +62,10 @@ class CursesDriver : ConsoleDriver {
     let cursesAllEvents : Int32 = 0x7ffffff
 
     var oldMouseEvents : mmask_t
+    typealias get_wch_def = @convention(c) (UnsafeMutablePointer<Int32>) -> Int
+    
+    // Dynamically loaded definitions, because Darwin.ncurses does not bring these
+    var get_wch_fn : get_wch_def? = nil
     
     override init ()
     {
@@ -93,14 +97,16 @@ class CursesDriver : ConsoleDriver {
         
         clear ();
         clip = Rect (x: 0, y: 0, width: cols, height: rows)
+
+        let rtld_default = UnsafeMutableRawPointer(bitPattern: -2)
+        let get_wch_ptr = dlsym (rtld_default, "get_wch")
+        get_wch_fn = unsafeBitCast(get_wch_ptr, to: get_wch_def.self)
     }
     
     func inputReadCallback ()
     {
-        
-        if ch == -1 {
-            return
-        }
+        var result : Int32 = 0
+        let status = get_wch_fn! (&result)
     }
     
     func setupInput ()

@@ -71,7 +71,7 @@ public class Dim {
         return DimFill (margin)
     }
     
-    public static func Dim (n : Int) -> Dim
+    public static func Dim (_ n : Int) -> Dim
     {
         return DimAbsolute (n)
     }

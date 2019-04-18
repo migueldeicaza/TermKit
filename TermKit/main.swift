@@ -9,14 +9,12 @@
 import Foundation
 import Darwin.ncurses
 
-print("Hello, World!")
 
 var driver = CursesDriver ()
-
-attron(COLOR_PAIR(0))
-addstr ("hello")
-refresh ()
-
-getchar()
-endwin()
-
+let w = Window()
+w.x = Pos.at (0)
+w.y = Pos.at (0)
+w.width = Dim.Dim(20)
+w.height = Dim.Dim (20)
+Application.top.addSubview(w)
+Application.run()
