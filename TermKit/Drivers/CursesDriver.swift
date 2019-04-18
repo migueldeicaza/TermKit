@@ -101,6 +101,7 @@ class CursesDriver : ConsoleDriver {
         let rtld_default = UnsafeMutableRawPointer(bitPattern: -2)
         let get_wch_ptr = dlsym (rtld_default, "get_wch")
         get_wch_fn = unsafeBitCast(get_wch_ptr, to: get_wch_def.self)
+        selectColors()
     }
     
     func inputReadCallback ()

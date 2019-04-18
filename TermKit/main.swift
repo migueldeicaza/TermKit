@@ -9,7 +9,7 @@
 import Foundation
 import Darwin.ncurses
 
-
+print ("starting")
 var driver = CursesDriver ()
 let w = Window()
 w.x = Pos.at (0)
@@ -18,3 +18,4 @@ w.width = Dim.Dim(20)
 w.height = Dim.Dim (20)
 Application.top.addSubview(w)
 Application.run()
+print ("ending")
