@@ -18,7 +18,6 @@ enum ApplicationError : Error {
 
 public class Application {
     /// Points to the global application
-    public static var shared : Application = Application()
     static var _top : Toplevel = Toplevel()
     static var _current : Toplevel? = nil
     static var toplevels : [Toplevel] = []
@@ -42,6 +41,14 @@ public class Application {
     static var driver : ConsoleDriver = CursesDriver()
     
     /**
+     * Prepares the application, must be called before anything else.
+     */
+    public static func prepare ()
+    {
+        let _ = driver
+    }
+    
+    /**
      * Triggers a refresh of the whole display
      */
     static public func refresh ()
@@ -60,15 +67,12 @@ public class Application {
     static func processKeyEvent (event : KeyEvent)
     {
         if let c = _current {
-            if (c.processHotKey(event: event)) {
-                return
+            if (!c.processHotKey(event: event)) {
+                if (!c.processKey(event: event)){
+                    let _ = c.processColdKey(event: event);
+                }
             }
-            if (c.processKey(event: event)){
-                return
-            }
-            if (c.processColdKey(event: event)) {
-                return
-            }
+            postProcessEvent()
         }
     }
     
@@ -143,31 +147,9 @@ public class Application {
             let nme = MouseEvent (x: res!.resx, y: res!.resy, flags: mouseEvent.flags)
             
             // Should we bubble up the event if it not handled?
-            r.view.mouseEvent (event: nme)
+            let _ = r.view.mouseEvent (event: nme)
         }
-    }
-    
-    /**
-     * Captures the execution state for the provided toplevel view, in charge of shutting down on last use.
-     * Instances of RunState are returned by the `begin` method in application, and used as a token
-     * to terminate the execution of an Application by calling `end` on them.
-     */
-    public class RunState {
-        var top : Toplevel?
-        init (_ top : Toplevel)
-        {
-            self.top = top
-        }
-    
-        deinit
-        {
-            if top != nil {
-                do {
-                    try Application.end (top!)
-                } catch {}
-                top = nil
-            }
-        }
+        postProcessEvent()
     }
     
     /**
@@ -183,9 +165,8 @@ public class Application {
      * - Parameter toplevel: Toplevel to prepare execution for.
      * - Returns: The runstate handle that needs to be passed to the `end` method upon completion
      */
-    public static func begin (toplevel : Toplevel) -> RunState
+    public static func begin (toplevel : Toplevel)
     {
-        let rs = RunState(toplevel)
         toplevels.append(toplevel)
         _current = toplevel
         if toplevel.layoutStyle == .computed {
@@ -198,8 +179,15 @@ public class Application {
         redrawView (toplevel)
         toplevel.positionCursor()
         driver.refresh()
-        
-        return rs
+    }
+    
+    /**
+     * Starts the application mainloop - does not return, but can exit to the OS.
+     */
+    public static func run ()
+    {
+        begin (toplevel: top)
+        dispatchMain()
     }
     
     static func redrawView (_ view: View)
@@ -226,45 +214,17 @@ public class Application {
         }
     }
     
-    static var _mainLoop : MainLoop? = nil
-    static public var mainLoop : MainLoop? {
-        get {
-            return _mainLoop
-        }
-    }
-    /**
-     * Building block API: Runs the main loop for the created dialog
-     * Use the wait parameter to control whether this is a blocking or non-blocking call.
-     * - Parameter rs: The state returned by the Begin method.
-     * - Parameter wait: By default this is true which will execute the runloop waiting for events,
-     * if you pass false, you can use this method to run a single iteration of the events.
-     * - Throws: if the passed RunState has been disposed already
-     */
-    public static func runLoop (rs: RunState, wait : Bool = true) throws
+    static func postProcessEvent ()
     {
-        if let top = rs.top, let main = _mainLoop {
-            top._running = true
-            while top._running {
-                if main.eventsPending (wait){
-                    main.mainIteration ()
-                    
-                } else if wait == false {
-                    return
-                }
-                
-                if !top.needDisplay.isEmpty || top._childNeedsDisplay {
-                    top.redraw (region: top.bounds)
-                    if debugDrawBounds {
-                        drawBounds (top)
-                    }
-                    top.positionCursor()
-                    driver.refresh()
-                } else {
-                    driver.updateCursor()
-                }
+        if !top.needDisplay.isEmpty || top._childNeedsDisplay {
+            top.redraw (region: top.bounds)
+            if debugDrawBounds {
+                drawBounds (top)
             }
+            top.positionCursor()
+            driver.refresh()
         } else {
-            throw ApplicationError.internalState(msg: "The passed run state is already used")
+            driver.updateCursor()
         }
     }
     
@@ -276,42 +236,23 @@ public class Application {
         }
     }
     
-    /// Runs the application with the built-in toplevel view
-    public static func run ()
-    {
-        run (top: top)
-    }
-    
     /**
-     * Runs the main loop on the given container.
-     *
-     * This method is used to start processing events for the main application, but it is also used to
-     * run modal dialog boxes.
-     *
-     * To make a toplevel stop execution, set the `running` property to false.
-     *
-     * This is equivalent to calling `begin` on the toplevel view, followed by `runLoop` with the
-     * returned value, and then calling end on the return value.
-     *
-     * Alternatively, if your program needs to control the main loop and needs to
-     * process events manually, you can invoke Begin to set things up manually and then
-     * repeatedly call RunLoop with the wait parameter set to false.   By doing this
-     * the RunLoop method will only process any pending events, timers, idle handlers and
-     * then return control immediately.
+     * Stops running the most recent toplevel, use this to close a dialog, window, or toplevel.  The last time this is called, it will return to the OS
      */
-    public static func run (top: Toplevel)
-    {
-        do {
-            let rs = begin (toplevel: top)
-            try runLoop (rs: rs, wait: true)
-        } catch {}
-    }
-    
-    /// Stops running the most recent toplevel
     public static func requestStop ()
     {
         if let c = current {
             c._running = false
+            
+            toplevels = toplevels.dropLast ()
+            if toplevels.count == 0 {
+                Application.shutdown ()
+            } else {
+                _current = toplevels.last as Toplevel?
+                refresh ()
+            }
+        } else {
+            Application.shutdown()
         }
     }
     
@@ -331,6 +272,7 @@ public class Application {
     static func shutdown()
     {
         driver.end ();
+        exit (0)
     }
 }
 

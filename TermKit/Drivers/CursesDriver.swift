@@ -104,18 +104,126 @@ class CursesDriver : ConsoleDriver {
         selectColors()
     }
     
-    func inputReadCallback ()
+    // Converts an NCurses MEVENT to TermKit.MouseEvent
+    func toAppMouseEvent (_ me: MEVENT) -> MouseEvent
+    {
+        // We conveniently made all of the MouseEvent defines match the curses defines
+        return MouseEvent (x: Int(me.x), y: Int(me.y), flags: MouseFlags (rawValue: UInt(me.bstate)))
+    }
+    
+    // Converts an NCurses key event into an application Key
+    func toAppKeyEvent (_ ck: Int32) -> Key
+    {
+        switch (ck){
+        case KEY_F0+1: return Key.F1
+        case KEY_F0+2: return Key.F2
+        case KEY_F0+3: return Key.F3
+        case KEY_F0+4: return Key.F4
+        case KEY_F0+5: return Key.F5
+        case KEY_F0+6: return Key.F6
+        case KEY_F0+7: return Key.F7
+        case KEY_F0+8: return Key.F8
+        case KEY_F0+9: return Key.F9
+        case KEY_F0+10: return Key.F10
+        case KEY_UP: return Key.CursorUp
+        case KEY_DOWN: return Key.CursorDown
+        case KEY_LEFT: return Key.CursorLeft
+        case KEY_RIGHT: return Key.CursorRight
+        case KEY_HOME: return Key.Home
+        case KEY_END: return Key.End
+        case KEY_NPAGE: return Key.PageDown
+        case KEY_PPAGE: return Key.PageUp
+        case KEY_DC: return Key.DeleteChar
+        case KEY_IC: return Key.InsertChar
+        case KEY_BTAB: return Key.Backtab
+        case KEY_BACKSPACE: return Key.Backspace
+        default: return Key.Unknown
+        }
+    }
+    
+    //
+    // Invoked when there is data available on standard input, takes the ncurses input
+    // and creates a mouse or keyboard event and feeds it to the Application
+    // 
+    func inputReadCallback (input: FileHandle)
     {
         var result : Int32 = 0
         let status = get_wch_fn! (&result)
+        if status == ERR {
+            return
+        }
+        if status == KEY_CODE_YES {
+            if result == KEY_RESIZE {
+                if LINES != rows || COLS != cols {
+                    Application.terminalResized()
+                    return
+                }
+            }
+            if result == KEY_MOUSE {
+                var mouseEvent : MEVENT = MEVENT(id: 0, x: 0, y: 0, z: 0, bstate: 0)
+                getmouse(&mouseEvent);
+                Application.processMouseEvent(mouseEvent: toAppMouseEvent (mouseEvent))
+                return
+            }
+            Application.processKeyEvent(event: KeyEvent(key: toAppKeyEvent (result)))
+            return
+        }
+        
+        // Special handling for ESC, we want to try to catch ESC+letter to simulate alt-letter, as well as alt-FKey
+        if result == 27 {
+            timeout (200)
+            let status2 = get_wch_fn! (&result)
+            timeout (-1)
+            var ke : KeyEvent
+            
+            if status2 == KEY_CODE_YES {
+                ke = KeyEvent (key: toAppKeyEvent(result), isAlt: true)
+            } else {
+
+                if status2 == 0 {
+                    switch result {
+                    case 48: // ESC-0 is F10
+                        ke = KeyEvent (key: Key.F10)
+                    case 49: // ESC-1 is F1
+                        ke = KeyEvent (key: Key.F1)
+                    case 50:
+                        ke = KeyEvent (key: Key.F2)
+                    case 51:
+                        ke = KeyEvent (key: Key.F3)
+                    case 52:
+                        ke = KeyEvent (key: Key.F4)
+                    case 53:
+                        ke = KeyEvent (key: Key.F5)
+                    case 54:
+                        ke = KeyEvent (key: Key.F6)
+                    case 55:
+                        ke = KeyEvent (key: Key.F7)
+                    case 56:
+                        ke = KeyEvent (key: Key.F8)
+                    case 57:
+                        ke = KeyEvent (key: Key.F9)
+                    case 27: // ESC+ESC is just ESC
+                        ke = KeyEvent (key: Key.Esc)
+                    default:
+                        ke = KeyEvent (key: Key(rawValue: UInt32(result))!, isAlt: true)
+                    }
+                } else {
+                    // Got nothing, just pass the escape
+                    ke = KeyEvent (key: Key.Esc)
+                }
+            }
+            Application.processKeyEvent(event: ke)
+        } else {
+            // Pass the rest of the keystrokes
+            Application.processKeyEvent(event: KeyEvent(raw: UInt32(result)))
+        }
+        
     }
     
     func setupInput ()
     {
         timeout (-1)
-        let reader = DispatchSource.makeReadSource(fileDescriptor: 0)
-        reader.setEventHandler(handler: inputReadCallback)
-        reader.activate ()
+        FileHandle.standardInput.readabilityHandler = inputReadCallback(input:)
     }
     
     public override func moveTo (col :Int, row: Int)

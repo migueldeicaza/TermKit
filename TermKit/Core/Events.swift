@@ -173,15 +173,25 @@ public struct KeyEvent {
     {
         self.key = key
     }
+
+    init (key : Key, isAlt: Bool)
+    {
+        self.key = isAlt ? Key (rawValue: key.rawValue | 0x80000000)! : key
+    }
+    
+    init (raw: UInt32)
+    {
+        self.key = Key(rawValue: raw)!
+    }
 }
 
 /**
  * Flags for a mouse event
  */
 public struct MouseFlags : OptionSet {
-    public let rawValue : Int32
+    public let rawValue : UInt
     
-    public init (rawValue :Int32)
+    public init (rawValue :UInt)
     {
         self.rawValue = rawValue
     }

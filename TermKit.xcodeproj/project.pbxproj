@@ -22,7 +22,6 @@
 		49674936225D907A0068A20D /* Events.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49674935225D907A0068A20D /* Events.swift */; };
 		49674938226192890068A20D /* Toplevel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49674937226192890068A20D /* Toplevel.swift */; };
 		4967493A226365920068A20D /* Window.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49674939226365920068A20D /* Window.swift */; };
-		4967493C226505CB0068A20D /* Mainloop.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4967493B226505CB0068A20D /* Mainloop.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -54,7 +53,6 @@
 		49674935225D907A0068A20D /* Events.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Events.swift; sourceTree = "<group>"; };
 		49674937226192890068A20D /* Toplevel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Toplevel.swift; sourceTree = "<group>"; };
 		49674939226365920068A20D /* Window.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Window.swift; sourceTree = "<group>"; };
-		4967493B226505CB0068A20D /* Mainloop.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Mainloop.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,7 +97,6 @@
 				49674935225D907A0068A20D /* Events.swift */,
 				49674937226192890068A20D /* Toplevel.swift */,
 				49674939226365920068A20D /* Window.swift */,
-				4967493B226505CB0068A20D /* Mainloop.swift */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -203,7 +200,6 @@
 				49674938226192890068A20D /* Toplevel.swift in Sources */,
 				4967492E225AE5920068A20D /* View.swift in Sources */,
 				4967492C22583DBA0068A20D /* Dim.swift in Sources */,
-				4967493C226505CB0068A20D /* Mainloop.swift in Sources */,
 				490C79592257EF460010F573 /* Size.swift in Sources */,
 				4958E5152230EAA80030D085 /* Application.swift in Sources */,
 				4958E50E2230EA860030D085 /* main.swift in Sources */,

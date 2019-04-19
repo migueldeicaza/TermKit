@@ -9,8 +9,8 @@
 import Foundation
 import Darwin.ncurses
 
+Application.prepare()
 print ("starting")
-var driver = CursesDriver ()
 let w = Window()
 w.x = Pos.at (0)
 w.y = Pos.at (0)
