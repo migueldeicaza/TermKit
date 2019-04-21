@@ -25,6 +25,13 @@ public class Label : View {
     var lines : [String] = []
     var recalcPending: Bool = true
     
+    /// Initializes a Label with the provided string
+    public init (text : String)
+    {
+        self.text = text
+        self.textAlignment = .Left
+    }
+    
     /// The text displayed by this view
     public var text : String {
         didSet {
@@ -121,9 +128,16 @@ public class Label : View {
         }
         let len = textStr.count
         var lp = 0
-        for i in 0..<len {
-            
+        var buffer = ""
+        for c in textStr {
+            if c == "\n" {
+                lineResult.append(clipAndJustify(str: buffer, width: width, align: align))
+                buffer = ""
+            } else {
+                buffer.append(c)
+            }
         }
+        lineResult.append(clipAndJustify(str: buffer, width: width, align: align))
     }
     
     func recalc ()
@@ -132,11 +146,62 @@ public class Label : View {
         Label.recalc (text, lineResult: &lines, width: frame.width, align: textAlignment)
     }
     
-    /// Initializes a Label with the provided string
-    public init (text : String)
+    public override func redraw(region: Rect) {
+        if recalcPending {
+            recalc ()
+        }
+        if let color = textAttribute {
+            driver.setAttribute(color)
+        } else {
+            driver.setAttribute(colorScheme!.normal)
+        }
+        clear ()
+        moveTo (col: 0, row: 0)
+        for line in 0..<lines.count {
+            if line < region.top || line > region.bottom {
+                continue
+            }
+            let str = lines [line]
+            var x = 0
+            switch textAlignment {
+            case .Centered:
+                x = frame.left + (frame.width - str.cellCount())/2
+            case .Justified, .Left:
+                x = 0
+            case .Right:
+                x = frame.right - str.cellCount ()
+            }
+            moveTo (col: x, row: line)
+            driver.addStr(str)
+        }
+    }
+    
+    /**
+     * Computes the number of lines needed to render the specified text by the Label control
+     * - Paramter str: Text, may contain newlines.
+     * - The width for the text.
+     */
+    public static func measureString (text: String, width: Int) -> Int
     {
-        self.text = text
-        self.textAlignment = .Left
+        var result : [String] = []
+        recalc (text, lineResult: &result, width: width, align: .Left)
+        return result.count
+    }
+    
+    /**
+     * Computes the the max width of a line or multilines needed to render by the Label control.
+     * - Parameter text: text to measure
+     * - Paramter width: optional, the maximum width desired, it will clamp to that value.
+     */
+    public static func maxWidth (text: String, width : Int = INTPTR_MAX) -> Int
+    {
+        var result : [String] = []
+        recalc (text, lineResult: &result, width: width, align: .Left)
+        if let max = result.max (by: { x, y in x.cellCount() < y.cellCount ()}) {
+            return max.cellCount()
+        } else {
+            return 0
+        }
     }
     
     
