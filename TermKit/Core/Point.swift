@@ -1,5 +1,5 @@
 //
-//  Point.swift
+//  Point.swift - Represents a point in the screen.
 //  MiniGui
 //
 //  Created by Miguel de Icaza on 4/5/19.

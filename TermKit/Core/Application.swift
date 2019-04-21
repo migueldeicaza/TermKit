@@ -1,5 +1,5 @@
 //
-//  Application.swift
+//  Application.swift - Application initialization and main loop.,
 //  MiniGui
 //
 //  Created by Miguel de Icaza on 3/6/19.

@@ -1,5 +1,5 @@
 //
-//  PosDim.swift
+//  Pos.swift - Implements the position class, used to layout objects
 //  MiniGui
 //
 //  Created by Miguel de Icaza on 4/5/19.

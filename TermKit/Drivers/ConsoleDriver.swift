@@ -1,6 +1,9 @@
 //
-//  Driver.swift
-//  TermKit
+// Driver.swift - base interface for console drivers, specific implementations provide
+// the actual implementation.
+//
+// Currently there is a CursesDriver, and like Gui.cs, I would like to write a
+// Windows driver, and an additional raw Terminfo driver.
 //
 //  Created by Miguel de Icaza on 4/8/19.
 //  Copyright © 2019 Miguel de Icaza. All rights reserved.
@@ -11,7 +14,8 @@ import Foundation
 public typealias rune = UnicodeScalar
 
 /**
- * Basic colors that can be used to set the foreground and background colors in console applications.
+ * Basic colors that can be used to set the foreground and background colors in console applications,
+ * these can be used as parameters for creating Attributes.
  */
 public enum Color {
     case Black
@@ -33,11 +37,14 @@ public enum Color {
 }
 
 /**
- * Attributes are used as elements that contain both a foreground and a background or platform specific features
+ * Attributes are used as elements that contain both a foreground and a background or platform specific features.
  *
  * Attributes are needed to map colors to terminal capabilities that might lack colors, on color
- * scenarios, they encode both the foreground and the background color and are used in the ColorScheme
- * class to define color schemes that can be used in your application.
+ * scenarios, they encode both the foreground and the background color.   On black and white terminals,
+ * they encode attributes like "Bold", "reverse", "normal", "blink".
+ *
+ * Attributes are used in the ColorScheme class to define color schemes that can be used in your application,
+ * and they are also used by views directly when they defined their own attributes.
  */
 public struct Attribute {
     var value: Int32
@@ -87,26 +94,37 @@ public class ColorScheme {
 }
 
 /**
- * The default ColorSchemes for the application.
+ * The default ColorSchemes for the application, there are settngs for four different
+ * common scenarios: `base` is the set of colors that is used for most of your application
+ * UI.  `dialog` is the color scheme that is used for popup dialogs, usually they offer
+ * some contrast over the default colors;  `menu` is used for the top-level menus, and
+ * `error` is intended to have a set of attributes suitable to display error messages.
  */
 public class Colors {
     static var _base, _dialog, _menu, _error : ColorScheme?
     
+    /// The base color scheme is used for the main UI elements in the application
     public static var base : ColorScheme {
         get {
             return _base!
         }
     }
+    
+    // The color scheme to display pop up dialogs
     public static var dialog : ColorScheme {
         get {
             return _dialog!
         }
     }
+    
+    /// The color scheme to display the top application menu bar.
     public static var menu : ColorScheme {
         get {
             return _menu!
         }
     }
+    
+    /// The color scheme used to display error messages
     public static var error : ColorScheme {
         get {
             return _error!

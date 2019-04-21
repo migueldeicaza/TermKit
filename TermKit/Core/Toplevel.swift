@@ -1,5 +1,5 @@
 //
-//  Toplevel.swift
+//  Toplevel.swift - toplevel contains for the application
 //  TermKit
 //
 //  Created by Miguel de Icaza on 4/12/19.

@@ -1,5 +1,5 @@
 //
-//  Dim.swift
+//  Dim.swift - Implements the Dimension class, for layout
 //  MiniGui
 //
 //  Created by Miguel de Icaza on 4/5/19.

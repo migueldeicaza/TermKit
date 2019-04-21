@@ -115,6 +115,41 @@ class CursesDriver : ConsoleDriver {
     func toAppKeyEvent (_ ck: Int32) -> Key
     {
         switch (ck){
+            // Control sequences
+        case 0: return Key.ControlSpace
+        case 1: return Key.ControlA
+        case 2: return Key.ControlB
+        case 3: return Key.ControlC
+        case 4: return Key.ControlD
+        case 5: return Key.ControlE
+        case 6: return Key.ControlF
+        case 7: return Key.ControlG
+        case 8: return Key.ControlH
+        case 9: return Key.ControlI
+        case 10: return Key.ControlJ
+        case 11: return Key.ControlK
+        case 12: return Key.ControlL
+        case 13: return Key.ControlM
+        case 14: return Key.ControlN
+        case 15: return Key.ControlO
+        case 16: return Key.ControlP
+        case 17: return Key.ControlQ
+        case 18: return Key.ControlR
+        case 19: return Key.ControlS
+        case 20: return Key.ControlT
+        case 21: return Key.ControlU
+        case 22: return Key.ControlV
+        case 23: return Key.ControlW
+        case 24: return Key.ControlX
+        case 25: return Key.ControlY
+        case 26: return Key.ControlZ
+        case 27: return Key.Esc
+        case 28: return Key.FS
+        case 29: return Key.GS
+        case 30: return Key.RS
+        case 31: return Key.US
+        case 32: return Key.Space
+        case 127: return Key.Delete
         case KEY_F0+1: return Key.F1
         case KEY_F0+2: return Key.F2
         case KEY_F0+3: return Key.F3
@@ -137,14 +172,19 @@ class CursesDriver : ConsoleDriver {
         case KEY_IC: return Key.InsertChar
         case KEY_BTAB: return Key.Backtab
         case KEY_BACKSPACE: return Key.Backspace
-        default: return Key.Unknown
+        default:
+            if let us = Unicode.Scalar (UInt32 (ck)) {
+                return Key.Letter(Character.init(us))
+            } else {
+                return Key.Unknown
+            }
         }
     }
     
     //
     // Invoked when there is data available on standard input, takes the ncurses input
     // and creates a mouse or keyboard event and feeds it to the Application
-    // 
+    
     func inputReadCallback (input: FileHandle)
     {
         var result : Int32 = 0
@@ -205,7 +245,7 @@ class CursesDriver : ConsoleDriver {
                     case 27: // ESC+ESC is just ESC
                         ke = KeyEvent (key: Key.Esc)
                     default:
-                        ke = KeyEvent (key: Key(rawValue: UInt32(result))!, isAlt: true)
+                        ke = KeyEvent (key: toAppKeyEvent(result), isAlt: true)
                     }
                 } else {
                     // Got nothing, just pass the escape
@@ -215,7 +255,7 @@ class CursesDriver : ConsoleDriver {
             Application.processKeyEvent(event: ke)
         } else {
             // Pass the rest of the keystrokes
-            Application.processKeyEvent(event: KeyEvent(raw: UInt32(result)))
+            Application.processKeyEvent(event: KeyEvent(key: toAppKeyEvent(result)))
         }
         
     }

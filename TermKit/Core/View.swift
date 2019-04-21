@@ -1,5 +1,5 @@
 //
-//  View.swift
+//  View.swift - base class for all views
 //  TermKit
 //
 //  Created by Miguel de Icaza on 4/7/19.

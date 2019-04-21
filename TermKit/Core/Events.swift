@@ -1,5 +1,5 @@
 //
-//  Events.swift
+//  Events.swift - Core definitions for events
 //  TermKit
 //
 //  Created by Miguel de Icaza on 4/9/19.
@@ -19,79 +19,93 @@ import Foundation
  *
  * UnicodeScalars are also stored here, the letter 'A" for example is encoded as a value 65 (not surfaced in the enum).
  */
-public enum Key : UInt32 {
-    case CharMask = 0xfffff
-    case SpecialMask = 0xfff00000
-    
-    case ControlSpace = 0
+enum foo {
+    case foo (d: Character)
+    indirect case alt (x: foo)
+    indirect case control (x: foo)
+}
+
+public enum Key {
+    case ControlSpace
     /// The key code for the user pressing Control-A
-    case ControlA = 1
+    case ControlA
     /// The key code for the user pressing Control-B
-    case ControlB = 2
+    case ControlB
     /// The key code for the user pressing Control-C
-    case ControlC = 3
+    case ControlC
     /// The key code for the user pressing Control-D
-    case ControlD = 4
+    case ControlD
     /// The key code for the user pressing Control-E
-    case ControlE = 5
+    case ControlE
     /// The key code for the user pressing Control-F
-    case ControlF = 6
+    case ControlF
     /// The key code for the user pressing Control-G
-    case ControlG = 7
+    case ControlG
     /// The key code for the user pressing Control-H
-    case ControlH = 8
+    case ControlH
+    static var Backspace : Key {
+        get {
+            return ControlH
+        }
+    }
+
     /// The key code for the user pressing Control-I
-    case ControlI = 9
+    case ControlI
     /// The key code for the user pressing Control-J
-    case ControlJ = 10
+    case ControlJ
     /// The key code for the user pressing Control-K
-    case ControlK = 11
+    case ControlK
     /// The key code for the user pressing Control-L
-    case ControlL = 12
+    case ControlL
     /// The key code for the user pressing Control-M
-    case ControlM = 13
+    case ControlM
     /// The key code for the user pressing Control-N
-    case ControlN = 14
+    case ControlN
     /// The key code for the user pressing Control-O
-    case ControlO = 15
+    case ControlO
     /// The key code for the user pressing Control-P
-    case ControlP = 16
+    case ControlP
     /// The key code for the user pressing Control-Q
-    case ControlQ = 17
+    case ControlQ
     /// The key code for the user pressing Control-R
-    case ControlR = 18
+    case ControlR
     /// The key code for the user pressing Control-S
-    case ControlS = 19
+    case ControlS
     /// The key code for the user pressing Control-T
-    case ControlT = 20
+    case ControlT
     /// The key code for the user pressing Control-U
-    case ControlU = 21
+    case ControlU
     /// The key code for the user pressing Control-V
-    case ControlV = 22
+    case ControlV
     /// The key code for the user pressing Control-W
-    case ControlW = 23
+    case ControlW
     /// The key code for the user pressing Control-X
-    case ControlX = 24
+    case ControlX
     /// The key code for the user pressing Control-Y
-    case ControlY = 25
+    case ControlY
     /// The key code for the user pressing Control-Z
-    case ControlZ = 26
-
+    case ControlZ
+    
     /// The  key code for the user pressing the ESC key
-    case Esc = 27
-
+    case Esc
+    
+    // Value 28, Field Separator, ^\
+    case FS
+    
+    // Value 29, Group Separator, ^]
+    case GS
+    
+    // Value 30, Record Separator ^^
+    case RS
+    
+    // Value 31, Unit Separator, ^_
+    case US
+    
     /// The keycode for the spacebar
-    case Space = 32
+    case Space
     
     /// The keycode for the user pressing the delete key
-    case Delete = 127
-    
-    /// When this value is set, the key encodes the sequence Alt-keysequence
-    /// and the actual value must be extracted by removing the AltMask
-    case AltMask = 0x80000000
-    
-    /// The backspace key
-    case Backspace = 0x100000
+    case Delete
     
     /// Cursor up key pressed
     case CursorUp
@@ -135,6 +149,8 @@ public enum Key : UInt32 {
     case F10
     /// The shift-tab key
     case Backtab
+    
+    case Letter (Character)
     case Unknown
 }
 
@@ -144,44 +160,27 @@ public enum Key : UInt32 {
 public struct KeyEvent {
     /// Symbolic definition of the key
     public var key : Key
-    
-    /// The key value cast to an integer, you will typicall use this for
-    /// extracting the Unicode rune value out of a key, when none of the
-    ///  symbolic options are in use.
-    public var KeyValue : UInt32 {
-        get {
-            return key.rawValue
-        }
-    }
+    var _isControl, _isAlt : Bool
     
     /// Gets a value indicating whether the Alt key was pressed (real or synthesized)
     public var isAlt : Bool {
         get {
-            return  (key.rawValue & 0x80000000) != 0
+            return  _isAlt
         }
     }
     
     /// Determines whether the value is a control key
     public var isControl : Bool {
         get {
-            let k = key.rawValue
-            return k >= 1 && k <= 26
+            return _isControl
         }
     }
     
-    init (key : Key)
+    init (key : Key, isAlt: Bool = false, isControl : Bool = false)
     {
         self.key = key
-    }
-
-    init (key : Key, isAlt: Bool)
-    {
-        self.key = isAlt ? Key (rawValue: key.rawValue | 0x80000000)! : key
-    }
-    
-    init (raw: UInt32)
-    {
-        self.key = Key(rawValue: raw)!
+        self._isAlt = isAlt
+        self._isControl = isControl
     }
 }
 

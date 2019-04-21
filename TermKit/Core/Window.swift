@@ -1,5 +1,5 @@
 //
-//  Window.swift
+//  Window.swift - These are toplevel that are drawn with a border.
 //  TermKit
 //
 //  Created by Miguel de Icaza on 4/14/19.
