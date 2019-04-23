@@ -526,7 +526,7 @@ open class View : Responder, Hashable {
      */
     public func redraw(region : Rect)
     {
-        let clipRect = Rect (origin: Point.zero, size: Size.empty)
+        let clipRect = Rect (origin: Point.zero, size: frame.size)
         for view in subViews {
             if !view.needDisplay.isEmpty || view._childNeedsDisplay {
                 if view.frame.intersects(clipRect) && view.frame.intersects(region){

@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct Rect {
+public struct Rect : CustomDebugStringConvertible {
     public var origin : Point
     public var size : Size;
     static public var zero = Rect (origin: Point.zero, size: Size.empty)
@@ -117,7 +117,7 @@ public struct Rect {
     
     public func intersects (_ rect2 : Rect) -> Bool
     {
-        return intersection(rect2).isEmpty
+        return !intersection(rect2).isEmpty
     }
     
     public func contains (x : Int, y: Int) -> Bool
@@ -128,6 +128,10 @@ public struct Rect {
     public func contains (_ point : Point) -> Bool
     {
         return contains (x: point.x, y: point.y)
+    }
+    
+    public var debugDescription: String {
+        return "Rect(origin: \(origin), size: \(size))"
     }
 }
 

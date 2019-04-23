@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct Point {
+public struct Point : CustomDebugStringConvertible {
     var x : Int
     var y : Int
     static var zero = Point(x: 0, y: 0)
@@ -45,4 +45,7 @@ public struct Point {
         return lhs.x != rhs.x || lhs.y != rhs.y
     }
 
+    public var debugDescription: String {
+        return "Point(x: \(x), y: \(y))"
+    }
 }

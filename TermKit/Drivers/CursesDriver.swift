@@ -62,11 +62,17 @@ class CursesDriver : ConsoleDriver {
     let cursesAllEvents : Int32 = 0x7ffffff
 
     var oldMouseEvents : mmask_t
+
     typealias get_wch_def = @convention(c) (UnsafeMutablePointer<Int32>) -> Int
+    
+    // This is wrong
+    typealias add_wch_def = @convention(c) (UnsafeMutablePointer<CLong>) -> CInt
     
     // Dynamically loaded definitions, because Darwin.ncurses does not bring these
     var get_wch_fn : get_wch_def? = nil
+    var add_wch_fn : add_wch_def? = nil
     
+
     override init ()
     {
         oldMouseEvents = 0
@@ -75,6 +81,7 @@ class CursesDriver : ConsoleDriver {
         ccol = 0
         crow = 0
         
+        setlocale(LC_ALL, "")
         // Setup curses
         cursesWindow = initscr()
         raw ()
@@ -99,8 +106,12 @@ class CursesDriver : ConsoleDriver {
         clip = Rect (x: 0, y: 0, width: cols, height: rows)
 
         let rtld_default = UnsafeMutableRawPointer(bitPattern: -2)
+        
         let get_wch_ptr = dlsym (rtld_default, "get_wch")
         get_wch_fn = unsafeBitCast(get_wch_ptr, to: get_wch_def.self)
+        
+        let add_wch_ptr = dlsym (rtld_default, "add_wch")
+        add_wch_fn = unsafeBitCast(get_wch_ptr, to: add_wch_def.self)
         selectColors()
     }
     

@@ -148,13 +148,13 @@ public class ConsoleDriver {
     
     var cols : Int
     var rows : Int
-    let ulCorner = Unicode.Scalar (0x250c)!
-    let llCorner = Unicode.Scalar (0x2514)!
-    let hLine = Unicode.Scalar (0x2500)!
-    let urCorner = Unicode.Scalar (0x2510)!
-    let lrCorner = Unicode.Scalar (0x2518)!
+    var ulCorner = Unicode.Scalar (0x250c)!
+    var llCorner = Unicode.Scalar (0x2514)!
+    var hLine = Unicode.Scalar (0x2500)!
+    var urCorner = Unicode.Scalar (0x2510)!
+    var lrCorner = Unicode.Scalar (0x2518)!
     let space = Unicode.Scalar (32)!
-    let vLine = Unicode.Scalar (0x2502)!
+    var vLine = Unicode.Scalar (0x2502)!
     public var clip : Rect
     
     /**
