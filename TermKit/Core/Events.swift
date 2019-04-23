@@ -47,6 +47,12 @@ public enum Key {
     case ControlI
     /// The key code for the user pressing Control-J
     case ControlJ
+    
+    static var Return : Key {
+        get {
+            return ControlJ
+        }
+    }
     /// The key code for the user pressing Control-K
     case ControlK
     /// The key code for the user pressing Control-L

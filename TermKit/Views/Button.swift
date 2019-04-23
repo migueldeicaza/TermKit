@@ -79,4 +79,54 @@ public class Button : View {
     public override func positionCursor() {
         moveTo (col: hotPos, row: 0)
     }
+    
+    func raiseClicked ()
+    {
+    }
+    
+    func checkKey (_ event: KeyEvent) -> Bool {
+        if let hk = hotKey {
+            switch event.key {
+            case Character(ch) && ch == hk:
+                superView?.setFocus(self)
+                raiseClicked ()
+                return true
+            default:
+                break
+            }
+        }
+        return false
+    }
+    
+    public override func processHotKey(event: KeyEvent) -> Bool {
+        if event.isAlt {
+            return checkKey (event)
+        }
+        return false
+    }
+    
+    public override func processColdKey(event: KeyEvent) -> Bool {
+        if isDefault {
+            switch event.key {
+            case .ControlJ:
+                raiseClicked()
+                return true
+            default:
+                break
+            }
+        }
+        return super.processColdKey(event: event)
+    }
+    
+    public override func processKey(event: KeyEvent) -> Bool {
+        switch event.key {
+        case .ControlJ, .Space:
+            raiseClicked()
+            return true;
+        default:
+            // FIXME
+            break
+        }
+        return false
+    }
 }
