@@ -27,6 +27,7 @@
 		4972FADC226E472000EEA03F /* TextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4972FADB226E472000EEA03F /* TextField.swift */; };
 		49D9BCE9226C0F4F00DEF3D7 /* Label.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D9BCE8226C0F4F00DEF3D7 /* Label.swift */; };
 		49D9BCEC226C150D00DEF3D7 /* StringChar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D9BCEB226C150D00DEF3D7 /* StringChar.swift */; };
+		49D9BCEE226CC7D600DEF3D7 /* Button.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D9BCED226CC7D600DEF3D7 /* Button.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -63,6 +64,7 @@
 		4972FADB226E472000EEA03F /* TextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextField.swift; sourceTree = "<group>"; };
 		49D9BCE8226C0F4F00DEF3D7 /* Label.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Label.swift; sourceTree = "<group>"; };
 		49D9BCEB226C150D00DEF3D7 /* StringChar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringChar.swift; sourceTree = "<group>"; };
+		49D9BCED226CC7D600DEF3D7 /* Button.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Button.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -148,6 +150,7 @@
 				4972FAD7226E133C00EEA03F /* Checkbox.swift */,
 				4972FAD9226E3AFA00EEA03F /* Frame.swift */,
 				4972FADB226E472000EEA03F /* TextField.swift */,
+				49D9BCED226CC7D600DEF3D7 /* Button.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -238,6 +241,7 @@
 				49D9BCEC226C150D00DEF3D7 /* StringChar.swift in Sources */,
 				490C795D2257F39A0010F573 /* Pos.swift in Sources */,
 				4972FAD8226E133C00EEA03F /* Checkbox.swift in Sources */,
+				49D9BCEE226CC7D600DEF3D7 /* Button.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
