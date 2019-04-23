@@ -22,6 +22,9 @@
 		49674936225D907A0068A20D /* Events.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49674935225D907A0068A20D /* Events.swift */; };
 		49674938226192890068A20D /* Toplevel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49674937226192890068A20D /* Toplevel.swift */; };
 		4967493A226365920068A20D /* Window.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49674939226365920068A20D /* Window.swift */; };
+		4972FAD8226E133C00EEA03F /* Checkbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4972FAD7226E133C00EEA03F /* Checkbox.swift */; };
+		4972FADA226E3AFA00EEA03F /* Frame.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4972FAD9226E3AFA00EEA03F /* Frame.swift */; };
+		4972FADC226E472000EEA03F /* TextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4972FADB226E472000EEA03F /* TextField.swift */; };
 		49D9BCE9226C0F4F00DEF3D7 /* Label.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D9BCE8226C0F4F00DEF3D7 /* Label.swift */; };
 		49D9BCEC226C150D00DEF3D7 /* StringChar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D9BCEB226C150D00DEF3D7 /* StringChar.swift */; };
 /* End PBXBuildFile section */
@@ -55,6 +58,9 @@
 		49674935225D907A0068A20D /* Events.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Events.swift; sourceTree = "<group>"; };
 		49674937226192890068A20D /* Toplevel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Toplevel.swift; sourceTree = "<group>"; };
 		49674939226365920068A20D /* Window.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Window.swift; sourceTree = "<group>"; };
+		4972FAD7226E133C00EEA03F /* Checkbox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Checkbox.swift; sourceTree = "<group>"; };
+		4972FAD9226E3AFA00EEA03F /* Frame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Frame.swift; sourceTree = "<group>"; };
+		4972FADB226E472000EEA03F /* TextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextField.swift; sourceTree = "<group>"; };
 		49D9BCE8226C0F4F00DEF3D7 /* Label.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Label.swift; sourceTree = "<group>"; };
 		49D9BCEB226C150D00DEF3D7 /* StringChar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringChar.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -139,6 +145,9 @@
 			isa = PBXGroup;
 			children = (
 				49D9BCE8226C0F4F00DEF3D7 /* Label.swift */,
+				4972FAD7226E133C00EEA03F /* Checkbox.swift */,
+				4972FAD9226E3AFA00EEA03F /* Frame.swift */,
+				4972FADB226E472000EEA03F /* TextField.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -219,13 +228,16 @@
 				4958E50E2230EA860030D085 /* main.swift in Sources */,
 				490C795B2257F2BA0010F573 /* Rect.swift in Sources */,
 				49D9BCE9226C0F4F00DEF3D7 /* Label.swift in Sources */,
+				4972FADA226E3AFA00EEA03F /* Frame.swift in Sources */,
 				49674932225C32800068A20D /* CursesDriver.swift in Sources */,
+				4972FADC226E472000EEA03F /* TextField.swift in Sources */,
 				4967493A226365920068A20D /* Window.swift in Sources */,
 				49674930225C326F0068A20D /* ConsoleDriver.swift in Sources */,
 				49674934225D90160068A20D /* Responder.swift in Sources */,
 				490C79572257EF050010F573 /* Point.swift in Sources */,
 				49D9BCEC226C150D00DEF3D7 /* StringChar.swift in Sources */,
 				490C795D2257F39A0010F573 /* Pos.swift in Sources */,
+				4972FAD8226E133C00EEA03F /* Checkbox.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

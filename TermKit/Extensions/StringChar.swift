@@ -8,27 +8,58 @@
 
 import Foundation
 
+//
+// These are extension methods to measure characters in terminal-terms, based on
+// the wcwidth function
+//
 extension String {
-    // TODO
-    // this should use wcwidth on each Character to determine how many terminal cells the character uses.
+    // this uses wcwidth on each Character to determine how many terminal cells the character uses.
     // For example, this one uses 2 cells: "ማ" on a console.
     func cellCount () -> Int
     {
-        return self.count
+        var total = 0
+        for c in self {
+            total += c.cellSize()
+        }
+        return total
+    }
+    
+    //
+    // Returns a string that will fit in the "n" slots in the screen
+    //
+    func getVisibleString (_ n : Int) -> String
+    {
+        var slen = 0
+        var res = ""
+        for c in self {
+            let clen = c.cellSize()
+            if slen + clen > n {
+                return res
+            }
+            res.append (c)
+            slen += clen
+        }
+        return res
     }
 }
 
 extension Character {
-    // TODO
-    // this should use wcwidth on the character to determine how many cell it uses
-    //
     func cellSize () -> Int
     {
         if let ascii = self.asciiValue {
             if ascii < 32 {
                 return 0
             }
+            return 1
         }
-        return 1
+        let scalars = self.unicodeScalars
+        var max = 0
+        for s in scalars {
+            let w = wcwidth(Int32(s.value))
+            if w > max {
+                max = Int (w)
+            }
+        }
+        return max
     }
 }

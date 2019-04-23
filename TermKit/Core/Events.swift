@@ -19,12 +19,6 @@ import Foundation
  *
  * UnicodeScalars are also stored here, the letter 'A" for example is encoded as a value 65 (not surfaced in the enum).
  */
-enum foo {
-    case foo (d: Character)
-    indirect case alt (x: foo)
-    indirect case control (x: foo)
-}
-
 public enum Key {
     case ControlSpace
     /// The key code for the user pressing Control-A
@@ -170,7 +164,7 @@ public struct KeyEvent {
     }
     
     /// Determines whether the value is a control key
-    public var isControl : Bool {
+    public var xisControl : Bool {
         get {
             return _isControl
         }

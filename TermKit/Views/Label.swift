@@ -30,6 +30,7 @@ public class Label : View {
     {
         self.text = text
         self.textAlignment = .Left
+        super.init ()
     }
     
     /// The text displayed by this view
@@ -105,7 +106,7 @@ public class Label : View {
                 let x = words [w]
                 result.append(String (x))
                 if w + 1 < words.count {
-                    for i in 0..<spaces {
+                    for _ in 0..<spaces {
                         result.append (" ")
                     }
                 }
@@ -126,8 +127,7 @@ public class Label : View {
             lineResult.append (clipAndJustify(str: textStr, width: width, align: align))
             return
         }
-        let len = textStr.count
-        var lp = 0
+        
         var buffer = ""
         for c in textStr {
             if c == "\n" {

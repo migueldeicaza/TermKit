@@ -137,19 +137,48 @@ open class View : Responder, Hashable {
         }
     }
     
+    static func nextGlobalId () -> Int
+    {
+        let r = globalId
+        globalId += 1
+        return r
+    }
+    
     /**
-     * Constructor for a view that will use computed layout style
+     * Constructor for a view that will use computed layout style based on the values
+     * in Pos object (x, y) and Dim objects (width and height)
      */
     public init ()
     {
         _frame = Rect(x:0, y: 0, width: 0, height: 0)
-        viewId = View.globalId
-        View.globalId += 1
+        viewId = View.nextGlobalId ()
+    }
+    
+    /**
+     * Constructor for a view that will use fixed layout style using `frame` as the
+     * dimension.   When using this constructor, the view will not participate in
+     * automatic layout, but you can manually update the frame by overriding
+     * `layoutSubviews`
+     */
+    public init (frame: Rect)
+    {
+        self._frame = frame
+        viewId = View.nextGlobalId ()
+        layoutStyle = .fixed
     }
     
     var wantMousePositionReports : Bool = false
     
-    var frame : Rect {
+    /**
+     * Gets or sets the frame for the view.
+     *
+     * The coordinate of the frame is relative to the parent, so
+     * position 10,5 will position the view is the column 10, row 5 in the container.
+     *
+     * Altering the Frame of a view will trigger the redrawing of the
+     * view as well as the redrawing of the affected regions in the superview.
+     */
+    public var frame : Rect {
         get {
             return _frame
         }
@@ -165,7 +194,13 @@ open class View : Responder, Hashable {
         }
     }
     
-    var bounds : Rect {
+    /**
+     * The bounds represent the View-relative rectangle used for this view.
+     *
+     * Updates to the Bounds update the Frame, and has the same side effects as updating
+     * the frame.
+     */
+    public var bounds : Rect {
         get {
             return Rect (origin: Point.zero, size: frame.size)
         }
@@ -232,6 +267,9 @@ open class View : Responder, Hashable {
         }
     }
     
+    /**
+     * Adds the provided view as a subview of this view
+     */
     public func addSubview (_ view : View)
     {
         subViews.append (view)
@@ -242,6 +280,9 @@ open class View : Responder, Hashable {
         setNeedsLayout()
     }
     
+    /**
+     * Adds the provided views as subviews of this view
+     */
     public func addSubviews (_ views : [View])
     {
         for view in views {
@@ -259,9 +300,19 @@ open class View : Responder, Hashable {
         
     }
     
+    /**
+     * Clears the view region with the current color.
+     */
     public func Clear ()
     {
-        // TODO
+        let h = frame.height
+        let w = frame.width
+        for line in 0..<h {
+            moveTo(col: 0, row: line)
+            for _ in 0..<w {
+                addRune(driver.space)
+            }
+        }
     }
     
     func viewToScreen (col: Int, row : Int, clipped : Bool = true) -> (rcol : Int, rrow : Int)
@@ -433,7 +484,7 @@ open class View : Responder, Hashable {
     
     var _colorScheme : ColorScheme? = nil
     /**
-     * The basic colorscheme used by this view
+     * The colorscheme used by this view
      */
     public var colorScheme : ColorScheme? {
         get {
@@ -460,7 +511,7 @@ open class View : Responder, Hashable {
     }
     
     /**
-     * Draws the rune at the last position set by moveTo, use only when you know that the rune wont compose, otherwise use addChar
+     * Draws the rune at the last position set by moveTo, use only when you know that the rune won't compose, otherwise use addChar
      *
      * This will advance the logical cursor position
      */

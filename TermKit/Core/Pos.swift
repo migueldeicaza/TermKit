@@ -145,11 +145,13 @@ public class Pos {
         }
     }
     
+    /// Produces a dimension that adds the two specified positions together
     public static func + (lhs:Pos, rhs: Pos) -> Pos
     {
         return PosCombine (left: lhs, right: rhs, add: true)
     }
 
+    /// Produces a dimension that subtracts the second position value from the first
     public static func - (lhs:Pos, rhs: Pos) -> Pos
     {
         return PosCombine (left: lhs, right: rhs, add: false)
@@ -187,31 +189,37 @@ public class Pos {
         }
     }
     
+    /// Creates a position object that references the left-side of the provided view
     public static func left (of view : View) -> Pos
     {
         return PosView (view, side: .X)
     }
 
+    /// Creates a position object that references the colum coordinate of the provided view
     public static func x (of view : View) -> Pos
     {
         return PosView (view, side: .X)
     }
 
+    /// Creates a position object that references the top (y or row) coordinate of the provided view
     public static func top (of view : View) -> Pos
     {
         return PosView (view, side: .Y)
     }
     
+    /// Creates a position object that references the y (row) coordinate of the provided view
     public static func y (of view : View) -> Pos
     {
         return PosView (view, side: .Y)
     }
 
+    /// Creates a position object that references the right side coordinate of the provided view
     public static func right (of view : View) -> Pos
     {
         return PosView (view, side: .Right)
     }
-    
+
+    /// Creates a position object that references the bottom side coordinate of the provided view
     public static func bottom (of view : View) -> Pos
     {
         return PosView (view, side: .Bottom)
