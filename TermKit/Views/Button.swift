@@ -11,12 +11,15 @@ import Foundation
 /**
  * Button is a view that provides an item that invokes a callback when activated.
  *
- * Provides a button that can be clicked, or pressed with the enter key and
- * processes hotkeys (the first uppercase letter in the button becomes the hotkey).
+ * Provides a button that can be clicked, or pressed with the enter key or space key.
+ * It also responds to hotkeys (the first uppercase letter in the button becomes
+ * the hotkey) and triggers the execution of a callback method.
  *
  * If the button is configured as the default `IsDefault` the button
  * will respond to the return key is no other view processes it, and
  * turns this into a clicked event.
+ *
+ *
  */
 public class Button : View {
     
@@ -87,7 +90,7 @@ public class Button : View {
     func checkKey (_ event: KeyEvent) -> Bool {
         if let hk = hotKey {
             switch event.key {
-            case Character(ch) && ch == hk:
+            case let .Letter(ch) where ch == hk:
                 superView?.setFocus(self)
                 raiseClicked ()
                 return true
@@ -98,6 +101,9 @@ public class Button : View {
         return false
     }
     
+    //
+    // This makes is so that Alt-hotletter behaves as activating the button
+    //
     public override func processHotKey(event: KeyEvent) -> Bool {
         if event.isAlt {
             return checkKey (event)
@@ -105,6 +111,11 @@ public class Button : View {
         return false
     }
     
+    //
+    // This is processed last, handles the return key after all other views
+    // have processed their events, so we only handle return if this is the
+    // default button.
+    //
     public override func processColdKey(event: KeyEvent) -> Bool {
         if isDefault {
             switch event.key {
@@ -118,14 +129,26 @@ public class Button : View {
         return super.processColdKey(event: event)
     }
     
+    //
+    // Space or return while the button is focused activates the button
+    //
     public override func processKey(event: KeyEvent) -> Bool {
         switch event.key {
         case .ControlJ, .Space:
             raiseClicked()
             return true;
         default:
-            // FIXME
             break
+        }
+        return super.processKey (event: event)
+    }
+    
+    public override func mouseEvent(event: MouseEvent) -> Bool {
+        if (event.flags == .button1Clicked){
+            super.setFocus(self)
+            setNeedsDisplay()
+            raiseClicked()
+            return true
         }
         return false
     }
