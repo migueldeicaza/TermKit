@@ -159,7 +159,6 @@ class CursesDriver : ConsoleDriver {
         case 29: return Key.GS
         case 30: return Key.RS
         case 31: return Key.US
-        case 32: return Key.Space
         case 127: return Key.Delete
         case KEY_F0+1: return Key.F1
         case KEY_F0+2: return Key.F2
@@ -226,11 +225,11 @@ class CursesDriver : ConsoleDriver {
             let status2 = get_wch_fn! (&result)
             timeout (-1)
             var ke : KeyEvent
+            let isControl = result >= 0 && result < 32
             
             if status2 == KEY_CODE_YES {
-                ke = KeyEvent (key: toAppKeyEvent(result), isAlt: true)
+                ke = KeyEvent (key: toAppKeyEvent(result), isAlt: true, isControl: isControl)
             } else {
-
                 if status2 == 0 {
                     switch result {
                     case 48: // ESC-0 is F10
@@ -256,7 +255,7 @@ class CursesDriver : ConsoleDriver {
                     case 27: // ESC+ESC is just ESC
                         ke = KeyEvent (key: Key.Esc)
                     default:
-                        ke = KeyEvent (key: toAppKeyEvent(result), isAlt: true)
+                        ke = KeyEvent (key: toAppKeyEvent(result), isAlt: true, isControl: isControl)
                     }
                 } else {
                     // Got nothing, just pass the escape

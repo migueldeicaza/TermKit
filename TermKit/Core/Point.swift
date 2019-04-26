@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct Point : CustomDebugStringConvertible {
+public struct Point : CustomDebugStringConvertible, Codable {
     var x : Int
     var y : Int
     static var zero = Point(x: 0, y: 0)

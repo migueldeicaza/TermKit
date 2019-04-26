@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct Size : CustomDebugStringConvertible {
+public struct Size : CustomDebugStringConvertible, Codable {
     var width = 0
     var height = 0
     static public var empty : Size = Size (width: 0, height: 0)

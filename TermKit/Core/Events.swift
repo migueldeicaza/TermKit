@@ -101,9 +101,6 @@ public enum Key {
     // Value 31, Unit Separator, ^_
     case US
     
-    /// The keycode for the spacebar
-    case Space
-    
     /// The keycode for the user pressing the delete key
     case Delete
     
@@ -155,7 +152,7 @@ public enum Key {
 }
 
 /**
- * Describes a key event
+ * Describes a key event, this includes the key value, and there are two convenience properties isAlt and isControl
  */
 public struct KeyEvent {
     /// Symbolic definition of the key
@@ -169,13 +166,14 @@ public struct KeyEvent {
         }
     }
     
-    /// Determines whether the value is a control key
-    public var xisControl : Bool {
+    /// Determines whether the value is a control key (a shortcut to avoid testing all the Control values)
+    public var isControl : Bool {
         get {
             return _isControl
         }
     }
     
+    /// Initializes the KeyEvent structure
     init (key : Key, isAlt: Bool = false, isControl : Bool = false)
     {
         self.key = key

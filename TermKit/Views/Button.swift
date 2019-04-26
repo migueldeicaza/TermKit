@@ -134,7 +134,7 @@ public class Button : View {
     //
     public override func processKey(event: KeyEvent) -> Bool {
         switch event.key {
-        case .ControlJ, .Space:
+        case .ControlJ, .Letter(" "):
             raiseClicked()
             return true;
         default:

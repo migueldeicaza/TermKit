@@ -28,6 +28,7 @@
 		49D9BCE9226C0F4F00DEF3D7 /* Label.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D9BCE8226C0F4F00DEF3D7 /* Label.swift */; };
 		49D9BCEC226C150D00DEF3D7 /* StringChar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D9BCEB226C150D00DEF3D7 /* StringChar.swift */; };
 		49D9BCEE226CC7D600DEF3D7 /* Button.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D9BCED226CC7D600DEF3D7 /* Button.swift */; };
+		49D9BCF02272A21500DEF3D7 /* Clipboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D9BCEF2272A21500DEF3D7 /* Clipboard.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -65,6 +66,7 @@
 		49D9BCE8226C0F4F00DEF3D7 /* Label.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Label.swift; sourceTree = "<group>"; };
 		49D9BCEB226C150D00DEF3D7 /* StringChar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringChar.swift; sourceTree = "<group>"; };
 		49D9BCED226CC7D600DEF3D7 /* Button.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Button.swift; sourceTree = "<group>"; };
+		49D9BCEF2272A21500DEF3D7 /* Clipboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Clipboard.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -102,6 +104,7 @@
 				49674935225D907A0068A20D /* Events.swift */,
 				49674937226192890068A20D /* Toplevel.swift */,
 				49674939226365920068A20D /* Window.swift */,
+				49D9BCEF2272A21500DEF3D7 /* Clipboard.swift */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -240,6 +243,7 @@
 				490C79572257EF050010F573 /* Point.swift in Sources */,
 				49D9BCEC226C150D00DEF3D7 /* StringChar.swift in Sources */,
 				490C795D2257F39A0010F573 /* Pos.swift in Sources */,
+				49D9BCF02272A21500DEF3D7 /* Clipboard.swift in Sources */,
 				4972FAD8226E133C00EEA03F /* Checkbox.swift in Sources */,
 				49D9BCEE226CC7D600DEF3D7 /* Button.swift in Sources */,
 			);

@@ -15,14 +15,17 @@ public class TextField : View {
     var used : Bool = false
     /// The contents of the text field
     
+    typealias TextBuffer = [(ch:Character,size:Int8)]
+    
     // Store the string as an array of characters and the size in cells of each character
-    var textBuffer : [(ch:Character,size:Int8)] = []
+    var textBuffer : TextBuffer = []
+    
     public var text : String {
         get {
-            return fromTextBuffer ()
+            return TextField.fromTextBuffer (textBuffer)
         }
         set(value) {
-            toTextBuffer (value);
+            textBuffer = TextField.toTextBuffer (value);
             if point > textBuffer.count {
                 point = textBuffer.count
             }
@@ -31,24 +34,25 @@ public class TextField : View {
     }
     
     // Converts the string to the internal representation
-    func toTextBuffer (_ str: String)
+    static func toTextBuffer (_ str: String) -> TextBuffer
     {
-        textBuffer = []
+        var textBuffer : TextBuffer = []
         var i = 0
         for x in str {
             textBuffer [i] = (x, Int8(x.cellSize()))
             i += 1
         }
+        return textBuffer
     }
     
     // Convert from the internal buffer to a string
-    func fromTextBuffer (from: Int = 0, to: Int = -1) -> String
+    static func fromTextBuffer (_ data: TextBuffer, from: Int = 0, to: Int = -1) -> String
     {
-        let end = to == -1 ? textBuffer.count : to
+        let end = to == -1 ? data.count : to
         
         var res = ""
         for x in from..<end {
-            let pair = textBuffer [x]
+            let pair = data [x]
             res.append (pair.ch)
         }
         return res
@@ -157,7 +161,7 @@ public class TextField : View {
     
     func setClipboard (_ text: String)
     {
-        // TODOs
+        Clipboard.contents = text
     }
     
     public override func processKey(event: KeyEvent) -> Bool {
@@ -202,17 +206,161 @@ public class TextField : View {
             if point > textBuffer.count {
                 return true
             }
-            setClipboard (fromTextBuffer(from: point))
+            setClipboard (TextField.fromTextBuffer(textBuffer, from: point))
             textBuffer.removeLast(textBuffer.count-point)
             adjust ()
             
         case .ControlY: // yank
-            // TODO
+            if Clipboard.contents == "" {
+                return true
+            }
+            let clip = TextField.toTextBuffer(Clipboard.contents)
+            if point == textBuffer.count {
+                textBuffer = textBuffer + clip
+            } else {
+                textBuffer = textBuffer [0..<point] + clip + textBuffer [point...]
+                point += clip.count
+            }
+            adjust ()
+            
+        case .Letter("b") where event.isAlt:
+            if let wb = wordBackward (fromPoint: point) {
+                point = wb
+            }
+            adjust ()
+            
+        case .Letter("f") where event.isAlt:
+            if let fw = wordForward(fromPoint: point) {
+                point = fw
+            }
+            adjust()
+            
+        case let .Letter(x) where event.isAlt == false:
+            let kbstr = TextField.toTextBuffer(String (x))
+            if used {
+                if point == textBuffer.count {
+                    textBuffer = textBuffer + kbstr
+                } else {
+                    textBuffer = textBuffer [0..<point] + kbstr + textBuffer [point...]
+                }
+            } else {
+                textBuffer = kbstr
+                first = 0
+                point = 1
+            }
+            adjust ()
             break
+            
+        // MISSING:
+        // Alt-D, Alt-backspace
+        // Alt-Y
+        // Delete adding to kill-buffer
+        
         default:
             return true
         }
         used = true
+        return true
+    }
+    
+    subscript (index: Int) -> Character {
+        get {
+            return textBuffer [index].ch
+        }
+    }
+    
+    func isLetterOrDigit (_ c: Character) -> Bool
+    {
+        return c.isLetter || c.isNumber
+    }
+    
+    func wordForward (fromPoint p : Int) -> Int?
+    {
+        if p > textBuffer.count {
+            return nil
+        }
+        var i = p
+        let pch = self [p]
+        if pch.isPunctuation || pch.isWhitespace {
+            while i < text.count {
+                if isLetterOrDigit (self [i]) {
+                    break
+                }
+                i += 1
+            }
+            while i < text.count {
+                if !isLetterOrDigit(self [i]) {
+                    break
+                }
+                i += 1
+            }
+        } else {
+            while i < text.count {
+                if !isLetterOrDigit(self [i]) {
+                    break
+                }
+                i += 1
+            }
+        }
+        if i != p {
+            return i
+        }
+        return nil
+    }
+    
+    func wordBackward (fromPoint p : Int) -> Int?
+    {
+        var i = p - 1
+        if p == 0 || i == 0{
+            return nil
+        }
+        
+        let ti = self [p]
+        if ti.isPunctuation || ti.isSymbol || ti.isWhitespace {
+            while i >= 0 {
+                if isLetterOrDigit(self [i]){
+                    break
+                }
+                i -= 1
+            }
+            while i >= 0 {
+                if !isLetterOrDigit(self [i]) {
+                    break
+                }
+                i -= 1
+            }
+        } else {
+            while i >= 0 {
+                if !isLetterOrDigit(self [i]){
+                    break
+                }
+                i -= 0
+            }
+        }
+        i += 1
+        if i != p {
+            return i
+        }
+        return nil
+    }
+    
+    public override func mouseEvent(event: MouseEvent) -> Bool {
+        if !event.flags.contains(MouseFlags.button1Clicked) {
+            return false
+        }
+        if !hasFocus {
+            superView?.setFocus(self)
+        }
+        
+        // we could also set the cursor position
+        point = first + event.x
+        if point > text.count {
+            point = text.count
+        }
+        if point < first {
+            point = 0
+        }
+        setNeedsDisplay()
         return true
     }
 }
