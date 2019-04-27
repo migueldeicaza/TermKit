@@ -26,7 +26,7 @@ public class Label : View {
     var recalcPending: Bool = true
     
     /// Initializes a Label with the provided string
-    public init (text : String)
+    public init (_ text : String)
     {
         self.text = text
         self.textAlignment = .Left

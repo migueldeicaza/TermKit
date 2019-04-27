@@ -26,6 +26,16 @@ import Foundation
  * `left(of: view)`, `right(of: view)`, `bottom(of: View)`, `top(of: View)`.
  * The `x(of: View)` and `y(of: View)` are
  * aliases to `left(of: View)` and `top(of: View)` respectively.
+ *
+ * Examples:
+ * ```
+ * label = Label ("Hello world")
+ * label.x = Pos.at (10)        // at column 10
+ * label.y = Pos.percent (50)   // At 50%
+ * label.x = Pos.center ()      // center position
+ * // Center relative to another label
+ * label.x = Pos.center () - Dim.width(anotherLabel)
+ * ```
  */
 public class Pos {
     func Anchor (_ width : Int) -> Int { return 0 }

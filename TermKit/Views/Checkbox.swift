@@ -8,7 +8,18 @@
 
 import Foundation
 
-///  The Checkbox View shows an on/off toggle that the user can set
+/**
+ * The Checkbox View shows an on/off toggle that the user can set
+ *
+ * Example:
+ * ```
+ * c = Checkbox ("Toggle me")
+ * c.x = Pos.at (0)
+ * c.y = Pos.at (0)
+ * c.width = Dim(30)
+ * c.height = Dim (1)
+ * ```
+ */
 public class Checkbox : View {
     var hotPos : Int = -1
     var hotChar : Character? = nil
@@ -36,7 +47,7 @@ public class Checkbox : View {
         }
     }
     
-    public init (text: String, checked: Bool = false)
+    public init (_ text: String, checked: Bool = false)
     {
         self.text = text
         self.checked = checked
@@ -82,7 +93,7 @@ public class Checkbox : View {
         if !event.flags.contains(.button1Clicked) {
             return false
         }
-        superView?.setFocus(self)
+        superview?.setFocus(self)
         toggle ()
         return true
     }

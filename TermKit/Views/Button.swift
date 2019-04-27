@@ -91,7 +91,7 @@ public class Button : View {
         if let hk = hotKey {
             switch event.key {
             case let .Letter(ch) where ch == hk:
-                superView?.setFocus(self)
+                superview?.setFocus(self)
                 raiseClicked ()
                 return true
             default:

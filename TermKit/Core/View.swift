@@ -70,9 +70,9 @@ public enum LayoutStyle {
 
  */
 open class View : Responder, Hashable {
-    var superView : View? = nil
+    var superview : View? = nil
     var focused : View? = nil
-    var subViews : [View] = []
+    var subviews : [View] = []
     var _frame : Rect = Rect.zero
     var viewId : Int
     var id : String = ""
@@ -184,7 +184,7 @@ open class View : Responder, Hashable {
         }
         
         set (value){
-            if let parent = superView {
+            if let parent = superview {
                 parent.setNeedsDisplay (_frame)
                 parent.setNeedsDisplay (value)
             }
@@ -231,14 +231,14 @@ open class View : Responder, Hashable {
             needDisplay = Rect (x: x, y: y, width: w, height: h)
         }
         
-        if let container = superView {
+        if let container = superview {
             container.childNeedsDisplay ()
         }
-        if subViews.count == 0 {
+        if subviews.count == 0 {
             return
         }
         
-        for view in subViews {
+        for view in subviews {
             if view.frame.intersects(region){
                 var childRegion = view.frame.intersection(region)
                 childRegion.origin.x -= view.frame.minX
@@ -254,7 +254,7 @@ open class View : Responder, Hashable {
             return
         }
         layoutNeeded = true
-        if let container = superView {
+        if let container = superview {
             container.layoutNeeded = true
         }
     }
@@ -262,7 +262,7 @@ open class View : Responder, Hashable {
     public func childNeedsDisplay ()
     {
         _childNeedsDisplay = true
-        if let container = superView {
+        if let container = superview {
             container.childNeedsDisplay()
         }
     }
@@ -272,8 +272,8 @@ open class View : Responder, Hashable {
      */
     public func addSubview (_ view : View)
     {
-        subViews.append (view)
-        view.superView = self
+        subviews.append (view)
+        view.superview = self
         if view.canFocus {
             _canFocus = true
         }
@@ -320,11 +320,11 @@ open class View : Responder, Hashable {
         // Computes the real row, col relative to the screen.
         var rrow = row + frame.minY
         var rcol = col + frame.minX
-        var ccontainer = superView
+        var ccontainer = superview
         while ccontainer != nil {
             rrow += ccontainer!.frame.minY
             rcol += ccontainer!.frame.minX
-            ccontainer = ccontainer?.superView
+            ccontainer = ccontainer?.superview
         }
         
         // The following ensures that the cursor is always in the screen boundaries
@@ -344,7 +344,7 @@ open class View : Responder, Hashable {
      */
     public func screenToView (x : Int, y : Int) -> Point
     {
-        if let container = superView {
+        if let container = superview {
             let parent = container.screenToView(x: x, y: y)
             return Point(x: parent.x - frame.minX, y: parent.y - frame.minY)
         } else {
@@ -489,7 +489,7 @@ open class View : Responder, Hashable {
     public var colorScheme : ColorScheme? {
         get {
             if _colorScheme == nil {
-                if let s = superView {
+                if let s = superview {
                     return s.colorScheme
                 }
                 return nil
@@ -578,7 +578,7 @@ open class View : Responder, Hashable {
     public func redraw(region : Rect)
     {
         let clipRect = Rect (origin: Point.zero, size: frame.size)
-        for view in subViews {
+        for view in subviews {
             if !view.needDisplay.isEmpty || view._childNeedsDisplay {
                 if view.frame.intersects(clipRect) && view.frame.intersects(region){
                     // TODO: optimize this by computing the intersection of region and view.Bounds
@@ -605,12 +605,12 @@ open class View : Responder, Hashable {
             }
             
             // Make sure that this view is a subview
-            var c = v.superView
+            var c = v.superview
             while (c != nil){
                 if (c! === self) {
                     break
                 }
-                c = c!.superView
+                c = c!.superview
             }
             if c == nil {
                 // error
@@ -624,7 +624,7 @@ open class View : Responder, Hashable {
             focused!.ensureFocus()
             
             // Send focus upwards
-            if let s = superView {
+            if let s = superview {
                 s.setFocus (self)
             }
         }
@@ -646,7 +646,7 @@ open class View : Responder, Hashable {
      */
     public func processHotKey(event: KeyEvent) -> Bool
     {
-        for view in subViews {
+        for view in subviews {
             if view.processHotKey(event: event) {
                 return true
             }
@@ -693,7 +693,7 @@ open class View : Responder, Hashable {
      */
     public func processColdKey(event: KeyEvent) -> Bool
     {
-        for view in subViews {
+        for view in subviews {
             if view.processColdKey(event: event) {
                 return true
             }
@@ -720,12 +720,12 @@ open class View : Responder, Hashable {
     /// Focuses the first focusable subview if one exists.
     public func focusFirst ()
     {
-        if subViews.count == 0 {
-            superView?.setFocus(self)
+        if subviews.count == 0 {
+            superview?.setFocus(self)
             return
         }
         
-        for view in subViews {
+        for view in subviews {
             if view.canFocus {
                 setFocus (view)
                 return
@@ -736,12 +736,12 @@ open class View : Responder, Hashable {
     /// Focuses the last focusable subview if one exists.
     public func focusLast ()
     {
-        if subViews.count == 0 {
-            superView?.setFocus(self)
+        if subviews.count == 0 {
+            superview?.setFocus(self)
             return
         }
         
-        for view in subViews.reversed() {
+        for view in subviews.reversed() {
             if view.canFocus {
                 setFocus (view)
                 return
@@ -756,7 +756,7 @@ open class View : Responder, Hashable {
     @discardableResult
     public func focusPrev () -> Bool
     {
-        if subViews.count == 0 {
+        if subviews.count == 0 {
             return false
         }
         if focused == nil {
@@ -764,10 +764,10 @@ open class View : Responder, Hashable {
             return true
         }
         var focusedIdx = -1
-        var i = subViews.count
+        var i = subviews.count
         while (i > 0){
             i -= 1
-            let w = subViews [i]
+            let w = subviews [i]
             if w.hasFocus {
                 if w.focusPrev () {
                     return true
@@ -802,7 +802,7 @@ open class View : Responder, Hashable {
     @discardableResult
     public func focusNext () -> Bool
     {
-        if subViews.count == 0 {
+        if subviews.count == 0 {
             return false
         }
         if focused == nil {
@@ -810,9 +810,9 @@ open class View : Responder, Hashable {
             return focused != nil
         }
         var focusedIdx = -1
-        let n = subViews.count
+        let n = subviews.count
         for i in 0..<n {
-            let w = subViews [i]
+            let w = subviews [i]
             if w.hasFocus {
                 if w.focusNext () {
                     return true
@@ -967,7 +967,7 @@ open class View : Responder, Hashable {
         var nodes = Set<View>()
         var edges = Set<Edge>()
         
-        for v in subViews {
+        for v in subviews {
             nodes.insert (v)
             if v.layoutStyle == .computed {
                 if v.x is Pos.PosView {

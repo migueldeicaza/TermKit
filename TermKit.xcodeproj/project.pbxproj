@@ -29,6 +29,7 @@
 		49D9BCEC226C150D00DEF3D7 /* StringChar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D9BCEB226C150D00DEF3D7 /* StringChar.swift */; };
 		49D9BCEE226CC7D600DEF3D7 /* Button.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D9BCED226CC7D600DEF3D7 /* Button.swift */; };
 		49D9BCF02272A21500DEF3D7 /* Clipboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D9BCEF2272A21500DEF3D7 /* Clipboard.swift */; };
+		49D9BCF22273AF9E00DEF3D7 /* Menu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D9BCF12273AF9E00DEF3D7 /* Menu.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -67,6 +68,7 @@
 		49D9BCEB226C150D00DEF3D7 /* StringChar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringChar.swift; sourceTree = "<group>"; };
 		49D9BCED226CC7D600DEF3D7 /* Button.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Button.swift; sourceTree = "<group>"; };
 		49D9BCEF2272A21500DEF3D7 /* Clipboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Clipboard.swift; sourceTree = "<group>"; };
+		49D9BCF12273AF9E00DEF3D7 /* Menu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Menu.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -154,6 +156,7 @@
 				4972FAD9226E3AFA00EEA03F /* Frame.swift */,
 				4972FADB226E472000EEA03F /* TextField.swift */,
 				49D9BCED226CC7D600DEF3D7 /* Button.swift */,
+				49D9BCF12273AF9E00DEF3D7 /* Menu.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -241,6 +244,7 @@
 				49674930225C326F0068A20D /* ConsoleDriver.swift in Sources */,
 				49674934225D90160068A20D /* Responder.swift in Sources */,
 				490C79572257EF050010F573 /* Point.swift in Sources */,
+				49D9BCF22273AF9E00DEF3D7 /* Menu.swift in Sources */,
 				49D9BCEC226C150D00DEF3D7 /* StringChar.swift in Sources */,
 				490C795D2257F39A0010F573 /* Pos.swift in Sources */,
 				49D9BCF02272A21500DEF3D7 /* Clipboard.swift in Sources */,

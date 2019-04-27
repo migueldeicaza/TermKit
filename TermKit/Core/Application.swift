@@ -84,11 +84,11 @@ public class Application {
             return nil
         }
 
-        let count = start.subViews.count
+        let count = start.subviews.count
         if count > 0 {
             let location = Point(x: x - startFrame.minX, y: y - startFrame.minY)
             for i in (0..<(count)).reversed() {
-                let v = start.subViews[i]
+                let v = start.subviews[i]
                 if v.frame.contains(location) {
                     let deep = findDeepestView(start: v, x: location.x, y: location.y)
                     if deep == nil {
@@ -231,7 +231,7 @@ public class Application {
     static func drawBounds (_ view: View)
     {
         view.drawFrame(view.frame, padding: 0, fill: false)
-        for childView in view.subViews {
+        for childView in view.subviews {
             drawBounds(childView)
         }
     }

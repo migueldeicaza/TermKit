@@ -349,7 +349,7 @@ public class TextField : View {
             return false
         }
         if !hasFocus {
-            superView?.setFocus(self)
+            superview?.setFocus(self)
         }
         
         // we could also set the cursor position
