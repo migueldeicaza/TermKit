@@ -30,6 +30,7 @@
 		49D9BCEE226CC7D600DEF3D7 /* Button.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D9BCED226CC7D600DEF3D7 /* Button.swift */; };
 		49D9BCF02272A21500DEF3D7 /* Clipboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D9BCEF2272A21500DEF3D7 /* Clipboard.swift */; };
 		49D9BCF22273AF9E00DEF3D7 /* Menu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D9BCF12273AF9E00DEF3D7 /* Menu.swift */; };
+		49D9BCF5227632B000DEF3D7 /* Dialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D9BCF4227632B000DEF3D7 /* Dialog.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -69,6 +70,7 @@
 		49D9BCED226CC7D600DEF3D7 /* Button.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Button.swift; sourceTree = "<group>"; };
 		49D9BCEF2272A21500DEF3D7 /* Clipboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Clipboard.swift; sourceTree = "<group>"; };
 		49D9BCF12273AF9E00DEF3D7 /* Menu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Menu.swift; sourceTree = "<group>"; };
+		49D9BCF4227632B000DEF3D7 /* Dialog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dialog.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -131,6 +133,7 @@
 		4958E50C2230EA860030D085 /* TermKit */ = {
 			isa = PBXGroup;
 			children = (
+				49D9BCF3227632A700DEF3D7 /* Dialogs */,
 				49D9BCEA226C150200DEF3D7 /* Extensions */,
 				49D9BCE7226C0F4200DEF3D7 /* Views */,
 				490C79552257EEE10010F573 /* Core */,
@@ -167,6 +170,14 @@
 				49D9BCEB226C150D00DEF3D7 /* StringChar.swift */,
 			);
 			path = Extensions;
+			sourceTree = "<group>";
+		};
+		49D9BCF3227632A700DEF3D7 /* Dialogs */ = {
+			isa = PBXGroup;
+			children = (
+				49D9BCF4227632B000DEF3D7 /* Dialog.swift */,
+			);
+			path = Dialogs;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -245,6 +256,7 @@
 				49674934225D90160068A20D /* Responder.swift in Sources */,
 				490C79572257EF050010F573 /* Point.swift in Sources */,
 				49D9BCF22273AF9E00DEF3D7 /* Menu.swift in Sources */,
+				49D9BCF5227632B000DEF3D7 /* Dialog.swift in Sources */,
 				49D9BCEC226C150D00DEF3D7 /* StringChar.swift in Sources */,
 				490C795D2257F39A0010F573 /* Pos.swift in Sources */,
 				49D9BCF02272A21500DEF3D7 /* Clipboard.swift in Sources */,

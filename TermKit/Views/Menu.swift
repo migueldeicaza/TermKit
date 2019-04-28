@@ -18,11 +18,11 @@ public struct MenuItem {
     /// Gets or sets the help text for the menu item, this is show next to the title
     public var help : String
     
-    /// Gets or sets the action to be invoked when the menu is triggered
-    public var action : () -> Void
+    /// Gets or sets the action to be invoked when the menu is triggered, can be nil
+    public var action : (() -> Void)?
     
     /// his is the global setting that can be used as a global shortcut to invoke the action on the menu.
-    public var shortcut : Key
+    public var shortcut : Key?
     
     /**
      * The hotkey is used when the menu is active, the shortcut can be triggered when the menu is not active.
@@ -37,6 +37,17 @@ public struct MenuItem {
             return title.cellCount() + help.cellCount() + 1
         }
     }
+    
+    /**
+     */
+    public init (title: String, help: String = "", action: (()->Void)? = nil, shortcut: Key? = nil, hotkey: Character? = nil)
+    {
+        self.title = title
+        self.help = help
+        self.action = action
+        self.shortcut = shortcut
+        self.hotkey = hotkey
+    }
 }
 
 /**
@@ -45,7 +56,7 @@ public struct MenuItem {
 public class MenuBarItem {
     var title : String
     var titleLen : Int
-    var children: [MenuItem]
+    var children: [MenuItem?]
     
     /**
      * Initializes a new instance of the menubar item with the specified title and children
@@ -54,7 +65,7 @@ public class MenuBarItem {
      * becomes the hotkey, for example "_File" would make "F" the hotkey for the menu entry.
      * - Parameter children: Array of menu items that describe the contents of the menu.
      */
-    public init (title : String, children : [MenuItem])
+    public init (title : String, children : [MenuItem?])
     {
        var len = 0
         for ch in title {
@@ -69,15 +80,24 @@ public class MenuBarItem {
     }
 }
 
+//
+// Displays the menu list when it is activated
+//
 public class Menu : View {
     var barItems: MenuBarItem
     var host: MenuBar
     
-    static func makeFrame (_ x: Int, _ y: Int, _ items: [MenuItem]) -> Rect
+    // The current item in the list selected, if -1 it means that the are no selectable entries
+    var current: Int
+    
+    static func makeFrame (_ x: Int, _ y: Int, _ items: [MenuItem?]) -> Rect
     {
         var maxW = 0
         for item in items {
-            let l = item.width
+            if item == nil {
+                continue
+            }
+            let l = item!.width
             maxW = max(l, maxW)
         }
         return Rect (x: x, y: y, width: maxW + 2, height: items.count + 2)
@@ -87,12 +107,118 @@ public class Menu : View {
     {
         self.barItems = barItems
         self.host = host
+        self.current = -1
+        
+        // Find the first non-null entry, odd, but possible
+        for i in 0..<barItems.children.count {
+            if barItems.children [i] != nil {
+                self.current = i
+                break
+            }
+        }
         super.init (frame: Menu.makeFrame (x, y, barItems.children))
         colorScheme = Colors.menu
         canFocus = true
     }
     
-    // TODO this one
+    public override func redraw(region: Rect) {
+        driver.setAttribute(colorScheme!.normal)
+        drawFrame(region, padding: 0, fill: true)
+        
+        for i in 0..<barItems.children.count {
+            let item = barItems.children [i]
+            
+            // fill the background (white space) or draw the separator
+            moveTo (col: 1, row: i+1)
+            driver.setAttribute(item == nil ? Colors.base.focus : (i == current ? colorScheme!.focus : colorScheme!.normal))
+            for _ in 0...frame.width-1 {
+                driver.addRune (item == nil ? driver.hLine : driver.space)
+            }
+            if item == nil {
+                continue
+            }
+            
+            // Draw the menu title.
+            moveTo (col: 2, row: i+1)
+            drawHotString(text: item!.title,
+                          hotColor: i == current ? colorScheme!.hotFocus : colorScheme!.hotNormal,
+                          normalColor: i == current ? colorScheme!.focus : colorScheme!.normal)
+            
+            // Draw the help string
+            let l = item!.help.cellCount ()
+            moveTo(col: frame.width-l-2, row: i+1)
+            driver.addStr(item!.help)
+        }
+    }
+    
+    public override func positionCursor() {
+        moveTo (col: 2, row: 1+current)
+    }
+    
+    // runs the aciton in the main queue
+    func run (action: (()->Void)?)
+    {
+        if let callback = action {
+            DispatchQueue.main.async(execute: callback)
+        }
+    }
+    
+    public override func processKey(event: KeyEvent) -> Bool {
+        switch event.key {
+        case .CursorUp, .ControlP:
+            if current == -1 {
+                break
+            }
+            repeat {
+                current -= 1
+                if current < 0 {
+                    current = barItems.children.count - 1
+                }
+            } while barItems.children [current] == nil
+            setNeedsDisplay()
+            
+        case .CursorDown, .ControlN:
+            if current == -1 {
+                break
+            }
+
+            repeat {
+                current += 1
+                if current == barItems.children.count {
+                    current = 0
+                }
+            } while barItems.children [current] == nil
+            setNeedsDisplay()
+            
+        case .CursorLeft, .ControlB:
+            host.previousMenu()
+            
+        case .CursorRight, .ControlF:
+            host.nextMenu()
+            
+        case .Esc:
+            host.closeMenu()
+            
+        case .ControlJ: // Return
+            host.closeMenu()
+            run (action: barItems.children [current]!.action)
+            
+        case let .Letter(x) where x.isLetter || x.isNumber:
+            let upper = x.uppercased()
+            for item in barItems.children {
+                if let nnitem = item, let hotKey = nnitem.hotkey {
+                    if String(hotKey) == upper {
+                        host.closeMenu()
+                        run (action: nnitem.action)
+                        return true
+                    }
+                }
+            }
+        default:
+            break
+        }
+        return true
+    }
 }
 
 /**
@@ -106,8 +232,12 @@ public class Menu : View {
 public class MenuBar : View {
     public var menus: [MenuBarItem]
     var selected : Int? = nil
-    var action : () -> Void = {}
+    var action : (() -> Void)? = nil
 
+    /**
+     * Constructs the menubar with the specified array of MenuBarItems, which can contain nil values
+     * Use the nil value in the array to get a horizontal line separator
+     */
     public init (menus: [MenuBarItem])
     {
         self.menus = menus
@@ -205,6 +335,7 @@ public class MenuBar : View {
         setNeedsDisplay()
     }
     
+    // Invoked by the Menu class, when the menu is activated
     func closeMenu ()
     {
         selected = nil
@@ -214,6 +345,7 @@ public class MenuBar : View {
         openedMenu = nil
     }
     
+    // Invoked by the Menu class, when the menu is activated
     func previousMenu ()
     {
         guard let sel = selected else {
@@ -223,6 +355,7 @@ public class MenuBar : View {
         openMenu (index: selected!)
     }
 
+    // Invoked by the Menu class, when the menu is activated
     func nextMenu ()
     {
         if let sel = selected {
@@ -263,11 +396,13 @@ public class MenuBar : View {
             if menus [selected!].children.count == 0 {
                 return false
             }
-            for mi in menus [selected!].children {
-                if let p = mi.title.firstIndex(of: "_") {
-                    if target == mi.title [mi.title.index(after: p)].uppercased() {
-                        selected(item: mi)
-                        return true
+            for cmi in menus [selected!].children {
+                if let mi = cmi {
+                    if let p = mi.title.firstIndex(of: "_") {
+                        if target == mi.title [mi.title.index(after: p)].uppercased() {
+                            selected(item: mi)
+                            return true
+                        }
                     }
                 }
             }

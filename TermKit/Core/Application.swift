@@ -237,7 +237,11 @@ public class Application {
     }
     
     /**
-     * Stops running the most recent toplevel, use this to close a dialog, window, or toplevel.  The last time this is called, it will return to the OS
+     * Stops running the most recent toplevel, use this to close a dialog, window, or toplevel.
+     * The last time this is called, it will return to the OS and will return with the status code 0.
+     *
+     * If you want to terminate the application with a different status code, call the `Application.shutdown`
+     * method directly with the desired exit code.
      */
     public static func requestStop ()
     {
@@ -269,7 +273,16 @@ public class Application {
         refresh ()
     }
     
-    static func shutdown()
+    /**
+     * Terminates the application execution
+     *
+     * Because this is using Dispatch to run the application main loop, there is no way of terminating
+     * the main loop, other than exiting the process.   This restores the terminal to its previous
+     * state and terminates the process.
+     *
+     * - Paramter statusCode: status code passed to the `exit(2)` system call to terminate the process.
+     */
+    public static func shutdown(statusCode: Int = 0)
     {
         driver.end ();
         exit (0)
