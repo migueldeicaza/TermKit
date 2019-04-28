@@ -31,6 +31,7 @@
 		49D9BCF02272A21500DEF3D7 /* Clipboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D9BCEF2272A21500DEF3D7 /* Clipboard.swift */; };
 		49D9BCF22273AF9E00DEF3D7 /* Menu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D9BCF12273AF9E00DEF3D7 /* Menu.swift */; };
 		49D9BCF5227632B000DEF3D7 /* Dialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D9BCF4227632B000DEF3D7 /* Dialog.swift */; };
+		49D9BCF72276374B00DEF3D7 /* MessageBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D9BCF62276374B00DEF3D7 /* MessageBox.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -71,6 +72,7 @@
 		49D9BCEF2272A21500DEF3D7 /* Clipboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Clipboard.swift; sourceTree = "<group>"; };
 		49D9BCF12273AF9E00DEF3D7 /* Menu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Menu.swift; sourceTree = "<group>"; };
 		49D9BCF4227632B000DEF3D7 /* Dialog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dialog.swift; sourceTree = "<group>"; };
+		49D9BCF62276374B00DEF3D7 /* MessageBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageBox.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -176,6 +178,7 @@
 			isa = PBXGroup;
 			children = (
 				49D9BCF4227632B000DEF3D7 /* Dialog.swift */,
+				49D9BCF62276374B00DEF3D7 /* MessageBox.swift */,
 			);
 			path = Dialogs;
 			sourceTree = "<group>";
@@ -248,6 +251,7 @@
 				4958E50E2230EA860030D085 /* main.swift in Sources */,
 				490C795B2257F2BA0010F573 /* Rect.swift in Sources */,
 				49D9BCE9226C0F4F00DEF3D7 /* Label.swift in Sources */,
+				49D9BCF72276374B00DEF3D7 /* MessageBox.swift in Sources */,
 				4972FADA226E3AFA00EEA03F /* Frame.swift in Sources */,
 				49674932225C32800068A20D /* CursesDriver.swift in Sources */,
 				4972FADC226E472000EEA03F /* TextField.swift in Sources */,

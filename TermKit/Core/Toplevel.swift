@@ -28,6 +28,9 @@ open class Toplevel : View {
         get {
             return _running
         }
+        set(value) {
+            _running = value
+        }
     }
     
     /// Initializes a new instance of the Toplevel, class with Computed layout, defaulting to full screen dimensions.
