@@ -155,6 +155,13 @@ public class ConsoleDriver {
     var lrCorner = Unicode.Scalar (0x2518)!
     let space = Unicode.Scalar (32)!
     var vLine = Unicode.Scalar (0x2502)!
+    var stipple = Unicode.Scalar (0x2552)!
+    var diamond = Unicode.Scalar (0x25c6)!
+    var leftTee = Unicode.Scalar (0x251c)!
+    var rightTee = Unicode.Scalar (0x2524)!
+    var bottomTee = Unicode.Scalar (0x22a5)!
+    var topTee = Unicode.Scalar (0x22a4)!
+    
     public var clip : Rect
     
     /**

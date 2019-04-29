@@ -29,6 +29,15 @@ open class Toplevel : View {
             return _running
         }
         set(value) {
+            if _running && value == false {
+                DispatchQueue.main.async {
+                    do {
+                        try Application.end (self)
+                    } catch {
+                        
+                    }
+                }
+            }
             _running = value
         }
     }

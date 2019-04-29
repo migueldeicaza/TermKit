@@ -19,7 +19,15 @@ import Foundation
  * will respond to the return key is no other view processes it, and
  * turns this into a clicked event.
  *
+ * To connect a clicked handler, set the `clicked` property here to your callback
  *
+ * ```
+ * var d = Dialog("Hello")
+ * var ok = Button ("Ok")
+ * ok.clicked = { d.running = false }
+ * d.addButton (ok)
+ * Application.run (d)
+ * ```
  */
 public class Button : View {
     
@@ -31,17 +39,36 @@ public class Button : View {
             update ()
         }
     }
-    var text : String = "" {
+    
+    /**
+     * The text displayed by the button.  The first uppercase letter in the button becomes the hotkey
+     */
+    public var text : String = "" {
         didSet {
             update ()
         }
     }
     
+    /**
+     * Assigning to this variable a method will invoke it when the button is caviated
+     */
+    public var clicked : () -> Void = {}
+
     public override init ()
     {
         super.init ()
         canFocus = true
-
+    }
+    
+    /**
+     * Initializes a button with the text contained in the first parameter, the first uppercase letter by convention is the hotkey
+     *
+     * - Parameter text: Contains the text for the button.   The first uppercase letter in the button becomes the hotkey
+     */
+    public convenience init (_ text : String)
+    {
+        self.init ()
+        self.text = text
     }
     
     func update ()
@@ -85,6 +112,7 @@ public class Button : View {
     
     func raiseClicked ()
     {
+        clicked ()
     }
     
     func checkKey (_ event: KeyEvent) -> Bool {

@@ -32,6 +32,8 @@
 		49D9BCF22273AF9E00DEF3D7 /* Menu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D9BCF12273AF9E00DEF3D7 /* Menu.swift */; };
 		49D9BCF5227632B000DEF3D7 /* Dialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D9BCF4227632B000DEF3D7 /* Dialog.swift */; };
 		49D9BCF72276374B00DEF3D7 /* MessageBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D9BCF62276374B00DEF3D7 /* MessageBox.swift */; };
+		49D9BCF92276937500DEF3D7 /* ProgressBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D9BCF82276937500DEF3D7 /* ProgressBar.swift */; };
+		49D9BCFB227695F500DEF3D7 /* ScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49D9BCFA227695F500DEF3D7 /* ScrollView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -73,6 +75,8 @@
 		49D9BCF12273AF9E00DEF3D7 /* Menu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Menu.swift; sourceTree = "<group>"; };
 		49D9BCF4227632B000DEF3D7 /* Dialog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dialog.swift; sourceTree = "<group>"; };
 		49D9BCF62276374B00DEF3D7 /* MessageBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageBox.swift; sourceTree = "<group>"; };
+		49D9BCF82276937500DEF3D7 /* ProgressBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressBar.swift; sourceTree = "<group>"; };
+		49D9BCFA227695F500DEF3D7 /* ScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -162,6 +166,8 @@
 				4972FADB226E472000EEA03F /* TextField.swift */,
 				49D9BCED226CC7D600DEF3D7 /* Button.swift */,
 				49D9BCF12273AF9E00DEF3D7 /* Menu.swift */,
+				49D9BCF82276937500DEF3D7 /* ProgressBar.swift */,
+				49D9BCFA227695F500DEF3D7 /* ScrollView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -249,6 +255,7 @@
 				490C79592257EF460010F573 /* Size.swift in Sources */,
 				4958E5152230EAA80030D085 /* Application.swift in Sources */,
 				4958E50E2230EA860030D085 /* main.swift in Sources */,
+				49D9BCFB227695F500DEF3D7 /* ScrollView.swift in Sources */,
 				490C795B2257F2BA0010F573 /* Rect.swift in Sources */,
 				49D9BCE9226C0F4F00DEF3D7 /* Label.swift in Sources */,
 				49D9BCF72276374B00DEF3D7 /* MessageBox.swift in Sources */,
@@ -265,6 +272,7 @@
 				490C795D2257F39A0010F573 /* Pos.swift in Sources */,
 				49D9BCF02272A21500DEF3D7 /* Clipboard.swift in Sources */,
 				4972FAD8226E133C00EEA03F /* Checkbox.swift in Sources */,
+				49D9BCF92276937500DEF3D7 /* ProgressBar.swift in Sources */,
 				49D9BCEE226CC7D600DEF3D7 /* Button.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

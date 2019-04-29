@@ -299,7 +299,7 @@ class CursesDriver : ConsoleDriver {
                 move (crow, ccol)
                 needMove = false
             }
-            addch(UInt32 (rune))
+            addstr(String (rune))
         } else {
             needMove = true
         }

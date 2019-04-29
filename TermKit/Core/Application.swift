@@ -182,6 +182,14 @@ public class Application {
     }
     
     /**
+     * Makes the provided toplevel the new toplevel, sending all events to it
+     */
+    public static func run (top: Toplevel)
+    {
+        begin (toplevel: top);
+    }
+    
+    /**
      * Starts the application mainloop - does not return, but can exit to the OS.
      */
     public static func run ()
@@ -197,12 +205,12 @@ public class Application {
     }
     
     // Called by RunState when it disposes
-    static func end (_ view: View) throws
+    static func end (_ top: Toplevel) throws
     {
         if toplevels.last == nil {
             throw ApplicationError.internalState(msg: "The current toplevel is null, and the end callback is being called")
         }
-        if toplevels.last! != view {
+        if toplevels.last! != top {
             throw ApplicationError.internalState(msg: "The current toplevel is not the one that this is being called on")
         }
         toplevels = toplevels.dropLast ()
