@@ -77,10 +77,10 @@ public class ProgressBar : View {
         } else {
             moveTo(col: 0, row: 0)
             let mid = Int (fraction * Float (top))
-            for i in 0..<mid {
+            for _ in 0..<mid {
                 driver.addRune(driver.stipple)
             }
-            for i in mid..<top {
+            for _ in mid..<top {
                 driver.addRune (driver.space)
             }
         }

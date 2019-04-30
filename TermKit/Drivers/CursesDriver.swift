@@ -62,6 +62,7 @@ class CursesDriver : ConsoleDriver {
     let cursesAllEvents : Int32 = 0x7ffffff
 
     var oldMouseEvents : mmask_t
+    var mouseEvents : mmask_t
 
     typealias get_wch_def = @convention(c) (UnsafeMutablePointer<Int32>) -> Int
     
@@ -76,6 +77,7 @@ class CursesDriver : ConsoleDriver {
     override init ()
     {
         oldMouseEvents = 0
+        mouseEvents = 0
         super.init ()
         
         ccol = 0
@@ -88,8 +90,8 @@ class CursesDriver : ConsoleDriver {
         noecho ()
         keypad(cursesWindow, true)
     
-        mousemask (mmask_t (UInt (cursesAllEvents | cursesReportMousePosition)), &oldMouseEvents)
-        if oldMouseEvents != 0 {
+        mouseEvents = mousemask (mmask_t (UInt (cursesAllEvents | cursesReportMousePosition)), &oldMouseEvents)
+        if (mouseEvents & UInt (cursesReportMousePosition)) != 0 {
             startReportingMouseMoves()
         }
         start_color()
@@ -461,7 +463,7 @@ class CursesDriver : ConsoleDriver {
     
     func stopReportingMouseMoves ()
     {
-        if oldMouseEvents != 0 {
+        if (mouseEvents & UInt(cursesReportMousePosition)) != 0 {
             print ("\u{1b}[?1003l")
             fflush(stdout)
         }
@@ -469,7 +471,7 @@ class CursesDriver : ConsoleDriver {
     
     func startReportingMouseMoves ()
     {
-        if oldMouseEvents != 0 {
+        if (mouseEvents & UInt (cursesReportMousePosition)) != 0 {
             print ("\u{1b}[?1003h")
             fflush (stdout)
         }
