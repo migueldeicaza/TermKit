@@ -37,10 +37,8 @@ public class TextField : View {
     static func toTextBuffer (_ str: String) -> TextBuffer
     {
         var textBuffer : TextBuffer = []
-        var i = 0
         for x in str {
-            textBuffer [i] = (x, Int8(x.cellSize()))
-            i += 1
+            textBuffer.append((ch: x, size: Int8(x.cellSize())))
         }
         return textBuffer
     }
@@ -113,7 +111,8 @@ public class TextField : View {
         setNeedsDisplay()
     }
     
-    public init (initial : String = "")
+    /// Initializes the TextField, with the optional initial text
+    public init (_ initial : String = "")
     {
         layoutPending = true
         point = 0
@@ -172,6 +171,7 @@ public class TextField : View {
             }
             textBuffer.remove (at: point)
             textChanged ()
+            adjust()
             
         case .Delete, .ControlH:
             if point == 0 {
@@ -243,6 +243,7 @@ public class TextField : View {
                 } else {
                     textBuffer = textBuffer [0..<point] + kbstr + textBuffer [point...]
                 }
+                point += 1
             } else {
                 textBuffer = kbstr
                 first = 0
@@ -315,7 +316,7 @@ public class TextField : View {
             return nil
         }
         
-        let ti = self [p]
+        let ti = self [i]
         if ti.isPunctuation || ti.isSymbol || ti.isWhitespace {
             while i >= 0 {
                 if isLetterOrDigit(self [i]){
@@ -334,7 +335,7 @@ public class TextField : View {
                 if !isLetterOrDigit(self [i]){
                     break
                 }
-                i -= 0
+                i -= 1
             }
         }
         i += 1
@@ -342,6 +343,17 @@ public class TextField : View {
             return i
         }
         return nil
+    }
+    
+    public override func positionCursor() {
+        var col = 0
+        for idx in first..<textBuffer.count {
+            if idx == point {
+                break
+            }
+            col += Int (textBuffer[idx].size)
+        }
+        moveTo (col: col, row: 0)
     }
     
     public override func mouseEvent(event: MouseEvent) -> Bool {

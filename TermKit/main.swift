@@ -27,18 +27,30 @@ var menu = MenuBar (menus: [
         MenuItem(title: "_Quit", action: { Application.shutdown() }),
     ]),
     MenuBarItem(title: "_Edit", children: [
+        MenuItem(title: "_Copy"),
+        MenuItem(title: "C_ut"),
+        MenuItem(title: "_Paste"),
     ])
 ])
 
 print ("starting")
 let win = Window()
 win.x = Pos.at (0)
-win.y = Pos.at (0)
-win.width = Dim(20)
-win.height = Dim (20)
-let l = Label ("Hello")
+win.y = Pos.at (1)
+win.width = Dim.fill()
+win.height = Dim.fill ()
+let l = Label ("Login:")
+l.x = Pos.at (10)
+l.y = Pos.at (10)
+l.width = Dim(10)
+let name = TextField("")
+name.x = Pos.right(of: l) + 2
+name.y = Pos.top(of: l)
 
 Application.top.addSubview(win)
 Application.top.addSubview(menu)
+win.addSubview(l)
+win.addSubview(name)
+
 Application.run()
 print ("ending")

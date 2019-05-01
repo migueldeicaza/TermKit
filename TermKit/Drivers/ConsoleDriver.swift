@@ -306,6 +306,7 @@ public class ConsoleDriver {
      *
      * - Returns: True if the application did suspend
      */
+    @discardableResult
     public func suspend () -> Bool
     {
         return true

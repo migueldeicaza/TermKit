@@ -34,7 +34,7 @@ public struct MenuItem {
     
     var width : Int {
         get {
-            return title.cellCount() + help.cellCount() + 1
+            return title.cellCount() + help.cellCount() + 1 + 2
         }
     }
     
@@ -130,8 +130,8 @@ public class Menu : View {
             
             // fill the background (white space) or draw the separator
             moveTo (col: 1, row: i+1)
-            driver.setAttribute(item == nil ? Colors.base.focus : (i == current ? colorScheme!.focus : colorScheme!.normal))
-            for _ in 0...frame.width-1 {
+            driver.setAttribute(item == nil ? colorScheme!.normal : (i == current ? colorScheme!.focus : colorScheme!.normal))
+            for _ in 0..<frame.width-2 {
                 driver.addRune (item == nil ? driver.hLine : driver.space)
             }
             if item == nil {
@@ -140,6 +140,7 @@ public class Menu : View {
             
             // Draw the menu title.
             moveTo (col: 2, row: i+1)
+            
             drawHotString(text: item!.title,
                           hotColor: i == current ? colorScheme!.hotFocus : colorScheme!.hotNormal,
                           normalColor: i == current ? colorScheme!.focus : colorScheme!.normal)

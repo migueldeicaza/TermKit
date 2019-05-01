@@ -991,7 +991,7 @@ open class View : Responder, Hashable {
         
         for v in ordered! {
             if v.layoutStyle == .computed {
-                relativeLayout(hostFrame: frame)
+                v.relativeLayout(hostFrame: frame)
             }
             try v.layoutSubviews()
             v.layoutNeeded = false

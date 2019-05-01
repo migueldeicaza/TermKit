@@ -161,12 +161,24 @@ public class Pos {
         return PosCombine (left: lhs, right: rhs, add: true)
     }
 
+    /// Produces a dimension that adds the two specified positions together
+    public static func + (lhs:Pos, rhs: Int) -> Pos
+    {
+        return PosCombine (left: lhs, right: Pos.at(rhs), add: true)
+    }
+
     /// Produces a dimension that subtracts the second position value from the first
     public static func - (lhs:Pos, rhs: Pos) -> Pos
     {
         return PosCombine (left: lhs, right: rhs, add: false)
     }
-    
+
+    /// Produces a dimension that subtracts the second position value from the first
+    public static func - (lhs:Pos, rhs: Int) -> Pos
+    {
+        return PosCombine (left: lhs, right: Pos.at(rhs), add: false)
+    }
+
     enum Side {
         case X
         case Y

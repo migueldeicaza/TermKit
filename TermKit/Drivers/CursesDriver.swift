@@ -67,7 +67,7 @@ class CursesDriver : ConsoleDriver {
     typealias get_wch_def = @convention(c) (UnsafeMutablePointer<Int32>) -> Int
     
     // This is wrong
-    typealias add_wch_def = @convention(c) (UnsafeMutablePointer<CLong>) -> CInt
+    typealias add_wch_def = @convention(c) (UnsafeMutablePointer<m_cchar_t>) -> CInt
     
     // Dynamically loaded definitions, because Darwin.ncurses does not bring these
     var get_wch_fn : get_wch_def? = nil
@@ -96,7 +96,7 @@ class CursesDriver : ConsoleDriver {
         }
         start_color()
         noecho()
-        curs_set (0)
+        curs_set (1)
         init_pair (0, Int16(COLOR_BLACK), Int16(COLOR_GREEN))
         keypad (stdscr, true)
         setupInput ()
@@ -108,12 +108,13 @@ class CursesDriver : ConsoleDriver {
         clip = Rect (x: 0, y: 0, width: cols, height: rows)
 
         let rtld_default = UnsafeMutableRawPointer(bitPattern: -2)
-        
+
+        // Fetch the pointers to get_wch and add_wch as the NCurses binding in Swift is missing them
         let get_wch_ptr = dlsym (rtld_default, "get_wch")
         get_wch_fn = unsafeBitCast(get_wch_ptr, to: get_wch_def.self)
         
         let add_wch_ptr = dlsym (rtld_default, "add_wch")
-        add_wch_fn = unsafeBitCast(get_wch_ptr, to: add_wch_def.self)
+        add_wch_fn = unsafeBitCast(add_wch_ptr, to: add_wch_def.self)
         selectColors()
     }
     
@@ -301,7 +302,10 @@ class CursesDriver : ConsoleDriver {
                 move (crow, ccol)
                 needMove = false
             }
-            addstr(String (rune))
+            
+            //var x = m_cchar_t(attr: currentAttr, chars: (wchar_t (rune.value), 0, 0, 0, 0))
+            //let _ = add_wch_fn! (&x)
+            addstr (String (rune))
         } else {
             needMove = true
         }
@@ -371,10 +375,10 @@ class CursesDriver : ConsoleDriver {
                                hotNormal: mkAttr((COLOR_YELLOW, COLOR_BLUE), bold: true),
                                hotFocus:  mkAttr((COLOR_YELLOW, COLOR_CYAN), bold: true))
         
-        let menu = ColorScheme(normal:    mkAttr((COLOR_YELLOW, COLOR_BLACK), bold: true),
+        let menu = ColorScheme(normal:    mkAttr((COLOR_WHITE, COLOR_CYAN), bold: true),
                                focus:     mkAttr((COLOR_WHITE,  COLOR_BLACK), bold: true),
                                hotNormal: mkAttr((COLOR_YELLOW, COLOR_CYAN), bold: true),
-                               hotFocus:  mkAttr((COLOR_WHITE,  COLOR_CYAN), bold: true))
+                               hotFocus:  mkAttr((COLOR_YELLOW,  COLOR_BLACK), bold: true))
 
         let dialog = ColorScheme(normal:    mkAttr((COLOR_BLACK, COLOR_WHITE)),
                                  focus:     mkAttr((COLOR_BLACK,COLOR_CYAN)),
@@ -437,8 +441,13 @@ class CursesDriver : ConsoleDriver {
         
         return mkAttr ((fa, ba), bold: bold)
     }
+    
+    // Set when the method setAttribute is called
+    var currentAttr : Int32 = 0
+    
     public override func setAttribute (_ attr: Attribute)
     {
+        currentAttr = attr.value
         attrset(attr.value)
     }
     
