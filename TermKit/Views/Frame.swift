@@ -74,4 +74,8 @@ public class FrameView : View {
         contentView.redraw(region: contentView.bounds)
         clearNeedsDisplay()
     }
+    
+    public override var debugDescription: String {
+        return "Frame (\(super.debugDescription))"
+    }
 }

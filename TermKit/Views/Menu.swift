@@ -430,4 +430,8 @@ public class MenuBar : View {
         }
         return false
     }
+    
+    public override var debugDescription: String {
+        return "Menubar (\(super.debugDescription))"
+    }
 }

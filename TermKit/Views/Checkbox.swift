@@ -97,4 +97,9 @@ public class Checkbox : View {
         toggle ()
         return true
     }
+    
+    public override var debugDescription: String {
+        return "Checkbox (\(super.debugDescription))"
+    }
+
 }

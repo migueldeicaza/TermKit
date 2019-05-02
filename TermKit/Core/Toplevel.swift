@@ -129,4 +129,9 @@ open class Toplevel : View {
     {
         focusFirst()
     }
+    
+    public override var debugDescription: String {
+        return "Toplevel (\(super.debugDescription))"
+    }
+
 }

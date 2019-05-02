@@ -180,4 +180,8 @@ public class Button : View {
         }
         return false
     }
+    
+    public override var debugDescription: String {
+        return "Button (\(super.debugDescription), text=\(text)))"
+    }
 }

@@ -69,7 +69,7 @@ public enum LayoutStyle {
  * frames for the vies that use LayoutKind.Computed.
 
  */
-open class View : Responder, Hashable {
+open class View : Responder, Hashable, CustomDebugStringConvertible {
     var superview : View? = nil
     var focused : View? = nil
     var subviews : [View] = []
@@ -303,7 +303,7 @@ open class View : Responder, Hashable {
     /**
      * Clears the view region with the current color.
      */
-    public func Clear ()
+    public func clear ()
     {
         let h = frame.height
         let w = frame.width
@@ -313,6 +313,19 @@ open class View : Responder, Hashable {
                 addRune(driver.space)
             }
         }
+    }
+    
+    public func clear (_ rect: Rect)
+    {
+        let h = rect.height
+        let w = rect.width
+        for line in 0..<h {
+            moveTo(col: rect.minX, row: line)
+            for _ in 0..<w {
+                addRune(driver.space)
+            }
+        }
+
     }
     
     func viewToScreen (col: Int, row : Int, clipped : Bool = true) -> (rcol : Int, rrow : Int)
@@ -997,5 +1010,9 @@ open class View : Responder, Hashable {
             v.layoutNeeded = false
         }
         layoutNeeded = false
+    }
+    
+    public var debugDescription: String {
+        return "viewId:\(viewId)"
     }
 }

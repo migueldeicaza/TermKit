@@ -85,4 +85,8 @@ public class ProgressBar : View {
             }
         }
     }
+    
+    public override var debugDescription: String {
+        return "ProgressBar (\(super.debugDescription))"
+    }
 }

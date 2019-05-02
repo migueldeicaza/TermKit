@@ -152,6 +152,12 @@ public class ScrollBarView : View {
         if event.flags != .button1Clicked {
             return false
         }
+        let location = vertical ? event.y : event.x
+        
         return true
+    }
+    
+    public override var debugDescription: String {
+        return "ScrollView (\(super.debugDescription))"
     }
 }

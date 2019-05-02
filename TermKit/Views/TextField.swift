@@ -258,7 +258,7 @@ public class TextField : View {
         // Delete adding to kill-buffer
         
         default:
-            return true
+            return false
         }
         used = true
         return true
@@ -374,5 +374,9 @@ public class TextField : View {
         }
         setNeedsDisplay()
         return true
+    }
+    
+    public override var debugDescription: String {
+        return "TextField (\(super.debugDescription))"
     }
 }

@@ -20,7 +20,7 @@ class CursesDriver : ConsoleDriver {
     var ccol : Int32 = 0
     var crow : Int32 = 0
     var needMove : Bool = false
-    var sync : Bool = false
+    var sync : Bool = false 
     var cursesWindow : OpaquePointer!
     
     

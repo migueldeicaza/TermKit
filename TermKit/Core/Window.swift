@@ -24,7 +24,9 @@ public class Window : Toplevel {
     }
     
     class ContentView : View {
-    
+        public override var debugDescription: String {
+            return "Window.ContentView (\(super.debugDescription))"
+        }
     }
     
     public override convenience init ()
@@ -37,10 +39,10 @@ public class Window : Toplevel {
         self.padding = padding
         self.title = title
         contentView = ContentView()
-        contentView.x = Pos.at (padding)
-        contentView.y = Pos.at (padding)
-        contentView.width = Dim.fill(padding * 2)
-        contentView.height = Dim.fill(padding * 2)
+        contentView.x = Pos.at (padding + 1)
+        contentView.y = Pos.at (padding + 1)
+        contentView.width = Dim.fill(padding+1)
+        contentView.height = Dim.fill(padding+1)
         super.init ()
         super.addSubview(contentView)
     }
@@ -50,8 +52,9 @@ public class Window : Toplevel {
         drawFrame(bounds, padding: padding, fill: true)
     }
     
-    public override func addSubview(_ view: View) {
-         contentView.addSubview(view)
+    public override func addSubview(_ view: View)
+    {
+        contentView.addSubview(view)
         if view.canFocus {
             canFocus = true
         }
@@ -82,5 +85,7 @@ public class Window : Toplevel {
         clearNeedsDisplay()
     }
     
-    
+    public override var debugDescription: String {
+        return "Window (\(super.debugDescription))"
+    }
 }
