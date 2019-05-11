@@ -161,3 +161,45 @@ public class ScrollBarView : View {
         return "ScrollView (\(super.debugDescription))"
     }
 }
+
+public class ScrollView : View {
+    var contentView: View
+    var vertical, horizontal: ScrollBarView
+    var showsHorizontalScrollIndicator = false
+    var showsVerticalScrollIndicator = false
+    
+    public override init ()
+    {
+        contentView = View ()
+        vertical = ScrollBarView (frame: Rect.zero, size: 0, position: 0, isVertical: true)
+        horizontal = ScrollBarView (frame: Rect.zero, size: 0, position: 0, isVertical: true)
+        super.init()
+        horizontal.changedPosition = {
+            
+        }
+        vertical.changedPosition = {
+            
+        }
+        super.addSubview(contentView)
+        canFocus = true
+    }
+    
+    public var contentSize : Size = Size.empty {
+        didSet {
+            contentView.frame = Rect (origin: contentOffset, size: contentSize)
+            vertical.size = contentSize.height
+            horizontal.size = contentSize.width
+            setNeedsDisplay()
+        }
+    }
+    
+    var contentOffset : Point = Point.zero {
+        didSet {
+            
+        }
+    }
+    
+    public override var debugDescription: String {
+        return "ScrollView (\(super.debugDescription))"
+    }
+}
