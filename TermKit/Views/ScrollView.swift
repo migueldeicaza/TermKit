@@ -46,6 +46,12 @@ public class ScrollBarView : View {
         }
     }
     
+    func setPosition (_ newPos: Int)
+    {
+        position = newPos
+        changedPosition ();
+    }
+    
     public override func redraw(region: Rect) {
         driver.setAttribute(colorScheme!.normal)
         if vertical {
@@ -153,7 +159,27 @@ public class ScrollBarView : View {
             return false
         }
         let location = vertical ? event.y : event.x
+        var  barsize = vertical ? bounds.height : bounds.width
         
+        if barsize < 4 {
+            // handle scrollbars with no buttons
+            print ("TODO at ScrollBarView.mouseEvent for small scrollbars\n")
+        } else {
+            barsize -= 2
+            // handle scrollbars with arrow buttons
+            let pos = position
+            if location == 0 {
+                if pos > 0 {
+                    setPosition(pos - 1)
+                }
+            } else if location == barsize + 1 {
+                if pos + 1 + barsize < size {
+                    setPosition(pos + 1)
+                }
+            } else {
+                print ("Another todo at ScrollBarView.mouseevent")
+            }
+        }
         return true
     }
     
@@ -165,8 +191,8 @@ public class ScrollBarView : View {
 public class ScrollView : View {
     var contentView: View
     var vertical, horizontal: ScrollBarView
-    var showsHorizontalScrollIndicator = false
-    var showsVerticalScrollIndicator = false
+    var _showsHorizontalScrollIndicator = false
+    var _showsVerticalScrollIndicator = false
     
     public override init ()
     {
@@ -184,6 +210,7 @@ public class ScrollView : View {
         canFocus = true
     }
     
+    /// Represents the contents of the data shown inside the scrolview
     public var contentSize : Size = Size.empty {
         didSet {
             contentView.frame = Rect (origin: contentOffset, size: contentSize)
@@ -193,9 +220,163 @@ public class ScrollView : View {
         }
     }
     
-    var contentOffset : Point = Point.zero {
-        didSet {
-            
+    var _contentOffset : Point = Point.zero
+    /// Represents the top left corner coordinate that is displayed by the scrollview
+    public var contentOffset : Point {
+        get {
+            return _contentOffset
+        }
+        set(value) {
+            _contentOffset = Point(x: -abs(value.x), y: -abs (value.y))
+            contentView.frame = Rect(origin: _contentOffset, size: contentSize)
+            vertical.position = max (0, -_contentOffset.y)
+            horizontal.position = max (0, -_contentOffset.x)
+            setNeedsDisplay()
+        }
+    }
+    
+    /// Adds the view to the scrollview.
+    public override func addSubview(_ view: View) {
+        contentView.addSubview(view)
+    }
+    
+    /// Gets or sets the visibility for the horizontal scroll indicator
+    public var showHorizontalScrollIndicator : Bool {
+        get {
+            return _showsHorizontalScrollIndicator
+        }
+        set(value) {
+            if value == _showsHorizontalScrollIndicator {
+                return
+            }
+            _showsHorizontalScrollIndicator = value
+            setNeedsDisplay()
+            if value {
+                super.addSubview(horizontal)
+            } else {
+                remove (horizontal)
+            }
+        }
+    }
+    
+    /// Gets or sets the visibility for the vertical scroll indicator
+    public var showVerticalScrollIndicator : Bool {
+        get {
+            return _showsVerticalScrollIndicator
+        }
+        set(value) {
+            if value == _showsVerticalScrollIndicator {
+                return
+            }
+            _showsVerticalScrollIndicator = value
+            setNeedsDisplay()
+            if value {
+                super.addSubview(vertical)
+            } else {
+                remove (vertical)
+            }
+        }
+    }
+    
+    public override func redraw(region: Rect) {
+        let oldClip = clipToBounds()
+        driver.setAttribute(colorScheme!.normal)
+        clear ()
+        super.redraw(region: region)
+        driver.clip = oldClip
+        driver.setAttribute(colorScheme!.normal)
+    }
+    
+    public override func positionCursor() {
+        if subviews.count == 0 {
+            driver.moveTo(col: 0, row: 0)
+        } else {
+            super.positionCursor()
+        }
+    }
+    public override func removeAllSubviews() {
+        contentView.removeAllSubviews()
+    }
+    
+    /**
+     * Scrolls the view up.
+     * - Parameter lines: the number of lines to scroll up
+     * - Returns: `true` if the it was scrolled
+     */
+    public func scrollUp (lines:Int) -> Bool
+    {
+        if _contentOffset.y < 0 {
+            contentOffset = Point (x: contentOffset.x, y: min (contentOffset.y + lines, 0))
+            return true
+        }
+        return false
+    }
+
+    /**
+     * Scrolls the view down.
+     * - Parameter lines: the number of lines to scroll down
+     * - Returns: `true` if the it was scrolled
+     */
+    public func scrollDown (lines:Int) -> Bool
+    {
+        let ny = max (-contentSize.height, contentOffset.y - lines)
+        if ny == contentOffset.y {
+            return false
+        }
+        
+        contentOffset = Point (x: contentOffset.x, y: ny)
+        return true
+    }
+    
+    /**
+     * Scrolls the view left
+     * - Parameter cols: the number of columns to scroll left
+     * - Returns: `true` if the it was scrolled
+     */
+    public func scrollLeft (cols:Int) -> Bool
+    {
+        if contentOffset.x < 0 {
+            contentOffset = Point (x: min (contentOffset.x + cols, 0), y: contentOffset.y)
+            return true
+        }
+        return false
+    }
+    
+    /**
+     * Scrolls the view right.
+     * - Parameter lines: the number of columns to scroll right
+     * - Returns: `true` if the it was scrolled
+     */
+    public func scrollRight (cols:Int) -> Bool
+    {
+        let nx = max (-contentSize.width, contentOffset.x - cols)
+        if nx == contentOffset.x {
+            return false
+        }
+        
+        contentOffset = Point (x: nx, y: contentOffset.y)
+        return true
+    }
+
+    public override func processKey(event: KeyEvent) -> Bool {
+        if super.processKey(event: event) {
+            return true
+        }
+        switch event.key {
+        case .CursorUp:
+            return scrollUp(lines: 1)
+        case .Letter("v") where event.isAlt, .PageUp:
+            return scrollUp(lines: bounds.height)
+        case .ControlV, .PageDown:
+            return scrollDown(lines: bounds.height)
+        case .CursorDown:
+            return scrollDown(lines: 1)
+        case .CursorLeft:
+            return scrollLeft(cols: 1)
+        case .CursorRight:
+            return scrollRight(cols: 1)
+        default:
+            return false
         }
     }
     

@@ -290,14 +290,35 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
         }
     }
     
-    public func remove (view : View)
+    /// Removes the specified view from the container
+    public func remove (_ view : View)
     {
-        
+        let touched = view.frame
+        if let idx = subviews.firstIndex(of: view) {
+            setNeedsLayout()
+            setNeedsDisplay()
+
+            subviews.remove(at: idx)
+            view.superview = nil
+            
+            if subviews.count < 1 {
+                canFocus = false
+            }
+            
+            for v in subviews {
+                if v.frame.intersects(touched) {
+                    v.setNeedsDisplay()
+                }
+            }
+        }
     }
     
+    /// Removes all views from this container
     public func removeAllSubviews ()
     {
-        
+        while subviews.count > 0 {
+            remove (subviews [0])
+        }
     }
     
     /**
@@ -389,9 +410,9 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
      * - Paramater rect: xx
      * - Returns: The existing driver's Clip region, which can be then set by setting the Driver.clip property.
      */
-    public func clipToBounds ()
+    public func clipToBounds () -> Rect
     {
-       self.setClip (bounds)
+       return self.setClip (bounds)
     }
     
     /**
