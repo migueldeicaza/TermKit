@@ -81,7 +81,7 @@ class TextModel {
         lines.insert(line, at: at)
     }
     
-    func remove (_ line: TextBuffer, at: Int)
+    func remove (at: Int)
     {
         lines.remove (at: at)
     }
@@ -200,6 +200,11 @@ public class TextView : View {
         return Int64 ((UInt32(row) << 32) | UInt32(col));
     }
     
+    func decodeColRow (_ encoded: Int64) -> (col: Int32, row: Int32)
+    {
+        return (col: Int32 ((UInt32 (encoded) & 0xffffffff)), row: Int32 (encoded >> 32))
+    }
+    
     /// Returns an encoded region start..end (top 32 bits are the row, low32 the column) for the current selection
     func getEncodedRegionBounds () -> (start: Int64, end: Int64) {
         let selection = encodeColRow (col: selectionStartColumn, row: selectionStartRow);
@@ -212,6 +217,15 @@ public class TextView : View {
         }
     }
     
+    func getEncodedRegionCoords () -> (startCol: Int32, startRow: Int32, endCol: Int32, endRow: Int32)
+    {
+        let (start, end) = getEncodedRegionBounds()
+        
+        let (sc, sr) = decodeColRow (start)
+        let (ec, er) = decodeColRow (end)
+        return (sc, sr, ec, er)
+    }
+    
     /// Returns true if the specified column and row are inside the selection
     func pointInSelection (col: Int, row: Int) -> Bool {
         let (start, end) = getEncodedRegionBounds()
@@ -222,6 +236,55 @@ public class TextView : View {
     /// gets the selection as a string
     func getRegion () -> String
     {
-        return ""
+        let (startCol, startRow, endCol, endRow) = getEncodedRegionCoords()
+        let line = model [Int (startRow)]
+        if startRow == endRow {
+            return TextField.fromTextBuffer(Array (line [Int(startCol)..<Int(endCol)]))
+        }
+        var res = Array (line [Int(startCol)...])
+        let newline = (ch: Character ("\n"), size: Int8(0))
+        for row in (startRow+1)..<endRow {
+            res.append (newline)
+            res = res + model [Int(row)]
+        }
+        let lastLine = model [Int(endRow)]
+        res.append (newline)
+        res = res + Array (lastLine [0..<Int(endCol)])
+        return TextField.fromTextBuffer(res)
+    }
+    
+    /// clears the contents of the selected region
+    func clearRegion ()
+    {
+        let (startCol, startRow, endCol, endRow) = getEncodedRegionCoords()
+        var line = model [Int(startCol)]
+        
+        if startRow == endRow {
+            line.removeSubrange(Int(startCol)..<Int(endCol-startCol))
+            currentColumn = startCol
+            setNeedsDisplay(Rect (x: 0, y: Int(startRow)-Int(topRow), width: frame.width, height: Int(startRow)-Int(topRow)+1))
+            return
+        }
+        line.removeSubrange(Int(startCol)..<(line.count-Int(startCol)))
+        var line2 = model [Int(endRow)]
+        line += Array (line2 [Int(endCol)...])
+        for row in (startRow+1)...endRow {
+            model.remove (at: Int (row))
+        }
+        if currentColumn == endRow && currentRow == endRow {
+            currentRow -= endRow - startRow
+        }
+        currentColumn = startCol
+        setNeedsDisplay()
+    }
+    
+    public override func redraw(region: Rect) {
+        colorNormal()
+        let bottom = region.bottom
+        let right = region.right
+        
+        for row in region.top ..< bottom {
+            let textLine = Int(topRow) + row
+        }
     }
 }
