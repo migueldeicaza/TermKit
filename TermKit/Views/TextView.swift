@@ -97,12 +97,12 @@ class TextModel {
 
 public class TextView : View {
     var model: TextModel = TextModel()
-    var topRow : Int32 = 0
-    var leftColumn : Int32 = 0
-    var currentRow : Int32 = 0
-    var currentColumn : Int32 = 0
-    var selectionStartColumn : Int32 = 0
-    var selectionStartRow : Int32 = 0
+    var topRow : Int = 0
+    var leftColumn : Int = 0
+    var currentRow : Int = 0
+    var currentColumn : Int = 0
+    var selectionStartColumn : Int = 0
+    var selectionStartRow : Int = 0
     var selecting : Bool = false
     
     /// Indicates readonly attribute of TextView, defaults to false
@@ -165,8 +165,8 @@ public class TextView : View {
     
     public override func positionCursor() {
         if selecting {
-            let minRow = min (max (min (selectionStartRow, currentRow)-topRow, 0), Int32(frame.height))
-            let maxRow = min (max (max (selectionStartRow, currentRow)-topRow, 0), Int32(frame.height))
+            let minRow = min (max (min (selectionStartRow, currentRow)-topRow, 0), frame.height)
+            let maxRow = min (max (max (selectionStartRow, currentRow)-topRow, 0), frame.height)
             
             setNeedsDisplay(Rect(x: 0, y: Int(minRow), width: frame.width, height: Int(maxRow)))
         }
@@ -195,14 +195,14 @@ public class TextView : View {
     }
     
     /// Encodes a column and row into a 64-bit value, useful to compare ranges
-    func encodeColRow (col: Int32, row: Int32) -> Int64
+    func encodeColRow (col: Int, row: Int) -> Int64
     {
         return Int64 ((UInt32(row) << 32) | UInt32(col));
     }
     
-    func decodeColRow (_ encoded: Int64) -> (col: Int32, row: Int32)
+    func decodeColRow (_ encoded: Int64) -> (col: Int, row: Int)
     {
-        return (col: Int32 ((UInt32 (encoded) & 0xffffffff)), row: Int32 (encoded >> 32))
+        return (col: Int ((UInt32 (encoded) & 0xffffffff)), row: Int (encoded >> 32))
     }
     
     /// Returns an encoded region start..end (top 32 bits are the row, low32 the column) for the current selection
@@ -217,7 +217,7 @@ public class TextView : View {
         }
     }
     
-    func getEncodedRegionCoords () -> (startCol: Int32, startRow: Int32, endCol: Int32, endRow: Int32)
+    func getEncodedRegionCoords () -> (startCol: Int, startRow: Int, endCol: Int, endRow: Int)
     {
         let (start, end) = getEncodedRegionBounds()
         
@@ -229,7 +229,7 @@ public class TextView : View {
     /// Returns true if the specified column and row are inside the selection
     func pointInSelection (col: Int, row: Int) -> Bool {
         let (start, end) = getEncodedRegionBounds()
-        let q = encodeColRow(col: Int32(col), row: Int32(row))
+        let q = encodeColRow(col: col, row: row)
         return q >= start && q <= end
     }
     
@@ -285,6 +285,60 @@ public class TextView : View {
         
         for row in region.top ..< bottom {
             let textLine = Int(topRow) + row
+            if textLine > model.count {
+                colorNormal()
+                clearRegion(left: region.left, top: row, right: region.right, bottom: row+1)
+                continue
+            }
+            var line = model [textLine]
+            let lineRuneCount = line.count
+            
+            // Works-ish, this needs to be replaced with actual rune counts at the specific position
+            if line.count < region.left {
+                clearRegion(left: region.left, top: row, right: region.right, bottom: row+1)
+                continue
+            }
+            moveTo (col: region.left, row: row)
+            for col in region.left..<right {
+                let lineCol = leftColumn + col
+                let char = lineCol >= lineRuneCount ? " " : line [lineCol].ch
+                if selecting && pointInSelection(col: col, row: row){
+                    colorSelection()
+                } else {
+                    colorNormal()
+                }
+                addChar(char)
+            }
         }
+    }
+
+    func setClipboard(text: String)
+    {
+        Clipboard.contents = text
+    }
+    
+    func appendClipboard (text: String)
+    {
+        Clipboard.contents += text
+    }
+    
+    func getCurrentLine () -> TextBuffer
+    {
+        return model [currentRow]
+    }
+    
+    /// Inserts the provided character at the current cursor location
+    func insert (char: Character)
+    {
+        var line = getCurrentLine ()
+        line.insert((ch: char, size: Int8(char.cellSize())), at: currentColumn)
+        var prow = currentRow - topRow
+        setNeedsDisplay (Rect(x: 0, y: prow, width: frame.width, height: prow+1))
+    }
+    
+    /// Inserts the provided string at the current cursor location
+    func insertText(text: String)
+    {
+    
     }
 }
