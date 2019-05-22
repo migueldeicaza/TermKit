@@ -349,6 +349,16 @@ public class TextView : View {
         Clipboard.contents += text
     }
     
+    func setClipboard(buffer: TextBuffer)
+    {
+        Clipboard.contents = TextField.fromTextBuffer (buffer)
+    }
+    
+    func appendClipboard (buffer: TextBuffer)
+    {
+        Clipboard.contents += TextField.fromTextBuffer(buffer)
+    }
+
     func getCurrentLine () -> TextBuffer
     {
         return model [currentRow]
@@ -398,10 +408,7 @@ public class TextView : View {
         
         // Now adjust column and line positions
         currentRow += lines.count + 1
-        var column = 0
-        for i in 0..<lastp {
-            column += Int (last [i].size)
-        }
+        let column = textBufferSize(Array (last [0..<lastp]))
         currentColumn = column
         if currentColumn < leftColumn {
             leftColumn = currentColumn
@@ -456,6 +463,16 @@ public class TextView : View {
         }
     }
     
+    func textBufferSize (_ inp: TextBuffer) -> Int
+    {
+        var size = 0
+        
+        for item in inp {
+            size += Int (item.size)
+        }
+        return size
+    }
+    
     /**
      * Will scroll the view to display the specified row at the top
      * - Parameter row: Row that should be displayed at the top, if the value is negative it will be reset to zero
@@ -483,6 +500,7 @@ public class TextView : View {
         }
         
         // Dispatch the command
+        
         switch event.key {
         case .PageDown, .ControlV:
             let nPageDnShift = frame.height - 1
@@ -539,10 +557,277 @@ public class TextView : View {
                 // positionCursor ();
             }
             
-        // Next up: ControlF
+        case .ControlF, .CursorRight:
+            let currentLine = getCurrentLine()
+            if currentColumn < textBufferSize(currentLine) {
+                currentColumn += 1
+                if currentColumn >= leftColumn + frame.width {
+                    leftColumn += 1
+                    setNeedsDisplay()
+                }
+                // positionCursor()
+            } else {
+                if currentRow + 1 < model.count {
+                    currentRow += 1
+                    currentColumn = 0
+                    leftColumn = 0
+                    if currentRow >= topRow + frame.height {
+                        topRow += 1
+                    }
+                    setNeedsDisplay()
+                    //positionCursor()
+                }
+            }
+            
+        case .ControlB, .CursorLeft:
+            if currentColumn > 0 {
+                currentColumn -= 1
+                if currentColumn < leftColumn {
+                    leftColumn -= 1
+                    setNeedsDisplay()
+                }
+            } else {
+                if currentRow > 0 {
+                    currentRow -= 1
+                    if currentRow < topRow {
+                        topRow -= 1
+                    }
+                    let currentLine = getCurrentLine()
+                    currentColumn = textBufferSize(currentLine)
+                    let prev = leftColumn
+                    leftColumn = currentColumn - frame.width + 1
+                    if leftColumn < 0 {
+                        leftColumn = 0
+                    }
+                    if prev != leftColumn {
+                        setNeedsDisplay()
+                    }
+                }
+            }
+            
+        case .Delete:
+            if isReadOnly {
+                break
+            }
+            if currentColumn > 0 {
+                // Delete backwards
+                model.removeLineRange(atLine: currentRow, fromCol: currentColumn-1, toCol: currentColumn)
+                currentColumn -= 1
+                if currentColumn < leftColumn {
+                    leftColumn -= 1
+                    setNeedsDisplay ()
+                } else {
+                    setNeedsDisplay (Rect (x: 0, y: currentRow - topRow, width: 1, height: frame.width));
+                }
+            } else {
+                // Merges the current line with the previous one.
+                if currentRow == 0 {
+                    return true;
+                }
+                let prowIdx = currentRow - 1
+                let prevRow = model [prowIdx]
+                let prevCount = prevRow.count
+                model.appendText(atLine: prowIdx, txt: getCurrentLine())
+                model.removeLine(at: currentRow)
+                currentRow -= 1
+                currentColumn = prevCount
+                leftColumn = currentColumn - frame.width + 1
+                if (leftColumn < 0) {
+                    leftColumn = 0;
+                }
+                setNeedsDisplay ();
+            }
+            
+        case .ControlA, .Home:
+            currentColumn = 0
+            if currentColumn < leftColumn {
+                leftColumn = 0
+                setNeedsDisplay()
+            }
+            
+        case .DeleteChar, .ControlD:
+            if isReadOnly {
+                break
+            }
+            let currentLine = getCurrentLine ()
+            if currentColumn == currentLine.count {
+                if currentRow + 1 == model.count {
+                    break;
+                }
+                model.appendText(atLine: currentRow, txt: model [currentRow + 1])
+                model.removeLine(at: currentRow + 1)
+                let sr = currentRow - topRow;
+                setNeedsDisplay (Rect (x: 0, y: sr, width: frame.width, height: sr + 1));
+            } else {
+                model.removeLineRange(atLine: currentRow, fromCol: currentColumn, toCol: currentColumn+1)
+                let r = currentRow - topRow;
+                setNeedsDisplay (Rect (x: currentColumn - leftColumn, y: r, width: frame.width, height: r + 1));
+            }
+
+        case .End, .ControlE:
+            let currentColumn = textBufferSize(getCurrentLine())
+            let pcol = leftColumn
+            leftColumn = currentColumn - frame.width + 1
+            if leftColumn < 0 {
+                leftColumn = 0
+            }
+            if pcol != leftColumn {
+                setNeedsDisplay()
+            }
+            
+            // kill to end
+        case .ControlK:
+            if isReadOnly {
+                break
+            }
+            let currentLine = getCurrentLine ();
+            if currentLine.count == 0 {
+                model.removeLine(at: currentRow)
+                
+                if (lastWasKill) {
+                    appendClipboard(text: "\n")
+                } else {
+                    setClipboard(text: "\n")
+                }
+            } else {
+                let rest = Array (currentLine [currentColumn...])
+                
+                if (lastWasKill) {
+                    appendClipboard (buffer: rest)
+                } else {
+                    setClipboard (buffer: rest)
+                }
+                model.removeLineRange(atLine: currentRow, fromCol: currentColumn, toCol: -1)
+            }
+            setNeedsDisplay (Rect (x: 0, y: currentRow - topRow, width: frame.width, height: frame.height))
+            lastWasKill = true
+            
+            // yank
+        case .ControlY:
+            if isReadOnly {
+                break
+            }
+            insertText(text: Clipboard.contents)
+            selecting = false
+            
+        case .ControlSpace:
+            selecting = true
+            selectionStartColumn = currentColumn
+            selectionStartRow = currentRow
+            
+        case .Letter("w") where event.isAlt:
+            setClipboard(text: getRegion())
+            selecting = false
+            
+        case .ControlW:
+            setClipboard(text: getRegion ())
+            if !isReadOnly {
+                clearRegion ()
+            }
+            selecting = false
+            
+        case .Letter("b") where event.isAlt:
+            if let newPos = wordBackward (fromCol: currentColumn, andRow: currentRow) {
+                currentColumn = newPos.col;
+                currentRow = newPos.row;
+            }
+            adjust ();
+            
+        case .Letter("f") where event.isAlt:
+            if let newPos = wordForward (fromCol: currentColumn, andRow: currentRow) {
+                currentColumn = newPos.col
+                currentRow = newPos.row
+            }
+            adjust ()
+
+        case .ControlM:
+            // TODO - Enter
+            break
         default:
             break
         }
         return true
+    }
+    
+    func moveNext (_ col: inout Int, _ row: inout Int, _ ch: inout Character) -> Bool {
+        var line = model [row]
+        if col + 1 < line.count {
+            col += 1
+            ch = line [col].ch
+            return true
+        }
+        while row + 1 < model.count {
+            col = 0;
+            row += 1
+            line = model [row]
+            if line.count > 0 {
+                ch = line [0].ch
+                return true
+            }
+        }
+        ch = " "
+        return false;
+    }
+    
+    func movePrev (_ col: inout Int, _ row: inout Int, _ ch: inout Character) -> Bool {
+        var line = model [row]
+        if col > 0 {
+            col -= 1
+            ch = line [col].ch
+            return true
+        }
+        if row == 0 {
+            ch = " "
+            return false
+        }
+        while row > 0 {
+            row -= 1
+            line = model [row]
+            col = line.count - 1
+            if col >= 0 {
+                ch = line [col].ch
+                return true
+            }
+        }
+        ch = " "
+        return false
+    }
+    
+    func wordBackward (fromCol: Int, andRow: Int) -> (col: Int, row: Int)?
+    {
+        if andRow == 0 || fromCol == 0 {
+            return nil
+        }
+        var col = fromCol
+        var row = andRow
+        var ch = model [row][col].ch
+        
+        if ch.isPunctuation || ch.isSymbol || ch.isWhitespace {
+            while movePrev (&col, &row, &ch){
+                if ch.isLetter || ch.isNumber {
+                    break
+                }
+            }
+            while movePrev (&col, &row, &ch) {
+                if !(ch.isLetter || ch.isNumber) {
+                    break
+                }
+            }
+        } else {
+            while movePrev (&col, &row, &ch) {
+                if !(ch.isLetter || ch.isNumber) {
+                    break
+                }
+            }
+        }
+        if fromCol != col || andRow != row {
+            return (col, row)
+        }
+        return nil
+    }
+    
+    func wordForward (fromCol: Int, andRow: Int) -> (col: Int, row: Int)?
+    {
+        return nil
     }
 }
