@@ -113,7 +113,7 @@ class TextModel {
     func removeLineRange (atLine: Int, fromCol: Int, toCol: Int)
     {
         let lastCol = toCol == -1 ? lines [atLine].count : toCol
-        lines [atLine].removeSubrange (fromCol..<(lastCol-fromCol))
+        lines [atLine].removeSubrange (fromCol..<(lastCol))
     }
     
     func appendText (atLine: Int, txt: TextBuffer)
@@ -516,7 +516,8 @@ public class TextView : View {
                 trackColumn()
                 // positionCursor()
             }
-        case .PageUp, .Letter ("v") where event.isAlt:
+        case .PageUp,
+             .Letter ("v") where event.isAlt:
             let nPageUpShift = frame.height - 1;
             if currentRow > 0 {
                 if columnTrack == -1 {
@@ -665,7 +666,7 @@ public class TextView : View {
             }
 
         case .End, .ControlE:
-            let currentColumn = textBufferSize(getCurrentLine())
+            currentColumn = textBufferSize(getCurrentLine())
             let pcol = leftColumn
             leftColumn = currentColumn - frame.width + 1
             if leftColumn < 0 {
@@ -740,9 +741,45 @@ public class TextView : View {
             }
             adjust ()
 
-        case .ControlM:
-            // TODO - Enter
-            break
+            // Return key
+        case Key.ControlJ:
+            if isReadOnly {
+                break
+            }
+        
+            let currentLine = getCurrentLine ();
+            let rest = Array (currentLine [currentColumn...])
+            model.removeLineRange(atLine: currentRow, fromCol: currentColumn, toCol: -1)
+            model.insert (line: rest, at: currentRow + 1)
+            currentRow += 1
+            var fullNeedsDisplay = false
+            if currentRow >= topRow + frame.height {
+                topRow += 1
+                fullNeedsDisplay = true
+            }
+            currentColumn = 0
+            if currentColumn < leftColumn {
+                fullNeedsDisplay = true
+                leftColumn = 0
+            }
+            
+            if fullNeedsDisplay {
+                setNeedsDisplay ()
+            } else {
+                setNeedsDisplay (Rect (x: 0, y: currentRow - topRow, width: 2, height: frame.height));
+            }
+            
+        case let .Letter(x):
+            if isReadOnly {
+                break
+            }
+            insert(char: x)
+            if currentColumn >= leftColumn + frame.width {
+                leftColumn += 1
+                setNeedsDisplay()
+            }
+            return true
+            
         default:
             break
         }
@@ -828,6 +865,31 @@ public class TextView : View {
     
     func wordForward (fromCol: Int, andRow: Int) -> (col: Int, row: Int)?
     {
+        var col = fromCol;
+        var row = andRow
+        var ch = model [row][col].ch
+        
+        if ch.isPunctuation || ch.isWhitespace  {
+            while moveNext (&col, &row, &ch) {
+                if ch.isLetter || ch.isNumber {
+                    break
+                }
+            }
+            while moveNext (&col, &row, &ch) {
+                if !(ch.isLetter || ch.isNumber){
+                    break
+                }
+            }
+        } else {
+            while moveNext (&col, &row, &ch) {
+                if !(ch.isLetter || ch.isNumber) {
+                    break;
+                }
+            }
+        }
+        if (fromCol != col || andRow != row){
+            return (col, row)
+        }
         return nil
     }
 }

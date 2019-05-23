@@ -281,6 +281,17 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
     }
     
     /**
+     * Sets the x, y, width and height to fill the container
+     * - Parameter padding: any desired padding, if not specified, it defaults to zero
+     */
+    public func fill(padding: Int = 0) {
+        self.x = Pos.at (padding)
+        self.y = Pos.at (padding)
+        self.width = Dim.fill(padding)
+        self.height = Dim.fill (padding)
+    }
+    
+    /**
      * Adds the provided views as subviews of this view
      */
     public func addSubviews (_ views : [View])

@@ -9,7 +9,36 @@
 import Foundation
 import Darwin.ncurses
 
-func showEditor() {}
+// Creates a nested editor
+func showEditor() {
+    let ntop = Toplevel()
+    ntop.fill ()
+    let menu = MenuBar(menus: [
+        MenuBarItem (title: "_File", children: [
+            MenuItem (title: "_Close", action: {
+                Application.requestStop()
+                
+            } )
+            ])
+        ])
+    ntop.addSubview (menu)
+    let fname = "/etc/passwd"
+    
+    let win = Window ("fname", padding: 0)
+    win.fill ()
+    win.y = Pos.at(1)
+    ntop.addSubview (win)
+    
+    let text = TextView()
+    text.fill ()
+    do {
+        try text.text = String(contentsOfFile: fname)
+    } catch {}
+    
+    win.addSubview (text)
+    Application.run(top: ntop)
+}
+
 func newFile () {}
 func openFile () {}
 func showHex() {}

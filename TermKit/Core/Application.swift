@@ -224,14 +224,16 @@ public class Application {
     
     static func postProcessEvent ()
     {
-        if !top.needDisplay.isEmpty || top._childNeedsDisplay {
-            top.redraw (region: top.bounds)
+        let c = current!
+        if !c.needDisplay.isEmpty || c._childNeedsDisplay {
+            c.redraw (region: c.bounds)
             if debugDrawBounds {
-                drawBounds (top)
+                drawBounds (c)
             }
-            top.positionCursor()
+            c.positionCursor()
             driver.refresh()
         } else {
+            c.positionCursor()
             driver.updateCursor()
         }
     }
