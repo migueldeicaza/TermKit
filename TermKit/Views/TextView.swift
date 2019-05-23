@@ -892,4 +892,28 @@ public class TextView : View {
         }
         return nil
     }
+    
+    public override func mouseEvent(event: MouseEvent) -> Bool {
+        if !event.flags.contains(MouseFlags.button1Clicked) {
+            return false
+        }
+        if !hasFocus {
+            superview?.setFocus(self)
+        }
+        let maxCursorPositionableLine = (model.count - 1) - topRow;
+        if event.y > maxCursorPositionableLine {
+            currentRow = maxCursorPositionableLine;
+        } else {
+            currentRow = event.y + topRow;
+        }
+        let r = getCurrentLine ();
+        if event.x - leftColumn >= r.count {
+            currentColumn = r.count - leftColumn
+        } else {
+            currentColumn = event.y - leftColumn
+        }
+        
+        positionCursor ()
+        return true
+    }
 }
