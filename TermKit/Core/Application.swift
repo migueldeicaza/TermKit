@@ -255,18 +255,20 @@ public class Application {
      */
     public static func requestStop ()
     {
-        if let c = current {
-            c._running = false
-            
-            toplevels = toplevels.dropLast ()
-            if toplevels.count == 0 {
-                Application.shutdown ()
+        DispatchQueue.global ().async {
+            if let c = current {
+                c._running = false
+                
+                toplevels = toplevels.dropLast ()
+                if toplevels.count == 0 {
+                    Application.shutdown ()
+                } else {
+                    _current = toplevels.last as Toplevel?
+                    refresh ()
+                }
             } else {
-                _current = toplevels.last as Toplevel?
-                refresh ()
+                Application.shutdown()
             }
-        } else {
-            Application.shutdown()
         }
     }
     
