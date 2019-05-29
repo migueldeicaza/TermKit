@@ -16,6 +16,55 @@ enum ApplicationError : Error {
     case internalState(msg:String)
 }
 
+/**
+ * The `Application` class is responsible for running your application.
+ *
+ * The `Application` class has at least one `TopLevel` view that is displayed (and
+ * is the one pointed to by `top`) and will send events to this instance.   You
+ * should add your views to this top instance.   A minimal initialization sequence
+ * looks like this:
+ *
+ * ```
+ * Application.prepare ()
+ * let win = Window()
+ * win.fill ()
+ * Application.top.addSubview (win)
+ * Application.run()
+ * ```
+ *
+ * The call to the `prepare` method initializes the default console driver, which will
+ * be set depending on your platform and heuristics (currently it is limited to the
+ * curses version).
+ *
+ * Then you need to add one or more views to your application, in the example above,
+ * a new `Window` is created, we flag it to take over all the available space by calling
+ * the `fill` method, and then we add this to the `top` element.   Once this happens,
+ * we call `Application.run` which is a method that will never return.
+ *
+ * # TopLevels
+ * At any given point there is only a single `Toplevel` instance active, this means that
+ * all mouse and keyboard events are routed here.   There might be multiple visible `Toplevel`
+ * at any given point, for example the main application is a `Toplevel`, and a popup dialog
+ * box is another form of a toplevel.   When the popup is executing, all keyboard and mouse
+ * input are routed to the dialog box, but the main Toplevel will still be updated visually
+ * and might also be updated continously.
+ *
+ * To execute a new nested toplevel, one that either obscures a portion of the screen, or the
+ * whole screen, you call the `run` method with the new instance.   To pop the toplevel from
+ * the stack, you call the `Application.requestStop` method which will queue the toplevel for
+ * termination and will make the previous toplevel the active one.
+ *
+ * # Main Loop Execution
+ * Calling the `run` method in `Application` will start the mainloop, which is implemented using
+ * the Dispatch framework.   This means that this method will never return, but also that all
+ * the operations that you have come to expect from using the Dispatch API (from Grand Central Dispatch)
+ * will work as expected.
+ *
+ * The TermKit framework is not multi-thread safe, so any operations that you execute on the background
+ * should queue operations that access properties, or call methods in any of the TermKit methods
+ * using the global queue, so that the operation is executed in the context of the TermKit queue.
+ *
+ */
 public class Application {
     /// Points to the global application
     static var _top : Toplevel = Toplevel()

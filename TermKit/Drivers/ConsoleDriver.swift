@@ -274,6 +274,9 @@ public class ConsoleDriver {
         return Attribute(0)
     }
     
+    /**
+     * Enumeration describing the kind of colors available to the application that range from black and white to a complete user-settable palette of colors
+     */
     public enum ColorSupport {
         /// The terminal only supports black and white - generally, they are expected to at least have the VT100 capabilities: bold, italics, inverse, blink
         case BlackAndWhite

@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Button Class Reference</title>
+    <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
+    <meta charset='utf-8'>
+    <script src="../js/jquery.min.js" defer></script>
+    <script src="../js/jazzy.js" defer></script>
+    
+  </head>
+  <body>
+    <a name="//apple_ref/swift/Class/Button" class="dashAnchor"></a>
+    <a title="Button Class Reference"></a>
+    <header>
+      <div class="content-wrapper">
+        <p><a href="../index.html">TermKit Docs</a> (77% documented)</p>
+        <p class="header-right"><a href="https://github.com/migueldeicaza/TermKit"><img src="../img/gh.png"/>View on GitHub</a></p>
+      </div>
+    </header>
+    <div class="content-wrapper">
+      <p id="breadcrumbs">
+        <a href="../index.html">TermKit Reference</a>
+        <img id="carat" src="../img/carat.png" />
+        Button Class Reference
+      </p>
+    </div>
+    <div class="content-wrapper">
+      <nav class="sidebar">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a href="../Classes.html">Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Classes/Application.html">Application</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Application.html#/s:7TermKit11ApplicationC17MouseHandlerTokenV">– MouseHandlerToken</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Button.html">Button</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Checkbox.html">Checkbox</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Clipboard.html">Clipboard</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/ColorScheme.html">ColorScheme</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Colors.html">Colors</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/ConsoleDriver.html">ConsoleDriver</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/ConsoleDriver/ColorSupport.html">– ColorSupport</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Dialog.html">Dialog</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Dim.html">Dim</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/FrameView.html">FrameView</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Label.html">Label</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/ListView.html">ListView</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Menu.html">Menu</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MenuBar.html">MenuBar</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MenuBarItem.html">MenuBarItem</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MessageBox.html">MessageBox</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Pos.html">Pos</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/ProgressBar.html">ProgressBar</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/ScrollBarView.html">ScrollBarView</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/ScrollView.html">ScrollView</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/TextField.html">TextField</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/TextView.html">TextView</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Toplevel.html">Toplevel</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/View.html">View</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Window.html">Window</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Enums.html">Enumerations</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Enums/Color.html">Color</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/Key.html">Key</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/LayoutStyle.html">LayoutStyle</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/TextAlignment.html">TextAlignment</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Extensions.html">Extensions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Extensions/Int32.html">Int32</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Protocols.html">Protocols</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Protocols.html#/s:7TermKit18ListViewDataSourceP">ListViewDataSource</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Protocols.html#/s:7TermKit16ListViewDelegateP">ListViewDelegate</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Protocols/Responder.html">Responder</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Structs.html">Structures</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Structs/Attribute.html">Attribute</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/KeyEvent.html">KeyEvent</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/MenuItem.html">MenuItem</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/MouseEvent.html">MouseEvent</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/MouseFlags.html">MouseFlags</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/Point.html">Point</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/Rect.html">Rect</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/Size.html">Size</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Typealiases.html">Type Aliases</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Typealiases.html#/s:7TermKit4runea">rune</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+        <section>
+          <section class="section">
+            <h1>Button</h1>
+              <div class="declaration">
+                <div class="language">
+                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">Button</span> <span class="p">:</span> <span class="kt"><a href="../Classes/View.html">View</a></span></code></pre>
+
+                </div>
+              </div>
+            <p>Button is a view that provides an item that invokes a callback when activated.</p>
+
+<p>Provides a button that can be clicked, or pressed with the enter key or space key.
+ It also responds to hotkeys (the first uppercase letter in the button becomes
+ the hotkey) and triggers the execution of a callback method.</p>
+
+<p>If the button is configured as the default <code>IsDefault</code> the button
+ will respond to the return key is no other view processes it, and
+ turns this into a clicked event.</p>
+
+<p>To connect a clicked handler, set the <code>clicked</code> property here to your callback</p>
+<pre class="highlight swift"><code> <span class="k">var</span> <span class="nv">d</span> <span class="o">=</span> <span class="kt">Dialog</span><span class="p">(</span><span class="s">"Hello"</span><span class="p">)</span>
+ <span class="k">var</span> <span class="nv">ok</span> <span class="o">=</span> <span class="kt">Button</span> <span class="p">(</span><span class="s">"Ok"</span><span class="p">)</span>
+ <span class="n">ok</span><span class="o">.</span><span class="n">clicked</span> <span class="o">=</span> <span class="p">{</span> <span class="n">d</span><span class="o">.</span><span class="n">running</span> <span class="o">=</span> <span class="kc">false</span> <span class="p">}</span>
+ <span class="n">d</span><span class="o">.</span><span class="nf">addButton</span> <span class="p">(</span><span class="n">ok</span><span class="p">)</span>
+ <span class="kt">Application</span><span class="o">.</span><span class="nf">run</span> <span class="p">(</span><span class="n">d</span><span class="p">)</span>
+</code></pre>
+
+          </section>
+          <section class="section task-group-section">
+            <div class="task-group">
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7TermKit6ButtonC4textSSvp"></a>
+                    <a name="//apple_ref/swift/Property/text" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit6ButtonC4textSSvp">text</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The text displayed by the button.  The first uppercase letter in the button becomes the hotkey</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">text</span><span class="p">:</span> <span class="kt">String</span> <span class="p">{</span> <span class="k">get</span> <span class="k">set</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7TermKit6ButtonC7clickedyycvp"></a>
+                    <a name="//apple_ref/swift/Property/clicked" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit6ButtonC7clickedyycvp">clicked</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Assigning to this variable a method will invoke it when the button is caviated</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">clicked</span><span class="p">:</span> <span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">Void</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7TermKit6ButtonCACycfc"></a>
+                    <a name="//apple_ref/swift/Method/init()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit6ButtonCACycfc">init()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">override</span> <span class="nf">init</span><span class="p">()</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7TermKit6ButtonCyACSScfc"></a>
+                    <a name="//apple_ref/swift/Method/init(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit6ButtonCyACSScfc">init(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Initializes a button with the text contained in the first parameter, the first uppercase letter by convention is the hotkey</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">convenience</span> <span class="nf">init</span><span class="p">(</span><span class="n">_</span> <span class="nv">text</span><span class="p">:</span> <span class="kt">String</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>text</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Contains the text for the button.   The first uppercase letter in the button becomes the hotkey</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7TermKit6ButtonC6redraw6regionyAA4RectV_tF"></a>
+                    <a name="//apple_ref/swift/Method/redraw(region:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit6ButtonC6redraw6regionyAA4RectV_tF">redraw(region:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">override</span> <span class="kd">func</span> <span class="nf">redraw</span><span class="p">(</span><span class="nv">region</span><span class="p">:</span> <span class="kt"><a href="../Structs/Rect.html">Rect</a></span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7TermKit6ButtonC14positionCursoryyF"></a>
+                    <a name="//apple_ref/swift/Method/positionCursor()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit6ButtonC14positionCursoryyF">positionCursor()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">override</span> <span class="kd">func</span> <span class="nf">positionCursor</span><span class="p">()</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7TermKit6ButtonC13processHotKey5eventSbAA0F5EventV_tF"></a>
+                    <a name="//apple_ref/swift/Method/processHotKey(event:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit6ButtonC13processHotKey5eventSbAA0F5EventV_tF">processHotKey(event:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">override</span> <span class="kd">func</span> <span class="nf">processHotKey</span><span class="p">(</span><span class="nv">event</span><span class="p">:</span> <span class="kt"><a href="../Structs/KeyEvent.html">KeyEvent</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Bool</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7TermKit6ButtonC14processColdKey5eventSbAA0F5EventV_tF"></a>
+                    <a name="//apple_ref/swift/Method/processColdKey(event:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit6ButtonC14processColdKey5eventSbAA0F5EventV_tF">processColdKey(event:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">override</span> <span class="kd">func</span> <span class="nf">processColdKey</span><span class="p">(</span><span class="nv">event</span><span class="p">:</span> <span class="kt"><a href="../Structs/KeyEvent.html">KeyEvent</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Bool</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7TermKit6ButtonC10processKey5eventSbAA0E5EventV_tF"></a>
+                    <a name="//apple_ref/swift/Method/processKey(event:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit6ButtonC10processKey5eventSbAA0E5EventV_tF">processKey(event:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">override</span> <span class="kd">func</span> <span class="nf">processKey</span><span class="p">(</span><span class="nv">event</span><span class="p">:</span> <span class="kt"><a href="../Structs/KeyEvent.html">KeyEvent</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Bool</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7TermKit6ButtonC10mouseEvent5eventSbAA05MouseE0V_tF"></a>
+                    <a name="//apple_ref/swift/Method/mouseEvent(event:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit6ButtonC10mouseEvent5eventSbAA05MouseE0V_tF">mouseEvent(event:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">override</span> <span class="kd">func</span> <span class="nf">mouseEvent</span><span class="p">(</span><span class="nv">event</span><span class="p">:</span> <span class="kt"><a href="../Structs/MouseEvent.html">MouseEvent</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Bool</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7TermKit6ButtonC16debugDescriptionSSvp"></a>
+                    <a name="//apple_ref/swift/Property/debugDescription" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit6ButtonC16debugDescriptionSSvp">debugDescription</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">override</span> <span class="k">var</span> <span class="nv">debugDescription</span><span class="p">:</span> <span class="kt">String</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </section>
+        </section>
+        <section id="footer">
+          <p>&copy; 2019 <a class="link" href="https://github.com/migueldeicaza" target="_blank" rel="external">Miguel de Icaza</a>. All rights reserved. (Last updated: 2019-05-28)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.9.6</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+        </section>
+      </article>
+    </div>
+  </body>
+</div>
+</html>
