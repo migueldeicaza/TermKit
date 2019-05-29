@@ -20,6 +20,7 @@ import Foundation
  * UnicodeScalars are also stored here, the letter 'A" for example is encoded as a value 65 (not surfaced in the enum).
  */
 public enum Key {
+    /// The key code for the user pressing Control-spacebar
     case ControlSpace
     /// The key code for the user pressing Control-A
     case ControlA
@@ -89,16 +90,20 @@ public enum Key {
     /// The  key code for the user pressing the ESC key
     case Esc
     
-    // Value 28, Field Separator, ^\
+    // Value 28
+    /// ASCII sequence for Field Separator (^\)
     case FS
     
-    // Value 29, Group Separator, ^]
+    // Value 29
+    /// ASCII sequence for Group Separator (^])
     case GS
     
-    // Value 30, Record Separator ^^
+    // Value 30
+    /// ASCII sequence for Record Separator (^^)
     case RS
     
-    // Value 31, Unit Separator, ^_
+    // Value 31
+    /// ASCII sequence for Unit Separator (^_)
     case US
     
     /// The keycode for the user pressing the delete key
