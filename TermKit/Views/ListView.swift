@@ -20,6 +20,12 @@ public protocol ListViewDelegate {
  * ListView is a control used to displays rows of data
  */
 public class ListView : View {
+    class EmptyListViewDataSource : ListViewDataSource {
+    
+    }
+    class EmptyListViewDelegate : ListViewDelegate {
+        
+    }
     public var dataSource : ListViewDataSource {
         didSet {
             setNeedsDisplay()
@@ -34,6 +40,8 @@ public class ListView : View {
     
     public override init ()
     {
+        dataSource = EmptyListViewDataSource()
+        delegate = EmptyListViewDelegate()
         super.init ()
     }
 }
