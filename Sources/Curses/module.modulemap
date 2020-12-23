@@ -1,0 +1,6 @@
+
+module Curses {
+    header "../../Headers/Curses-Bridging-Header.h"
+    link "ncurses"
+    export *
+}

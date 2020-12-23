@@ -144,13 +144,13 @@ public class TextView : View {
     /// Indicates readonly attribute of TextView, defaults to false
     public var isReadOnly = false
     
-    override init (frame: Rect)
+    public override init (frame: Rect)
     {
         super.init(frame: frame)
         canFocus = true
     }
     
-    override init ()
+    public override init ()
     {
         super.init ()
         canFocus = true

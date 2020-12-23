@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Curses
 
 // This is a lame hack to call into a global that has a name that clashes with a class member name
 class LameHack {

@@ -8,6 +8,7 @@
 
 import Foundation
 import Darwin.ncurses
+import TermKit
 
 // Creates a nested editor
 func showEditor() {
