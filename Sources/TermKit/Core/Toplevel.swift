@@ -46,6 +46,7 @@ open class Toplevel : View {
     public override init()
     {
         _running = false
+        modal = false
         super.init ()
     
         colorScheme = Colors.base
@@ -53,7 +54,7 @@ open class Toplevel : View {
         height = Dim.fill ()
     }
     
-    /// driver.addRune (Unicode.Scalar(32)) factory method that creates a new toplevel with the current terminal dimensions.
+    /// Factory method that creates a new toplevel with the current terminal dimensions.
     public static func create () -> Toplevel
     {
         let t = Toplevel()
@@ -64,6 +65,7 @@ open class Toplevel : View {
         return t
     }
     
+    /// Gets or sets a value indicating whether this <see cref="Toplevel"/> can focus.
     public override var canFocus: Bool {
         get {
             return true
@@ -72,6 +74,19 @@ open class Toplevel : View {
             super.canFocus = value
         }
     }
+    
+    /**
+     * Determines whether the `TopLevel` is modal or not.
+     * Causes  `Application.processKey to propagate keys upwards
+     * by default unless set to `true`
+     */
+    public var modal: Bool
+    
+    /// Gets or sets the menu for this Toplevel
+    public var menuBar: MenuBar? 
+    
+    /// Gets or sets the status bar for this Toplevel
+    // public var statusBar: StatusBar
     
     public override func processKey(event: KeyEvent) -> Bool {
         if super.processKey(event: event) {

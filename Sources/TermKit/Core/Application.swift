@@ -67,15 +67,20 @@ enum ApplicationError : Error {
  */
 public class Application {
     /// Points to the global application
-    static var _top : Toplevel = Toplevel()
+    static var _top : Toplevel? = nil
     static var _current : Toplevel? = nil
     static var toplevels : [Toplevel] = []
     static var debugDrawBounds : Bool = false
+    static var initialized: Bool = false
     
     /// The Toplevel object used for the application on startup.
     public static var top : Toplevel {
         get {
-            return _top
+            guard let x = _top else {
+                print ("You must call Application.prepare()")
+                abort()
+            }
+            return x
         }
     }
     
@@ -94,6 +99,18 @@ public class Application {
      */
     public static func prepare ()
     {
+        if initialized {
+            return
+        }
+        let _ = driver
+        toplevels = []
+        _current = nil
+        _top = Toplevel()
+        wantContinuousButtonPressedView = nil
+        lastMouseOwnerView = nil
+        initialized = true
+        rootMouseHandlers = [:]
+        lastMouseToken = 0
         let _ = driver
     }
     
@@ -115,13 +132,35 @@ public class Application {
     
     static func processKeyEvent (event : KeyEvent)
     {
-        if let c = _current {
-            if (!c.processHotKey(event: event)) {
-                if (!c.processKey(event: event)){
-                    let _ = c.processColdKey(event: event);
-                }
-            }
+        defer {
             postProcessEvent()
+        }
+        let toplevelCopy = toplevels
+        for top in toplevelCopy {
+            if top.processHotKey(event: event) {
+                return
+            }
+            if top.modal {
+                break
+            }
+        }
+        
+        for top in toplevelCopy {
+            if top.processKey(event: event) {
+                return
+            }
+            if top.modal {
+                break
+            }
+        }
+        
+        for top in toplevelCopy {
+            if top.processColdKey(event: event) {
+                return
+            }
+            if top.modal {
+                break
+            }
         }
     }
     
@@ -151,6 +190,27 @@ public class Application {
         return (view: start, resx: x-startFrame.minX, resy: y-startFrame.minY)
     }
     
+    // Tracks the view that has grabbed the mouse
+    static var mouseGrabView: View? = nil
+    
+    /// Grabs the mouse, forcing all mouse events to be routed to the specified view until `ungrabMouse` is called.
+    /// - Parameter from: View that will receive all mouse events until UngrabMouse is invoked.
+    public static func grabMouse (from view: View)
+    {
+        mouseGrabView = view
+        driver.uncookMouse ()
+    }
+
+    /// Ungrabs the mouse, allowing mouse events that were previously captured by one view to flow to other views
+    public static func ungrabMouse ()
+    {
+        mouseGrabView = nil
+        driver.cookMouse ()
+    }
+    
+    static var wantContinuousButtonPressedView: View? = nil
+    static var lastMouseOwnerView: View? = nil
+
     static var rootMouseHandlers : [Int:(MouseEvent)->()] = [:]
     static var lastMouseToken = 0
     
@@ -181,22 +241,51 @@ public class Application {
         rootMouseHandlers.removeValue(forKey: token.token)
     }
     
+    static func outsideFrame (_ p: Point, _ r: Rect) -> Bool {
+        return p.x < 0 || p.x > r.width-1 || p.y < 0 || p.y > r.height - 1
+    }
+    
     static func processMouseEvent (mouseEvent : MouseEvent)
     {
         for h in rootMouseHandlers.values {
             h (mouseEvent)
         }
-        // TODO: MouseGrabView
         
         let res = findDeepestView(start: _current!, x: mouseEvent.x, y: mouseEvent.y)
         if let r = res {
+            if r.view.wantContinuousButtonPressed {
+                wantContinuousButtonPressedView = r.view
+            } else {
+                wantContinuousButtonPressedView = nil
+            }
+            if let grab = mouseGrabView {
+                let newxy = grab.screenToView(x: mouseEvent.x, y: mouseEvent.y)
+                let nme = MouseEvent(x: newxy.x, y: newxy.y, ofX: mouseEvent.x - newxy.x, ofY: mouseEvent.y - newxy.y, flags: mouseEvent.flags, view: r.view)
+                if outsideFrame(Point (x: nme.x, y: nme.y), grab.frame) {
+                    let _ = lastMouseOwnerView?.mouseLeave(event: mouseEvent)
+                }
+                let _ = grab.mouseEnter(event: nme)
+                return
+            }
+            
+            let nme = MouseEvent(x: r.resx, y: r.resy, ofX: 0, ofY: 0, flags: mouseEvent.flags, view: r.view)
+            if lastMouseOwnerView == nil {
+                lastMouseOwnerView = r.view
+                let _ = r.view.mouseEnter(event: nme)
+            } else if lastMouseOwnerView != r.view {
+                let _ = lastMouseOwnerView?.mouseLeave(event: nme)
+                let _ = r.view.mouseEnter(event: nme)
+                lastMouseOwnerView = r.view
+            }
             if !r.view.wantMousePositionReports && (mouseEvent.flags == MouseFlags.mousePosition) {
                 return
             }
-            let nme = MouseEvent (x: res!.resx, y: res!.resy, flags: mouseEvent.flags)
+            wantContinuousButtonPressedView = r.view.wantContinuousButtonPressed ? r.view : nil
             
             // Should we bubble up the event if it not handled?
             let _ = r.view.mouseEvent (event: nme)
+        } else {
+            wantContinuousButtonPressedView = nil
         }
         postProcessEvent()
     }
@@ -216,6 +305,10 @@ public class Application {
      */
     public static func begin (toplevel : Toplevel)
     {
+        if !initialized {
+            print ("You should call Application.prepare() to initialize")
+            abort ()
+        }
         toplevels.append(toplevel)
         _current = toplevel
         if toplevel.layoutStyle == .computed {
@@ -229,7 +322,7 @@ public class Application {
         toplevel.positionCursor()
         driver.refresh()
     }
-    
+
     /**
      * Makes the provided toplevel the new toplevel, sending all events to it
      */
@@ -271,19 +364,31 @@ public class Application {
         }
     }
     
+    // This is currently a hack invoked after any input events have been processed
+    // and triggers the redisplay of information.   The way that this should work
+    // instead is that setNeedsLayout, and setNeedsDisplay should queue an operation
+    // if they are invoked, to trigger this processing.
+    //
+    // This would have a couple of benefits: one, it would allow more than one character
+    // to be processed on input, rather than refreshing for each character, and later would
+    // help me split the frame processing like UIKit does: input first, layout next,
+    // redraw next, driver.refresh last.
+    //
+    // So this hack is here just temporarily
     static func postProcessEvent ()
     {
-        let c = current!
-        if !c.needDisplay.isEmpty || c._childNeedsDisplay {
-            c.redraw (region: c.bounds)
-            if debugDrawBounds {
-                drawBounds (c)
+        if let c = current {
+            if !c.needDisplay.isEmpty || c._childNeedsDisplay {
+                c.redraw (region: c.bounds)
+                if debugDrawBounds {
+                    drawBounds (c)
+                }
+                c.positionCursor()
+                driver.refresh()
+            } else {
+                c.positionCursor()
+                driver.updateCursor()
             }
-            c.positionCursor()
-            driver.refresh()
-        } else {
-            c.positionCursor()
-            driver.updateCursor()
         }
     }
     
@@ -345,6 +450,13 @@ public class Application {
      */
     public static func shutdown(statusCode: Int = 0)
     {
+        for top in toplevels {
+            top._running = false
+        }
+        toplevels = []
+        _current = nil
+        _top = nil
+        
         driver.end ();
         exit (0)
     }

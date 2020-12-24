@@ -339,4 +339,14 @@ public class ConsoleDriver {
     {
         
     }
+    
+    public func cookMouse ()
+    {
+        
+    }
+    
+    public func uncookMouse ()
+    {
+        
+    }
 }

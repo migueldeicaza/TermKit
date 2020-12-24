@@ -167,7 +167,11 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
         layoutStyle = .fixed
     }
     
-    var wantMousePositionReports : Bool = false
+    /// Gets or sets a value indicating whether this `View` wants mouse position reports.
+    public var wantMousePositionReports : Bool = false
+    
+    /// Gets or sets a value indicating whether this `View` want continuous button pressed event.
+    public var wantContinuousButtonPressed : Bool = false
     
     /**
      * Gets or sets the frame for the view.
@@ -1044,6 +1048,28 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
         layoutNeeded = false
     }
     
+    public func mouseEnter(event: MouseEvent) -> Bool {
+        // TODO OnMouseEnter
+        return true
+    }
+    
+    public func mouseLeave(event: MouseEvent) -> Bool {
+        // TODO OnMouseLeave
+        return true
+        
+    }
+    
+    public func becomeFirstResponder() -> Bool {
+        // TODO: OnEnter
+        return true
+    }
+    
+    public func resignFirstResponder() -> Bool {
+        // TODO: OnLeave
+        return true
+    }
+    
+
     public var debugDescription: String {
         return "viewId:\(viewId)"
     }

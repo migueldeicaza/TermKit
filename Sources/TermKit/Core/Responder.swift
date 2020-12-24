@@ -12,7 +12,9 @@ import Foundation
  * Responder base class implemented by objects that want to participate on keyboard and mouse input.
  */
 public protocol Responder {
+    /// Gets or sets a value indicating whether this `Responder` can focus.
     var canFocus : Bool { get set }
+    /// Gets or sets a value indicating whether this `Responder` has focus.
     var hasFocus : Bool { get set }
     
     /**
@@ -66,6 +68,35 @@ public protocol Responder {
     
     /**
      * Method invoked when a mouse event is generated
+     * - Parameter event: Contains the details about the mouse event.
+     * - Returns: `true` if the event was handled, `false` otherwise
      */
     func mouseEvent (event : MouseEvent) -> Bool
+    
+    /**
+     * Method invoked when a mouse event is generated for the first time.
+     * - Parameter event: Contains the details about the mouse event.
+     * - Returns: `true` if the event was handled, `false` otherwise
+     */
+    func mouseEnter (event : MouseEvent) -> Bool
+    
+    /**
+     * Method invoked when a mouse event is generated for the last time.
+     * - Parameter event: Contains the details about the mouse event.
+     * - Returns: `true` if the event was handled, `false` otherwise
+     */
+    func mouseLeave (event : MouseEvent) -> Bool
+    
+    /**
+     * Makes this the first responder object (has the focus)
+     * - Returns: `true` if this became the first responder, `false` if not.
+     */
+    func becomeFirstResponder () -> Bool
+    
+    /**
+     * Notifies this object that it should no longer have the focus (the first responder)
+     * - Returns: `true` if this gave up being the first responder, `false` if not.
+     */
+    func resignFirstResponder() -> Bool
+
 }

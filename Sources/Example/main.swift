@@ -69,8 +69,8 @@ win.x = Pos.at (0)
 win.y = Pos.at (1)
 //win.width = Dim.fill()
 //win.height = Dim.fill ()
-win.width = Dim (100)
-win.height = Dim (80)
+win.width = Dim.sized (100)
+win.height = Dim.sized (80)
 
 // Test the filling
 if false {
@@ -85,28 +85,28 @@ if true {
     let loginLabel = Label ("Login:")
     loginLabel.x = Pos.at (10)
     loginLabel.y = Pos.at (10)
-    loginLabel.width = Dim(10)
+    loginLabel.width = Dim.sized(10)
     
     let loginField = TextField("")
     loginField.x = Pos.right(of: loginLabel) + 2
     loginField.y = Pos.top(of: loginLabel)
-    loginField.width = Dim (30)
+    loginField.width = Dim.sized (30)
     
     let pass = Label ("Password")
     //pass.x = Pos.left(of: loginLabel)
     pass.x = Pos.at (10)
     //pass.y = Pos.bottom(of: loginLabel) + 1
     pass.y = Pos.at (12)
-    pass.width = Dim(10)
-    pass.height = Dim(1)
+    pass.width = Dim.sized(10)
+    pass.height = Dim.sized(1)
     
     let passField = TextField ("")
     //passField.x = Pos.left(of: loginField)
     passField.x = Pos.right(of: pass) + 2
     //passField.y = Pos.top(of: loginField)
     passField.y = Pos.top(of: pass)
-    pass.width = Dim(10)
-    pass.height = Dim(1)
+    pass.width = Dim.sized(10)
+    pass.height = Dim.sized(1)
     
     win.addSubviews([loginLabel, loginField, pass, passField])
 }

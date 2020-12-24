@@ -238,13 +238,34 @@ public struct MouseEvent {
     /// The Y (row) location for the mouse event
     public var y : Int
     
+    /// The offset X (column) location for the mouse event relative to the screen.
+    public var ofX: Int
+    /// The offset Y (column) location for the mouse event relative to the screen.
+    public var ofY: Int
+    
     /// The event flags
     public var flags : MouseFlags
+    
+    /// If set, the current view at the location of the mouse event
+    public var view: View?
 
-    init (x: Int, y:Int, flags: MouseFlags)
+    init (x: Int, y:Int, flags: MouseFlags, view: View? = nil)
     {
         self.x = x
         self.y = y
+        self.ofX = 0
+        self.ofY = 0
         self.flags = flags
+        self.view = view
+    }
+    
+    init (x: Int, y:Int, ofX: Int, ofY: Int, flags: MouseFlags, view: View? = nil)
+    {
+        self.x = x
+        self.y = y
+        self.ofX = ofX
+        self.ofY = ofY
+        self.flags = flags
+        self.view = view
     }
 }

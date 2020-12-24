@@ -291,7 +291,7 @@ public class TextView : View {
             return
         }
         model.removeLineRange(atLine: startRow, fromCol: startCol, toCol: -1)
-        var line2 = model [Int(endRow)]
+        let line2 = model [Int(endRow)]
         
         model.appendText (atLine: Int(endRow), txt: Array (line2 [Int(endCol)...]))
         
@@ -317,7 +317,7 @@ public class TextView : View {
                 clearRegion(left: region.left, top: row, right: region.right, bottom: row+1)
                 continue
             }
-            var line = model [textLine]
+            let line = model [textLine]
             let lineRuneCount = line.count
             
             // Works-ish, this needs to be replaced with actual rune counts at the specific position
@@ -376,7 +376,7 @@ public class TextView : View {
     /// Inserts the provided string at the current cursor location
     func insertText(text: String)
     {
-        var lines = TextModel.stringToTextBufferArray(text: text)
+        let lines = TextModel.stringToTextBufferArray(text: text)
         if lines.count == 0 {
             return
         }
