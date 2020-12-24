@@ -24,47 +24,82 @@ import Foundation
  * ```
  */
 public class Dim {
-    var n : Int
-    func Anchor (_ width : Int) -> Int
+    func anchor (_ width: Int) -> Int
     {
-        return n
+        return 0
     }
     
-    class DimFactor : Dim {
-        var factor : Float
-        init (_ n : Float)
+    class DimFactor: Dim {
+        var factor: Float
+        public private(set) var remaining: Bool
+        
+        init (_ n: Float, _ r: Bool = false)
         {
             factor = n
-            super.init (0)
+            remaining = r
         }
         
-        override func Anchor (_ width : Int) -> Int
+        override func anchor (_ width: Int) -> Int
         {
             return Int (Float (width) * factor)
+        }
+        
+        var debugDescription: String {
+            return "DimFactor (\(factor))"
         }
     }
     
     /**
      * Creates a percentage Pos object, the percentage is based on the dimension of the container
+     * This initializes a `TextField` that is centered horizontally, is 50% of the way down,
+     * is 30% the height, and is 80% the width of the <see cref="View"/> it added to.
+     * ```
+     * var textView = TextView ()
+     * textView.x = Pos.center (),
+     * textView.y = Pos.percent (50)
+     * textView.width = Dim.percent (80)
+     * textView.height = Dim.percent (30)
      *
+     * ```
      * - Parameter n: A value between 0 and 100 representing the percentage.
+     * - Parameter remain: If `true` the Percent is computed based on the remaining space after the X/Y anchor positions.
+     * otherwise it is computed on the whole original space.
      */
-    public static func percent (n : Float) -> Dim
+    public static func percent (n: Float) -> Dim
     {
         let v = n < 0 || n > 100 ? 0 : n
         return DimFactor (v / 100)
     }
     
-    class DimFill : Dim {
-       
-        override init (_ margin : Int)
+    class DimAbsolute: Dim {
+        var n: Int
+        public init (n: Int)
         {
-            super.init (margin)
+            self.n = n
         }
         
-        override func Anchor (_ width : Int) -> Int
+        override func anchor(_ width: Int) -> Int {
+            return n
+        }
+        
+        var debugDescription: String {
+            return "DimAbsolute (\(n))"
+        }
+    }
+    class DimFill: Dim {
+        var margin: Int
+        init (_ margin: Int)
         {
-            return width - n
+            self.margin = margin
+        }
+        
+        override func anchor (_ width: Int) -> Int
+        {
+            return width - margin
+        }
+        
+        var debugDescription: String {
+            return "DimFill (margin=\(margin))"
         }
     }
     
@@ -72,77 +107,88 @@ public class Dim {
     
     /**
      * Creates a dimension that fills until the end, leaving the specified margin at the end
+     * - Parameter margin: optional, the margin to leave at the end
+     * - Returns: a new dimension that can fill the dimension leaving the specified martin
      */
-    public static func fill (_ margin : Int = 0) -> Dim
+    public static func fill (_ margin: Int = 0) -> Dim
     {
         if (margin == 0){
             return zeroMargin
         }
         return DimFill (margin)
     }
-    
-    /// Creates a dimension object with the fixed value specified    /// Produces a dimension that adds the two specified dimensions together
-    public init (_ n : Int)
-    {
-        self.n = n
+
+    /**
+     * Creates an Absolute `Dim` from the specified integer value.
+     * - Parameter n: the size to allocate
+     * - Returns: a new dimension that is set to the absolute size `n`
+     */
+    public static func sized (_ n: Int) -> Dim {
+        return DimAbsolute(n: n)
     }
     
-    class DimCombine : Dim {
-        var left, right : Dim
-        var add : Bool
+    class DimCombine: Dim {
+        var left, right: Dim
+        var add: Bool
         
-        init (add : Bool, left : Dim, right : Dim)
+        init (add: Bool, left: Dim, right: Dim)
         {
             self.add = add
             self.left = left
             self.right = right
-            super.init (0)
         }
         
-        override func Anchor (_ width : Int) -> Int
+        override func anchor (_ width: Int) -> Int
         {
-            let la = left.Anchor (width)
-            let ra = right.Anchor (width)
+            let la = left.anchor (width)
+            let ra = right.anchor (width)
             return add ? la + ra : la - ra
+        }
+        
+        var debugDescription: String {
+            return "DimCombine (\(left) \(add ? "+" : "-") \(right))"
         }
     }
     
     /// Produces a dimension that adds the two specified dimensions together
-    public static func + (lhs : Dim, rhs : Dim) -> Dim
+    public static func + (lhs: Dim, rhs: Dim) -> Dim
     {
         return DimCombine (add: true, left: lhs, right: rhs)
     }
 
     /// Produces a dimension that subtracts the second dimension value from the first
-    public static func - (lhs : Dim, rhs : Dim) -> Dim
+    public static func - (lhs: Dim, rhs: Dim) -> Dim
     {
         return DimCombine (add: false, left: lhs, right: rhs)
     }
     
     enum Side {
-        case Height
-        case Width
+        case height
+        case width
     }
     
-    class DimView : Dim {
-        var target : View
-        var side : Side
+    class DimView: Dim {
+        var target: View
+        var side: Side
         
-        init (_ target : View, side : Side)
+        init (_ target: View, side: Side)
         {
             self.target = target
             self.side = side
-            super.init (0)
         }
         
-        override func Anchor (_ width : Int) -> Int
+        override func anchor (_ width: Int) -> Int
         {
             switch (side){
-            case .Height:
+            case .height:
                 return target.frame.height
-            case .Width:
+            case .width:
                 return target.frame.width
             }
+        }
+        
+        var debugDescription: String {
+            return "DimView (side=\(side), target=\(target))"
         }
     }
     
@@ -154,9 +200,9 @@ public class Dim {
      *
      * - Paramter view: the view from which the width will be computed
      */
-    public static func width (view : View) -> Dim
+    public static func width (view: View) -> Dim
     {
-        return DimView (view, side: .Width)
+        return DimView (view, side: .width)
     }
     
     /**
@@ -167,9 +213,9 @@ public class Dim {
      *
      * - Paramter view: the view from which the width will be computed
      */
-    public static func height (view : View) -> Dim
+    public static func height (view: View) -> Dim
     {
-        return DimView (view, side: .Height)
+        return DimView (view, side: .height)
     }
 
 }

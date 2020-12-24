@@ -929,19 +929,19 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
         var ww, hh, xx, yy : Int
         
         if _x != nil && x is Pos.PosCenter {
-            ww = _width == nil ? hostFrame.width : _width!.Anchor(hostFrame.width)
-            xx = _x!.Anchor(hostFrame.width - ww)
+            ww = _width == nil ? hostFrame.width : _width!.anchor(hostFrame.width)
+            xx = _x!.anchor(hostFrame.width - ww)
         } else {
-            xx = _x == nil ? 0 : x!.Anchor(hostFrame.width)
-            ww = _width == nil ? hostFrame.width : _width!.Anchor(hostFrame.width-xx)
+            xx = _x == nil ? 0 : x!.anchor(hostFrame.width)
+            ww = _width == nil ? hostFrame.width : _width!.anchor(hostFrame.width-xx)
         }
         
         if _y != nil && y is Pos.PosCenter {
-            hh = _height == nil ? hostFrame.height : _height!.Anchor(hostFrame.height)
-            yy = _y!.Anchor(hostFrame.height-hh)
+            hh = _height == nil ? hostFrame.height : _height!.anchor(hostFrame.height)
+            yy = _y!.anchor(hostFrame.height-hh)
         } else {
-            yy = _y == nil ? 0 : y!.Anchor(hostFrame.height)
-            hh = _height == nil ? hostFrame.height : _height!.Anchor(hostFrame.height-yy)
+            yy = _y == nil ? 0 : y!.anchor(hostFrame.height)
+            hh = _height == nil ? hostFrame.height : _height!.anchor(hostFrame.height-yy)
         }
         frame = Rect (x: xx, y: yy, width: ww, height: hh)
     }

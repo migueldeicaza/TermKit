@@ -33,8 +33,8 @@ public class Dialog : Window {
         super.init(title, padding: 1)
         x = Pos.center ()
         y = Pos.center ()
-        self.width = Dim (width)
-        self.height = Dim (height)
+        self.width = Dim.sized (width)
+        self.height = Dim.sized (height)
         colorScheme = Colors.dialog
         
         for button in buttons {

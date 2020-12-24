@@ -247,7 +247,7 @@ public class MenuBar : View {
         x = Pos.at (0)
         y = Pos.at (0)
         width = Dim.fill()
-        height = Dim(1)
+        height = Dim.sized (1)
         canFocus = false
         colorScheme = Colors.menu
     }
