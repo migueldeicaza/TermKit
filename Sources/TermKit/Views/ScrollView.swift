@@ -363,17 +363,17 @@ public class ScrollView : View {
             return true
         }
         switch event.key {
-        case .CursorUp:
+        case .cursorUp:
             return scrollUp(lines: 1)
-        case .Letter("v") where event.isAlt, .PageUp:
+        case .letter("v") where event.isAlt, .pageUp:
             return scrollUp(lines: bounds.height)
-        case .ControlV, .PageDown:
+        case .controlV, .pageDown:
             return scrollDown(lines: bounds.height)
-        case .CursorDown:
+        case .cursorDown:
             return scrollDown(lines: 1)
-        case .CursorLeft:
+        case .cursorLeft:
             return scrollLeft(cols: 1)
-        case .CursorRight:
+        case .cursorRight:
             return scrollRight(cols: 1)
         default:
             return false

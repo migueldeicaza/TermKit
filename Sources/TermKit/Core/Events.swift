@@ -21,138 +21,138 @@ import Foundation
  */
 public enum Key {
     /// The key code for the user pressing Control-spacebar
-    case ControlSpace
+    case controlSpace
     /// The key code for the user pressing Control-A
-    case ControlA
+    case controlA
     /// The key code for the user pressing Control-B
-    case ControlB
+    case controlB
     /// The key code for the user pressing Control-C
-    case ControlC
+    case controlC
     /// The key code for the user pressing Control-D
-    case ControlD
+    case controlD
     /// The key code for the user pressing Control-E
-    case ControlE
+    case controlE
     /// The key code for the user pressing Control-F
-    case ControlF
+    case controlF
     /// The key code for the user pressing Control-G
-    case ControlG
+    case controlG
     /// The key code for the user pressing Control-H
-    case ControlH
-    static var Backspace : Key {
+    case controlH
+    static var backspace : Key {
         get {
-            return ControlH
+            return controlH
         }
     }
 
     /// The key code for the user pressing Control-I
-    case ControlI
+    case controlI
     /// The key code for the user pressing Control-J
-    case ControlJ
+    case controlJ
     
-    static var Return : Key {
+    static var returnKey : Key {
         get {
-            return ControlJ
+            return controlJ
         }
     }
     /// The key code for the user pressing Control-K
-    case ControlK
+    case controlK
     /// The key code for the user pressing Control-L
-    case ControlL
+    case controlL
     /// The key code for the user pressing Control-M
-    case ControlM
+    case controlM
     /// The key code for the user pressing Control-N
-    case ControlN
+    case controlN
     /// The key code for the user pressing Control-O
-    case ControlO
+    case controlO
     /// The key code for the user pressing Control-P
-    case ControlP
+    case controlP
     /// The key code for the user pressing Control-Q
-    case ControlQ
+    case controlQ
     /// The key code for the user pressing Control-R
-    case ControlR
+    case controlR
     /// The key code for the user pressing Control-S
-    case ControlS
+    case controlS
     /// The key code for the user pressing Control-T
-    case ControlT
+    case controlT
     /// The key code for the user pressing Control-U
-    case ControlU
+    case controlU
     /// The key code for the user pressing Control-V
-    case ControlV
+    case controlV
     /// The key code for the user pressing Control-W
-    case ControlW
+    case controlW
     /// The key code for the user pressing Control-X
-    case ControlX
+    case controlX
     /// The key code for the user pressing Control-Y
-    case ControlY
+    case controlY
     /// The key code for the user pressing Control-Z
-    case ControlZ
+    case controlZ
     
     /// The  key code for the user pressing the ESC key
-    case Esc
+    case esc
     
     // Value 28
     /// ASCII sequence for Field Separator (^\)
-    case FS
+    case fs
     
     // Value 29
     /// ASCII sequence for Group Separator (^])
-    case GS
+    case gs
     
     // Value 30
     /// ASCII sequence for Record Separator (^^)
-    case RS
+    case rs
     
     // Value 31
     /// ASCII sequence for Unit Separator (^_)
-    case US
+    case us
     
     /// The keycode for the user pressing the delete key
-    case Delete
+    case delete
     
     /// Cursor up key pressed
-    case CursorUp
+    case cursorUp
     /// Cursor down key pressed
-    case CursorDown
+    case cursorDown
     /// Cursor left key pressed
-    case CursorLeft
+    case cursorLeft
     /// Cursor right key pressed
-    case CursorRight
+    case cursorRight
     /// Page up key pressed
-    case PageUp
+    case pageUp
     /// Page down key pressed
-    case PageDown
+    case pageDown
     /// Home key pressed
-    case Home
+    case home
     /// End key pressed
-    case End
+    case end
     /// Delete character key
-    case DeleteChar
+    case deleteChar
     /// Insert character key
-    case InsertChar
+    case insertChar
     /// The F1 Key
-    case F1
+    case f1
     /// The F2 Key
-    case F2
+    case f2
     /// The F3 Key
-    case F3
+    case f3
     /// The F4 Key
-    case F4
+    case f4
     /// The F5 Key
-    case F5
+    case f5
     /// The F6 Key
-    case F6
+    case f6
     /// The F7 Key
-    case F7
+    case f7
     /// The F8 Key
-    case F8
+    case f8
     /// The F9 Key
-    case F9
+    case f9
     /// The F10 Key
-    case F10
+    case f10
     /// The shift-tab key
-    case Backtab
+    case backtab
     
-    case Letter (Character)
+    case letter (Character)
     case Unknown
 }
 
@@ -179,7 +179,7 @@ public struct KeyEvent {
     }
     
     /// Initializes the KeyEvent structure
-    init (key : Key, isAlt: Bool = false, isControl : Bool = false)
+    init (key: Key, isAlt: Bool = false, isControl: Bool = false)
     {
         self.key = key
         self._isAlt = isAlt
@@ -190,10 +190,10 @@ public struct KeyEvent {
 /**
  * Flags for a mouse event
  */
-public struct MouseFlags : OptionSet {
-    public let rawValue : UInt
+public struct MouseFlags: OptionSet {
+    public let rawValue: UInt
     
-    public init (rawValue :UInt)
+    public init (rawValue: UInt)
     {
         self.rawValue = rawValue
     }
@@ -234,9 +234,9 @@ public struct MouseFlags : OptionSet {
  */
 public struct MouseEvent {
     /// The X (column) location for the mouse event
-    public var x : Int
+    public var x: Int
     /// The Y (row) location for the mouse event
-    public var y : Int
+    public var y: Int
     
     /// The offset X (column) location for the mouse event relative to the screen.
     public var ofX: Int
@@ -244,12 +244,12 @@ public struct MouseEvent {
     public var ofY: Int
     
     /// The event flags
-    public var flags : MouseFlags
+    public var flags: MouseFlags
     
     /// If set, the current view at the location of the mouse event
     public var view: View?
 
-    init (x: Int, y:Int, flags: MouseFlags, view: View? = nil)
+    init (x: Int, y: Int, flags: MouseFlags, view: View? = nil)
     {
         self.x = x
         self.y = y

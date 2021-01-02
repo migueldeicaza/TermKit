@@ -118,7 +118,7 @@ public class Button : View {
     func checkKey (_ event: KeyEvent) -> Bool {
         if let hk = hotKey {
             switch event.key {
-            case let .Letter(ch) where ch == hk:
+            case let .letter(ch) where ch == hk:
                 superview?.setFocus(self)
                 raiseClicked ()
                 return true
@@ -147,7 +147,7 @@ public class Button : View {
     public override func processColdKey(event: KeyEvent) -> Bool {
         if isDefault {
             switch event.key {
-            case .ControlJ:
+            case .controlJ:
                 raiseClicked()
                 return true
             default:
@@ -162,7 +162,7 @@ public class Button : View {
     //
     public override func processKey(event: KeyEvent) -> Bool {
         switch event.key {
-        case .ControlJ, .Letter(" "):
+        case .controlJ, .letter(" "):
             raiseClicked()
             return true;
         default:

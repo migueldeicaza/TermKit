@@ -490,9 +490,9 @@ public class TextView : View {
         // Handle some state here - whether the last command was a kill
         // operation and the column tracking (up/down)
         switch event.key {
-        case .ControlN, .CursorDown, .ControlP, .CursorUp:
+        case .controlN, .cursorDown, .controlP, .cursorUp:
             lastWasKill = false
-        case .ControlK:
+        case .controlK:
             break
         default:
             lastWasKill = false
@@ -502,7 +502,7 @@ public class TextView : View {
         // Dispatch the command
         
         switch event.key {
-        case .PageDown, .ControlV:
+        case .pageDown, .controlV:
             let nPageDnShift = frame.height - 1
             if currentRow < model.count {
                 if columnTrack == -1 {
@@ -516,8 +516,8 @@ public class TextView : View {
                 trackColumn()
                 // positionCursor()
             }
-        case .PageUp,
-             .Letter ("v") where event.isAlt:
+        case .pageUp,
+             .letter ("v") where event.isAlt:
             let nPageUpShift = frame.height - 1;
             if currentRow > 0 {
                 if columnTrack == -1 {
@@ -531,7 +531,7 @@ public class TextView : View {
                 trackColumn ();
                 // PositionCursor ();
             }
-        case .ControlN, .CursorDown:
+        case .controlN, .cursorDown:
             if currentRow + 1 < model.count {
                 if columnTrack == -1 {
                     columnTrack = currentColumn
@@ -544,7 +544,7 @@ public class TextView : View {
                 trackColumn ();
                 // positionCursor ();
             }
-        case .ControlP, .CursorUp:
+        case .controlP, .cursorUp:
             if currentRow > 0 {
                 if columnTrack == -1 {
                     columnTrack = currentColumn
@@ -558,7 +558,7 @@ public class TextView : View {
                 // positionCursor ();
             }
             
-        case .ControlF, .CursorRight:
+        case .controlF, .cursorRight:
             let currentLine = getCurrentLine()
             if currentColumn < textBufferSize(currentLine) {
                 currentColumn += 1
@@ -580,7 +580,7 @@ public class TextView : View {
                 }
             }
             
-        case .ControlB, .CursorLeft:
+        case .controlB, .cursorLeft:
             if currentColumn > 0 {
                 currentColumn -= 1
                 if currentColumn < leftColumn {
@@ -606,7 +606,7 @@ public class TextView : View {
                 }
             }
             
-        case .Delete:
+        case .delete:
             if isReadOnly {
                 break
             }
@@ -639,14 +639,14 @@ public class TextView : View {
                 setNeedsDisplay ();
             }
             
-        case .ControlA, .Home:
+        case .controlA, .home:
             currentColumn = 0
             if currentColumn < leftColumn {
                 leftColumn = 0
                 setNeedsDisplay()
             }
             
-        case .DeleteChar, .ControlD:
+        case .deleteChar, .controlD:
             if isReadOnly {
                 break
             }
@@ -665,7 +665,7 @@ public class TextView : View {
                 setNeedsDisplay (Rect (x: currentColumn - leftColumn, y: r, width: frame.width, height: r + 1));
             }
 
-        case .End, .ControlE:
+        case .end, .controlE:
             currentColumn = textBufferSize(getCurrentLine())
             let pcol = leftColumn
             leftColumn = currentColumn - frame.width + 1
@@ -677,7 +677,7 @@ public class TextView : View {
             }
             
             // kill to end
-        case .ControlK:
+        case .controlK:
             if isReadOnly {
                 break
             }
@@ -704,37 +704,37 @@ public class TextView : View {
             lastWasKill = true
             
             // yank
-        case .ControlY:
+        case .controlY:
             if isReadOnly {
                 break
             }
             insertText(text: Clipboard.contents)
             selecting = false
             
-        case .ControlSpace:
+        case .controlSpace:
             selecting = true
             selectionStartColumn = currentColumn
             selectionStartRow = currentRow
             
-        case .Letter("w") where event.isAlt:
+        case .letter("w") where event.isAlt:
             setClipboard(text: getRegion())
             selecting = false
             
-        case .ControlW:
+        case .controlW:
             setClipboard(text: getRegion ())
             if !isReadOnly {
                 clearRegion ()
             }
             selecting = false
             
-        case .Letter("b") where event.isAlt:
+        case .letter("b") where event.isAlt:
             if let newPos = wordBackward (fromCol: currentColumn, andRow: currentRow) {
                 currentColumn = newPos.col;
                 currentRow = newPos.row;
             }
             adjust ();
             
-        case .Letter("f") where event.isAlt:
+        case .letter("f") where event.isAlt:
             if let newPos = wordForward (fromCol: currentColumn, andRow: currentRow) {
                 currentColumn = newPos.col
                 currentRow = newPos.row
@@ -742,7 +742,7 @@ public class TextView : View {
             adjust ()
 
             // Return key
-        case Key.ControlJ:
+        case Key.controlJ:
             if isReadOnly {
                 break
             }
@@ -769,7 +769,7 @@ public class TextView : View {
                 setNeedsDisplay (Rect (x: 0, y: currentRow - topRow, width: 2, height: frame.height));
             }
             
-        case let .Letter(x):
+        case let .letter(x):
             if isReadOnly {
                 break
             }

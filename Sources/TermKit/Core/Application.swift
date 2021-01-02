@@ -9,6 +9,18 @@
 import Foundation
 import Darwin.ncurses
 
+var fd: Int32 = -1
+public func log (_ s: String)
+{
+    if fd == -1 {
+        fd = open ("/tmp/log", O_CREAT | O_RDWR, S_IRWXU)
+    }
+    let data = (s + "\n").data(using: String.Encoding.utf8)!
+    let _ = data.withUnsafeBytes { dataBytes in
+        return write(fd, dataBytes, data.count)
+    }
+}
+
 class SizeError : Error {
 }
 
@@ -112,6 +124,7 @@ public class Application {
         rootMouseHandlers = [:]
         lastMouseToken = 0
         let _ = driver
+        log ("Columns/rows: \(driver.cols) \(driver.rows)")
     }
     
     /**

@@ -81,7 +81,7 @@ public class Checkbox : View {
     
     public override func processKey(event: KeyEvent) -> Bool {
         switch event.key {
-        case .Letter(" "):
+        case .letter(" "):
             toggle ()
             return true
         default:

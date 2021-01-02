@@ -65,6 +65,7 @@ public class Window : Toplevel {
     // TODO: removeAll
     
     public override func redraw(region: Rect) {
+        log ("Window.redraw: \(frame) and region to redraw is: \(region)")
         if !needDisplay.isEmpty {
             driver.setAttribute(colorScheme!.normal)
             drawFrame ()

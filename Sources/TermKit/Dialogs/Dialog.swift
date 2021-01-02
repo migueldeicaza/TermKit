@@ -72,7 +72,7 @@ public class Dialog : Window {
     
     public override func processKey(event: KeyEvent) -> Bool {
         switch event.key {
-        case .Esc:
+        case .esc:
             running = false
             return true
         default:

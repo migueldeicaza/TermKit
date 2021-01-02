@@ -166,7 +166,7 @@ public class Menu : View {
     
     public override func processKey(event: KeyEvent) -> Bool {
         switch event.key {
-        case .CursorUp, .ControlP:
+        case .cursorUp, .controlP:
             if current == -1 {
                 break
             }
@@ -178,7 +178,7 @@ public class Menu : View {
             } while barItems.children [current] == nil
             setNeedsDisplay()
             
-        case .CursorDown, .ControlN:
+        case .cursorDown, .controlN:
             if current == -1 {
                 break
             }
@@ -191,20 +191,20 @@ public class Menu : View {
             } while barItems.children [current] == nil
             setNeedsDisplay()
             
-        case .CursorLeft, .ControlB:
+        case .cursorLeft, .controlB:
             host.previousMenu()
             
-        case .CursorRight, .ControlF:
+        case .cursorRight, .controlF:
             host.nextMenu()
             
-        case .Esc:
+        case .esc:
             host.closeMenu()
             
-        case .ControlJ: // Return
+        case .controlJ: // Return
             host.closeMenu()
             run (action: barItems.children [current]!.action)
             
-        case let .Letter(x) where x.isLetter || x.isNumber:
+        case let .letter(x) where x.isLetter || x.isNumber:
             let upper = x.uppercased()
             for item in barItems.children {
                 if let nnitem = item, let hotKey = nnitem.hotkey {
@@ -230,7 +230,7 @@ public class Menu : View {
  *
  * ```
  */
-public class MenuBar : View {
+public class MenuBar: View {
     public var menus: [MenuBarItem]
     var selected : Int? = nil
     var action : (() -> Void)? = nil
@@ -369,7 +369,7 @@ public class MenuBar : View {
     
     public override func processHotKey(event: KeyEvent) -> Bool {
         switch event.key {
-        case .F9:
+        case .f9:
             startMenu ()
             return true
         default:
@@ -379,20 +379,20 @@ public class MenuBar : View {
     
     public override func processKey(event: KeyEvent) -> Bool {
         switch event.key {
-        case .CursorLeft, .ControlB:
+        case .cursorLeft, .controlB:
             selected = selected! - 1
             if selected! < 0 {
                 selected = menus.count - 1
             }
         
-        case .CursorRight, .ControlF:
+        case .cursorRight, .controlF:
             selected = (selected! + 1) % menus.count
             
-        case .Esc, .ControlC:
+        case .esc, .controlC:
             // TODO: running = false
             break
             
-        case let .Letter (x):
+        case let .letter (x):
             let target = x.uppercased()
             if menus [selected!].children.count == 0 {
                 return false

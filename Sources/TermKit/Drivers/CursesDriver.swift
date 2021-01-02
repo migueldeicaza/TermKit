@@ -131,64 +131,64 @@ class CursesDriver : ConsoleDriver {
     {
         switch (ck){
             // Control sequences
-        case 0: return Key.ControlSpace
-        case 1: return Key.ControlA
-        case 2: return Key.ControlB
-        case 3: return Key.ControlC
-        case 4: return Key.ControlD
-        case 5: return Key.ControlE
-        case 6: return Key.ControlF
-        case 7: return Key.ControlG
-        case 8: return Key.ControlH
-        case 9: return Key.ControlI
-        case 10: return Key.ControlJ
-        case 11: return Key.ControlK
-        case 12: return Key.ControlL
-        case 13: return Key.ControlM
-        case 14: return Key.ControlN
-        case 15: return Key.ControlO
-        case 16: return Key.ControlP
-        case 17: return Key.ControlQ
-        case 18: return Key.ControlR
-        case 19: return Key.ControlS
-        case 20: return Key.ControlT
-        case 21: return Key.ControlU
-        case 22: return Key.ControlV
-        case 23: return Key.ControlW
-        case 24: return Key.ControlX
-        case 25: return Key.ControlY
-        case 26: return Key.ControlZ
-        case 27: return Key.Esc
-        case 28: return Key.FS
-        case 29: return Key.GS
-        case 30: return Key.RS
-        case 31: return Key.US
-        case 127: return Key.Delete
-        case KEY_F0+1: return Key.F1
-        case KEY_F0+2: return Key.F2
-        case KEY_F0+3: return Key.F3
-        case KEY_F0+4: return Key.F4
-        case KEY_F0+5: return Key.F5
-        case KEY_F0+6: return Key.F6
-        case KEY_F0+7: return Key.F7
-        case KEY_F0+8: return Key.F8
-        case KEY_F0+9: return Key.F9
-        case KEY_F0+10: return Key.F10
-        case KEY_UP: return Key.CursorUp
-        case KEY_DOWN: return Key.CursorDown
-        case KEY_LEFT: return Key.CursorLeft
-        case KEY_RIGHT: return Key.CursorRight
-        case KEY_HOME: return Key.Home
-        case KEY_END: return Key.End
-        case KEY_NPAGE: return Key.PageDown
-        case KEY_PPAGE: return Key.PageUp
-        case KEY_DC: return Key.DeleteChar
-        case KEY_IC: return Key.InsertChar
-        case KEY_BTAB: return Key.Backtab
-        case KEY_BACKSPACE: return Key.Backspace
+        case 0: return Key.controlSpace
+        case 1: return Key.controlA
+        case 2: return Key.controlB
+        case 3: return Key.controlC
+        case 4: return Key.controlD
+        case 5: return Key.controlE
+        case 6: return Key.controlF
+        case 7: return Key.controlG
+        case 8: return Key.controlH
+        case 9: return Key.controlI
+        case 10: return Key.controlJ
+        case 11: return Key.controlK
+        case 12: return Key.controlL
+        case 13: return Key.controlM
+        case 14: return Key.controlN
+        case 15: return Key.controlO
+        case 16: return Key.controlP
+        case 17: return Key.controlQ
+        case 18: return Key.controlR
+        case 19: return Key.controlS
+        case 20: return Key.controlT
+        case 21: return Key.controlU
+        case 22: return Key.controlV
+        case 23: return Key.controlW
+        case 24: return Key.controlX
+        case 25: return Key.controlY
+        case 26: return Key.controlZ
+        case 27: return Key.esc
+        case 28: return Key.fs
+        case 29: return Key.gs
+        case 30: return Key.rs
+        case 31: return Key.us
+        case 127: return Key.delete
+        case KEY_F0+1: return Key.f1
+        case KEY_F0+2: return Key.f2
+        case KEY_F0+3: return Key.f3
+        case KEY_F0+4: return Key.f4
+        case KEY_F0+5: return Key.f5
+        case KEY_F0+6: return Key.f6
+        case KEY_F0+7: return Key.f7
+        case KEY_F0+8: return Key.f8
+        case KEY_F0+9: return Key.f9
+        case KEY_F0+10: return Key.f10
+        case KEY_UP: return Key.cursorUp
+        case KEY_DOWN: return Key.cursorDown
+        case KEY_LEFT: return Key.cursorLeft
+        case KEY_RIGHT: return Key.cursorRight
+        case KEY_HOME: return Key.home
+        case KEY_END: return Key.end
+        case KEY_NPAGE: return Key.pageDown
+        case KEY_PPAGE: return Key.pageUp
+        case KEY_DC: return Key.deleteChar
+        case KEY_IC: return Key.insertChar
+        case KEY_BTAB: return Key.backtab
+        case KEY_BACKSPACE: return Key.backspace
         default:
             if let us = Unicode.Scalar (UInt32 (ck)) {
-                return Key.Letter(Character.init(us))
+                return Key.letter(Character.init(us))
             } else {
                 return Key.Unknown
             }
@@ -237,33 +237,33 @@ class CursesDriver : ConsoleDriver {
                 if status2 == 0 {
                     switch result {
                     case 48: // ESC-0 is F10
-                        ke = KeyEvent (key: Key.F10)
+                        ke = KeyEvent (key: Key.f10)
                     case 49: // ESC-1 is F1
-                        ke = KeyEvent (key: Key.F1)
+                        ke = KeyEvent (key: Key.f1)
                     case 50:
-                        ke = KeyEvent (key: Key.F2)
+                        ke = KeyEvent (key: Key.f2)
                     case 51:
-                        ke = KeyEvent (key: Key.F3)
+                        ke = KeyEvent (key: Key.f3)
                     case 52:
-                        ke = KeyEvent (key: Key.F4)
+                        ke = KeyEvent (key: Key.f4)
                     case 53:
-                        ke = KeyEvent (key: Key.F5)
+                        ke = KeyEvent (key: Key.f5)
                     case 54:
-                        ke = KeyEvent (key: Key.F6)
+                        ke = KeyEvent (key: Key.f6)
                     case 55:
-                        ke = KeyEvent (key: Key.F7)
+                        ke = KeyEvent (key: Key.f7)
                     case 56:
-                        ke = KeyEvent (key: Key.F8)
+                        ke = KeyEvent (key: Key.f8)
                     case 57:
-                        ke = KeyEvent (key: Key.F9)
+                        ke = KeyEvent (key: Key.f9)
                     case 27: // ESC+ESC is just ESC
-                        ke = KeyEvent (key: Key.Esc)
+                        ke = KeyEvent (key: Key.esc)
                     default:
                         ke = KeyEvent (key: toAppKeyEvent(result), isAlt: true, isControl: isControl)
                     }
                 } else {
                     // Got nothing, just pass the escape
-                    ke = KeyEvent (key: Key.Esc)
+                    ke = KeyEvent (key: Key.esc)
                 }
             }
             Application.processKeyEvent(event: ke)

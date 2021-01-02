@@ -69,11 +69,11 @@ win.x = Pos.at (0)
 win.y = Pos.at (1)
 //win.width = Dim.fill()
 //win.height = Dim.fill ()
-win.width = Dim.sized (100)
-win.height = Dim.sized (80)
-
+//win.width = Dim.sized (100)
+//win.height = Dim.sized (80)
+var maybe = false
 // Test the filling
-if false {
+if maybe {
     let another=TextField ("Another")
     another.x=Pos.at(0)
     another.y=Pos.at(0)

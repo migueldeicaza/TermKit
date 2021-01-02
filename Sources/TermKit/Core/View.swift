@@ -72,7 +72,7 @@ public enum LayoutStyle {
 open class View : Responder, Hashable, CustomDebugStringConvertible {
     var superview : View? = nil
     var focused : View? = nil
-    var subviews : [View] = []
+    var _subviews : [View] = []
     var _frame : Rect = Rect.zero
     var viewId : Int
     var id : String = ""
@@ -82,6 +82,11 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
     static var globalId : Int = 0
     var _layoutStyle : LayoutStyle = .computed
     
+    public var subviews: [View] {
+        get {
+            return _subviews
+        }
+    }
     /**
      * Controls how the view's `frame` is computed during the layoutSubviews method, if `absolute`, then
      * `layoutSubviews` does not change the `frame` properties, otherwise the `frame` is updated from the
@@ -276,7 +281,7 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
      */
     public func addSubview (_ view : View)
     {
-        subviews.append (view)
+        _subviews.append (view)
         view.superview = self
         if view.canFocus {
             _canFocus = true
@@ -313,7 +318,7 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
             setNeedsLayout()
             setNeedsDisplay()
 
-            subviews.remove(at: idx)
+            _subviews.remove(at: idx)
             view.superview = nil
             
             if subviews.count < 1 {

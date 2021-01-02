@@ -165,7 +165,7 @@ public class TextField : View {
     
     public override func processKey(event: KeyEvent) -> Bool {
         switch event.key {
-        case .DeleteChar, .ControlD:
+        case .deleteChar, .controlD:
             if textBuffer.count == 0 || textBuffer.count == point {
                 return true
             }
@@ -173,7 +173,7 @@ public class TextField : View {
             textChanged ()
             adjust()
             
-        case .Delete, .ControlH:
+        case .delete, .controlH:
             if point == 0 {
                 return true
             }
@@ -181,28 +181,28 @@ public class TextField : View {
             textBuffer.remove (at: point)
             adjust ()
             
-        case .ControlA, .Home:
+        case .controlA, .home:
             point = 0
             adjust ()
             
-        case .CursorLeft, .ControlB:
+        case .cursorLeft, .controlB:
             if point > 0 {
                 point -= 1
                 adjust ()
             }
             
-        case .End, .ControlE:
+        case .end, .controlE:
             point = textBuffer.count
             adjust ()
             
-        case .CursorRight, .ControlF:
+        case .cursorRight, .controlF:
             if point == textBuffer.count {
                 break
             }
             point += 1
             adjust ()
             
-        case .ControlK: // kill to end
+        case .controlK: // kill to end
             if point > textBuffer.count {
                 return true
             }
@@ -210,7 +210,7 @@ public class TextField : View {
             textBuffer.removeLast(textBuffer.count-point)
             adjust ()
             
-        case .ControlY: // yank
+        case .controlY: // yank
             if Clipboard.contents == "" {
                 return true
             }
@@ -223,19 +223,19 @@ public class TextField : View {
             }
             adjust ()
             
-        case .Letter("b") where event.isAlt:
+        case .letter("b") where event.isAlt:
             if let wb = wordBackward (fromPoint: point) {
                 point = wb
             }
             adjust ()
             
-        case .Letter("f") where event.isAlt:
+        case .letter("f") where event.isAlt:
             if let fw = wordForward(fromPoint: point) {
                 point = fw
             }
             adjust()
             
-        case let .Letter(x) where event.isAlt == false:
+        case let .letter(x) where event.isAlt == false:
             let kbstr = TextField.toTextBuffer(String (x))
             if used {
                 if point == textBuffer.count {
