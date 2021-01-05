@@ -509,6 +509,12 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
         driver.moveTo(col: rcol, row: rrow)
     }
     
+    /// Returns a drawing context for this view which can be used to draw into the view's surface
+    public func getPainter () -> Painter
+    {
+        return Painter(from: self)
+    }
+    
     /**
      * Positions the cursor in the right position based on the currently focused view in the chain.
      */
@@ -540,7 +546,7 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
     /**
      * The colorscheme used by this view
      */
-    public var colorScheme : ColorScheme? {
+    public var colorScheme : ColorScheme! {
         get {
             if _colorScheme == nil {
                 if let s = superview {

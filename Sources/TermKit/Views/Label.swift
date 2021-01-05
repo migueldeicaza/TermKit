@@ -150,13 +150,11 @@ public class Label : View {
         if recalcPending {
             recalc ()
         }
-        if let color = textAttribute {
-            driver.setAttribute(color)
-        } else {
-            driver.setAttribute(colorScheme!.normal)
-        }
-        clear ()
-        moveTo (col: 0, row: 0)
+
+        let dc = getPainter()
+        dc.attribute = textAttribute ?? colorScheme.normal
+        dc.clear ()
+        dc.goto(col: 0, row: 0)
         for line in 0..<lines.count {
             if line < region.top || line > region.bottom {
                 continue
@@ -171,8 +169,8 @@ public class Label : View {
             case .Right:
                 x = frame.right - str.cellCount ()
             }
-            moveTo (col: x, row: line)
-            driver.addStr(str)
+            dc.goto (col: x, row: line)
+            dc.add(str: str)
         }
     }
     

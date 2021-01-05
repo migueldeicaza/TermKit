@@ -72,6 +72,7 @@ win.y = Pos.at (1)
 //win.width = Dim.sized (100)
 //win.height = Dim.sized (80)
 var maybe = false
+
 // Test the filling
 if maybe {
     let another=TextField ("Another")
@@ -92,7 +93,7 @@ if true {
     loginField.y = Pos.top(of: loginLabel)
     loginField.width = Dim.sized (30)
     
-    let pass = Label ("Password")
+    let pass = Label ("Password: ")
     //pass.x = Pos.left(of: loginLabel)
     pass.x = Pos.at (10)
     //pass.y = Pos.bottom(of: loginLabel) + 1
@@ -105,6 +106,7 @@ if true {
     passField.x = Pos.right(of: pass) + 2
     //passField.y = Pos.top(of: loginField)
     passField.y = Pos.top(of: pass)
+    passField.width = Dim.sized (30)
     pass.width = Dim.sized(10)
     pass.height = Dim.sized(1)
     

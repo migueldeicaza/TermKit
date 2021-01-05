@@ -97,6 +97,7 @@ public class Button : View {
     }
     
     public override func redraw(region: Rect) {
+        
         driver.setAttribute(hasFocus ? colorScheme!.focus : colorScheme!.normal)
         moveTo (col: 0, row: 0)
         driver.addStr(shownText)
