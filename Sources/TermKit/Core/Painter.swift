@@ -79,6 +79,32 @@ public class Painter {
         }
     }
     
+    func add (rune: UnicodeScalar, bounds: Rect, driver: ConsoleDriver)
+    {
+        if rune.value == 10 {
+            col = 0
+            row += 1
+            return
+        }
+        if row > bounds.height {
+            return
+        }
+        let len = Int32 (wcwidth(wchar_t (bitPattern: rune.value)))
+        let npos = col + Int (len)
+        
+        if npos > bounds.width {
+            // We are out of bounds, but the width might be larger than 1 cell
+            // so we should draw a space
+            while col < bounds.width {
+                driver.addStr(" ")
+                col += 1
+            }
+        } else {
+            driver.addRune (rune)
+            col += Int (len)
+        }
+    }
+    
     public func add (str: String)
     {
         let strScalars = str.unicodeScalars
@@ -87,28 +113,7 @@ public class Painter {
         
         applyContext ()
         for uscalar in strScalars {
-            if uscalar.value == 10 {
-                col = 0
-                row += 1
-                continue
-            }
-            if row > bounds.height {
-                return
-            }
-            let len = Int32 (wcwidth(wchar_t (bitPattern: uscalar.value)))
-            let npos = col + Int (len)
-            
-            if npos > bounds.width {
-                // We are out of bounds, but the width might be larger than 1 cell
-                // so we should draw a space
-                while col < bounds.width {
-                    driver.addStr(" ")
-                    col += 1
-                }
-            } else {
-                driver.addRune (uscalar)
-                col += Int (len)
-            }
+            add (rune: uscalar, bounds: bounds, driver: driver)
         }
     }
     
