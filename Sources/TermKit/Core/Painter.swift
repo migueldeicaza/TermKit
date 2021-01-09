@@ -36,6 +36,20 @@ public class Painter {
         row = 0
     }
     
+    deinit {
+        applyContext()
+    }
+    
+    public func colorNormal ()
+    {
+        attribute = view.colorScheme!.normal
+    }
+    
+    public func colorSelection ()
+    {
+        attribute = view.hasFocus ? view.colorScheme!.focus : view.colorScheme!.normal
+    }
+    
     /**
      * Moves the drawing cursor position to the specified column and row.
      *
@@ -117,6 +131,11 @@ public class Painter {
         }
     }
     
+    public func add (rune: UnicodeScalar)
+    {
+        add (str: String (rune))
+    }
+    
     /**
      * Clears the view region with the current color.
      */
@@ -127,14 +146,42 @@ public class Painter {
     
     public func clear (_ rect: Rect)
     {
-        let driver = Application.driver
+        //let driver = Application.driver
         let h = rect.height
         
         let lstr = String (repeating: " ", count: rect.width)
         
         for line in 0..<h {
             goto (col: rect.minX, row: line)
-            driver.addRune (driver.space)
+            
+            // OPTIMIZATION: if the driver clips, we could call the driver directly, as we know the string is spaces
+            // and wont have any odd sizing issues
+            add (str: lstr)
         }
+    }
+    
+    /// Clears a region of the view with spaces
+    func clearRegion (left:Int, top: Int, right: Int, bottom: Int)
+    {
+        //let driver = Application.driver
+        let lstr = String (repeating: " ", count: right-left)
+        for row in top..<bottom {
+            goto(col: left, row: row)
+            // OPTIMIZATION: if the driver clips, we could call the driver directly, as we know the string is spaces
+            // and wont have any odd sizing issues
+            add (str: lstr)
+        }
+    }
+
+    /**
+     * Draws a frame on the specified region with the specified padding around the frame.
+     * - Parameter region: Region where the frame will be drawn.
+     * - Parameter padding: Padding to add on the sides
+     * - Parameter fill: If set to `true` it will clear the contents with the current color, otherwise the contents will be left untouched.
+     */
+    public func drawFrame (_ region: Rect, padding : Int, fill : Bool)
+    {
+        applyContext ()
+        Application.driver.drawFrame (region, padding: padding, fill: fill)
     }
 }

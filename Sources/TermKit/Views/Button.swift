@@ -97,13 +97,14 @@ public class Button : View {
     }
     
     public override func redraw(region: Rect) {
+        let painter = getPainter()
+        painter.attribute = hasFocus ? colorScheme!.focus : colorScheme!.normal
+        painter.goto(col: 0, row: 0)
+        painter.add(str: shownText)
         
-        driver.setAttribute(hasFocus ? colorScheme!.focus : colorScheme!.normal)
-        moveTo (col: 0, row: 0)
-        driver.addStr(shownText)
         if let ch = hotKey {
-            moveTo (col: hotPos, row: 0)
-            driver.addStr(String (ch))
+            painter.goto (col: hotPos, row: 0)
+            painter.add(str: String (ch))
         }
     }
     

@@ -209,27 +209,6 @@ public class TextView : View {
         moveTo (col: Int(currentColumn-leftColumn), row: Int(currentRow-topRow))
     }
     
-    /// Clears a region of the view with spaces
-    func clearRegion (left:Int, top: Int, right: Int, bottom: Int)
-    {
-        for row in top..<bottom {
-            moveTo(col: left, row: row)
-            for _ in left..<right {
-                addRune(driver.space)
-            }
-        }
-    }
-    
-    func colorNormal ()
-    {
-        driver.setAttribute(colorScheme!.normal)
-    }
-    
-    func colorSelection ()
-    {
-        driver.setAttribute(hasFocus ? colorScheme!.focus : colorScheme!.normal)
-    }
-    
     /// Returns an encoded region start..end (top 32 bits are the row, low32 the column) for the current selection
     func getEncodedRegionBounds () -> (start: Int64, end: Int64) {
         let selection = TextModel.toPosition (col: selectionStartColumn, row: selectionStartRow);
@@ -306,15 +285,16 @@ public class TextView : View {
     }
     
     public override func redraw(region: Rect) {
-        colorNormal()
+        let p = getPainter ()
+        p.colorNormal()
         let bottom = region.bottom
         let right = region.right
         
         for row in region.top ..< bottom {
             let textLine = Int(topRow) + row
             if textLine > model.count {
-                colorNormal()
-                clearRegion(left: region.left, top: row, right: region.right, bottom: row+1)
+                p.colorNormal()
+                p.clearRegion(left: region.left, top: row, right: region.right, bottom: row+1)
                 continue
             }
             let line = model [textLine]
@@ -322,7 +302,7 @@ public class TextView : View {
             
             // Works-ish, this needs to be replaced with actual rune counts at the specific position
             if line.count < region.left {
-                clearRegion(left: region.left, top: row, right: region.right, bottom: row+1)
+                p.clearRegion(left: region.left, top: row, right: region.right, bottom: row+1)
                 continue
             }
             moveTo (col: region.left, row: row)
@@ -330,11 +310,11 @@ public class TextView : View {
                 let lineCol = leftColumn + col
                 let char = lineCol >= lineRuneCount ? " " : line [lineCol].ch
                 if selecting && pointInSelection(col: col, row: row){
-                    colorSelection()
+                    p.colorSelection()
                 } else {
-                    colorNormal()
+                    p.colorNormal()
                 }
-                addChar(char)
+                p.add (str: String (char))
             }
         }
     }

@@ -151,10 +151,10 @@ public class Label : View {
             recalc ()
         }
 
-        let dc = getPainter()
-        dc.attribute = textAttribute ?? colorScheme.normal
-        dc.clear ()
-        dc.goto(col: 0, row: 0)
+        let painter = getPainter()
+        painter.attribute = textAttribute ?? colorScheme.normal
+        painter.clear ()
+        painter.goto(col: 0, row: 0)
         for line in 0..<lines.count {
             if line < region.top || line > region.bottom {
                 continue
@@ -169,8 +169,8 @@ public class Label : View {
             case .Right:
                 x = frame.right - str.cellCount ()
             }
-            dc.goto (col: x, row: line)
-            dc.add(str: str)
+            painter.goto (col: x, row: line)
+            painter.add(str: str)
         }
     }
     

@@ -56,15 +56,16 @@ public class Checkbox : View {
     }
     
     public override func redraw(region: Rect) {
-        driver.setAttribute(hasFocus ? colorScheme!.focus : colorScheme!.normal)
-        moveTo(col: 0, row: 0)
-        driver.addStr(checked ? "[x]" : "[ ]")
-        moveTo (col: 4, row: 0)
-        driver.addStr(text)
+        let painter = getPainter()
+        painter.attribute = hasFocus ? colorScheme!.focus : colorScheme!.normal
+        painter.goto(col: 0, row: 0)
+        painter.add(str: checked ? "[x]" : "[ ]")
+        painter.goto (col: 4, row: 0)
+        painter.add (str: text)
         if let c = hotChar {
-            moveTo (col: hotPos, row: 0)
-            driver.setAttribute(hasFocus ? colorScheme!.hotFocus : colorScheme!.hotNormal)
-            driver.addStr(String(c))
+            painter.goto (col: hotPos, row: 0)
+            painter.attribute = hasFocus ? colorScheme!.hotFocus : colorScheme!.hotNormal
+            painter.add(str: String(c))
         }
     }
 

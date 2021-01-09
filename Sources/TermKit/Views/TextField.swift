@@ -133,8 +133,10 @@ public class TextField : View {
     }
     
     public override func redraw(region: Rect) {
-        driver.setAttribute(colorScheme!.focus)
-        moveTo(col:0, row: 0)
+        let p = getPainter ()
+        
+        p.attribute = colorScheme!.focus
+        p.goto(col:0, row: 0)
         
         var col = 0
         let width = frame.width
@@ -142,14 +144,14 @@ public class TextField : View {
         for idx in first..<tcount {
             let (ch, size) = secret ? ("*", 1) : textBuffer [idx]
             if col + Int(size) < width {
-                driver.addStr(String (ch))
+                p.add(str: String (ch))
             } else {
                 break
             }
             col += Int(size)
         }
         for _ in col..<width {
-            driver.addStr(" ")
+            p.add(str: " ")
         }
     }
     

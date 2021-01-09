@@ -40,10 +40,6 @@ public class FrameView : View {
         super.addSubview(contentView)
     }
     
-    func drawFrame() {
-        drawFrame(bounds, padding: 0, fill: true)
-    }
-    
     public override func addSubview(_ view: View) {
         contentView.addSubview(view)
         if view.canFocus {
@@ -56,20 +52,21 @@ public class FrameView : View {
     
     public override func redraw(region: Rect) {
         if !needDisplay.isEmpty {
-            driver.setAttribute(colorScheme!.normal)
-            drawFrame()
+            let painter = getPainter ()
+            painter.attribute = colorScheme!.normal
+            painter.drawFrame (bounds, padding: 0, fill: true)
             if hasFocus {
-                driver.setAttribute(colorScheme!.focus)
+                painter.attribute = colorScheme!.focus
             }
             let w = frame.width
             if title != nil && w > 4 {
-                moveTo(col: 1, row: 0)
-                driver.addStr(" ")
+                painter.goto(col: 1, row: 0)
+                painter.add(str: " ")
                 let t = title!
-                driver.addStr(t.getVisibleString(w - 4))
-                driver.addStr(" ")
+                painter.add(str: t.getVisibleString(w - 4))
+                painter.add(str: " ")
             }
-            driver.setAttribute(colorScheme!.normal)
+            painter.attribute = colorScheme!.normal
         }
         contentView.redraw(region: contentView.bounds)
         clearNeedsDisplay()

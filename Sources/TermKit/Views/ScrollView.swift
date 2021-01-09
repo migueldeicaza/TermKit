@@ -53,7 +53,8 @@ public class ScrollBarView : View {
     }
     
     public override func redraw(region: Rect) {
-        driver.setAttribute(colorScheme!.normal)
+        let paint = getPainter ()
+        paint.attribute = colorScheme!.normal
         if vertical {
             if region.right < bounds.width - 1 {
                 return
@@ -66,9 +67,9 @@ public class ScrollBarView : View {
                 let by2 = (position + bh) * bh / size;
                 
                 for y in 0..<bh {
-                    moveTo (col: col, row: y)
+                    paint.goto (col: col, row: y)
                     special = (y < by1 || y > by2) ? driver.stipple : driver.diamond
-                    driver.addRune(special);
+                    paint.add(rune: special);
                 }
 
             } else {
@@ -76,10 +77,10 @@ public class ScrollBarView : View {
                 let by1 = position * bh / size;
                 let by2 = (position + bh) * bh / size;
                 
-                moveTo(col: col, row: 0)
-                driver.addRune ("^")
+                paint.goto(col: col, row: 0)
+                paint.add (rune: "^")
                 moveTo(col: col, row: bounds.height - 1)
-                driver.addRune ("v");
+                paint.add (rune: "v");
             
                 for y in 0..<bh {
                     moveTo(col: col, row: y+1)
@@ -99,7 +100,7 @@ public class ScrollBarView : View {
                             }
                         }
                     }
-                    driver.addRune (special);
+                    paint.add (rune: special);
                 }
             }
         } else {
@@ -121,15 +122,15 @@ public class ScrollBarView : View {
                     } else {
                         special = driver.diamond
                     }
-                    driver.addRune (special)
+                    paint.add (rune: special)
                 }
             } else {
                 bw -= 2;
                 let bx1 = position * bw / size
                 let bx2 = (position + bw) * bw / size
                 
-                moveTo (col: 0, row: row)
-                driver.addRune ("<");
+                paint.goto (col: 0, row: row)
+                paint.add (rune: "<");
                 
                 for x in 0..<bw {
                     if x < bx1 || x > bx2 {
@@ -147,9 +148,9 @@ public class ScrollBarView : View {
                             }
                         }
                     }
-                    driver.addRune (special);
+                    paint.add (rune: special);
                 }
-                driver.addRune (">");
+                paint.add (rune: ">");
             }
         }
     }

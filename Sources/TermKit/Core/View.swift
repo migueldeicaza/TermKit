@@ -341,34 +341,6 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
         }
     }
     
-    /**
-     * Clears the view region with the current color.
-     */
-    public func clear ()
-    {
-        let h = frame.height
-        let w = frame.width
-        for line in 0..<h {
-            moveTo(col: 0, row: line)
-            for _ in 0..<w {
-                addRune(driver.space)
-            }
-        }
-    }
-    
-    public func clear (_ rect: Rect)
-    {
-        let h = rect.height
-        let w = rect.width
-        for line in 0..<h {
-            moveTo(col: rect.minX, row: line)
-            for _ in 0..<w {
-                addRune(driver.space)
-            }
-        }
-
-    }
-    
     func viewToScreen (col: Int, row : Int, clipped : Bool = true) -> (rcol : Int, rrow : Int)
     {
         // Computes the real row, col relative to the screen.
@@ -457,6 +429,7 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
      */
     public func drawFrame (_ rect : Rect, padding : Int = 0, fill : Bool = false)
     {
+        // FIXME: need to rewrite this one
         let scrRect = rectToScreen(rect)
         let savedClip = driver.clip
         driver.clip = screenClip (rectToScreen(bounds))
@@ -570,54 +543,6 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
        driver.setAttribute(attr)
     }
     
-    /**
-     * Draws the rune at the last position set by moveTo, use only when you know that the rune won't compose, otherwise use addChar
-     *
-     * This will advance the logical cursor position
-     */
-    public func addRune (_ rune: rune)
-    {
-        driver.addRune(rune)
-    }
-    
-    /**
-     * Draws the rune at the specific location, use only when you know that the rune wont compose, otherwise use addChar
-     *
-     * This will advance the logical cursor position
-     */
-    public func addRune (rune: rune, col:Int, row:Int)
-    {
-        if (col < 0 || row < 0 || row > frame.height-1 || col > frame.width-1) {
-            return
-        }
-        moveTo(col: col, row: row)
-        driver.addRune(rune)
-    }
-
-    /**
-     * Draws the character at the last position set by moveTo.
-     *
-     * This will advance the logical cursor position
-     */
-    public func addChar (_ char: Character)
-    {
-        driver.addCharacter(char)
-    }
-    
-    /**
-     * Draws the character at the specific location.
-     *
-     * This will advance the logical cursor position
-     */
-    public func addChar (char: Character, col:Int, row:Int)
-    {
-        if (col < 0 || row < 0 || row > frame.height-1 || col > frame.width-1) {
-            return
-        }
-        moveTo(col: col, row: row)
-        driver.addCharacter(char)
-    }
-
     /**
      * Removes the SetNeedsDisplay and the ChildNeedsDisplay setting on this view.
      */

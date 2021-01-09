@@ -67,21 +67,23 @@ public class ProgressBar : View {
     }
     
     public override func redraw(region: Rect) {
-        driver.setAttribute(colorScheme!.normal)
+        let paint = getPainter ()
+        paint.attribute = colorScheme!.normal
+        
         let top = frame.width
         if isActivity {
-            moveTo(col: 0, row: 0)
+            paint.goto(col: 0, row: 0)
             for i in 0..<top {
-                driver.addRune (i == activityPos ? driver.stipple : driver.space)
+                paint.add (rune: i == activityPos ? driver.stipple : driver.space)
             }
         } else {
-            moveTo(col: 0, row: 0)
+            paint.goto(col: 0, row: 0)
             let mid = Int (fraction * Float (top))
             for _ in 0..<mid {
-                driver.addRune(driver.stipple)
+                paint.add(rune: driver.stipple)
             }
             for _ in mid..<top {
-                driver.addRune (driver.space)
+                paint.add (rune: driver.space)
             }
         }
     }

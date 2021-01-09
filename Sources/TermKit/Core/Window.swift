@@ -65,22 +65,26 @@ public class Window : Toplevel {
     // TODO: removeAll
     
     public override func redraw(region: Rect) {
-        log ("Window.redraw: \(frame) and region to redraw is: \(region)")
+        //log ("Window.redraw: \(frame) and region to redraw is: \(region)")
+        
         if !needDisplay.isEmpty {
-            driver.setAttribute(colorScheme!.normal)
-            drawFrame ()
+            
+            let p = getPainter ()
+            p.attribute = colorScheme!.normal
+            p.drawFrame (bounds, padding: padding, fill: true)
+            
             if hasFocus {
-                driver.setAttribute(colorScheme!.normal)
+                p.attribute = colorScheme!.normal
             }
             let width = frame.width
             if let t = title, width > 4 {
-                moveTo (col: padding+1, row: padding)
-                driver.addRune (Unicode.Scalar(32))
+                p.goto (col: padding+1, row: padding)
+                p.add (rune: Unicode.Scalar(32))
                 let str = t.count > (width+4) ? t : String (t.prefix (width-4))
-                driver.addStr (str)
-                driver.addRune (Unicode.Scalar(32))
+                p.add (str: str)
+                p.add (rune: Unicode.Scalar(32))
             }
-            driver.setAttribute(colorScheme!.normal)
+            p.attribute = colorScheme!.normal
         }
         contentView.redraw(region: contentView.bounds)
         clearNeedsDisplay()
