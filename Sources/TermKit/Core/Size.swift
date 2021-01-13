@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct Size : CustomDebugStringConvertible, Codable {
+public struct Size : CustomDebugStringConvertible, Codable, Equatable {
     var width = 0
     var height = 0
     static public var empty : Size = Size (width: 0, height: 0)
@@ -40,12 +40,12 @@ public struct Size : CustomDebugStringConvertible, Codable {
         return Size (width: lhs.width - rhs.width, height: lhs.width - rhs.width)
     }
 
-    static func ==(lhs: Size, rhs: Size) -> Bool
+    public static func ==(lhs: Size, rhs: Size) -> Bool
     {
         return lhs.height == rhs.height && lhs.width == rhs.width
     }
 
-    static func !=(lhs: Size, rhs: Size) -> Bool
+    public static func !=(lhs: Size, rhs: Size) -> Bool
     {
         return lhs.height != rhs.height || lhs.width != rhs.width
     }

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import OpenCombine
 
 /**
  * Determines the LayoutStyle for a view, if Absolute, during LayoutSubviews, the
@@ -20,17 +21,23 @@ public enum LayoutStyle {
     /// properties and set on the Frame.
     case computed
 }
+
 /**
  * View is the base class for all views on the screen and represents a visible element that can render itself and contains zero or more nested views.
  *
  * The View defines the base functionality for user interface elements in TermKit.  Views
  * can contain one or more subviews, can respond to user input and render themselves on the screen.
  *
- * Views can either be created by setting the X, Y, Width and Height properties on the view.    Coordinates are relative
- * to the container they are being added to.
+ * Views can either be created with a constructor that takes a `Rect` as the frame to used for the view,
+ * which means that the view is using the `.fixed` LayoutStyle, or  with the empty construtor, and then
+ * setting the `x`, `y`, `width` and `height` properties on the view which configures the view
+ * to use the `.computed` layout style.
+ *
+ * The view layout system can be controlled by accessing the `layoutStyle` property, and is used
+ * to transition from the fixed to the computed mode.
  *
  * The `x`, and `y` properties are of type `Pos`, and you can use either absolute positions, percentages or anchor
- * points
+ * points.
  *
  * The `width` and `height` properties are of type `Dim`
  * and can use absolute position, percentages and anchors.   These are useful as they will
@@ -69,74 +76,130 @@ public enum LayoutStyle {
  * frames for the vies that use LayoutKind.Computed.
 
  */
-open class View : Responder, Hashable, CustomDebugStringConvertible {
-    var superview : View? = nil
-    var focused : View? = nil
-    var _subviews : [View] = []
-    var _frame : Rect = Rect.zero
-    var viewId : Int
-    var id : String = ""
-    var needDisplay : Rect = Rect.zero
-    var _childNeedsDisplay : Bool = false
-    var _canFocus : Bool = false
-    static var globalId : Int = 0
-    var _layoutStyle : LayoutStyle = .computed
+open class View: Responder, Hashable, CustomDebugStringConvertible {
+    enum FocusDirection {
+        case forward
+        case backward
+    }
+    /// The superview points to the container where this view was added, or nil if this view has not been added to a container
+    public private(set) var superview: View? = nil
     
+    /// Returns the currently focused view inside this view, or nil if nothing is focused.
+    public private(set) var focused: View? = nil
+    
+    var _focusDirection: FocusDirection = .forward
+    
+    // Backing store for the views
+    var _subviews: [View] = []
+    var _frame: Rect = Rect.zero
+    var viewId: Int
+    var id: String = ""
+    var needDisplay: Rect = Rect.zero
+    var _childNeedsDisplay: Bool = false
+    var _canFocus: Bool = false
+    static var globalId: Int = 0
+    var _layoutStyle: LayoutStyle = .computed
+    
+    /// Event fired when a subview is being added to this view.
+    public var subviewAdded = PassthroughSubject<View,Never> ()
+
+    /// Event fired when a subview was removed from this view.
+    public var subviewRemoved = PassthroughSubject<View,Never> ()
+
+    /// Event fired when the view is no longer the focused one (the first responder), the View paramter specified the view that is getting the focus
+    public var resignedResponder = PassthroughSubject<View?,Never> ()
+    
+    /// Event fired when the view is no longer the focused one (the first responder), the View parameter specifies the view that had the focus before.
+    public var becameFirstResponder = PassthroughSubject<View?,Never> ()
+    
+    /// Event fired when the view receives the mouse event for the first time.
+    public var mouseEntered = PassthroughSubject<MouseEvent,Never> ()
+    
+    /// Event fired when the view receives a mouse event because the mouse is outside its boundary
+    public var mouseLeft = PassthroughSubject<MouseEvent,Never> ()
+    
+    /// Event fired when a mouse event is generated.
+    public var mouseClicked = PassthroughSubject<MouseEvent,Never> ()
+    
+    /// This is a payload that can be set by user code to any value it desires
+    public var data: AnyObject? = nil
+    
+    internal var focusDirection: FocusDirection {
+        get {
+            superview?.focusDirection ?? _focusDirection
+        }
+        set(newValue) {
+            if let sup = superview {
+                sup.focusDirection = newValue
+            } else {
+                _focusDirection = newValue
+            }
+        }
+    }
+    
+    /// The array containing the subviews added to this tree, sorted from back to front.
     public var subviews: [View] {
         get {
             return _subviews
         }
     }
+    
+    var _tabStop: Bool = true
+    
+    /// This only be `true` if the `CanFocus` is also `true` and the focus can be avoided by setting this to `false`
+    public var tabStop: Bool {
+        get { return _tabStop }
+        set {
+            if _tabStop != newValue {
+                _tabStop = canFocus && newValue
+            }
+        }
+    }
+    
+    
     /**
      * Controls how the view's `frame` is computed during the layoutSubviews method, if `absolute`, then
      * `layoutSubviews` does not change the `frame` properties, otherwise the `frame` is updated from the
      * values in x, y, width and height properties.
      */
-    public var layoutStyle : LayoutStyle {
+    public var layoutStyle: LayoutStyle {
         get {
             return _layoutStyle
         }
         set(value) {
             if value != _layoutStyle {
                 _layoutStyle = value
+                if value == .computed {
+                    convertLayoutToComputed()
+                }
                 setNeedsLayout()
             }
         }
     }
-    public var canFocus : Bool {
+    
+    public var canFocus: Bool {
         get {
             return _canFocus
         }
-        set(value) {
-            _canFocus = value
-        }
-    }
-    var _hasFocus : Bool = false
-    public var hasFocus : Bool {
-        get {
-            return _hasFocus
-        }
-        set(value) {
-            if _hasFocus != value {
-                setNeedsDisplay()
-            }
-            _hasFocus = value
-            
-            // Remove focus down the chain of subviews if focus was removed
-            if !value && focused != nil {
-                focused!.hasFocus = false
-                focused = nil
+        set {
+            if _canFocus != newValue {
+                _canFocus = newValue
+                if newValue && superview?.canFocus == false {
+                        superview?.canFocus = newValue
+                }
+                tabStop = newValue
             }
         }
     }
     
-    var layoutNeeded : Bool = true
+    /// If this is true, it indicates that the current view has a pending layout operation
+    var layoutNeeded: Bool = true
     
     /**
      * Points to the current driver in use by the view, it is a convenience property
      * for simplifying the development of new views.
      */
-    var driver : ConsoleDriver {
+    var driver: ConsoleDriver {
         get {
             return Application.driver
         }
@@ -147,6 +210,13 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
         let r = globalId
         globalId += 1
         return r
+    }
+    
+    /// Returns a value indicating if this View is currently on Top (Active)
+    public var isCurrentTop: Bool {
+        get {
+            Application.current == self
+        }
     }
     
     /**
@@ -173,10 +243,10 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
     }
     
     /// Gets or sets a value indicating whether this `View` wants mouse position reports.
-    public var wantMousePositionReports : Bool = false
+    public var wantMousePositionReports: Bool = false
     
     /// Gets or sets a value indicating whether this `View` want continuous button pressed event.
-    public var wantContinuousButtonPressed : Bool = false
+    public var wantContinuousButtonPressed: Bool = false
     
     /**
      * Gets or sets the frame for the view.
@@ -185,9 +255,10 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
      * position 10,5 will position the view is the column 10, row 5 in the container.
      *
      * Altering the Frame of a view will trigger the redrawing of the
-     * view as well as the redrawing of the affected regions in the superview.
+     * view as well as the redrawing of the affected regions in the superview and will
+     * also set the `layoutStyle` to be `.fixed`
      */
-    public var frame : Rect {
+    public var frame: Rect {
         get {
             return _frame
         }
@@ -209,7 +280,7 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
      * Updates to the Bounds update the Frame, and has the same side effects as updating
      * the frame.
      */
-    public var bounds : Rect {
+    public var bounds: Rect {
         get {
             return Rect (origin: Point.zero, size: frame.size)
         }
@@ -228,7 +299,7 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
      * Flags the specified rectangle region on this view as needing to be repainted.
      * - Parameter region: The region that must be flagged for repaint.
      */
-    public func setNeedsDisplay (_ region : Rect)
+    public func setNeedsDisplay (_ region: Rect)
     {
         if needDisplay.isEmpty {
             needDisplay = region
@@ -279,7 +350,7 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
     /**
      * Adds the provided view as a subview of this view
      */
-    public func addSubview (_ view : View)
+    public func addSubview (_ view: View)
     {
         _subviews.append (view)
         view.superview = self
@@ -287,6 +358,7 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
             _canFocus = true
         }
         setNeedsLayout()
+        subviewAdded.send (view)
     }
     
     /**
@@ -303,7 +375,7 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
     /**
      * Adds the provided views as subviews of this view
      */
-    public func addSubviews (_ views : [View])
+    public func addSubviews (_ views: [View])
     {
         for view in views {
             addSubview(view)
@@ -311,7 +383,7 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
     }
     
     /// Removes the specified view from the container
-    public func remove (_ view : View)
+    public func remove (_ view: View)
     {
         let touched = view.frame
         if let idx = subviews.firstIndex(of: view) {
@@ -330,6 +402,10 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
                     v.setNeedsDisplay()
                 }
             }
+            subviewRemoved.send (view)
+            if focused == view {
+                focused = nil
+            }
         }
     }
     
@@ -341,7 +417,62 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
         }
     }
     
-    func viewToScreen (col: Int, row : Int, clipped : Bool = true) -> (rcol : Int, rrow : Int)
+    func performActionForSubview (_ view: View, action: (View) -> ())
+    {
+        if subviews.contains(view) {
+            action (view)
+            setNeedsDisplay()
+            view.setNeedsDisplay()
+        }
+    }
+    
+    /// Brings the specified subview to the front so it is drawn on top of any other views.
+    public func bringSubviewToFront (_ subview: View)
+    {
+        performActionForSubview(subview) { view in
+            if let idx = subviews.firstIndex(of: view) {
+                _subviews.remove(at: idx)
+                _subviews.append(view)
+            }
+        }
+    }
+    
+    /// Moves the subview backwards in the hierarchy, only one step
+    public func sendSubviewToBack (_ subview: View)
+    {
+        performActionForSubview(subview) { view in
+            if let idx = subviews.firstIndex(of: view) {
+                _subviews.remove(at: idx)
+                _subviews.insert(view, at: 0)
+            }
+        }
+    }
+    
+    /// Moves the subview backwards in the hierarchy, only one step
+    public func sendBackwards (subview: View)
+    {
+        performActionForSubview(subview) { view in
+            if let idx = _subviews.firstIndex(of: view) {
+                _subviews.remove(at: idx)
+                _subviews.insert (view, at: idx-1)
+            }
+        }
+    }
+
+    /// Moves the subview backwards in the hierarchy, only one step
+    public func bringForward (subview: View)
+    {
+        performActionForSubview(subview) { view in
+            if let idx = _subviews.firstIndex(of: view) {
+                if idx + 1 > _subviews.count {
+                    _subviews.remove(at: idx)
+                    _subviews.insert (view, at: idx+1)
+                }
+            }
+        }
+    }
+
+    func viewToScreen (col: Int, row: Int, clipped: Bool = true) -> (rcol: Int, rrow: Int)
     {
         // Computes the real row, col relative to the screen.
         var rrow = row + frame.minY
@@ -368,7 +499,7 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
      *
      * - Returns: the mapped point
      */
-    public func screenToView (x : Int, y : Int) -> Point
+    public func screenToView (x: Int, y: Int) -> Point
     {
         if let container = superview {
             let parent = container.screenToView(x: x, y: y)
@@ -386,7 +517,7 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
     }
     
      // Clips a rectangle in screen coordinates to the dimensions currently available on the screen
-    func screenClip (_ rect : Rect) -> Rect
+    func screenClip (_ rect: Rect) -> Rect
     {
         let (minx, miny, maxx, maxy) = (rect.minX, rect.minY, rect.maxX, rect.maxY)
         let x = minx < 0 ? 0 : minx
@@ -427,7 +558,7 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
      * - Parameter padding: The padding to add to the drawn frame.
      * - Parameter fill: If set to `true` it fill will the contents.
      */
-    public func drawFrame (_ rect : Rect, padding : Int = 0, fill : Bool = false)
+    public func drawFrame (_ rect: Rect, padding: Int = 0, fill: Bool = false)
     {
         // FIXME: need to rewrite this one
         let scrRect = rectToScreen(rect)
@@ -443,7 +574,7 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
      * - Parameter hotColor: color used to draw the hotkey
      * - Parameter normalColor: color used for the regular parts of the string
      */
-    public func drawHotString (text : String, hotColor : Attribute, normalColor : Attribute)
+    public func drawHotString (text: String, hotColor: Attribute, normalColor: Attribute)
     {
         driver.setAttribute(normalColor)
         for ch in text {
@@ -462,7 +593,7 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
      * - Parameter focused: If set to `true` this uses the focused colors from the color scheme, otherwise the regular ones.
      * - Parameter scheme: The color scheme to use
      */
-    public func drawHotString (text : String, focused : Bool, scheme : ColorScheme)
+    public func drawHotString (text: String, focused: Bool, scheme: ColorScheme)
     {
         if focused {
             drawHotString(text: text, hotColor: scheme.hotFocus, normalColor: scheme.focus)
@@ -476,7 +607,7 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
      * - Parameter col: Column to move to
      * - Parameter row: Row to move to.
      */
-    public func moveTo (col : Int, row: Int)
+    public func moveTo (col: Int, row: Int)
     {
         let (rcol, rrow) = viewToScreen(col: col, row: row)
         driver.moveTo(col: rcol, row: rrow)
@@ -500,6 +631,35 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
         }
     }
     
+    var _hasFocus: Bool = false
+    public var hasFocus: Bool {
+        get {
+            return _hasFocus
+        }
+    }
+    
+    func setHasFocus (other: View, value: Bool)
+    {
+        if hasFocus != value {
+            _hasFocus = value
+            if value {
+                becameFirstResponder.send (other)
+            } else {
+                resignedResponder.send (other)
+            }
+            setNeedsDisplay()
+        }
+        // Remove focus down the chain of subviews if focus is removed
+        if let f = focused {
+            if !value && focused != other {
+                f.resignedResponder.send (other)
+                f.setHasFocus(other: other, value: false)
+                focused = nil
+            }
+        }
+    }
+    
+    
     /**
      * Returns the most focused view in the chain of subviews (the leaf view that has the focus).
      */
@@ -515,11 +675,11 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
         }
     }
     
-    var _colorScheme : ColorScheme? = nil
+    var _colorScheme: ColorScheme? = nil
     /**
      * The colorscheme used by this view
      */
-    public var colorScheme : ColorScheme! {
+    public var colorScheme: ColorScheme! {
         get {
             if _colorScheme == nil {
                 if let s = superview {
@@ -533,14 +693,6 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
             _colorScheme = value
             setNeedsDisplay()
         }
-    }
-    
-    /**
-     * Sets the current attribute to use for drawing in the view
-     */
-    public func setAttribute (_ attr: Attribute)
-    {
-       driver.setAttribute(attr)
     }
     
     /**
@@ -560,7 +712,7 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
      *
      * - Parameter region: The region to redraw, this is relative to the view itself.
      */
-    public func redraw(region : Rect)
+    public func redraw(region: Rect)
     {
         let clipRect = Rect (origin: Point.zero, size: frame.size)
         for view in subviews {
@@ -577,41 +729,47 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
     }
     
     /**
-     * Focuses the specified subview
+     * Causes the specified view and the entire parent hierarchy to have the focused order updated.
      */
     public func setFocus (_ view: View?)
     {
-        if let v = view {
-            if !v.canFocus {
-                return
+        guard let theView = view else {
+            return
+        }
+        if !theView.canFocus {
+            return
+        }
+        
+        if focused != nil && focused! === theView {
+            return
+        }
+        
+        // Make sure that this view is a subview
+        var c = theView.superview
+        while c != nil {
+            if c! === self {
+                break
             }
-            if focused != nil && focused! === v {
-                return
-            }
-            
-            // Make sure that this view is a subview
-            var c = v.superview
-            while (c != nil){
-                if (c! === self) {
-                    break
-                }
-                c = c!.superview
-            }
-            if c == nil {
-                // error
-                return
-            }
-            if let nf = focused {
-                nf.hasFocus = false
-            }
-            focused = view
-            focused!.hasFocus = true
-            focused!.ensureFocus()
-            
-            // Send focus upwards
-            if let s = superview {
-                s.setFocus (self)
-            }
+            c = c!.superview
+        }
+        if c == nil {
+            // TODO raise error
+            return
+        }
+        if let nf = focused {
+            nf.setHasFocus(other: theView, value: false)
+        }
+        
+        let oldFocused = focused
+        focused = theView
+        if let f = oldFocused {
+            theView.setHasFocus(other: f, value: true)
+        }
+        theView.ensureFocus()
+        
+        // Send focus upwards
+        if let s = superview {
+            s.setFocus (self)
         }
     }
     
@@ -697,21 +855,25 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
     /// Finds the first view in the hierarchy that wants to get the focus if nothing is currently focused, otherwise, it does nothing.
     public func ensureFocus ()
     {
-        if focused == nil {
-            focusFirst ()
+        if focused == nil && subviews.count > 0 {
+            if focusDirection == .forward {
+                focusFirst ()
+            } else {
+                focusLast ()
+            }
         }
     }
     
     /// Focuses the first focusable subview if one exists.
     public func focusFirst ()
     {
-        if subviews.count == 0 {
-            superview?.setFocus(self)
+        if subviews == [] {
+            superview?.setFocus (self)
             return
         }
         
         for view in subviews {
-            if view.canFocus {
+            if view.canFocus && view.tabStop {
                 setFocus (view)
                 return
             }
@@ -721,13 +883,13 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
     /// Focuses the last focusable subview if one exists.
     public func focusLast ()
     {
-        if subviews.count == 0 {
-            superview?.setFocus(self)
+        if subviews == [] {
+            superview?.setFocus (self)
             return
         }
         
         for view in subviews.reversed() {
-            if view.canFocus {
+            if view.canFocus && view.tabStop {
                 setFocus (view)
                 return
             }
@@ -741,12 +903,14 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
     @discardableResult
     public func focusPrev () -> Bool
     {
+        focusDirection = .backward
         if subviews.count == 0 {
             return false
         }
+        
         if focused == nil {
             focusLast ()
-            return true
+            return focused != nil
         }
         var focusedIdx = -1
         var i = subviews.count
@@ -760,21 +924,17 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
                 focusedIdx = i
                 continue
             }
-            if w.canFocus && focusedIdx != -1 {
-                focused!.hasFocus = false
-                if w.canFocus {
-                    w.focusLast ()
+            if w.canFocus && focusedIdx != -1 && w.tabStop {
+                focused!.setHasFocus(other: w, value: false)
+                if w.canFocus && w.tabStop {
+                    w.focusLast()
                 }
                 setFocus (w)
                 return true
             }
         }
-        if focusedIdx != -1 {
-            focusLast ()
-            return true
-        }
         if focused != nil {
-            focused?.hasFocus = false
+            focused?.setHasFocus(other: self, value: false)
             focused = nil
         }
         return false
@@ -787,9 +947,11 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
     @discardableResult
     public func focusNext () -> Bool
     {
+        focusDirection = .forward
         if subviews.count == 0 {
             return false
         }
+
         if focused == nil {
             focusFirst ()
             return focused != nil
@@ -805,9 +967,9 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
                 focusedIdx = i
                 continue
             }
-            if w.canFocus && focusedIdx != -1 {
-                focused!.hasFocus = false
-                if w.canFocus {
+            if w.canFocus && focusedIdx != -1 && w.tabStop {
+                focused!.setHasFocus(other: w, value: false)
+                if w.canFocus && w.tabStop {
                     w.focusFirst ()
                 }
                 setFocus (w)
@@ -815,58 +977,129 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
             }
         }
         if focused != nil {
-            focused?.hasFocus = false
+            focused?.setHasFocus(other: self, value: false)
             focused = nil
         }
         return false
     }
     
-    var _x : Pos? = nil
+    /// Sets the View's `Frame` to the relative coordinates if its container, given the `Frame` for its container.
+    func setRelativeLayout (hostFrame: Rect)
+    {
+        var w, h, _x, _y: Int
+
+        if let rx = x as? Pos.PosCenter {
+            if let rwidth = width {
+                w = rwidth.anchor (hostFrame.width)
+            } else {
+                w = hostFrame.width
+            }
+            _x = rx.anchor (hostFrame.width - w)
+        } else {
+            if let rax = x {
+                _x = rax.anchor (hostFrame.width)
+            } else {
+                _x = 0;
+            }
+            if let rwidth = width {
+                if rwidth is Dim.DimFactor && !(rwidth as! Dim.DimFactor).remaining {
+                    w = rwidth.anchor (hostFrame.width)
+                } else {
+                    w = max (rwidth.anchor (hostFrame.width - _x), 0)
+                }
+            } else {
+                w = hostFrame.width
+            }
+        }
+        
+        if let ry = y as? Pos.PosCenter {
+            if let rheight = height {
+                h = rheight.anchor (hostFrame.height)
+            } else {
+                h = hostFrame.height
+            }
+            _y = ry.anchor (hostFrame.height - h)
+        } else {
+            if let ray = y {
+                _y = ray.anchor (hostFrame.height)
+            } else {
+                _y = 0
+            }
+            if let rheight = height {
+                if rheight is Dim.DimFactor && !(rheight as! Dim.DimFactor).remaining {
+                    h = rheight.anchor (hostFrame.height)
+                } else {
+                    h = max (rheight.anchor (hostFrame.height - _y), 0)
+                }
+            } else {
+                h = hostFrame.height
+            }
+        }
+        
+        let r = Rect (x: _x, y: _y, width: w, height: h)
+        if frame != r {
+            frame = r
+        }
+    }
+    
+    var _x: Pos? = nil
     /// Gets or sets the X position for the view (the column).  This is only used when the LayoutStyle is `computed`, if the
     /// LayoutStyle is set to `absolute`, this value is ignored.
-    public var x : Pos? {
+    public var x: Pos? {
         get { return _x }
         set(value) {
             _x = value
             setNeedsLayout()
         }
     }
-    var _y : Pos? = nil
+    var _y: Pos? = nil
     /// Gets or sets the Y position for the view (the row).  This is only used when the LayoutStyle is `computed`, if the
     /// LayoutStyle is set to `absolute`, this value is ignored.
-    public var y : Pos? {
+    public var y: Pos? {
         get { return _y }
         set(value) {
             _y = value
             setNeedsLayout()
         }
     }
-    var _width : Dim? = nil
+    var _width: Dim? = nil
     /// Gets or sets the width for the view. This is only used when the LayoutStyle is `computed`, if the
     /// LayoutStyle is set to `absolute`, this value is ignored.
-    public var width : Dim? {
+    public var width: Dim? {
         get { return _width }
         set(value) {
             _width = value
             setNeedsLayout()
         }
     }
-    var _height : Dim? = nil
+    var _height: Dim? = nil
     /// Gets or sets the height for the view. This is only used when the LayoutStyle is `computed`, if the
     /// LayoutStyle is set to `absolute`, this value is ignored.
-    public var height : Dim? {
+    public var height: Dim? {
         get { return _height }
         set(value) {
             _height = value
             setNeedsLayout()
         }
     }
+ 
+    func convertLayoutToComputed ()
+    {
+        if layoutStyle == .fixed {
+            let f = frame
+            _x = Pos.at (frame.minX)
+            _y = Pos.at (frame.minY)
+            _width = Dim.sized (frame.width)
+            _height = Dim.sized (frame.height)
+            layoutStyle = .computed
+        }
+    }
     
     // Computes the RelativeLayout for the view, given the frame for its container.
     // hostFrame is the frame for the host
-    func relativeLayout (hostFrame : Rect)
+    func relativeLayout (hostFrame: Rect)
     {
-        var ww, hh, xx, yy : Int
+        var ww, hh, xx, yy: Int
         
         if _x != nil && x is Pos.PosCenter {
             ww = _width == nil ? hostFrame.width : _width!.anchor(hostFrame.width)
@@ -883,7 +1116,7 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
             yy = _y == nil ? 0 : y!.anchor(hostFrame.height)
             hh = _height == nil ? hostFrame.height : _height!.anchor(hostFrame.height-yy)
         }
-        frame = Rect (x: xx, y: yy, width: ww, height: hh)
+        _frame = Rect (x: xx, y: yy, width: ww, height: hh)
     }
     
     public static func == (lhs: View, rhs: View) -> Bool {
@@ -894,14 +1127,14 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
         hasher.combine(viewId)
     }
 
-    struct Edge : Hashable {
+    struct Edge: Hashable {
         var from, to: View
     }
     
     // https://en.wikipedia.org/wiki/Topological_sorting
     static func topologicalSort (nodes: Set<View>, edges: inout Set<Edge>) -> [View]?
     {
-        var result : [View] = []
+        var result: [View] = []
 
         var s = Set (nodes.filter ({(n:View) -> Bool in
             return edges.allSatisfy({$0.to !== n})
@@ -938,7 +1171,7 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
         return result
     }
     
-    enum layoutError : Error {
+    enum layoutError: Error {
         case recursive(msg:String)
     }
     
@@ -981,6 +1214,11 @@ open class View : Responder, Hashable, CustomDebugStringConvertible {
             try v.layoutSubviews()
             v.layoutNeeded = false
         }
+        
+        if superview == Application.top && layoutNeeded && ordered?.count == 0 && layoutStyle == .computed {
+            setRelativeLayout(hostFrame: frame)
+        }
+        
         layoutNeeded = false
     }
     

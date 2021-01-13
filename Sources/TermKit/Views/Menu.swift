@@ -307,9 +307,11 @@ public class MenuBar: View {
         for i in 0..<index {
             pos += menus [i].titleLen + 3
         }
-        openedMenu = Menu (host: self, x: pos, y: 1, barItems: menus [index])
-        superview?.addSubview(openedMenu!)
+        
+        let openedMenu = Menu (host: self, x: pos, y: 1, barItems: menus [index])
+        superview?.addSubview(openedMenu)
         superview?.setFocus(openedMenu)
+        self.openedMenu = openedMenu
     }
     
     // Starts the menu from the hotkey

@@ -15,7 +15,7 @@ public protocol Responder {
     /// Gets or sets a value indicating whether this `Responder` can focus.
     var canFocus : Bool { get set }
     /// Gets or sets a value indicating whether this `Responder` has focus.
-    var hasFocus : Bool { get set }
+    var hasFocus : Bool { get }
     
     /**
      * This method can be overwritten by view that want to provide

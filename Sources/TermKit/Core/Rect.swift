@@ -8,9 +8,10 @@
 
 import Foundation
 
-public struct Rect : CustomDebugStringConvertible, Codable {
-    public var origin : Point
-    public var size : Size;
+public struct Rect : CustomDebugStringConvertible, Codable, Equatable {
+    public var origin: Point
+    public var size: Size
+    
     static public var zero = Rect (origin: Point.zero, size: Size.empty)
     
     public init (origin : Point, size : Size)

@@ -3,7 +3,10 @@
 # TermKit - Terminal UI Toolkit for Swift
 
 This is a simple UI Toolkit for Swift, a port of my [gui.cs library
-for .NET](https://github.com/migueldeicaza/gui.cs).
+for .NET](https://github.com/migueldeicaza/gui.cs).   While I originally
+wrote gui.cs, it has evolved significantly by the contributions of
+Charlie Kindel (@tig), @BDisp and various other contributors - this port 
+is bringing their work.
 
 This toolkit contains various controls for build text user interfaces
 using Swift.

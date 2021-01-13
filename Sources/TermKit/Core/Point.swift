@@ -11,7 +11,7 @@ import Foundation
 /**
  * Point represents a position in the screen using an x and y coordinate for the column and row respectively.
  */
-public struct Point : CustomDebugStringConvertible, Codable {
+public struct Point : CustomDebugStringConvertible, Codable, Equatable {
     /// The x (column) component of this point
     var x : Int
     
