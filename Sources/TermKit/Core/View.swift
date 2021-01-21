@@ -1087,10 +1087,10 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
     {
         if layoutStyle == .fixed {
             let f = frame
-            _x = Pos.at (frame.minX)
-            _y = Pos.at (frame.minY)
-            _width = Dim.sized (frame.width)
-            _height = Dim.sized (frame.height)
+            _x = Pos.at (f.minX)
+            _y = Pos.at (f.minY)
+            _width = Dim.sized (f.width)
+            _height = Dim.sized (f.height)
             layoutStyle = .computed
         }
     }
@@ -1202,20 +1202,19 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
                 }
             }
         }
-        let ordered = View.topologicalSort(nodes: nodes, edges: &edges)?.reversed()
-        if ordered == nil {
+        guard let ordered = View.topologicalSort(nodes: nodes, edges: &edges)?.reversed() else {
             throw layoutError.recursive(msg: "There is a recursive cycle in the relative Pos/Dim in the views")
         }
         
-        for v in ordered! {
+        for v in ordered {
             if v.layoutStyle == .computed {
-                v.relativeLayout(hostFrame: frame)
+                v.setRelativeLayout(hostFrame: frame)
             }
             try v.layoutSubviews()
             v.layoutNeeded = false
         }
         
-        if superview == Application.top && layoutNeeded && ordered?.count == 0 && layoutStyle == .computed {
+        if superview == Application.top && layoutNeeded && ordered.count == 0 && layoutStyle == .computed {
             setRelativeLayout(hostFrame: frame)
         }
         
@@ -1245,6 +1244,15 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
     
 
     public var debugDescription: String {
-        return "viewId:\(viewId)"
+        var subtext: String = ""
+        
+        for x in _subviews {
+            subtext += "    --- "
+            let slots = x.debugDescription.split (separator: "\n")
+            for t in slots {
+                subtext += "    \(t)\n"
+            }
+        }
+        return "viewId:\(viewId) frame: \(frame)\n\n\(subtext)"
     }
 }
