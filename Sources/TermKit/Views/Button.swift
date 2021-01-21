@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import OpenCombine
 
 /**
  * Button is a view that provides an item that invokes a callback when activated.
@@ -52,11 +53,13 @@ public class Button : View {
     /**
      * Assigning to this variable a method will invoke it when the button is caviated
      */
-    public var clicked : () -> Void = {}
+    
+    public var clicked = PassthroughSubject<View,Never> ()
 
     public override init ()
     {
         super.init ()
+        self.height = Dim.sized(1)
         canFocus = true
     }
     
@@ -114,7 +117,7 @@ public class Button : View {
     
     func raiseClicked ()
     {
-        clicked ()
+        clicked.send (self)
     }
     
     func checkKey (_ event: KeyEvent) -> Bool {
@@ -174,9 +177,13 @@ public class Button : View {
     }
     
     public override func mouseEvent(event: MouseEvent) -> Bool {
-        if (event.flags == .button1Clicked){
-            super.setFocus(self)
-            setNeedsDisplay()
+        if event.flags == .button1Clicked {
+            if canFocus {
+                if !hasFocus {
+                    setFocus (self)
+                    setNeedsDisplay()
+                }
+            }
             raiseClicked()
             return true
         }

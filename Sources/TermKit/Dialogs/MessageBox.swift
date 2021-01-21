@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import OpenCombine
 
 /**
  * Message box displays a modal message to the user, with a title, a message and a series of options that the user can choose from.
@@ -107,13 +108,17 @@ public class MessageBox {
         }
         let d = Dialog(title: title, width: realWidth, height: realHeight, buttons: [])
         
+        var cancellables: [AnyCancellable] = []
+        
         for s in buttons {
             let b = Button (s)
-            b.clicked = {
+            let c = b.clicked.sink { arg in
                 clicked = count
                 d.running = false
             }
+            
             d.addButton(b)
+            cancellables.append (c)
             count += 1
         }
         
