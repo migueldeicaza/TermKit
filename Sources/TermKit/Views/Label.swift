@@ -29,8 +29,9 @@ public class Label : View {
     public init (_ text : String)
     {
         self.text = text
-        self.textAlignment = .Left
+        textAlignment = .Left
         super.init ()
+        height = Dim.sized(1)
     }
     
     /// The text displayed by this view

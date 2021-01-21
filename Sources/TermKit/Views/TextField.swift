@@ -12,7 +12,9 @@ public class TextField : View {
     var point : Int
     var first : Int
     var layoutPending : Bool
-    var used : Bool = false
+    
+    /// Indicates whether the user has used this control since it was created
+    public var used : Bool = false
     /// The contents of the text field
     
     typealias TextBuffer = [(ch:Character,size:Int8)]
@@ -121,7 +123,7 @@ public class TextField : View {
         super.init ()
         text = initial
         canFocus = true
-        
+        height = Dim.sized(1)
         cursorPosition = textBuffer.count
     }
     

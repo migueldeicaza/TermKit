@@ -52,6 +52,7 @@ public class Checkbox : View {
         self.text = text
         self.checked = checked
         super.init ()
+        self.height = Dim.sized(1)
         canFocus = true
     }
     
