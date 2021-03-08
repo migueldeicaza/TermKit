@@ -16,8 +16,8 @@ public func log (_ s: String)
         fd = open ("/tmp/log", O_CREAT | O_RDWR, S_IRWXU)
     }
     let data = (s + "\n").data(using: String.Encoding.utf8)!
-    let _ = data.withUnsafeBytes { dataBytes in
-        return write(fd, dataBytes, data.count)
+    let _ = data.withUnsafeBytes { (dataBytes: UnsafeRawBufferPointer) -> Int in
+        return write(fd, dataBytes.baseAddress, data.count)
     }
 }
 
