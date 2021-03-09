@@ -263,7 +263,7 @@ public class Application {
         for h in rootMouseHandlers.values {
             h (mouseEvent)
         }
-        guard let c = _current else {
+        guard let _ = _current else {
             return
         }
         

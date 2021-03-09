@@ -7,7 +7,13 @@
 //
 
 import Foundation
+import OpenCombine
 
+/**
+ * Single-line text entry `View`
+ *
+ * This view provides line-editing and mouse support
+ */
 public class TextField : View {
     var point : Int
     var first : Int
@@ -15,19 +21,30 @@ public class TextField : View {
     
     /// Indicates whether the user has used this control since it was created
     public var used : Bool = false
+    
+    /// If set to true its not allow any changes in the text.
+    public var readOnly: Bool = false
     /// The contents of the text field
+    
+    /// Changed event, raised when the text has changed.
+    /// The parameter contains the source that is raising the event, along with the old value that was on the TextField
+    public var textChanged = PassthroughSubject<(source: TextField, oldText: String),Never> ()
     
     typealias TextBuffer = [(ch:Character,size:Int8)]
     
     // Store the string as an array of characters and the size in cells of each character
     var textBuffer : TextBuffer = []
     
+    /// Sets or gets the text held by the view.
     public var text : String {
         get {
             return TextField.fromTextBuffer (textBuffer)
         }
         set(value) {
+            let oldText = TextField.fromTextBuffer (textBuffer)
             textBuffer = TextField.toTextBuffer (value);
+            raiseTextChanged(old: oldText)
+            
             if point > textBuffer.count {
                 point = textBuffer.count
             }
@@ -125,12 +142,19 @@ public class TextField : View {
         canFocus = true
         height = Dim.sized(1)
         cursorPosition = textBuffer.count
+        wantMousePositionReports = true
+    }
+    
+    public override func resignFirstResponder() -> Bool {
+        if Application.mouseGrabView == self {
+            Application.ungrabMouse()
+        }
+        return true
     }
     
     public override var frame : Rect {
         didSet {
-            // TODO
-            print ("Need to adjust position")
+            adjust()
         }
     }
     
@@ -157,9 +181,9 @@ public class TextField : View {
         }
     }
     
-    func textChanged ()
+    func raiseTextChanged (old: String)
     {
-        // TODO Raise event
+        textChanged.send((self, old))
     }
     
     func setClipboard (_ text: String)
@@ -173,8 +197,9 @@ public class TextField : View {
             if textBuffer.count == 0 || textBuffer.count == point {
                 return true
             }
+            let old = text
             textBuffer.remove (at: point)
-            textChanged ()
+            raiseTextChanged(old: old)
             adjust()
             
         case .delete, .controlH:
@@ -182,7 +207,9 @@ public class TextField : View {
                 return true
             }
             point = point - 1
+            let old = text
             textBuffer.remove (at: point)
+            raiseTextChanged(old: old)
             adjust ()
             
         case .controlA, .home:
@@ -210,8 +237,10 @@ public class TextField : View {
             if point > textBuffer.count {
                 return true
             }
+            let old = text
             setClipboard (TextField.fromTextBuffer(textBuffer, from: point))
             textBuffer.removeLast(textBuffer.count-point)
+            raiseTextChanged(old: old)
             adjust ()
             
         case .controlY: // yank
@@ -219,12 +248,14 @@ public class TextField : View {
                 return true
             }
             let clip = TextField.toTextBuffer(Clipboard.contents)
+            let old = text
             if point == textBuffer.count {
                 textBuffer = textBuffer + clip
             } else {
                 textBuffer = textBuffer [0..<point] + clip + textBuffer [point...]
                 point += clip.count
             }
+            raiseTextChanged(old: old)
             adjust ()
             
         case .letter("b") where event.isAlt:
@@ -241,6 +272,7 @@ public class TextField : View {
             
         case let .letter(x) where event.isAlt == false:
             let kbstr = TextField.toTextBuffer(String (x))
+            let old = text
             if used {
                 if point == textBuffer.count {
                     textBuffer = textBuffer + kbstr
@@ -253,6 +285,7 @@ public class TextField : View {
                 first = 0
                 point = 1
             }
+            raiseTextChanged(old: old)
             adjust ()
             break
             
