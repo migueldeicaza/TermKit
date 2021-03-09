@@ -10,6 +10,9 @@ import Foundation
 import Darwin.ncurses
 import TermKit
 
+// So the debugger can attach
+sleep (1)
+
 // Creates a nested editor
 func showEditor() {
     let ntop = Toplevel()

@@ -263,6 +263,9 @@ public class Application {
         for h in rootMouseHandlers.values {
             h (mouseEvent)
         }
+        guard let c = _current else {
+            return
+        }
         
         let res = findDeepestView(start: _current!, x: mouseEvent.x, y: mouseEvent.y)
         if let r = res {

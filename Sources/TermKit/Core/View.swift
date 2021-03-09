@@ -638,21 +638,25 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
         }
     }
     
-    func setHasFocus (other: View, value: Bool)
+    func setHasFocus (other: View?, value: Bool)
     {
         if hasFocus != value {
             _hasFocus = value
-            if value {
-                becameFirstResponder.send (other)
-            } else {
-                resignedResponder.send (other)
+            if let o = other {
+                if value {
+                    becameFirstResponder.send (o)
+                } else {
+                    resignedResponder.send (o)
+                }
             }
             setNeedsDisplay()
         }
         // Remove focus down the chain of subviews if focus is removed
         if let f = focused {
             if !value && focused != other {
-                f.resignedResponder.send (other)
+                if let o = other {
+                    f.resignedResponder.send (o)
+                }
                 f.setHasFocus(other: other, value: false)
                 focused = nil
             }
@@ -762,9 +766,8 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
         
         let oldFocused = focused
         focused = theView
-        if let f = oldFocused {
-            theView.setHasFocus(other: f, value: true)
-        }
+        theView.setHasFocus(other: oldFocused, value: true)
+
         theView.ensureFocus()
         
         // Send focus upwards
