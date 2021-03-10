@@ -12,7 +12,7 @@ import os
 
 var fd: Int32 = -1
 @available(OSX 11.0, *)
-var logger: Logger = Logger(subsystem: "com.tirania.termkit", category: "TermKit")
+var logger: Logger = Logger(subsystem: "termkit", category: "TermKit")
 
 public func log (_ s: String)
 {
