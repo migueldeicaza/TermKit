@@ -37,5 +37,23 @@ so I can run it like this:
 $ DerivedData/TermKit/Build/Products/Debug/Example
 ```
 
-You can change this from Xcode/Preferences/Locations.
+The location for where your executable is produced is configured in Xcode/Preferences/Locations,
+I just happen to like project-relative output like the example above shows.
+
+# Debugging
+
+While debugging is useful, sometimes it can be obnoxious to single step or debug over
+code that is called too many times in a row, so printf-like debugging is convenient.
+
+Except that prints go to the same console where your application is running, making this
+experience painful.
+
+In that case, you can call `Application.log` with a message, and this message will use
+MacOS `os_log`, which you can then either look for in the Console.app, or you can monitor from 
+a terminal window like this:
+
+```
+$ log stream --style compact --predicate 'subsystem == "termkit"'
+```
+
 
