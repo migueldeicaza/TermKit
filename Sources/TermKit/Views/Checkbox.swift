@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import OpenCombine
 
 /**
  * The Checkbox View shows an on/off toggle that the user can set
@@ -18,12 +19,10 @@ import Foundation
  * c.y = Pos.at (0)
  * c.width = Dim(30)
  * c.height = Dim (1)
+ * var cancellable = c.toggled.sink { cbox in }
  * ```
  */
 public class Checkbox : View {
-    var hotPos : Int = -1
-    var hotChar : Character? = nil
-    
     /// The state of the checkbox.
     public var checked : Bool = false {
         didSet {
@@ -31,19 +30,55 @@ public class Checkbox : View {
         }
     }
     
-    public var text : String {
-        didSet {
-            var i = 0
-            hotPos = -1
-            hotChar = nil
+    /// Raised when the checkbox has been toggled
+    public var toggled = PassthroughSubject<Checkbox,Never> ()
+    
+    func updateHotkeySettings() {
+        var i = 0
+        hotPos = -1
+        _hotKey = nil
+        for c in text {
+            if c.isUppercase {
+                hotPos = i
+                _hotKey = c
+                return
+            }
+            i += c.cellSize()
+        }
+    }
+    var hotPos : Int = -1
+    
+    var _hotKey: Character? = nil
+    /// Used to override the hotkey to use for this checkbox
+    public var hotKey: Character? {
+        get {
+            return _hotKey
+        }
+        set {
+            _hotKey = newValue
+            guard let hk = _hotKey else {
+                hotPos = -1
+                return
+            }
+            var p = 0
             for c in text {
-                if c.isUppercase {
-                    hotPos = i
-                    hotChar = c
+                if c == hk {
+                    hotPos = p
+                    setNeedsDisplay()
                     return
                 }
-                i += c.cellSize()
+                p += 1
             }
+            setNeedsDisplay()
+        }
+    }
+
+    /// Sets the text for the checkbox, and will automatically pick the HotKey as the first
+    /// uppercased letter in the string.  This can be later overwritten by setting HotKey
+    /// directly.
+    public var text : String {
+        didSet {
+            updateHotkeySettings ()
         }
     }
     
@@ -54,6 +89,7 @@ public class Checkbox : View {
         super.init ()
         self.height = Dim.sized(1)
         canFocus = true
+        updateHotkeySettings()
     }
     
     public override func redraw(region: Rect) {
@@ -62,10 +98,11 @@ public class Checkbox : View {
         painter.goto(col: 0, row: 0)
         painter.add(str: checked ? "[x]" : "[ ]")
         painter.goto (col: 4, row: 0)
+        painter.attribute = colorScheme!.normal
         painter.add (str: text)
-        if let c = hotChar {
-            painter.goto (col: hotPos, row: 0)
-            painter.attribute = hasFocus ? colorScheme!.hotFocus : colorScheme!.hotNormal
+        if let c = hotKey, hotPos != -1 {
+            painter.goto (col: hotPos+4, row: 0)
+            painter.attribute = colorScheme!.hotNormal
             painter.add(str: String(c))
         }
     }
@@ -77,8 +114,17 @@ public class Checkbox : View {
     func toggle ()
     {
         checked.toggle()
-        // raise event
+        toggled.send (self)
         setNeedsDisplay()
+    }
+    
+    public override func processHotKey(event: KeyEvent) -> Bool {
+        if View.eventTriggersHotKey(event: event, hotKey: hotKey) {
+            superview?.setFocus(self)
+            toggle ()
+            return true
+        }
+        return false
     }
     
     public override func processKey(event: KeyEvent) -> Bool {
@@ -87,7 +133,7 @@ public class Checkbox : View {
             toggle ()
             return true
         default:
-            return self.processKey(event: event)
+            return super.processKey(event: event)
         }
     }
     

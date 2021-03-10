@@ -9,7 +9,7 @@
 import Foundation
 import Darwin.ncurses
 import TermKit
-
+import OpenCombine
 // So the debugger can attach
 sleep (1)
 
@@ -84,6 +84,7 @@ if maybe {
     another.width = Dim.fill()
     win.addSubview(another)
 }
+var c: AnyCancellable
 
 if true {
     let loginLabel = Label ("Login:")
@@ -113,7 +114,18 @@ if true {
     pass.width = Dim.sized(10)
     pass.height = Dim.sized(1)
     
-    win.addSubviews([loginLabel, loginField, pass, passField])
+    let remember = Checkbox ("Remember")
+    remember.x = Pos.left (of: loginLabel)
+    remember.y = Pos.top(of: passField) + 1
+    let rememberCount = Label ("Remember has not been toggled")
+    rememberCount.y = remember.y! + 1
+    rememberCount.x = remember.x!
+    var count = 0
+    c = remember.toggled.sink { view in
+        count += 1
+        rememberCount.text = "Remember has been toggled \(count) times"
+    }
+    win.addSubviews([loginLabel, loginField, pass, passField, remember, rememberCount])
 }
 Application.top.addSubview(win)
 Application.top.addSubview(menu)

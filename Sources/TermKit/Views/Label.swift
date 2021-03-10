@@ -11,13 +11,13 @@ import Foundation
 /// Text alignment enumeration, controls how text is displayed.
 public enum TextAlignment {
     /// Aligns the text to the left of the frame.
-    case Left
+    case left
     /// Aligns the text to the right side of the frame.
-    case Right
+    case right
     /// Centers the text in the frame.
-    case Centered
+    case centered
     /// Shows the line as justified text in the line.
-    case Justified
+    case justified
 }
 
 /// Label view, displays a string at a given position, can include multiple lines.
@@ -29,7 +29,7 @@ public class Label : View {
     public init (_ text : String)
     {
         self.text = text
-        textAlignment = .Left
+        textAlignment = .left
         super.init ()
         height = Dim.sized(1)
     }
@@ -96,7 +96,7 @@ public class Label : View {
             }
             return result
         }
-        if align == .Justified {
+        if align == .justified {
             let words = str.split (whereSeparator: {$0 == " " || $0 == "\t"})
             let textCount = words.reduce(0, {x, y in  x + y.count })
             let spaces = (width - textCount) / (words.count-1)
@@ -163,11 +163,11 @@ public class Label : View {
             let str = lines [line]
             var x = 0
             switch textAlignment {
-            case .Centered:
+            case .centered:
                 x = frame.left + (frame.width - str.cellCount())/2
-            case .Justified, .Left:
+            case .justified, .left:
                 x = 0
-            case .Right:
+            case .right:
                 x = frame.right - str.cellCount ()
             }
             painter.goto (col: x, row: line)
@@ -183,7 +183,7 @@ public class Label : View {
     public static func measureString (text: String, width: Int) -> Int
     {
         var result : [String] = []
-        recalc (text, lineResult: &result, width: width, align: .Left)
+        recalc (text, lineResult: &result, width: width, align: .left)
         return result.count
     }
     
@@ -195,7 +195,7 @@ public class Label : View {
     public static func maxWidth (text: String, width : Int = INTPTR_MAX) -> Int
     {
         var result : [String] = []
-        recalc (text, lineResult: &result, width: width, align: .Left)
+        recalc (text, lineResult: &result, width: width, align: .left)
         if let max = result.max (by: { x, y in x.cellCount() < y.cellCount ()}) {
             return max.cellCount()
         } else {

@@ -8,10 +8,18 @@
 
 import Foundation
 import Darwin.ncurses
+import os
 
 var fd: Int32 = -1
+@available(OSX 11.0, *)
+var logger: Logger = Logger(subsystem: "com.tirania.termkit", category: "TermKit")
+
 public func log (_ s: String)
 {
+    if #available(macOS 11.0, *) {
+        logger.log("log: \(s, privacy: .public)")
+        return
+    }
     if fd == -1 {
         fd = open ("/tmp/log", O_CREAT | O_RDWR, S_IRWXU)
     }
@@ -148,6 +156,7 @@ public class Application {
         defer {
             postProcessEvent()
         }
+        log ("processKeyEvent: \(event)")
         let toplevelCopy = toplevels
         for top in toplevelCopy {
             if top.processHotKey(event: event) {
@@ -181,7 +190,7 @@ public class Application {
     {
         let startFrame = start.frame
         
-        if startFrame.contains(Point (x: x, y: y)){
+        if !startFrame.contains(Point (x: x, y: y)){
             return nil
         }
 
@@ -263,11 +272,11 @@ public class Application {
         for h in rootMouseHandlers.values {
             h (mouseEvent)
         }
-        guard let _ = _current else {
+        guard let c = _current else {
             return
         }
         
-        let res = findDeepestView(start: _current!, x: mouseEvent.x, y: mouseEvent.y)
+        let res = findDeepestView(start: c, x: mouseEvent.x, y: mouseEvent.y)
         if let r = res {
             if r.view.wantContinuousButtonPressed {
                 wantContinuousButtonPressedView = r.view

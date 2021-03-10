@@ -1258,4 +1258,24 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
         }
         return "viewId:\(viewId) frame: \(frame)\n\n\(subtext)"
     }
+    
+    /// Helper utility that can be used to determine if the event contains a hotkey invocation, which is Alt+letter
+    /// - Parameters:
+    ///   - event: the event provided by the Application
+    ///   - hotKey: A Character? that contains the letter that represents the hotkey
+    /// - Returns: True if hotkey is not nil, and the letter alt + this character (uppercase or lowercase) is pressed.
+    public static func eventTriggersHotKey (event: KeyEvent, hotKey: Character?) -> Bool
+    {
+        if let hk = hotKey, event.isAlt {
+            switch event.key {
+            case let .letter(ch) where ch == hk || ch.lowercased() == hk.lowercased():
+                return true
+                
+            default:
+                break
+            }
+        }
+        return false
+
+    }
 }

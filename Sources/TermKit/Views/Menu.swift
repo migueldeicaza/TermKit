@@ -8,6 +8,16 @@
 
 import Foundation
 
+
+/// Specifies how a `MenuItem`shows selection state.
+public enum MenuCheckStyle {
+    /// The menu item will be shown normally, with no check indicator.
+    case nocheck
+    /// The menu item will indicate checked/un-checked state
+    case checked
+    /// The menu item is part of a menu radio group 
+    case radio
+}
 /**
  * A menu item has a title, an associated help text, and an action to execute on activation.
  */

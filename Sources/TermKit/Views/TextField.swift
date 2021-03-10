@@ -15,8 +15,12 @@ import OpenCombine
  * This view provides line-editing and mouse support
  */
 public class TextField : View {
-    var point : Int
-    var first : Int
+    // Tracks the current position of the cursor
+    var point: Int
+    // Tracks the location of the mark (set with control space)
+    var mark: Int?
+    // The index of the first character displayed on the first cell
+    var first: Int
     var layoutPending : Bool
     
     /// Indicates whether the user has used this control since it was created
@@ -127,6 +131,9 @@ public class TextField : View {
             }
             first = idx
         }
+        if let m = mark, m > textBuffer.count {
+            mark = nil
+        }
         setNeedsDisplay()
     }
     
@@ -194,7 +201,7 @@ public class TextField : View {
     public override func processKey(event: KeyEvent) -> Bool {
         switch event.key {
         case .deleteChar, .controlD:
-            if textBuffer.count == 0 || textBuffer.count == point {
+            if readOnly || textBuffer.count == 0 || textBuffer.count == point {
                 return true
             }
             let old = text
@@ -203,7 +210,7 @@ public class TextField : View {
             adjust()
             
         case .delete, .controlH:
-            if point == 0 {
+            if point == 0 || readOnly {
                 return true
             }
             point = point - 1
@@ -234,17 +241,20 @@ public class TextField : View {
             adjust ()
             
         case .controlK: // kill to end
-            if point > textBuffer.count {
+            if readOnly || point > textBuffer.count {
                 return true
             }
             let old = text
             setClipboard (TextField.fromTextBuffer(textBuffer, from: point))
             textBuffer.removeLast(textBuffer.count-point)
             raiseTextChanged(old: old)
+            mark = point
             adjust ()
             
-        case .controlY: // yank
-            if Clipboard.contents == "" {
+        // Windows/Linux: control-v (paste)
+        // Emacs: Control-y (yank)
+        case .controlV, .controlY: // yank
+            if readOnly || Clipboard.contents == "" {
                 return true
             }
             let clip = TextField.toTextBuffer(Clipboard.contents)
@@ -253,8 +263,8 @@ public class TextField : View {
                 textBuffer = textBuffer + clip
             } else {
                 textBuffer = textBuffer [0..<point] + clip + textBuffer [point...]
-                point += clip.count
             }
+            point += clip.count
             raiseTextChanged(old: old)
             adjust ()
             
@@ -270,7 +280,42 @@ public class TextField : View {
             }
             adjust()
             
+        case .controlSpace:
+            mark = point
+            
+        // Windows/Linux: Control-C
+        // Emacs: Alt-W
+        case .letter("w") where event.isAlt,
+             .controlC:
+            if let m = mark {
+                let start = min (m, point)
+                let end = max (m, point)
+                setClipboard(TextField.fromTextBuffer(Array (textBuffer [start..<end])))
+            }
+
+            
+        // Windows/Linux: Control-X
+        // Emacs: Control-X
+        case .controlX, .controlW:
+            if readOnly {
+                return true
+            }
+            if let m = mark {
+                let start = min (m, point)
+                let end = max (m, point)
+                let old = text
+                setClipboard(TextField.fromTextBuffer(Array (textBuffer [start..<end])))
+                textBuffer = Array (textBuffer [0..<start] + textBuffer [end...])
+                mark = start
+                point = start
+                raiseTextChanged(old: old)
+                adjust()
+            }
+            
         case let .letter(x) where event.isAlt == false:
+            if readOnly {
+                return true
+            }
             let kbstr = TextField.toTextBuffer(String (x))
             let old = text
             if used {
@@ -293,7 +338,6 @@ public class TextField : View {
         // Alt-D, Alt-backspace
         // Alt-Y
         // Delete adding to kill-buffer
-        // Set mark
         
         default:
             return false

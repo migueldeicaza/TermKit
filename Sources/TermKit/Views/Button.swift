@@ -119,27 +119,15 @@ public class Button : View {
     {
         clicked.send (self)
     }
-    
-    func checkKey (_ event: KeyEvent) -> Bool {
-        if let hk = hotKey {
-            switch event.key {
-            case let .letter(ch) where ch == hk:
-                superview?.setFocus(self)
-                raiseClicked ()
-                return true
-            default:
-                break
-            }
-        }
-        return false
-    }
-    
+
     //
     // This makes is so that Alt-hotletter behaves as activating the button
     //
     public override func processHotKey(event: KeyEvent) -> Bool {
-        if event.isAlt {
-            return checkKey (event)
+        if View.eventTriggersHotKey(event: event, hotKey: hotKey) {
+            superview?.setFocus(self)
+            raiseClicked ()
+            return true
         }
         return false
     }
