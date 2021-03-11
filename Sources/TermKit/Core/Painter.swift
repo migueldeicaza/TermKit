@@ -8,7 +8,7 @@
 import Foundation
 
 /**
- * The drawing context trackst the cursor position and attribute in use
+ * The drawing context tracks the cursor position and attribute in use
  * during the View's draw method, it enforced clipping on the view bounds.
  */
 public class Painter {
@@ -161,7 +161,7 @@ public class Painter {
     }
     
     /// Clears a region of the view with spaces
-    func clearRegion (left:Int, top: Int, right: Int, bottom: Int)
+    func clearRegion (left: Int, top: Int, right: Int, bottom: Int)
     {
         //let driver = Application.driver
         let lstr = String (repeating: " ", count: right-left)
@@ -175,13 +175,16 @@ public class Painter {
 
     /**
      * Draws a frame on the specified region with the specified padding around the frame.
-     * - Parameter region: Region where the frame will be drawn.
+     * - Parameter region: Region where the frame will be drawn, in view coordinates
      * - Parameter padding: Padding to add on the sides
      * - Parameter fill: If set to `true` it will clear the contents with the current color, otherwise the contents will be left untouched.
      */
     public func drawFrame (_ region: Rect, padding : Int, fill : Bool)
     {
         applyContext ()
-        Application.driver.drawFrame (region, padding: padding, fill: fill)
+        let (rcol, rrow) = view.viewToScreen(col: region.minX, row: region.minY)
+        let globalRegion = Rect(origin: Point (x: rcol, y: rrow),
+                                size: region.size)
+        Application.driver.drawFrame (globalRegion, padding: padding, fill: fill)
     }
 }

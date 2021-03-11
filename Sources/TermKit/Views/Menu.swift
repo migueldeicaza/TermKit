@@ -10,29 +10,33 @@ import Foundation
 
 
 /// Specifies how a `MenuItem`shows selection state.
-public enum MenuCheckStyle {
+public enum MenuItemStyle {
     /// The menu item will be shown normally, with no check indicator.
-    case nocheck
+    case plain
     /// The menu item will indicate checked/un-checked state
     case checked
     /// The menu item is part of a menu radio group 
     case radio
 }
+
 /**
  * A menu item has a title, an associated help text, and an action to execute on activation.
  */
 public struct MenuItem {
     /// Gets or sets the title for the menu item
-    public var title : String
+    public var title : String = ""
     
     /// Gets or sets the help text for the menu item, this is show next to the title
-    public var help : String
+    public var help : String = ""
     
     /// Gets or sets the action to be invoked when the menu is triggered, can be nil
-    public var action : (() -> Void)?
+    public var action : (() -> Void)? = nil
     
-    /// his is the global setting that can be used as a global shortcut to invoke the action on the menu.
-    public var shortcut : Key?
+    /// This is the global setting that can be used as a global shortcut to invoke the action on the menu.
+    public var shortcut : Key? = nil
+    
+    /// The style to use for rendering this menu
+    public var style: MenuItemStyle = .plain
     
     /**
      * The hotkey is used when the menu is active, the shortcut can be triggered when the menu is not active.
@@ -44,24 +48,35 @@ public struct MenuItem {
     
     var width : Int {
         get {
-            return title.cellCount() + help.cellCount() + 1 + 2
+            return title.cellCount() + help.cellCount() + 1 + 2 +
+            (style == .plain ? 0 : 2)
         }
     }
     
     /**
+     - Parameters:
+     - title: Title for the menu item
+     - help: Help text to display
+     - action: Method to invoke when the menu is triggered
+     - shortcut: Global shortcut that can be used to invoke this menu
+     - hotkey: Key used to activate the menu, when the menu is active
      */
-    public init (title: String, help: String = "", action: (()->Void)? = nil, shortcut: Key? = nil, hotkey: Character? = nil)
+    public init (title: String, help: String = "", action: (()->Void)? = nil, shortcut: Key? = nil, hotkey: Character? = nil, style: MenuItemStyle = .plain)
     {
         self.title = title
         self.help = help
         self.action = action
         self.shortcut = shortcut
         self.hotkey = hotkey
+        self.style = style
+        if hotkey == nil {
+            
+        }
     }
 }
 
 /**
- * A menu bar item contains other menu items.
+ * A menu bar item contains either `MenuBarItem` or `MenuItem`
  */
 public class MenuBarItem {
     var title : String
@@ -75,7 +90,7 @@ public class MenuBarItem {
      * becomes the hotkey, for example "_File" would make "F" the hotkey for the menu entry.
      * - Parameter children: Array of menu items that describe the contents of the menu.
      */
-    public init (title : String, children : [MenuItem?])
+    public init (title : String, children : [MenuItem?], parent: MenuItem? = nil)
     {
        var len = 0
         for ch in title {
@@ -228,17 +243,12 @@ public class Menu : View {
         default:
             break
         }
-        return true
+        return false
     }
 }
 
 /**
- * A menubar for your application
- *
- * Example:
- * ```
- *
- * ```
+ * A menubar for your application, defaults to be at the top of its container.
  */
 public class MenuBar: View {
     public var menus: [MenuBarItem]

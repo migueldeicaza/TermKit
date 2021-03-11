@@ -8,13 +8,13 @@
 
 import Foundation
 
-public struct Rect : CustomDebugStringConvertible, Codable, Equatable {
+public struct Rect: CustomDebugStringConvertible, Codable, Equatable {
     public var origin: Point
     public var size: Size
     
     static public var zero = Rect (origin: Point.zero, size: Size.empty)
     
-    public init (origin : Point, size : Size)
+    public init (origin: Point, size: Size)
     {
         self.origin = origin
         self.size = size
@@ -32,101 +32,101 @@ public struct Rect : CustomDebugStringConvertible, Codable, Equatable {
         size = Size (width: right-left, height: bottom-top)
     }
     
-    public var isEmpty : Bool {
+    public var isEmpty: Bool {
         get {
             return size.IsEmpty
         }
     }
     
-    public var minX : Int {
+    public var minX: Int {
         get {
             return origin.x
         }
     }
 
-    public var midX : Int {
+    public var midX: Int {
         get {
             return origin.x + (size.width/2)
         }
     }
     
-    public var maxX : Int {
+    public var maxX: Int {
         get {
             return origin.x+size.width
         }
     }
 
-    public var minY : Int {
+    public var minY: Int {
         get {
             return origin.y
         }
     }
     
-    public var midY : Int {
+    public var midY: Int {
         get {
             return origin.y + (size.height/2)
         }
     }
     
-    public var maxY : Int {
+    public var maxY: Int {
         get {
             return origin.y + size.height
         }
     }
     
-    public var width : Int {
+    public var width: Int {
         get {
             return size.width
         }
     }
     
-    public var height : Int {
+    public var height: Int {
         get {
             return size.height
         }
     }
     
-    public var left : Int {
+    public var left: Int {
         get {
             return origin.x
         }
     }
 
-    public var right : Int {
+    public var right: Int {
         get {
             return origin.x+size.width
         }
     }
     
-    public var top : Int {
+    public var top: Int {
         get {
             return origin.y
         }
     }
 
-    public var bottom : Int {
+    public var bottom: Int {
         get {
             return origin.y + size.height
         }
     }
 
-    public func intersection (_ rect2 : Rect) -> Rect
+    public func intersection (_ rect2: Rect) -> Rect
     {
         return Rect (left: max (origin.x, rect2.origin.x), top: max (origin.y, rect2.origin.y),
                      right: min (right, rect2.right), bottom: min (bottom, rect2.bottom))
     }
     
-    public func intersects (_ rect2 : Rect) -> Bool
+    public func intersects (_ rect2: Rect) -> Bool
     {
         return !intersection(rect2).isEmpty
     }
     
-    public func contains (x : Int, y: Int) -> Bool
+    public func contains (x: Int, y: Int) -> Bool
     {
         return x >= left && x <= right && y >= top && y <= bottom
     }
     
-    public func contains (_ point : Point) -> Bool
+    public func contains (_ point: Point) -> Bool
     {
         return contains (x: point.x, y: point.y)
     }

@@ -142,7 +142,7 @@ public class Application {
     {
         driver.updateScreen ()
         var last : View? = nil
-        for v in toplevels.reversed() {
+        for v in toplevels {
             v.setNeedsDisplay()
             v.redraw(region: v.bounds)
             last = v

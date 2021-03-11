@@ -217,6 +217,7 @@ open class Toplevel : View {
         if view == self.statusBar {
             self.statusBar = nil
         }
+        super.remove (view)
     }
     /**
      *  This method is invoked by Application.Begin as part of the Application.Run after
