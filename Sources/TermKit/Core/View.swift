@@ -1135,10 +1135,11 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
     }
     
     // https://en.wikipedia.org/wiki/Topological_sorting
-    static func topologicalSort (nodes: Set<View>, edges: inout Set<Edge>) -> [View]?
+    func topologicalSort (nodes: Set<View>, edges: inout Set<Edge>) -> [View]?
     {
         var result: [View] = []
 
+        // Set of all nodes with no incoming edges
         var s = Set (nodes.filter ({(n:View) -> Bool in
             return edges.allSatisfy({$0.to !== n})
         }))
@@ -1156,10 +1157,12 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
                 let m = e.to
                 
                 // remove the edge from the graph
-                edges.remove(e)
+                if n != self.superview {
+                    edges.remove(e)
+                }
                 
                 // if m has no other incoming edges then
-                if edges.allSatisfy({$0.to != n}) {
+                if edges.allSatisfy({$0.to != m && m != self.superview }) {
                     // insert m into S
                     s.insert(m)
                 }
@@ -1188,27 +1191,41 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
         var nodes = Set<View>()
         var edges = Set<Edge>()
         
-        for v in subviews {
-            nodes.insert (v)
-            if v.layoutStyle == .computed {
-                if v.x is Pos.PosView {
-                    edges.insert (Edge(from:v, to: (v.x as! Pos.PosView).target))
-                }
-                if v.y is Pos.PosView {
-                    edges.insert (Edge(from:v, to: (v.y as! Pos.PosView).target))
-                }
-                if v.width is Dim.DimView {
-                    edges.insert (Edge (from: v, to: (v.width as! Dim.DimView).target))
-                }
-                if v.height is Dim.DimView {
-                    edges.insert (Edge (from: v, to: (v.height as! Dim.DimView).target))
-                }
+        func collect (pos: Pos?, from: View, update: inout Set<Edge>) {
+            if let pv = pos as? Pos.PosView {
+                update.insert (Edge (from: pv.target, to: from))
+                return
+            }
+            if let pc = pos as? Pos.PosCombine {
+                collect (pos: pc.left, from: from, update: &update)
+                collect (pos: pc.right, from: from, update: &update)
             }
         }
-        guard let ordered = View.topologicalSort(nodes: nodes, edges: &edges)?.reversed() else {
+
+        func collect (dim: Dim?, from: View, update: inout Set<Edge>) {
+            if let dv = dim as? Dim.DimView {
+                update.insert (Edge (from: dv.target, to: from))
+                return
+            }
+            if let dc = dim as? Dim.DimCombine {
+                collect (dim: dc.left, from: from, update: &update)
+                collect (dim: dc.right, from: from, update: &update)
+            }
+        }
+
+        for v in subviews {
+            nodes.insert (v)
+            if v.layoutStyle != .computed {
+                continue
+            }
+            collect (pos: v.x, from: v, update: &edges)
+            collect (pos: v.y, from: v, update: &edges)
+            collect (dim: v.width, from: v, update: &edges)
+            collect (dim: v.height, from: v, update: &edges)
+        }
+        guard let ordered = topologicalSort(nodes: nodes, edges: &edges) else {
             throw layoutError.recursive(msg: "There is a recursive cycle in the relative Pos/Dim in the views")
         }
-        
         for v in ordered {
             if v.layoutStyle == .computed {
                 v.setRelativeLayout(hostFrame: frame)
