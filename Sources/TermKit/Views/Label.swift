@@ -204,7 +204,7 @@ public class Label : View {
     }
     
     public override var debugDescription: String {
-        return "Label (\(super.debugDescription))"
+        return "Label (text=\"\(text)\", \(super.debugDescription))"
     }
 
 }

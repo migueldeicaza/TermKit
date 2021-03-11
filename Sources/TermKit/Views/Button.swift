@@ -35,7 +35,9 @@ public class Button : View {
     var shownText : String = ""
     var hotKey : Character? = nil
     var hotPos : Int = 0
-    var isDefault : Bool = false {
+    
+    /// When a button is the default, pressing return in the dialog will trigger this button if no other control consumes it
+    public var isDefault : Bool = false {
         didSet {
             update ()
         }
@@ -72,6 +74,7 @@ public class Button : View {
     {
         self.init ()
         self.text = text
+        update()
     }
     
     func update ()
