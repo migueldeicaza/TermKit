@@ -13,8 +13,8 @@ import Foundation
 // the wcwidth function
 //
 extension String {
-    // this uses wcwidth on each Character to determine how many terminal cells the character uses.
-    // For example, this one uses 2 cells: "ማ" on a console.
+    /// this uses wcwidth on each Character to determine how many terminal cells the character uses.
+    /// For example, this one uses 2 cells: "ማ" on a console.
     func cellCount () -> Int
     {
         var total = 0
@@ -40,6 +40,27 @@ extension String {
             slen += clen
         }
         return res
+    }
+    
+    /// this uses wcwidth on each Character to determine how many terminal cells the character uses.
+    /// But does not count cells with an underscrore.
+    /// For example, this one uses 2 cells: "ማ" on a console, and "_File" would return 4, only the
+    /// firsrt underscore is not counted
+    func getCellCountWithoutMarkup () -> Int
+    {
+        var total = 0
+        var seen = false
+        for c in self {
+            if c == "_" {
+                if !seen {
+                    seen = true
+                    continue
+                }
+            }
+            total += c.cellSize()
+        }
+        return total
+
     }
 }
 

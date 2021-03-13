@@ -187,4 +187,40 @@ public class Painter {
                                 size: region.size)
         Application.driver.drawFrame (globalRegion, padding: padding, fill: fill)
     }
+    
+    /**
+     * Utility function to draw strings that contains a hotkey using the two specified colors
+     * - Parameter text: String to display, the underscoore before a letter flags the next letter as the hotkey.
+     * - Parameter hotColor: the color to use for the hotkey
+     * - Parameter normalColor: the color to use for the normal color
+     */
+    public func drawHotString (text: String, hotColor: Attribute, normalColor: Attribute)
+    {
+        attribute = normalColor
+
+        for ch in text {
+            if ch == "_" {
+                attribute = hotColor
+            } else {
+                add (str: String (ch))
+                attribute = normalColor
+            }
+        }
+    }
+ 
+    /**
+     * Utility function to draw strings that contains a hotkey using a colorscheme and the "focused" state.
+     * - Parameter text: String to display, the underscoore before a letter flags the next letter as the hotkey.
+     * - Parameter focused: If set to `true` this uses the focused colors from the color scheme, otherwise the regular ones.
+     * - Parameter scheme: The color scheme to use
+     */
+    public func drawHotString (text: String, focused: Bool, scheme: ColorScheme)
+    {
+        if focused {
+            drawHotString(text: text, hotColor: scheme.hotFocus, normalColor: scheme.focus)
+        } else {
+            drawHotString(text: text, hotColor: scheme.hotNormal, normalColor: scheme.normal)
+        }
+    }
+    
 }

@@ -152,7 +152,11 @@ if true {
             }
         )
     }
-    win.addSubviews([loginLabel, loginField, pass, passField, remember, rememberCount, b1, b2])
+    
+    let radio = RadioGroup (labels: ["UTF-8", "Latin-1", "ASCII", "EBCDIC"], selected: 0)
+    radio.x = Pos.at (60)
+    radio.y = Pos.at (10)
+    win.addSubviews([loginLabel, loginField, pass, passField, remember, rememberCount, b1, b2, radio])
 }
 Application.top.addSubview(win)
 Application.top.addSubview(menu)
