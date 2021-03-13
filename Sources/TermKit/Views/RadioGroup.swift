@@ -18,7 +18,9 @@ public enum Orientation {
 public class RadioGroup: View {
     var _selected: Int? = nil
     var cursor: Int = 0
-    /// The index of the currently selected item, or nil if none
+    
+    /// The index of the currently selected item, or nil if none, to be called by the user
+    /// invoking this method does not invoke the selection changed callback.
     public var selected: Int? {
         get {
             return _selected
@@ -38,11 +40,31 @@ public class RadioGroup: View {
             }
         }
     }
+    
+    func setSelected (new: Int)
+    {
+        if new == selected {
+            return
+        }
+        let old = selected
+        
+        // this triggers setNeedsDisplay
+        selected = new
+        if let cb = selectionChanged {
+            cb (self, old, new)
+        }
+    }
+    
+
     /// The labels displayed for this radio group
     public private (set) var radioLabels: [String]
     /// The orientation in which this radio group is shown
     public private (set) var orientation: Orientation
 
+    /// Callback invoked when the selection has changed, it passes the previous
+    /// selection value, and the new selection value
+    public var selectionChanged: ((_ source: RadioGroup, _ previousSelection: Int?, _ newSelection: Int?) -> ())? = nil
+    
     /// Initializes a new instance of the `RadioGroup`
     /// - Parameters:
     ///   - labels: The radio labels; an array of strings that can contain hotkeys using an underscore before the letter.
@@ -109,7 +131,7 @@ public class RadioGroup: View {
             abort()
         }
     }
-    
+
     public override func processColdKey(event: KeyEvent) -> Bool {
         switch event.key {
         case let .letter(char) where char.isLetter || char.isNumber:
@@ -124,8 +146,7 @@ public class RadioGroup: View {
                         continue
                     }
                     if probe && ch.uppercased() == upperChar {
-                        selected = i
-                        setNeedsDisplay()
+                        setSelected(new: i)
                         return true
                     }
                     probe = false
@@ -152,8 +173,7 @@ public class RadioGroup: View {
                 return true
             }
         case .letter(" "):
-            selected = cursor
-            setNeedsDisplay()
+            setSelected(new: cursor)
             return true
         default:
             break
@@ -175,7 +195,7 @@ public class RadioGroup: View {
                 abort()
             case .vertical:
                 if event.y < radioLabels.count {
-                    selected = event.y
+                    setSelected(new: event.y)
                     cursor = event.y
                 }
             }

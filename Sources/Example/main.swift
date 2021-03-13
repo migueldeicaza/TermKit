@@ -154,6 +154,9 @@ if true {
     }
     
     let radio = RadioGroup (labels: ["UTF-8", "Latin-1", "ASCII", "EBCDIC"], selected: 0)
+    radio.selectionChanged = { radio, old, new in
+        rememberCount.text = "Radio changed from \(old ?? -1) to \(new ?? -1)"
+    }
     radio.x = Pos.at (60)
     radio.y = Pos.at (10)
     win.addSubviews([loginLabel, loginField, pass, passField, remember, rememberCount, b1, b2, radio])
