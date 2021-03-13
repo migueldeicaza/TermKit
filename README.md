@@ -1,3 +1,4 @@
+
 [![Build Status](https://migueldeicaza.visualstudio.com/TermKit/_apis/build/status/TermKit-Xcode-CI?branchName=master)](https://migueldeicaza.visualstudio.com/TermKit/_build/latest?definitionId=10&branchName=master)
 
 # TermKit - Terminal UI Toolkit for Swift
@@ -12,6 +13,8 @@ This toolkit contains various controls for build text user interfaces
 using Swift.
 
 You can [checkout the documentation](https://migueldeicaza.github.io/TermKit/index.html)
+
+<img width="1222" alt="Screen Shot 2021-03-13 at 12 44 05 PM" src="https://user-images.githubusercontent.com/36863/111039012-d6df8400-83f9-11eb-9215-88549635a33f.png">
 
 # Running this
 
