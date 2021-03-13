@@ -26,16 +26,6 @@ import OpenCombine
  * ```
  */
 public class MessageBox {
-    // Internal version of Dialog, used to keep track of our cancellables
-    class MessageBoxDialog : Dialog {
-        var cancellables: [AnyCancellable] = []
-        
-        override init (title: String, width: Int, height: Int, buttons: [Button])
-        {
-            super.init (title: title, width: width, height: height, buttons: buttons)
-        }
-    }
-        
     /**
      * Displays a message modally with the specified list of buttons.
      *
@@ -116,7 +106,7 @@ public class MessageBox {
         } else {
             realHeight = height!
         }
-        let d = MessageBoxDialog(title: title, width: realWidth, height: realHeight, buttons: [])
+        let d = Dialog(title: title, width: realWidth, height: realHeight, buttons: [])
         d.closedCallback = {
             completion (-1)
         }
@@ -124,14 +114,13 @@ public class MessageBox {
             let b = Button (s)
             b.width = Dim.sized (s.count + 4)
             var idx = count
-            let c = b.clicked.sink { arg in
+            b.clicked = { arg in
                 clicked = idx
                 Application.requestStop()
                 completion (clicked)
             }
             
             d.addButton(b)
-            d.cancellables.append (c)
             count += 1
         }
         
@@ -146,6 +135,6 @@ public class MessageBox {
             d.addSubview(l)
         }
         
-        Application.run (top: d)
+        Application.present (top: d)
     }
 }

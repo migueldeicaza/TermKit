@@ -349,9 +349,10 @@ public class Application {
     }
 
     /**
-     * Makes the provided toplevel the new toplevel, sending all events to it
+     * Makes the provided toplevel the new toplevel, sending all events to it,
+     * it returns control immediately.   If the toplevel is modal 
      */
-    public static func run (top: Toplevel)
+    public static func present (top: Toplevel)
     {
         begin (toplevel: top);
     }

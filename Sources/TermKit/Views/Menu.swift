@@ -241,9 +241,9 @@ public class Menu : View {
                 }
             }
         default:
-            break
+            return false
         }
-        return false
+        return true
     }
 }
 

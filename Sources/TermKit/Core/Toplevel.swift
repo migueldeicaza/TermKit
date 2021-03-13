@@ -20,6 +20,10 @@ import Foundation
  * but new toplevels can be created and ran on top of it.   To run, create the
  * toplevel and then invoke `Application.run with the
  * new toplevel.
+ *
+ * To make a toplevel modal, set the `modal` property to true,
+ * this will prevent keyboard and mouse events to go to a previous
+ * toplevel.
  */
 open class Toplevel : View {
     var _running : Bool

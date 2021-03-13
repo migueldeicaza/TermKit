@@ -40,7 +40,7 @@ func showEditor() {
     } catch {}
     
     win.addSubview (text)
-    Application.run(top: ntop)
+    Application.present (top: ntop)
 }
 
 func newFile () {}
@@ -84,7 +84,8 @@ if maybe {
     another.width = Dim.fill()
     win.addSubview(another)
 }
-var c, d, e: AnyCancellable
+
+var e: AnyCancellable
 
 if true {
     let loginLabel = Label ("Login:")
@@ -121,7 +122,7 @@ if true {
     rememberCount.y = Pos.top (of: passField) + 2
     rememberCount.x = remember.x!
     var count = 0
-    c = remember.toggled.sink { view in
+    remember.toggled = { view in
         count += 1
         rememberCount.text = "Remember has been toggled \(count) times"
     }
@@ -130,7 +131,7 @@ if true {
     b1.x = Pos.at (10)
     b1.y = Pos.at (15)
     b1.width = Dim.sized (12)
-    d = b1.clicked.sink { v in
+    b1.clicked = { v in
         rememberCount.text = "You clicked the Button1"
     }
     let b2 = Button ("Default")
@@ -138,7 +139,9 @@ if true {
     b2.y = Pos.at (16)
     b2.width = Dim.sized (12)
     b2.isDefault = true
-    e = b2.clicked.sink { v in
+    
+    // Shows the use of the API using OpemCombine instead
+    e = b2.clickedSubject.sink { v in
         rememberCount.text = "Default button was activated"
         MessageBox.query (
             "Default",

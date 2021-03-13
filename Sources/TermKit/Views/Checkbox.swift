@@ -19,7 +19,11 @@ import OpenCombine
  * c.y = Pos.at (0)
  * c.width = Dim(30)
  * c.height = Dim (1)
- * var cancellable = c.toggled.sink { cbox in }
+ * c.toggled = { check in ... }
+ *
+ * // Alternatively, you can use Combine to track the event changes:
+ * var cancellable = c.toggledSubject.sink { cbox in }
+ *
  * ```
  */
 public class Checkbox : View {
@@ -30,8 +34,14 @@ public class Checkbox : View {
         }
     }
     
-    /// Raised when the checkbox has been toggled
-    public var toggled = PassthroughSubject<Checkbox,Never> ()
+    /// Subject that is raised when the checkbox has been toggled, a more comprehensive
+    /// version of the "toggled' callback
+    public var toggledSubject = PassthroughSubject<Checkbox,Never> ()
+    
+    /// Callback to invoke when the checkbox has been toggled, this allows a single
+    /// callback to be registered.   For more complex scenarios, use `toggledSubject`
+    /// which is a Combine subject.
+    public var toggled: ((_ sender: Checkbox) ->  ())? = nil
     
     func updateHotkeySettings() {
         var i = 0
@@ -114,7 +124,10 @@ public class Checkbox : View {
     func toggle ()
     {
         checked.toggle()
-        toggled.send (self)
+        if let t = toggled {
+            t (self)
+        }
+        toggledSubject.send (self)
         setNeedsDisplay()
     }
     

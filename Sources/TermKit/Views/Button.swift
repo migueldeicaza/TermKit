@@ -53,10 +53,14 @@ public class Button : View {
     }
     
     /**
-     * Assigning to this variable a method will invoke it when the button is caviated
+     * Assigning to this variable a method will invoke it when the button is clicked,
+     * alternatively, you can use clickedSubject for use with Combine
      */
+    public var clicked: ((_ source: Button) -> ())? = nil
     
-    public var clicked = PassthroughSubject<View,Never> ()
+    /// Subject that is raised when the button has been activated, a more comprehensive
+    /// version of the "clicked' callback
+    public var clickedSubject = PassthroughSubject<View,Never> ()
 
     public override init ()
     {
@@ -120,7 +124,10 @@ public class Button : View {
     
     func raiseClicked ()
     {
-        clicked.send (self)
+        if let c = clicked {
+            c (self)
+        }
+        clickedSubject.send (self)
     }
 
     //
