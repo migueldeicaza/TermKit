@@ -40,6 +40,7 @@ public class Dialog : Window {
         for button in buttons {
             addSubview(button)
         }
+        modal = true
     }
     
     /**
@@ -70,10 +71,18 @@ public class Dialog : Window {
         }
     }
     
+    /// Method to invoke if the dialog is closed with [ESC}, used by Dialog
+    public var closedCallback: (() -> ())? = nil
+    
     public override func processKey(event: KeyEvent) -> Bool {
         switch event.key {
         case .esc:
             running = false
+            if let closed = closedCallback {
+                Application.requestStop ()
+                closed ()
+                
+            }
             return true
         default:
             return super.processKey(event: event)

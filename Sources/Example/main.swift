@@ -140,6 +140,14 @@ if true {
     b2.isDefault = true
     e = b2.clicked.sink { v in
         rememberCount.text = "Default button was activated"
+        MessageBox.query (
+            "Default",
+            message: "This is the question we pose ourselves",
+            buttons: ["Yes", "No", "Maybe"],
+            completion: { button in
+                rememberCount.text = button == -1 ? "User canceled" : "User chose \(button)"
+            }
+        )
     }
     win.addSubviews([loginLabel, loginField, pass, passField, remember, rememberCount, b1, b2])
 }

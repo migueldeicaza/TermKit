@@ -26,7 +26,16 @@ import OpenCombine
  * ```
  */
 public class MessageBox {
-    
+    // Internal version of Dialog, used to keep track of our cancellables
+    class MessageBoxDialog : Dialog {
+        var cancellables: [AnyCancellable] = []
+        
+        override init (title: String, width: Int, height: Int, buttons: [Button])
+        {
+            super.init (title: title, width: width, height: height, buttons: buttons)
+        }
+    }
+        
     /**
      * Displays a message modally with the specified list of buttons.
      *
@@ -36,15 +45,16 @@ public class MessageBox {
      *
      * - Parameter title: the title for the dialog box
      * - Parameter message: the message to display inside the dialog box, it can contain multiple lines
-     * - Parameter buttons: an array of strings that will be used for the buttons.   The first uppercase letter in each button becomes the hotkey
+     * - Parameter buttons: an array of strings that will be used for the buttons.
+     *   The first uppercase letter in each button becomes the hotkey
      * - Parameter width: optional desired width, if not specified, this is auto-computed
      * - Parameter height: optional desired heigh, if not specified, this is auot-computed
-     *
-     * - Returns: the index of the button selected, or -1 if the user pressed the ESC key.
+     * - Parameter completion: function to invoke when the user selects a result, the parameter is
+     *   the index of the button selected, or -1 if the user pressed the ESC key
      */
-    public static func query (_ title: String, message: String, buttons: [String], width: Int? = nil, height: Int? = nil) -> Int
+    public static func query (_ title: String, message: String, buttons: [String], width: Int? = nil, height: Int? = nil, completion: @escaping (_ result: Int) -> ())
     {
-        return query(title, message: message, buttons: buttons, useErrorColors: false)
+        query(title, message: message, buttons: buttons, useErrorColors: false, completion: completion)
     }
 
     /**
@@ -59,12 +69,12 @@ public class MessageBox {
      * - Parameter buttons: an array of strings that will be used for the buttons.   The first uppercase letter in each button becomes the hotkey
      * - Parameter width: optional desired width, if not specified, this is auto-computed
      * - Parameter height: optional desired heigh, if not specified, this is auot-computed
-     *
-     * - Returns: the index of the button selected, or -1 if the user pressed the ESC key.
+     * - Parameter completion: function to invoke when the user selects a result, the parameter is
+     *   the index of the button selected, or -1 if the user pressed the ESC key
      */
-    public static func error (_ title: String, message: String, buttons: [String], width: Int? = nil, height: Int? = nil) -> Int
+    public static func error (_ title: String, message: String, buttons: [String], width: Int? = nil, height: Int? = nil, completion: @escaping (_ result: Int) -> ())
     {
-        return query(title, message: message, buttons: buttons, useErrorColors: true)
+        query(title, message: message, buttons: buttons, useErrorColors: true, completion: completion)
     }
     
     /**
@@ -76,12 +86,12 @@ public class MessageBox {
      * - Parameter width: optional desired width, if not specified, this is auto-computed
      * - Parameter height: optional desired heigh, if not specified, this is auot-computed
      */
-    public static func info (_ title: String, message: String, width: Int? = nil, height: Int? = nil)
+    public static func info (_ title: String, message: String, width: Int? = nil, height: Int? = nil, completion: @escaping (_ result: Int) -> ())
     {
-        let _ = query(title, message: message, buttons: ["Ok"], useErrorColors: false)
+        query(title, message: message, buttons: ["Ok"], useErrorColors: false, completion: completion)
     }
 
-    static func query (_ title: String, message: String?, buttons: [String], width: Int? = nil, height: Int? = nil, useErrorColors: Bool) -> Int
+    static func query (_ title: String, message: String?, buttons: [String], width: Int? = nil, height: Int? = nil, useErrorColors: Bool, completion: @escaping (_ result: Int) -> ())
     {
         let textWidth = Label.maxWidth(text: message ?? "", width: width ?? INTPTR_MAX)
         var clicked = -1
@@ -106,19 +116,22 @@ public class MessageBox {
         } else {
             realHeight = height!
         }
-        let d = Dialog(title: title, width: realWidth, height: realHeight, buttons: [])
-        
-        var cancellables: [AnyCancellable] = []
-        
+        let d = MessageBoxDialog(title: title, width: realWidth, height: realHeight, buttons: [])
+        d.closedCallback = {
+            completion (-1)
+        }
         for s in buttons {
             let b = Button (s)
+            b.width = Dim.sized (s.count + 4)
+            var idx = count
             let c = b.clicked.sink { arg in
-                clicked = count
-                d.running = false
+                clicked = idx
+                Application.requestStop()
+                completion (clicked)
             }
             
             d.addButton(b)
-            cancellables.append (c)
+            d.cancellables.append (c)
             count += 1
         }
         
@@ -134,6 +147,5 @@ public class MessageBox {
         }
         
         Application.run (top: d)
-        return clicked
     }
 }

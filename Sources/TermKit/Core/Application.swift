@@ -157,7 +157,7 @@ public class Application {
             postProcessEvent()
         }
         log ("processKeyEvent: \(event)")
-        let toplevelCopy = toplevels
+        let toplevelCopy = toplevels.reversed()
         for top in toplevelCopy {
             if top.processHotKey(event: event) {
                 return

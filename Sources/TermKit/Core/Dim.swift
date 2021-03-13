@@ -12,7 +12,7 @@ import Foundation
  * Describes a dimension which can be an absolute value, a percentage, fill, or a reference to a dimension of another view
  *
  * To create a `Dim` object, you can choose from one of the following options:
- * - `Dim(n)` constructor creates an absolute dimension of size n
+ * - `Dim.sized(n)` creates an absolute dimension of size n
  * - `Dim.percent(n)` creates a dimension that reprensents the n% of the container
  * - `Dim.fill(margin)` creates a dimension that fills to the end of the container dimension, leaving the specified margin on the side
  * - `Dim.width(view)` and `Dim.heigh(view)` are used to reference the computed width or height of another view.
