@@ -159,7 +159,17 @@ if true {
     }
     radio.x = Pos.at (60)
     radio.y = Pos.at (10)
-    win.addSubviews([loginLabel, loginField, pass, passField, remember, rememberCount, b1, b2, radio])
+    
+    var items: [String] = []
+    for x in 0...100 { items.append ("List Item \(x)")}
+    
+    let list = ListView (items: items)
+    list.x = Pos.at(3)
+    list.y = Pos.at (18)
+    list.width = Dim.sized (40)
+    list.height = Dim.sized(3)
+    
+    win.addSubviews([loginLabel, loginField, pass, passField, remember, rememberCount, b1, b2, radio, list])
 }
 Application.top.addSubview(win)
 Application.top.addSubview(menu)

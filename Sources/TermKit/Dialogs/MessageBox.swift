@@ -113,7 +113,7 @@ public class MessageBox {
         for s in buttons {
             let b = Button (s)
             b.width = Dim.sized (s.count + 4)
-            let  idx = count
+            let idx = count
             b.clicked = { arg in
                 clicked = idx
                 Application.requestStop()

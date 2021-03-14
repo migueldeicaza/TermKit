@@ -761,7 +761,7 @@ public class TextView : View {
             return true
             
         default:
-            break
+            return false
         }
         return true
     }
