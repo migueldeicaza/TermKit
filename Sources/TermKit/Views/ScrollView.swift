@@ -18,11 +18,12 @@ import Foundation
  * arrow indicators are drawn.
  */
 public class ScrollBarView : View {
-    var vertical : Bool = false
-    var size : Int
+    var isVertical: Bool = false
+    var size: Int
+    var _position: Int
     
     /// This event is raised when the position on the scrollbar has changed.
-    public var changedPosition : ()->Void = {}
+    public var changedPosition : (_ sender: ScrollBarView, _ old: Int, _ new: Int)->Void = { x, y, z in }
     
     /**
      * Initializes the ScrollBarView
@@ -32,30 +33,46 @@ public class ScrollBarView : View {
      * - Parameter position: The position of the scrollbar within the size
      * - Parameter isVertical: whether this is a vertical or horizontal scrollbar
      */
-    public init (frame: Rect, size: Int, position: Int, isVertical: Bool)
+    public init (size: Int, position: Int, isVertical: Bool)
     {
-        self.position = position
+        self._position = position
         self.size = size
-        super.init (frame: frame)
+        super.init ()
+        wantContinuousButtonPressed = true
+    }
+    
+    func clampPosition (_ newPosition: Int) -> Int
+    {
+        let visibleSize = getBarSize ()
+        let maxSize = max (0, size-visibleSize)
+        if newPosition > maxSize {
+            return maxSize
+        } else {
+            return newPosition
+        }
     }
     
     /// The position to show the scrollbar at.
     public var position: Int {
-        didSet {
+        get {
+            return _position
+        }
+        set {
+            let clamped = clampPosition (newValue)
+            guard _position != newValue else {
+                return
+            }
+            let old = _position
+            _position = clamped
+            changedPosition (self, old, _position);
             setNeedsDisplay()
         }
-    }
-    
-    func setPosition (_ newPos: Int)
-    {
-        position = newPos
-        changedPosition ();
     }
     
     public override func redraw(region: Rect) {
         let paint = getPainter ()
         paint.attribute = colorScheme!.normal
-        if vertical {
+        if isVertical {
             if region.right < bounds.width - 1 {
                 return
             }
@@ -159,8 +176,8 @@ public class ScrollBarView : View {
         if event.flags != .button1Clicked {
             return false
         }
-        let location = vertical ? event.y : event.x
-        var  barsize = vertical ? bounds.height : bounds.width
+        let location = isVertical ? event.y : event.x
+        var barsize = getBarSize ()
         
         if barsize < 4 {
             // handle scrollbars with no buttons
@@ -171,11 +188,11 @@ public class ScrollBarView : View {
             let pos = position
             if location == 0 {
                 if pos > 0 {
-                    setPosition(pos - 1)
+                    position = pos - 1
                 }
             } else if location == barsize + 1 {
                 if pos + 1 + barsize < size {
-                    setPosition(pos + 1)
+                    position = pos + 1
                 }
             } else {
                 print ("Another todo at ScrollBarView.mouseevent")
@@ -184,10 +201,22 @@ public class ScrollBarView : View {
         return true
     }
     
+    func getBarSize () -> Int {
+        isVertical ? bounds.height : bounds.width
+    }
+    
     public override var debugDescription: String {
         return "ScrollView (\(super.debugDescription))"
     }
 }
+
+
+/// Scrollviews are views that present a window into a virtual space where
+/// subviews are added.  Similar to the iOS UIScrollView.
+///
+/// The subviews that are added to this `Gui.ScrollView` are offset by the
+/// ``contentOffset` property.  The view itself is a window into the
+/// space represented by the `contentSize`
 
 public class ScrollView : View {
     var contentView: View
@@ -198,13 +227,13 @@ public class ScrollView : View {
     public override init ()
     {
         contentView = View ()
-        vertical = ScrollBarView (frame: Rect.zero, size: 0, position: 0, isVertical: true)
-        horizontal = ScrollBarView (frame: Rect.zero, size: 0, position: 0, isVertical: true)
+        vertical = ScrollBarView (size: 0, position: 0, isVertical: true)
+        horizontal = ScrollBarView (size: 0, position: 0, isVertical: true)
         super.init()
-        horizontal.changedPosition = {
+        horizontal.changedPosition = { sender, old, new in
             
         }
-        vertical.changedPosition = {
+        vertical.changedPosition = { sender, old, new in
             
         }
         super.addSubview(contentView)

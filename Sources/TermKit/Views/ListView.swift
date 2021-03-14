@@ -232,7 +232,6 @@ public class ListView : View {
         default:
             return false
         }
-        return false
     }
     
     
