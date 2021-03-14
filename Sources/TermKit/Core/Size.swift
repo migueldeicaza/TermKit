@@ -8,34 +8,34 @@
 
 import Foundation
 
-public struct Size : CustomDebugStringConvertible, Codable, Equatable {
+public struct Size: CustomDebugStringConvertible, Codable, Equatable {
     var width = 0
     var height = 0
-    static public var empty : Size = Size (width: 0, height: 0)
+    static public var empty: Size = Size (width: 0, height: 0)
     public var IsEmpty : Bool {
         get {
             return width == 0 && height == 0
         }
     }
     
-    init (width : Int, height : Int)
+    public init (width: Int, height: Int)
     {
         self.width = width
         self.height = height
     }
     
-    init (point : Point)
+    public init (point: Point)
     {
         self.width = point.x
         self.height = point.y
     }
 
-    static func +(lhs: Size, rhs: Size) -> Size
+    public static func +(lhs: Size, rhs: Size) -> Size
     {
         return Size (width: lhs.width + rhs.width, height: lhs.width + rhs.width)
     }
 
-    static func -(lhs: Size, rhs: Size) -> Size
+    public static func -(lhs: Size, rhs: Size) -> Size
     {
         return Size (width: lhs.width - rhs.width, height: lhs.width - rhs.width)
     }

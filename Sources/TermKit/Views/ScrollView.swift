@@ -5,6 +5,7 @@
 //  Created by Miguel de Icaza on 4/28/19.
 //  Copyright © 2019 Miguel de Icaza. All rights reserved.
 //
+// ScrollView: should have three modes for showing the scrollbar: never, auto, always
 
 import Foundation
 
@@ -37,6 +38,7 @@ public class ScrollBarView : View {
     {
         self._position = position
         self.size = size
+        self.isVertical = isVertical
         super.init ()
         wantContinuousButtonPressed = true
     }
@@ -96,11 +98,11 @@ public class ScrollBarView : View {
                 
                 paint.goto(col: col, row: 0)
                 paint.add (rune: "^")
-                moveTo(col: col, row: bounds.height - 1)
+                paint.goto (col: col, row: bounds.height - 1)
                 paint.add (rune: "v");
             
                 for y in 0..<bh {
-                    moveTo(col: col, row: y+1)
+                    paint.goto(col: col, row: y+1)
                     
                     if y < by1 || y > by2 {
                         special = driver.stipple
@@ -117,6 +119,8 @@ public class ScrollBarView : View {
                             }
                         }
                     }
+                    // TESTING: use a darker stipple?
+                    special = "\u{2593}"
                     paint.add (rune: special);
                 }
             }
@@ -164,6 +168,8 @@ public class ScrollBarView : View {
                                 special = driver.hLine
                             }
                         }
+                        // TESTING: use a stronger shade?
+                        special = "\u{2593}"
                     }
                     paint.add (rune: special);
                 }
@@ -206,7 +212,7 @@ public class ScrollBarView : View {
     }
     
     public override var debugDescription: String {
-        return "ScrollView (\(super.debugDescription))"
+        return "ScrollBarView (\(super.debugDescription))"
     }
 }
 
@@ -228,7 +234,7 @@ public class ScrollView : View {
     {
         contentView = View ()
         vertical = ScrollBarView (size: 0, position: 0, isVertical: true)
-        horizontal = ScrollBarView (size: 0, position: 0, isVertical: true)
+        horizontal = ScrollBarView (size: 0, position: 0, isVertical: false)
         super.init()
         horizontal.changedPosition = { sender, old, new in
             
@@ -238,6 +244,35 @@ public class ScrollView : View {
         }
         super.addSubview(contentView)
         canFocus = true
+    }
+    
+    public override func redraw(region: Rect) {
+        super.redraw(region: region)
+    }
+    
+    public override func layoutSubviews () {
+        var f = bounds
+        
+        contentView.frame = Rect(
+            x: f.minX,
+            y: f.minY,
+            width: f.width-(_showsVerticalScrollIndicator ? 1 : 0),
+            height: f.height-(_showsHorizontalScrollIndicator ? 1 : 0))
+        try? contentView.layoutSubviews()
+        if _showsVerticalScrollIndicator {
+            vertical.frame = Rect (
+                x: f.maxX-1,
+                y: 0,
+                width: 1,
+                height: f.height)
+        }
+        if _showsHorizontalScrollIndicator {
+            horizontal.frame = Rect (
+                x: 0,
+                y: f.maxY-1,
+                width: f.width-1,
+                height: 1)
+        }
     }
     
     /// Represents the contents of the data shown inside the scrolview
@@ -306,15 +341,6 @@ public class ScrollView : View {
                 remove (vertical)
             }
         }
-    }
-    
-    public override func redraw(region: Rect) {
-        let oldClip = clipToBounds()
-        driver.setAttribute(colorScheme!.normal)
-        clear ()
-        super.redraw(region: region)
-        driver.clip = oldClip
-        driver.setAttribute(colorScheme!.normal)
     }
     
     public override func positionCursor() {

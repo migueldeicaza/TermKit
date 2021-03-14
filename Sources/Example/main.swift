@@ -13,6 +13,32 @@ import OpenCombine
 // So the debugger can attach
 sleep (1)
 
+class Filler: View {
+    public static let w = 40
+    public static let h = 50
+    
+    public override init () { super.init () }
+    public override func redraw(region: Rect) {
+        let p = getPainter()
+        p.clear()
+        let f = frame
+        for y in 0..<f.height {
+            p.goto(col: 0, row: y)
+            for x in 0..<f.width {
+                switch x % 3 {
+                case 0:
+                    p.add(str: ".")
+                case 1:
+                    p.add(str: "o")
+                case 2:
+                    p.add(str: "O")
+                default:
+                    abort ()
+                }
+            }
+        }
+    }
+}
 // Creates a nested editor
 func showEditor() {
     let ntop = Toplevel()
@@ -169,7 +195,22 @@ if true {
     list.width = Dim.sized (40)
     list.height = Dim.sized(3)
     
-    win.addSubviews([loginLabel, loginField, pass, passField, remember, rememberCount, b1, b2, radio, list])
+    let sv = ScrollView()
+    sv.x = Pos.at (70)
+    sv.y = Pos.at (2)
+    sv.width = Dim.sized(20)
+    sv.height = Dim.sized(10)
+    
+    sv.contentSize = Size(width: Filler.w, height: Filler.h)
+    sv.showVerticalScrollIndicator = true
+    sv.showHorizontalScrollIndicator = true
+    let fi = Filler()
+    fi.x = Pos.at(0)
+    fi.y = Pos.at(0)
+    fi.width = Dim.sized(Filler.w)
+    fi.height = Dim.sized (Filler.h)
+    sv.addSubview(fi)
+    win.addSubviews([loginLabel, loginField, pass, passField, remember, rememberCount, b1, b2, radio, list, sv])
 }
 Application.top.addSubview(win)
 Application.top.addSubview(menu)

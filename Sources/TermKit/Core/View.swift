@@ -716,7 +716,7 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
      *
      * - Parameter region: The region to redraw, this is relative to the view itself.
      */
-    public func redraw(region: Rect)
+    open func redraw(region: Rect)
     {
         let clipRect = Rect (origin: Point.zero, size: frame.size)
         for view in subviews {
@@ -1181,7 +1181,7 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
         case recursive(msg:String)
     }
     
-    public func layoutSubviews () throws
+    open func layoutSubviews () throws
     {
         if !layoutNeeded {
             return

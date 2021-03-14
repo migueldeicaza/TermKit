@@ -273,16 +273,16 @@ public class MenuBar: View {
     }
     
     public override func redraw(region: Rect) {
-        moveTo (col: 0, row: 0)
-        driver.setAttribute(Colors.base.focus)
-        for _ in 0..<frame.width {
-            driver.addRune(" ")
-        }
-        moveTo (col: 1, row: 0)
+        let p = getPainter()
+        p.goto(col: 0, row: 0)
+        p.attribute = Colors.base.focus
+        
+        p.add(str: " ".padding(toLength: frame.width, withPad: " ", startingAt: 0))
+        p.goto(col: 1, row: 0)
         var pos = 1
         for i in 0..<menus.count {
             let menu = menus [i]
-            moveTo(col: pos, row: 0)
+            p.goto(col: pos, row: 0)
             var hotColor, normalColor: Attribute
             if i == selected {
                 hotColor = colorScheme!.hotFocus
@@ -291,7 +291,7 @@ public class MenuBar: View {
                 hotColor = Colors.base.focus
                 normalColor = Colors.base.focus
             }
-            drawHotString(text: " " + menu.title + " " + "   ", hotColor: hotColor, normalColor: normalColor)
+            p.drawHotString(text: " " + menu.title + " " + "   ", hotColor: hotColor, normalColor: normalColor)
             pos += menu.titleLen + 3
         }
     }
