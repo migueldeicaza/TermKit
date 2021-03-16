@@ -23,6 +23,7 @@ class CursesDriver : ConsoleDriver {
     var needMove : Bool = false
     
     /// Turn this on to debug rendering problems, makes screen updates sync
+
     var sync : Bool = true
     var cursesWindow : OpaquePointer!
     
@@ -342,10 +343,22 @@ class CursesDriver : ConsoleDriver {
     
     func selectBwColors ()
     {
-        let base = ColorScheme(normal: Attribute (A_NORMAL), focus: Attribute(A_REVERSE), hotNormal: Attribute(A_BOLD), hotFocus: Attribute (A_BOLD | A_REVERSE))
-        let menu = ColorScheme(normal: Attribute (A_REVERSE), focus: Attribute (A_NORMAL), hotNormal: Attribute(A_BOLD), hotFocus: Attribute(A_NORMAL))
-        let dialog = ColorScheme(normal: Attribute(A_REVERSE), focus: Attribute(A_NORMAL), hotNormal: Attribute(A_BOLD), hotFocus: Attribute(A_NORMAL))
-        let error = ColorScheme(normal: Attribute(A_BOLD), focus: Attribute(A_BOLD|A_REVERSE), hotNormal: Attribute(A_BOLD|A_REVERSE), hotFocus: Attribute (A_REVERSE))
+        let base = ColorScheme(normal: Attribute (A_NORMAL),
+                               focus: Attribute(A_REVERSE),
+                               hotNormal: Attribute(A_BOLD),
+                               hotFocus: Attribute (A_BOLD | A_REVERSE))
+        let menu = ColorScheme(normal: Attribute (A_REVERSE),
+                               focus: Attribute (A_NORMAL),
+                               hotNormal: Attribute(A_BOLD),
+                               hotFocus: Attribute(A_NORMAL))
+        let dialog = ColorScheme(normal: Attribute(A_REVERSE),
+                                 focus: Attribute(A_NORMAL),
+                                 hotNormal: Attribute(A_BOLD),
+                                 hotFocus: Attribute(A_NORMAL))
+        let error = ColorScheme(normal: Attribute(A_BOLD),
+                                focus: Attribute(A_BOLD|A_REVERSE),
+                                hotNormal: Attribute(A_BOLD|A_REVERSE),
+                                hotFocus: Attribute (A_REVERSE))
         
         Colors._base = base
         Colors._menu = menu
@@ -366,35 +379,34 @@ class CursesDriver : ConsoleDriver {
     
     static var lastColorPair : Int16 = 16
     
-    func mkAttr (_ colors : (Int32, Int32), bold : Bool = false) -> Attribute
+    func encodeCursesAttribute (_ colors: (Int32, Int32), bold: Bool = false) -> Int32
     {
         CursesDriver.lastColorPair += 1
         init_pair(CursesDriver.lastColorPair, Int16(colors.0), Int16(colors.1))
-        return Attribute(Int32 (CursesDriver.lastColorPair * 256) | (bold ? A_BOLD : 0));
-
+        return Int32 (CursesDriver.lastColorPair * 256) | (bold ? A_BOLD : 0)
     }
     
     func selectColors ()
     {
-        let base = ColorScheme(normal:    mkAttr((COLOR_WHITE, COLOR_BLUE)),
-                               focus:     mkAttr((COLOR_BLACK,COLOR_CYAN)),
-                               hotNormal: mkAttr((COLOR_YELLOW, COLOR_BLUE), bold: true),
-                               hotFocus:  mkAttr((COLOR_YELLOW, COLOR_CYAN), bold: true))
+        let base = ColorScheme(normal:    makeAttribute(fore: .gray, back: .blue),
+                               focus:     makeAttribute(fore: .black, back: .cyan),
+                               hotNormal: makeAttribute(fore: .brightYellow, back: .blue),
+                               hotFocus:  makeAttribute(fore: .brightYellow, back: .cyan))
         
-        let menu = ColorScheme(normal:    mkAttr((COLOR_WHITE, COLOR_CYAN), bold: true),
-                               focus:     mkAttr((COLOR_WHITE,  COLOR_BLACK), bold: true),
-                               hotNormal: mkAttr((COLOR_YELLOW, COLOR_CYAN), bold: true),
-                               hotFocus:  mkAttr((COLOR_YELLOW,  COLOR_BLACK), bold: true))
+        let menu = ColorScheme(normal:    makeAttribute(fore: .white, back: .cyan),
+                               focus:     makeAttribute(fore: .white, back: .black),
+                               hotNormal: makeAttribute(fore: .brightYellow, back: .cyan),
+                               hotFocus:  makeAttribute(fore: .brightYellow, back: .black))
 
-        let dialog = ColorScheme(normal:    mkAttr((COLOR_BLACK, COLOR_WHITE)),
-                                 focus:     mkAttr((COLOR_BLACK,COLOR_CYAN)),
-                                 hotNormal: mkAttr((COLOR_BLUE, COLOR_WHITE)),
-                                 hotFocus:  mkAttr((COLOR_BLUE, COLOR_CYAN)))
+        let dialog = ColorScheme(normal:    makeAttribute(fore: .black, back: .gray),
+                                 focus:     makeAttribute(fore: .black, back: .cyan),
+                                 hotNormal: makeAttribute(fore: .blue, back: .gray),
+                                 hotFocus:  makeAttribute(fore: .blue, back: .cyan))
         
-        let error = ColorScheme(normal:   mkAttr((COLOR_WHITE, COLOR_RED), bold: true),
-                               focus:     mkAttr((COLOR_BLACK, COLOR_WHITE)),
-                               hotNormal: mkAttr((COLOR_YELLOW, COLOR_RED), bold: true),
-                               hotFocus:  mkAttr((COLOR_YELLOW, COLOR_RED), bold: true))
+        let error = ColorScheme(normal:   makeAttribute(fore: .white, back: .red),
+                                focus:     makeAttribute(fore: .black, back: .white),
+                                hotNormal: makeAttribute(fore: .brightYellow, back: .red),
+                                hotFocus:  makeAttribute(fore: .brightYellow, back: .red))
      
         Colors._base = base
         Colors._menu = menu
@@ -402,50 +414,112 @@ class CursesDriver : ConsoleDriver {
         Colors._error = error
     }
     
+    // Maps a color to an ncurses value, and indicates whether we should flip the bold flag
+    // (curses bright colors are achieved by adding the A_BOLD property to it)
     func mapColor (_ color: Color) -> (Int32, Bool)
     {
         switch color {
-        case .Black:
+        case .black:
             return (COLOR_BLACK, false)
-        case .Blue:
+        case .blue:
             return (COLOR_BLUE, false)
-        case .Green:
+        case .green:
             return (COLOR_GREEN, false)
-        case .Cyan:
+        case .cyan:
             return (COLOR_CYAN, false)
-        case .Red:
+        case .red:
             return (COLOR_RED, false)
-        case .Magenta:
+        case .magenta:
             return (COLOR_MAGENTA, false)
-        case .Brown:
+        case .brown:
             return (COLOR_YELLOW, false)
-        case .Gray:
+        case .gray:
             return (COLOR_WHITE, false)
-        case .DarkGray:
+        case .darkGray:
             return (COLOR_BLACK, true)
-        case .BrightBlue:
+        case .brightBlue:
             return (COLOR_BLUE, true)
-        case .BrightGreen:
+        case .brightGreen:
             return (COLOR_GREEN, true)
-        case .BrightCyan:
+        case .brightCyan:
             return (COLOR_CYAN, true)
-        case .BrightRed:
+        case .brightRed:
             return (COLOR_RED, true)
-        case .BrightMagenta:
+        case .brightMagenta:
             return (COLOR_MAGENTA, true)
-        case .BrightYellow:
+        case .brightYellow:
             return (COLOR_YELLOW, true)
-        case .White:
+        case .white:
             return (COLOR_WHITE, true)
+        case .rgb(_, _, _):
+            print ("Unsupported .rgb(color)")
+            abort()
         }
     }
     
-    public override func makeAttribute(fore: Color, back: Color) -> Attribute
+    func cellFlagsToCurses (flags: CellFlags) -> Int32 {
+        if flags == [] { return 0 }
+        var res: Int32 = 0
+        if flags.contains(.blink) {
+            res |= A_BLINK
+        }
+        if flags.contains (.bold) {
+            res |= A_BOLD
+        }
+        if flags.contains (.dim) {
+            res |= A_DIM
+        }
+        if flags.contains (.invert) {
+            res |= A_REVERSE
+        }
+        if flags.contains (.standout) {
+            res |= A_STANDOUT
+        }
+        if flags.contains (.underline) {
+            res |= A_UNDERLINE
+        }
+        return res
+    }
+    struct AttrDef: Hashable {
+        var fore: Color
+        var back: Color
+        var flags: CellFlags
+    }
+    // Old curses versions have a limit on the number of colors to create
+    // so we need to keep them around
+    var colorToAttribute: [AttrDef:Attribute] = [:]
+    
+    public override func makeAttribute(fore: Color, back: Color, flags: CellFlags = []) -> Attribute
     {
+        let attrDef = AttrDef(fore: fore, back: back, flags: flags)
+        if let v = colorToAttribute [attrDef] {
+            return v
+        }
         let (fa, bold) = mapColor (fore)
         let (ba, _) = mapColor (back)
+        let cursesAttr = encodeCursesAttribute((fa, ba), bold: bold)
         
-        return mkAttr ((fa, ba), bold: bold)
+        let attr = Attribute(cursesAttr | cellFlagsToCurses(flags: flags), foreground: fore, background: back)
+        colorToAttribute [attrDef] = attr
+        return attr
+    }
+    
+    public override func change (_ attribute: Attribute, foreground: Color) -> Attribute {
+        // Returns a new attribute with the modified foreground, if it is not possible
+        // due to the B&W default curses settings, we default to black background
+        if let back = attribute.back {
+            return makeAttribute(fore: foreground, back: back)
+        }
+        return makeAttribute(fore: foreground, back: .black)
+    }
+
+    public override func change (_ attribute: Attribute, background: Color) -> Attribute {
+        // Returns a new attribute with the modified background, if it is not possible
+        // due to the B&W default curses settings, we default to grey foreground
+        if let fore = attribute.fore {
+            return makeAttribute(fore: fore, back: background)
+        }
+        return makeAttribute(fore: .gray, back: background)
     }
     
     // Set when the method setAttribute is called

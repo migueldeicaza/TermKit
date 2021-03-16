@@ -20,7 +20,7 @@ public class Painter {
     public private(set) var row: Int
     
     /// The attribute used to draw
-    public var attribute: Attribute? {
+    public var attribute: Attribute {
         didSet {
             attrSet = false
         }
@@ -32,6 +32,7 @@ public class Painter {
     init (from view: View)
     {
         self.view = view
+        attribute = view.colorScheme!.normal
         col = 0
         row = 0
     }
@@ -88,7 +89,7 @@ public class Painter {
             posSet = true
         }
         if !attrSet {
-            Application.driver.setAttribute(attribute ?? view.colorScheme.normal)
+            Application.driver.setAttribute(attribute)
             attrSet = true
         }
     }
@@ -130,7 +131,19 @@ public class Painter {
             add (rune: uscalar, bounds: bounds, driver: driver)
         }
     }
-    
+
+    public func add (ch: Character)
+    {
+        let strScalars = ch.unicodeScalars
+        let bounds = view.bounds
+        let driver = Application.driver
+        
+        applyContext ()
+        for uscalar in strScalars {
+            add (rune: uscalar, bounds: bounds, driver: driver)
+        }
+    }
+
     public func add (rune: UnicodeScalar)
     {
         add (str: String (rune))

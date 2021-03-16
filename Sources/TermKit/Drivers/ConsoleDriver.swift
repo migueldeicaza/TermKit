@@ -17,25 +17,79 @@ public typealias rune = UnicodeScalar
  * Basic colors that can be used to set the foreground and background colors in console applications,
  * these can be used as parameters for creating Attributes.
  */
-public enum Color {
-    case Black
-    case Blue
-    case Green
-    case Cyan
-    case Red
-    case Magenta
-    case Brown
-    case Gray
-    case DarkGray
-    case BrightBlue
-    case BrightGreen
-    case BrightCyan
-    case BrightRed
-    case BrightMagenta
-    case BrightYellow
-    case White
+public enum Color: Hashable {
+    case black
+    case blue
+    case green
+    case cyan
+    case red
+    case magenta
+    case brown
+    case gray
+    case darkGray
+    case brightBlue
+    case brightGreen
+    case brightCyan
+    case brightRed
+    case brightMagenta
+    case brightYellow
+    case white
+    
+    // Currently unused, but maybe in the future - and forces some codepaths to handle it
+    case rgb(Int,Int,Int)
+    
+    public static func parse (_ name: String) -> Color? {
+        switch name {
+        case "black":
+            return .black
+        case "blue":
+            return .blue
+        case "green":
+            return .green
+        case "cyan":
+            return .cyan
+        case "red":
+            return .red
+        case "magenta":
+            return .magenta
+        case "brown":
+            return .brown
+        case "gray":
+            return .gray
+        case "darkGray":
+            return .darkGray
+        case "brightBlue":
+            return .brightBlue
+        case "brightGreen":
+            return .brightGreen
+        case "brightCyan":
+            return .brightCyan
+        case "brightRed":
+            return .brightRed
+        case "brightMagenta":
+            return .brightMagenta
+        case "brightYellow":
+            return .brightYellow
+        case "white":
+            return .white
+        default:
+            return nil
+        }
+    }
 }
 
+/// Describes the flags that can control with additional terminal capabilities for rendering text
+public struct CellFlags: OptionSet, Hashable {
+    public let rawValue: Int8
+    public init (rawValue: Int8) { self.rawValue = rawValue }
+    static let bold      = CellFlags (rawValue: 1 << 0)
+    static let underline = CellFlags (rawValue: 1 << 1)
+    static let dim       = CellFlags (rawValue: 1 << 2)
+    static let standout  = CellFlags (rawValue: 1 << 3)
+    static let blink     = CellFlags (rawValue: 1 << 4)
+    static let invert    = CellFlags (rawValue: 1 << 5)
+
+}
 /**
  * Attributes are used as elements that contain both a foreground and a background or platform specific features.
  *
@@ -47,16 +101,31 @@ public enum Color {
  * and they are also used by views directly when they defined their own attributes.
  */
 public struct Attribute {
+    var fore, back: Color?
+    var flags: CellFlags
     var value: Int32
     
-    public init (_ val: Int32)
+    init (_ value: Int32, foreground: Color? = nil, background: Color? = nil, flags: CellFlags = [])
     {
-        value = val
+        self.value = value
+        self.fore = foreground
+        self.back = background
+        self.flags = flags
     }
     
-    public static func make (fore : Color, back : Color) -> Attribute
-    {
-        return Application.driver.makeAttribute(fore: fore, back: back);
+    /// Returns an attribute with the foreground element changed
+    public func change (foreground: Color) -> Attribute {
+        Application.driver.change (self, foreground: foreground)
+    }
+
+    /// Returns an attribute with the background element changed
+    public func change (background: Color) -> Attribute {
+        Application.driver.change (self, background: background)
+    }
+    
+    /// Returns an attribute with the cell flags changed
+    public func change (flags: CellFlags) -> Attribute {
+        Application.driver.change (self, flags: flags)
     }
 }
 
@@ -269,11 +338,23 @@ public class ConsoleDriver {
     /**
      * This method takes the platform-agnostic Color enumeration for foreground and background and produces an attribute
      */
-    public func makeAttribute (fore: Color, back: Color) -> Attribute
+    public func makeAttribute (fore: Color, back: Color, flags: CellFlags = []) -> Attribute
     {
-        return Attribute(0)
+        return Attribute(0, foreground: fore, background: back, flags: flags)
     }
     
+    func change (_ attribute: Attribute, foreground: Color) -> Attribute {
+        return attribute
+    }
+
+    func change (_ attribute: Attribute, background: Color) -> Attribute {
+        return attribute
+    }
+
+    func change (_ attribute: Attribute, flags: CellFlags) -> Attribute {
+        return attribute
+    }
+
     /**
      * Enumeration describing the kind of colors available to the application that range from black and white to a complete user-settable palette of colors
      */

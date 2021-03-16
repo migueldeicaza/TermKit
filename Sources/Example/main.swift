@@ -114,6 +114,12 @@ if maybe {
 var e: AnyCancellable
 
 if true {
+    let test = MarkupView ("[red]red[/],[green]green[/],[blue]blue[/],[underline]underline[/],[green on black]green on black[/]")
+    test.x = Pos.at (1)
+    test.y = Pos.at (1)
+    test.width = Dim.sized (60)
+    test.height = Dim.sized (1)
+    
     let loginLabel = Label ("Login:")
     loginLabel.x = Pos.at (10)
     loginLabel.y = Pos.at (10)
@@ -210,7 +216,7 @@ if true {
     fi.width = Dim.sized(Filler.w)
     fi.height = Dim.sized (Filler.h)
     sv.addSubview(fi)
-    win.addSubviews([loginLabel, loginField, pass, passField, remember, rememberCount, b1, b2, radio, list, sv])
+    win.addSubviews([loginLabel, loginField, pass, passField, remember, rememberCount, b1, b2, radio, list, sv, test])
 }
 Application.top.addSubview(win)
 Application.top.addSubview(menu)
