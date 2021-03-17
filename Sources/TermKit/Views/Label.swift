@@ -147,12 +147,11 @@ public class Label : View {
         Label.recalc (text, lineResult: &lines, width: frame.width, align: textAlignment)
     }
     
-    public override func redraw(region: Rect) {
+    public override func redraw(region: Rect, painter: Painter) {
         if recalcPending {
             recalc ()
         }
 
-        let painter = getPainter()
         painter.attribute = textAttribute ?? colorScheme.normal
         painter.clear ()
         painter.goto(col: 0, row: 0)

@@ -28,7 +28,7 @@ public struct Rect: CustomDebugStringConvertible, Codable, Equatable {
     
     public init (left: Int, top: Int, right: Int, bottom: Int)
     {
-        origin = Point(x: left, y: right)
+        origin = Point(x: left, y: top)
         size = Size (width: right-left, height: bottom-top)
     }
     
@@ -112,8 +112,16 @@ public struct Rect: CustomDebugStringConvertible, Codable, Equatable {
 
     public func intersection (_ rect2: Rect) -> Rect
     {
-        return Rect (left: max (origin.x, rect2.origin.x), top: max (origin.y, rect2.origin.y),
-                     right: min (right, rect2.right), bottom: min (bottom, rect2.bottom))
+        let left = max (origin.x, rect2.origin.x)
+        let right = min (self.right, rect2.right)
+        let top = max (origin.y, rect2.origin.y)
+        let bottom = min (self.bottom, rect2.bottom)
+        
+        if right >= left && bottom >= top {
+            return Rect (left: left, top: top, right: right, bottom: bottom)
+        } else {
+            return Rect.zero
+        }
     }
     
     public func intersects (_ rect2: Rect) -> Bool
@@ -123,7 +131,7 @@ public struct Rect: CustomDebugStringConvertible, Codable, Equatable {
     
     public func contains (x: Int, y: Int) -> Bool
     {
-        return x >= left && x <= right && y >= top && y <= bottom
+        return x >= left && x < right && y >= top && y < bottom
     }
     
     public func contains (_ point: Point) -> Bool

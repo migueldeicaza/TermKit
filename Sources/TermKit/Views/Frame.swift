@@ -50,9 +50,8 @@ public class FrameView : View {
     // TODO: implement remove
     // TODO: implement removeAll
     
-    public override func redraw(region: Rect) {
+    public override func redraw(region: Rect, painter: Painter) {
         if !needDisplay.isEmpty {
-            let painter = getPainter ()
             painter.attribute = colorScheme!.normal
             painter.drawFrame (bounds, padding: 0, fill: true)
             if hasFocus {
@@ -68,7 +67,7 @@ public class FrameView : View {
             }
             painter.attribute = colorScheme!.normal
         }
-        contentView.redraw(region: contentView.bounds)
+        contentView.redraw(region: contentView.bounds, painter: Painter (from: contentView, parent: painter))
         clearNeedsDisplay()
     }
     

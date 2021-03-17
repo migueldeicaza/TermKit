@@ -66,24 +66,23 @@ public class ProgressBar : View {
         setNeedsDisplay()
     }
     
-    public override func redraw(region: Rect) {
-        let paint = getPainter ()
-        paint.attribute = colorScheme!.normal
+    public override func redraw(region: Rect, painter: Painter) {
+        painter.attribute = colorScheme!.normal
         
         let top = frame.width
         if isActivity {
-            paint.goto(col: 0, row: 0)
+            painter.goto(col: 0, row: 0)
             for i in 0..<top {
-                paint.add (rune: i == activityPos ? driver.stipple : driver.space)
+                painter.add (rune: i == activityPos ? driver.stipple : driver.space)
             }
         } else {
-            paint.goto(col: 0, row: 0)
+            painter.goto(col: 0, row: 0)
             let mid = Int (fraction * Float (top))
             for _ in 0..<mid {
-                paint.add(rune: driver.stipple)
+                painter.add(rune: driver.stipple)
             }
             for _ in mid..<top {
-                paint.add (rune: driver.space)
+                painter.add (rune: driver.space)
             }
         }
     }

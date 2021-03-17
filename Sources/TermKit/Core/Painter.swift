@@ -19,6 +19,9 @@ public class Painter {
     /// The current drawing row
     public private(set) var row: Int
     
+    public var origin: Point
+    public var visible: Rect
+    
     /// The attribute used to draw
     public var attribute: Attribute {
         didSet {
@@ -29,12 +32,39 @@ public class Painter {
     var posSet = false
     var attrSet = false
     
-    init (from view: View)
+    private init (from view: View)
+    {
+        self.view = view
+        attribute = view.colorScheme!.normal
+        origin = view.frame.origin
+        visible = view.bounds
+        
+        col = 0
+        row = 0
+    }
+    
+    /// Use this method to create a root painter, only used internally in general,
+    /// in general, you will want to call the public constructor that takes a parent
+    /// painter argument, unless you are at the root view.
+    /// - Parameter view: the view to create the painter for
+    public static func createRootPainter (from view: View) -> Painter
+    {
+        return Painter (from: view)
+    }
+    
+    /// Creates a new painter for the specified view, use this method when you want to create a painter to pass to
+    /// the child view `view`, when you are in a redraw method, and you have been given the `parent` painter
+    ///
+    /// This creates the nested painter
+    public init (from view: View, parent: Painter)
     {
         self.view = view
         attribute = view.colorScheme!.normal
         col = 0
         row = 0
+        
+        origin = parent.origin + view.frame.origin
+        visible = parent.visible.intersection(Rect (origin: origin, size: view.bounds.size))
     }
     
     deinit {
@@ -84,8 +114,13 @@ public class Painter {
     func applyContext ()
     {
         if !posSet {
-            let (rcol, rrow) = view.viewToScreen(col: col, row: row)
-            Application.driver.moveTo(col: rcol, row: rrow)
+            //let (rcol, rrow) = view.viewToScreen(col: col, row: row)
+            //Application.driver.moveTo(col: rcol, row: rrow)
+            let cursor = Point (x: col + origin.x, y: row + origin.y)
+            if visible.contains(cursor) {
+                Application.driver.moveTo(col: cursor.x, row: cursor.y)
+            }
+            
             posSet = true
         }
         if !attrSet {

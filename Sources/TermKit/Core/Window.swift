@@ -64,12 +64,10 @@ public class Window : Toplevel {
     
     // TODO: removeAll
     
-    public override func redraw(region: Rect) {
+    public override func redraw(region: Rect, painter p: Painter) {
         //log ("Window.redraw: \(frame) and region to redraw is: \(region)")
         
         if !needDisplay.isEmpty {
-            
-            let p = getPainter ()
             p.attribute = colorScheme!.normal
             p.drawFrame (bounds, padding: padding, fill: true)
             
@@ -86,7 +84,7 @@ public class Window : Toplevel {
             }
             p.attribute = colorScheme!.normal
         }
-        contentView.redraw(region: contentView.bounds)
+        contentView.redraw(region: contentView.bounds, painter: Painter (from: contentView, parent: p))
         clearNeedsDisplay()
     }
     

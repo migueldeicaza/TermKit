@@ -106,8 +106,7 @@ public class Button : View {
         setNeedsDisplay()
     }
     
-    public override func redraw(region: Rect) {
-        let painter = getPainter()
+    public override func redraw(region: Rect, painter: Painter) {
         painter.attribute = hasFocus ? colorScheme!.focus : colorScheme!.normal
         painter.goto(col: 0, row: 0)
         painter.add(str: shownText)

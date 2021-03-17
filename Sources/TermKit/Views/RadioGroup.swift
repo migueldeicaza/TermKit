@@ -98,10 +98,9 @@ public class RadioGroup: View {
         canFocus = true
     }
     
-    public override func redraw(region: Rect) {
-        let paint = getPainter ()
-        paint.attribute = colorScheme!.normal
-        paint.clear()
+    public override func redraw(region: Rect, painter: Painter) {
+        painter.attribute = colorScheme!.normal
+        painter.clear()
         
         switch  orientation {
         case .horizontal:
@@ -110,11 +109,11 @@ public class RadioGroup: View {
             break
         case .vertical:
             for line in 0..<radioLabels.count {
-                paint.goto(col: 0, row: line)
+                painter.goto(col: 0, row: line)
 
-                paint.attribute = hasFocus && (line == cursor) ? colorScheme.focus : colorScheme.normal
-                paint.add(str: line == selected ? "(x) " : "( ) ")
-                paint.drawHotString(
+                painter.attribute = hasFocus && (line == cursor) ? colorScheme.focus : colorScheme.normal
+                painter.add(str: line == selected ? "(x) " : "( ) ")
+                painter.drawHotString(
                     text: radioLabels[line],
                     focused: hasFocus && line == cursor,
                     scheme: colorScheme!)

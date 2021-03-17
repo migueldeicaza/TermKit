@@ -194,9 +194,7 @@ public class ListView : View {
         }
     }
     
-    public override func redraw(region: Rect) {
-        let painter = getPainter()
-        
+    public override func redraw(region: Rect, painter: Painter) {
         let n = dataSource.getCount (listView: self)
         let b = bounds
         let lines = bounds.height

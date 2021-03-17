@@ -613,12 +613,6 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
         driver.moveTo(col: rcol, row: rrow)
     }
     
-    /// Returns a drawing context for this view which can be used to draw into the view's surface
-    public func getPainter () -> Painter
-    {
-        return Painter(from: self)
-    }
-    
     /**
      * Positions the cursor in the right position based on the currently focused view in the chain.
      */
@@ -716,14 +710,15 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
      *
      * - Parameter region: The region to redraw, this is relative to the view itself.
      */
-    open func redraw(region: Rect)
+    open func redraw(region: Rect, painter: Painter)
     {
         let clipRect = Rect (origin: Point.zero, size: frame.size)
         for view in subviews {
             if !view.needDisplay.isEmpty || view._childNeedsDisplay {
                 if view.frame.intersects(clipRect) && view.frame.intersects(region){
                     // TODO: optimize this by computing the intersection of region and view.Bounds
-                    view.redraw (region: view.bounds)
+                    let childPainter = Painter (from: view, parent: painter)
+                    view.redraw (region: view.bounds, painter: childPainter)
                 }
                 view.needDisplay = Rect.zero
                 view._childNeedsDisplay = false

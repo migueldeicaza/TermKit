@@ -146,7 +146,7 @@ public class Menu : View {
         canFocus = true
     }
     
-    public override func redraw(region: Rect) {
+    public override func redraw(region: Rect, painter: Painter) {
         driver.setAttribute(colorScheme!.normal)
         drawFrame(region, padding: 0, fill: true)
         
@@ -272,8 +272,7 @@ public class MenuBar: View {
         colorScheme = Colors.menu
     }
     
-    public override func redraw(region: Rect) {
-        let p = getPainter()
+    public override func redraw(region: Rect, painter p: Painter) {
         p.goto(col: 0, row: 0)
         p.attribute = Colors.base.focus
         

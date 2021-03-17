@@ -144,7 +144,7 @@ public class Application {
         var last : View? = nil
         for v in toplevels {
             v.setNeedsDisplay()
-            v.redraw(region: v.bounds)
+            v.redraw(region: v.bounds, painter: Painter.createRootPainter (from: v))
             last = v
         }
         last?.positionCursor()
@@ -368,7 +368,8 @@ public class Application {
     
     static func redrawView (_ view: View)
     {
-        view.redraw(region: view.bounds)
+        let painter = Painter.createRootPainter (from: view)
+        view.redraw(region: view.bounds, painter: painter)
         driver.refresh()
     }
     
@@ -405,7 +406,7 @@ public class Application {
     {
         if let c = current {
             if !c.needDisplay.isEmpty || c._childNeedsDisplay {
-                c.redraw (region: c.bounds)
+                c.redraw (region: c.bounds, painter: Painter.createRootPainter (from: c))
                 if debugDrawBounds {
                     drawBounds (c)
                 }

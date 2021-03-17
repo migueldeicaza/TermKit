@@ -71,8 +71,7 @@ public class ScrollBarView : View {
         }
     }
     
-    public override func redraw(region: Rect) {
-        let paint = getPainter ()
+    public override func redraw(region: Rect, painter paint: Painter) {
         paint.attribute = colorScheme!.normal
         if isVertical {
             if region.right < bounds.width - 1 {
@@ -118,9 +117,9 @@ public class ScrollBarView : View {
                                 special = driver.vLine
                             }
                         }
+                        // TESTING: use a darker stipple?
+                        special = "\u{2593}"
                     }
-                    // TESTING: use a darker stipple?
-                    special = "\u{2593}"
                     paint.add (rune: special);
                 }
             }
@@ -216,6 +215,19 @@ public class ScrollBarView : View {
     }
 }
 
+class _ContentView: View {
+    var scrollView: ScrollView
+    init (scrollView: ScrollView)
+    {
+        self.scrollView = scrollView
+        super.init()
+    }
+    
+    public override func redraw(region: Rect, painter: Painter) {
+        
+        super.redraw(region: region, painter: painter)
+    }
+}
 
 /// Scrollviews are views that present a window into a virtual space where
 /// subviews are added.  Similar to the iOS UIScrollView.
@@ -233,21 +245,24 @@ public class ScrollView : View {
     public override init ()
     {
         contentView = View ()
+        contentView.canFocus = true
         vertical = ScrollBarView (size: 0, position: 0, isVertical: true)
         horizontal = ScrollBarView (size: 0, position: 0, isVertical: false)
         super.init()
         horizontal.changedPosition = { sender, old, new in
-            
+            self.contentOffset = Point(x: new, y: self.contentOffset.y)
         }
         vertical.changedPosition = { sender, old, new in
-            
+            self.contentOffset = Point(x: self.contentOffset.x, y: new)
         }
         super.addSubview(contentView)
         canFocus = true
     }
     
-    public override func redraw(region: Rect) {
-        super.redraw(region: region)
+    public override func redraw(region: Rect, painter: Painter) {
+        //let oldClip = clipToBounds()
+        super.redraw(region: region, painter: painter)
+        //driver.clip = oldClip
     }
     
     public override func layoutSubviews () {

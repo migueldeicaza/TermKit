@@ -284,8 +284,7 @@ public class TextView : View {
         setNeedsDisplay()
     }
     
-    public override func redraw(region: Rect) {
-        let p = getPainter ()
+    public override func redraw(region: Rect, painter p: Painter) {
         p.colorNormal()
         let bottom = region.bottom
         let right = region.right

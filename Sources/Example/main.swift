@@ -18,8 +18,8 @@ class Filler: View {
     public static let h = 50
     
     public override init () { super.init () }
-    public override func redraw(region: Rect) {
-        let p = getPainter()
+    
+    public override func redraw(region: Rect, painter p: Painter) {
         p.clear()
         let f = frame
         for y in 0..<f.height {
