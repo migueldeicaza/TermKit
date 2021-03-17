@@ -12,6 +12,7 @@ import Foundation
  * during the View's draw method, it enforced clipping on the view bounds.
  */
 public class Painter {
+    var driver: ConsoleDriver
     var view: View
     
     /// The current drawing column
@@ -19,7 +20,10 @@ public class Painter {
     /// The current drawing row
     public private(set) var row: Int
     
+    // The origin for this painter, describes the offset in global coordinates
     public var origin: Point
+    
+    // The visible region in the screen, in global coordinates
     public var visible: Rect
     
     /// The attribute used to draw
@@ -38,7 +42,7 @@ public class Painter {
         attribute = view.colorScheme!.normal
         origin = view.frame.origin
         visible = view.bounds
-        
+        driver = Application.driver
         col = 0
         row = 0
     }
@@ -62,6 +66,7 @@ public class Painter {
         attribute = view.colorScheme!.normal
         col = 0
         row = 0
+        driver = Application.driver
         
         origin = parent.origin + view.frame.origin
         visible = parent.visible.intersection(Rect (origin: origin, size: view.bounds.size))
@@ -114,31 +119,30 @@ public class Painter {
     func applyContext ()
     {
         if !posSet {
-            //let (rcol, rrow) = view.viewToScreen(col: col, row: row)
-            //Application.driver.moveTo(col: rcol, row: rrow)
             let cursor = Point (x: col + origin.x, y: row + origin.y)
             if visible.contains(cursor) {
-                Application.driver.moveTo(col: cursor.x, row: cursor.y)
+                driver.moveTo(col: cursor.x, row: cursor.y)
             }
             
             posSet = true
         }
         if !attrSet {
-            Application.driver.setAttribute(attribute)
+            driver.setAttribute(attribute)
             attrSet = true
         }
     }
     
-    func add (rune: UnicodeScalar, bounds: Rect, driver: ConsoleDriver)
+    func add (rune: UnicodeScalar, bounds: Rect)
     {
         if rune.value == 10 {
             col = 0
             row += 1
             return
         }
-        if row > bounds.height {
+        if !visible.contains(Point (x: col, y: row)+origin) {
             return
         }
+        
         let len = Int32 (wcwidth(wchar_t (bitPattern: rune.value)))
         let npos = col + Int (len)
         
@@ -159,11 +163,10 @@ public class Painter {
     {
         let strScalars = str.unicodeScalars
         let bounds = view.bounds
-        let driver = Application.driver
         
         applyContext ()
         for uscalar in strScalars {
-            add (rune: uscalar, bounds: bounds, driver: driver)
+            add (rune: uscalar, bounds: bounds)
         }
     }
 
@@ -171,11 +174,10 @@ public class Painter {
     {
         let strScalars = ch.unicodeScalars
         let bounds = view.bounds
-        let driver = Application.driver
         
         applyContext ()
         for uscalar in strScalars {
-            add (rune: uscalar, bounds: bounds, driver: driver)
+            add (rune: uscalar, bounds: bounds)
         }
     }
 
@@ -191,49 +193,111 @@ public class Painter {
     {
         clear (view.frame)
     }
-    
+
+    /// Clears the specified region in painter coordinates
+    /// - Parameter rect: the region to clear, the coordinates are relative to the view
     public func clear (_ rect: Rect)
     {
-        //let driver = Application.driver
         let h = rect.height
         
         let lstr = String (repeating: " ", count: rect.width)
         
         for line in 0..<h {
             goto (col: rect.minX, row: line)
-            
-            // OPTIMIZATION: if the driver clips, we could call the driver directly, as we know the string is spaces
-            // and wont have any odd sizing issues
+
             add (str: lstr)
         }
     }
     
-    /// Clears a region of the view with spaces
+    /// Clears a region of the view with spaces, the parameter are in view coordinates
+    /// - Parameters:
+    ///   - left: Left column
+    ///   - top: Top row
+    ///   - right: Right column
+    ///   - bottom: Bottom row
     func clearRegion (left: Int, top: Int, right: Int, bottom: Int)
     {
-        //let driver = Application.driver
         let lstr = String (repeating: " ", count: right-left)
         for row in top..<bottom {
             goto(col: left, row: row)
-            // OPTIMIZATION: if the driver clips, we could call the driver directly, as we know the string is spaces
-            // and wont have any odd sizing issues
             add (str: lstr)
         }
     }
 
     /**
      * Draws a frame on the specified region with the specified padding around the frame.
-     * - Parameter region: Region where the frame will be drawn, in view coordinates
+     * - Parameter region: Region where the frame will be drawn.
      * - Parameter padding: Padding to add on the sides
      * - Parameter fill: If set to `true` it will clear the contents with the current color, otherwise the contents will be left untouched.
      */
     public func drawFrame (_ region: Rect, padding : Int, fill : Bool)
     {
-        applyContext ()
-        let (rcol, rrow) = view.viewToScreen(col: region.minX, row: region.minY)
-        let globalRegion = Rect(origin: Point (x: rcol, y: rrow),
-                                size: region.size)
-        Application.driver.drawFrame (globalRegion, padding: padding, fill: fill)
+        let width = region.width;
+        let height = region.height;
+
+        let fwidth = width - padding * 2;
+        let fheight = height - 1 - padding;
+        
+        goto(col: region.minX, row: region.minY)
+        
+        if (padding > 0) {
+            for _ in 0..<padding {
+                for _ in 0..<width {
+                    add (ch: " ")
+                }
+            }
+        }
+        goto (col: region.minX, row: region.minY + padding);
+        for _ in 0..<padding {
+            add (ch: " ")
+        }
+        add (rune: driver.ulCorner)
+        for _ in 0..<(fwidth-2) {
+            add (rune: driver.hLine);
+        }
+        add (rune: driver.urCorner);
+        for _ in 0..<padding {
+            add (ch: " ")
+        }
+        
+        for b in (1+padding)..<fheight {
+            goto (col: region.minX, row: region.minY + b);
+            for _ in 0..<padding {
+                add (ch: " ")
+            }
+            add (rune: driver.vLine);
+            if fill {
+                for _ in 1..<(fwidth-1){
+                    add (ch: " ")
+                }
+            } else {
+                goto (col: region.minX + fwidth - 1, row: region.minY + b)
+            }
+            add (rune: driver.vLine);
+            for _ in 0..<padding {
+                add (ch: " ")
+            }
+        }
+        goto (col: region.minX, row: region.minY + fheight)
+        for _ in 0..<padding {
+            add (ch: " ")
+        }
+        add (rune: driver.llCorner);
+        for _ in 0..<(fwidth - 2) {
+            add (rune: driver.hLine);
+        }
+        add (rune: driver.lrCorner);
+        for _ in 0..<padding {
+            add (ch: " ")
+        }
+        if padding > 0 {
+            goto (col: region.minX, row: region.minY + height - padding);
+            for _ in 0..<padding {
+                for _ in 0..<width {
+                    add (ch: " ")
+                }
+            }
+        }
     }
     
     /**

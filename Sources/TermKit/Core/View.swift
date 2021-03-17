@@ -486,6 +486,7 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
         
         // The following ensures that the cursor is always in the screen boundaries
         if clipped {
+            let driver = Application.driver
             rrow = max (0, min (rrow, driver.rows-1))
             rcol = max (0, min (rcol, driver.cols-1))
         }
@@ -550,56 +551,6 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
         let previous = driver.clip
         driver.clip = screenClip (bscreen)
         return previous
-    }
-    
-    /**
-     * Draws a frame in the current view, clipped by the boundary of this view
-     * - Parameter rect: Rectangular region for the frame to be drawn.
-     * - Parameter padding: The padding to add to the drawn frame.
-     * - Parameter fill: If set to `true` it fill will the contents.
-     */
-    public func drawFrame (_ rect: Rect, padding: Int = 0, fill: Bool = false)
-    {
-        // FIXME: need to rewrite this one
-        let scrRect = rectToScreen(rect)
-        let savedClip = driver.clip
-        driver.clip = screenClip (rectToScreen(bounds))
-        driver.drawFrame (scrRect, padding: padding, fill: fill)
-        driver.clip = savedClip
-    }
-    
-    /**
-     * Utility function to draw strings that contain a hotkey, the hotkey is indicated by an underline string
-     * - Parameter text: String to display, the underscoore before a letter flags the next letter as the hotkey.
-     * - Parameter hotColor: color used to draw the hotkey
-     * - Parameter normalColor: color used for the regular parts of the string
-     */
-    public func drawHotString (text: String, hotColor: Attribute, normalColor: Attribute)
-    {
-        driver.setAttribute(normalColor)
-        for ch in text {
-            if ch == "_" {
-                driver.setAttribute(hotColor)
-            } else {
-                driver.addCharacter(ch)
-                driver.setAttribute(normalColor)
-            }
-        }
-    }
-    
-    /**
-     * Utility function to draw strings that contains a hotkey using a colorscheme and the "focused" state.
-     * - Parameter text: String to display, the underscoore before a letter flags the next letter as the hotkey.
-     * - Parameter focused: If set to `true` this uses the focused colors from the color scheme, otherwise the regular ones.
-     * - Parameter scheme: The color scheme to use
-     */
-    public func drawHotString (text: String, focused: Bool, scheme: ColorScheme)
-    {
-        if focused {
-            drawHotString(text: text, hotColor: scheme.hotFocus, normalColor: scheme.focus)
-        } else {
-            drawHotString(text: text, hotColor: scheme.hotNormal, normalColor: scheme.normal)
-        }
     }
     
     /**

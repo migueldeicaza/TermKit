@@ -148,32 +148,33 @@ public class Menu : View {
     
     public override func redraw(region: Rect, painter: Painter) {
         driver.setAttribute(colorScheme!.normal)
-        drawFrame(region, padding: 0, fill: true)
+        painter.drawFrame(region, padding: 0, fill: true)
         
         for i in 0..<barItems.children.count {
             let item = barItems.children [i]
             
             // fill the background (white space) or draw the separator
-            moveTo (col: 1, row: i+1)
-            driver.setAttribute(item == nil ? colorScheme!.normal : (i == current ? colorScheme!.focus : colorScheme!.normal))
+            painter.goto (col: 1, row: i+1)
+            painter.attribute = item == nil ? colorScheme!.normal : (i == current ? colorScheme!.focus : colorScheme!.normal)
+            
             for _ in 0..<frame.width-2 {
-                driver.addRune (item == nil ? driver.hLine : driver.space)
+                painter.add (rune: item == nil ? driver.hLine : driver.space)
             }
             if item == nil {
                 continue
             }
             
             // Draw the menu title.
-            moveTo (col: 2, row: i+1)
+            painter.goto (col: 2, row: i+1)
             
-            drawHotString(text: item!.title,
+            painter.drawHotString(text: item!.title,
                           hotColor: i == current ? colorScheme!.hotFocus : colorScheme!.hotNormal,
                           normalColor: i == current ? colorScheme!.focus : colorScheme!.normal)
             
             // Draw the help string
             let l = item!.help.cellCount ()
-            moveTo(col: frame.width-l-2, row: i+1)
-            driver.addStr(item!.help)
+            painter.goto(col: frame.width-l-2, row: i+1)
+            painter.add(str: item!.help)
         }
     }
     

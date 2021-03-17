@@ -406,10 +406,10 @@ public class Application {
     {
         if let c = current {
             if !c.needDisplay.isEmpty || c._childNeedsDisplay {
-                c.redraw (region: c.bounds, painter: Painter.createRootPainter (from: c))
-                if debugDrawBounds {
-                    drawBounds (c)
-                }
+                c.redraw (region: c.bounds, painter: Painter.createRootPainter(from: c))
+//                if debugDrawBounds {
+//                    drawBounds (c)
+//                }
                 c.positionCursor()
                 driver.refresh()
             } else {
@@ -419,13 +419,13 @@ public class Application {
         }
     }
     
-    static func drawBounds (_ view: View)
-    {
-        view.drawFrame(view.frame, padding: 0, fill: false)
-        for childView in view.subviews {
-            drawBounds(childView)
-        }
-    }
+//    static func drawBounds (_ view: View)
+//    {
+//        view.drawFrame(view.frame, padding: 0, fill: false)
+//        for childView in view.subviews {
+//            drawBounds(childView)
+//        }
+//    }
     
     /**
      * Stops running the most recent toplevel, use this to close a dialog, window, or toplevel.

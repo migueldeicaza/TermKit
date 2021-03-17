@@ -47,11 +47,6 @@ public class Window : Toplevel {
         super.addSubview(contentView)
     }
     
-    func drawFrame()
-    {
-        drawFrame(bounds, padding: padding, fill: true)
-    }
-    
     public override func addSubview(_ view: View)
     {
         contentView.addSubview(view)
