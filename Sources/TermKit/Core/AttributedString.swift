@@ -9,10 +9,10 @@ import Foundation
 
 // Temporary: just for testing the MarkupString
 public class MarkupView: View {
-    var s: MarkupString
+    var s: AttributedString
     
     public init (_ txt: String){
-        s = MarkupString(txt)
+        s = AttributedString(markup: txt)
         super.init ()
     }
     public override func redraw(region: Rect, painter p: Painter) {
@@ -36,7 +36,7 @@ public class MarkupView: View {
  * Example:
  * `[red]This is Red[/][white on red]This looks like a warning[/][underline]this has a line under it[/]`
  */
-class MarkupString {
+public class AttributedString {
     enum StyleRequest {
         case bold
         case standout
@@ -138,7 +138,7 @@ class MarkupString {
         }
     }
     
-    public init (_ text: String)
+    public init (markup text: String)
     {
         self.source = text
         updateMap ()

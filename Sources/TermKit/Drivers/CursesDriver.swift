@@ -24,7 +24,7 @@ class CursesDriver : ConsoleDriver {
     
     /// Turn this on to debug rendering problems, makes screen updates sync
 
-    var sync : Bool = true
+    var sync : Bool = false
     var cursesWindow : OpaquePointer!
     
     

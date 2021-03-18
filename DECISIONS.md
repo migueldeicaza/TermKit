@@ -10,9 +10,9 @@ View.
 
 I decided to change this to have a "Painter" which tracks the location
 and attribute within a view - and is created at the start of a redraw
-operation, and released at the end.   This will be the foundation for
-clipping, but also ensures that the location of the cursor does not
-need to be part of the view for example.
+operation, and released at the end.   This is both the foundation for
+clipping as well as nested view rendering - and also ensures that the 
+location of the cursor does not need to be part of the view for example.
 
 # Events on the View
 
