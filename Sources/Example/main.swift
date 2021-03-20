@@ -20,10 +20,11 @@ class Filler: View {
     public override init () { super.init () }
     
     public override func redraw(region: Rect, painter p: Painter) {
-        p.clear()
+        //p.clear()
         let f = frame
         for y in 0..<f.height {
             p.goto(col: 0, row: y)
+            p.add(str: "\(y)")
             for x in 0..<f.width {
                 switch x % 3 {
                 case 0:
@@ -208,6 +209,7 @@ if true {
     sv.height = Dim.sized(10)
     
     sv.contentSize = Size(width: Filler.w, height: Filler.h)
+    sv.contentOffset = Point(x: -1, y: -1)
     sv.showVerticalScrollIndicator = true
     sv.showHorizontalScrollIndicator = true
     let fi = Filler()

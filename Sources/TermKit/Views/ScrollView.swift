@@ -216,16 +216,21 @@ public class ScrollBarView : View {
 }
 
 class _ContentView: View {
-    var scrollView: ScrollView
-    init (scrollView: ScrollView)
+    var scrollView: ScrollView!
+    override init ()
     {
-        self.scrollView = scrollView
         super.init()
     }
     
     public override func redraw(region: Rect, painter: Painter) {
-        
+        // TODO: the region should be shifted, so the receiver knows what to not render
         super.redraw(region: region, painter: painter)
+    }
+    
+    public override var debugDescription: String {
+        get {
+            "ScrollView._ContentView()"
+        }
     }
 }
 
@@ -237,22 +242,26 @@ class _ContentView: View {
 /// space represented by the `contentSize`
 
 public class ScrollView : View {
-    var contentView: View
+    var contentView: _ContentView!
     var vertical, horizontal: ScrollBarView
     var _showsHorizontalScrollIndicator = false
     var _showsVerticalScrollIndicator = false
+    var settingContentOffset = false
     
     public override init ()
     {
-        contentView = View ()
+        contentView = _ContentView()
         contentView.canFocus = true
         vertical = ScrollBarView (size: 0, position: 0, isVertical: true)
         horizontal = ScrollBarView (size: 0, position: 0, isVertical: false)
         super.init()
+        contentView.scrollView = self
         horizontal.changedPosition = { sender, old, new in
+            if self.settingContentOffset { return }
             self.contentOffset = Point(x: new, y: self.contentOffset.y)
         }
         vertical.changedPosition = { sender, old, new in
+            if self.settingContentOffset { return }
             self.contentOffset = Point(x: self.contentOffset.x, y: new)
         }
         super.addSubview(contentView)
@@ -307,10 +316,12 @@ public class ScrollView : View {
             return _contentOffset
         }
         set(value) {
+            settingContentOffset = true
             _contentOffset = Point(x: -abs(value.x), y: -abs (value.y))
             contentView.frame = Rect(origin: _contentOffset, size: contentSize)
             vertical.position = max (0, -_contentOffset.y)
             horizontal.position = max (0, -_contentOffset.x)
+            settingContentOffset = false
             setNeedsDisplay()
         }
     }
@@ -429,23 +440,28 @@ public class ScrollView : View {
         return true
     }
 
+    /// If this property is set to true, when the user reaches the end of the scrollview boundaries
+    /// the event will not be processed, allowing automatically focusing the next view in the
+    /// direction of the moevemnt
+    public var autoNavigateToNextViewOnBoundary = false
+    
     public override func processKey(event: KeyEvent) -> Bool {
         if super.processKey(event: event) {
             return true
         }
         switch event.key {
         case .cursorUp:
-            return scrollUp(lines: 1)
+            return scrollUp(lines: 1) || !autoNavigateToNextViewOnBoundary
         case .letter("v") where event.isAlt, .pageUp:
-            return scrollUp(lines: bounds.height)
+            return scrollUp(lines: bounds.height) || !autoNavigateToNextViewOnBoundary
         case .controlV, .pageDown:
-            return scrollDown(lines: bounds.height)
+            return scrollDown(lines: bounds.height) || !autoNavigateToNextViewOnBoundary
         case .cursorDown:
-            return scrollDown(lines: 1)
+            return scrollDown(lines: 1) || !autoNavigateToNextViewOnBoundary
         case .cursorLeft:
-            return scrollLeft(cols: 1)
+            return scrollLeft(cols: 1) || !autoNavigateToNextViewOnBoundary
         case .cursorRight:
-            return scrollRight(cols: 1)
+            return scrollRight(cols: 1) || !autoNavigateToNextViewOnBoundary
         default:
             return false
         }
