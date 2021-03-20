@@ -20,7 +20,7 @@ class Filler: View {
     public override init () { super.init () }
     
     public override func redraw(region: Rect, painter p: Painter) {
-        //p.clear()
+        p.clear()
         let f = frame
         for y in 0..<f.height {
             p.goto(col: 0, row: y)

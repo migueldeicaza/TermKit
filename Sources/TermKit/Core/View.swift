@@ -472,25 +472,25 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
         }
     }
 
-    func viewToScreen (col: Int, row: Int, clipped: Bool = true) -> (rcol: Int, rrow: Int)
+    func viewToScreen (_ pos: Point, clipped: Bool = true) -> Point
     {
         // Computes the real row, col relative to the screen.
-        var rrow = row + frame.minY
-        var rcol = col + frame.minX
+        var r = pos + frame.origin
         var ccontainer = superview
         while ccontainer != nil {
-            rrow += ccontainer!.frame.minY
-            rcol += ccontainer!.frame.minX
+            r = r + ccontainer!.frame.origin
             ccontainer = ccontainer?.superview
         }
         
         // The following ensures that the cursor is always in the screen boundaries
         if clipped {
             let driver = Application.driver
-            rrow = max (0, min (rrow, driver.rows-1))
-            rcol = max (0, min (rcol, driver.cols-1))
+            
+            let rrow = max (0, min (r.y, driver.rows-1))
+            let rcol = max (0, min (r.x, driver.cols-1))
+            r = Point(x: rcol, y: rrow)
         }
-        return (rcol, rrow)
+        return r
     }
     
     /**
@@ -513,8 +513,8 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
     // Converts a rectangle in view coordinates to screen coordinates.
     func rectToScreen (_ rect: Rect) -> Rect
     {
-        let (x, y) = viewToScreen(col: rect.minX, row: rect.minY, clipped: false)
-        return Rect (x: x, y: y, width: rect.width, height: rect.height)
+        let pos = viewToScreen(rect.origin, clipped: false)
+        return Rect (origin: pos, size: rect.size)
     }
     
      // Clips a rectangle in screen coordinates to the dimensions currently available on the screen
@@ -560,8 +560,8 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
      */
     public func moveTo (col: Int, row: Int)
     {
-        let (rcol, rrow) = viewToScreen(col: col, row: row)
-        driver.moveTo(col: rcol, row: rrow)
+        let pos = viewToScreen(Point (x: col, y: row))
+        driver.moveTo(col: pos.x, row: pos.y)
     }
     
     /**

@@ -5,7 +5,16 @@
 //  Created by Miguel de Icaza on 4/28/19.
 //  Copyright © 2019 Miguel de Icaza. All rights reserved.
 //
-// ScrollView: should have three modes for showing the scrollbar: never, auto, always
+// TODO:
+// - should have three modes for showing the scrollbar: never, auto, always
+// - should figure out auto-focus, and scroll the view to the right place
+//   based on what is focused
+// - view.clear() does not work well with contentOffset, as it does not cover
+//   the entire region
+// - view.redraw() is getting the full size, not the visible size of the ScrollView
+//   region affected (so everything has to draw from 0, even if not needed).  A child
+//   view of say 100x100 inside a 10x10 where contenOffset=30,30 should get a region
+//   with (30-30, w:10, h:10) so it can optimize its rendering.
 
 import Foundation
 
@@ -226,7 +235,11 @@ class _ContentView: View {
         // TODO: the region should be shifted, so the receiver knows what to not render
         super.redraw(region: region, painter: painter)
     }
-    
+
+    public override func positionCursor() {
+        let pos = scrollView.viewToScreen(Point (x: 0, y: 0))
+        driver.moveTo(col: pos.x, row: pos.y)
+    }
     public override var debugDescription: String {
         get {
             "ScrollView._ContentView()"
@@ -385,10 +398,11 @@ public class ScrollView : View {
      * - Parameter lines: the number of lines to scroll up
      * - Returns: `true` if the it was scrolled
      */
-    public func scrollUp (lines:Int) -> Bool
+    public func scrollUp (lines: Int) -> Bool
     {
         if _contentOffset.y < 0 {
             contentOffset = Point (x: contentOffset.x, y: min (contentOffset.y + lines, 0))
+            setNeedsDisplay()
             return true
         }
         return false
@@ -399,13 +413,13 @@ public class ScrollView : View {
      * - Parameter lines: the number of lines to scroll down
      * - Returns: `true` if the it was scrolled
      */
-    public func scrollDown (lines:Int) -> Bool
+    public func scrollDown (lines: Int) -> Bool
     {
         let ny = max (-contentSize.height, contentOffset.y - lines)
         if ny == contentOffset.y {
             return false
         }
-        
+        setNeedsDisplay()
         contentOffset = Point (x: contentOffset.x, y: ny)
         return true
     }
@@ -415,10 +429,11 @@ public class ScrollView : View {
      * - Parameter cols: the number of columns to scroll left
      * - Returns: `true` if the it was scrolled
      */
-    public func scrollLeft (cols:Int) -> Bool
+    public func scrollLeft (cols: Int) -> Bool
     {
         if contentOffset.x < 0 {
             contentOffset = Point (x: min (contentOffset.x + cols, 0), y: contentOffset.y)
+            setNeedsDisplay()
             return true
         }
         return false
@@ -429,13 +444,13 @@ public class ScrollView : View {
      * - Parameter lines: the number of columns to scroll right
      * - Returns: `true` if the it was scrolled
      */
-    public func scrollRight (cols:Int) -> Bool
+    public func scrollRight (cols: Int) -> Bool
     {
         let nx = max (-contentSize.width, contentOffset.x - cols)
         if nx == contentOffset.x {
             return false
         }
-        
+        setNeedsDisplay()
         contentOffset = Point (x: nx, y: contentOffset.y)
         return true
     }
@@ -462,6 +477,10 @@ public class ScrollView : View {
             return scrollLeft(cols: 1) || !autoNavigateToNextViewOnBoundary
         case .cursorRight:
             return scrollRight(cols: 1) || !autoNavigateToNextViewOnBoundary
+        case .home:
+            return scrollUp(lines: contentSize.height) || !autoNavigateToNextViewOnBoundary
+        case .end:
+            return scrollDown(lines: contentSize.height) || !autoNavigateToNextViewOnBoundary
         default:
             return false
         }
