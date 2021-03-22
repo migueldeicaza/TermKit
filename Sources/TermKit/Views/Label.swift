@@ -20,11 +20,114 @@ public enum TextAlignment {
     case justified
 }
 
+/// The technique used by the label to break up the content
+public enum LineBreakMode {
+    /// This mode will clip the text to the specified width
+    case byClipping
+    
+}
+
+/**
+ * Label view, displays a string at a given position, can include multiple lines.
+ *
+ * When labels are initiallly created, they compute a default width and height,
+ * and additional changes to the configuration of the label (the text, the lineBreak,
+ * the text alignemtn) will not automatically change that.  You must call `autoSize()`
+ * if you want to change those parameters.
+ */
+public class Label2: View {
+    public var text: AttributedString {
+        didSet {
+            setNeedsDisplay()
+        }
+    }
+    
+    /// Controls the line breaking method of the label, changing it will redisplay the label.
+    public var lineBreak: LineBreakMode {
+        didSet {
+            setNeedsDisplay()
+        }
+    }
+
+    /// Controls the text-alignment property of the label, changing it will redisplay the label.
+    public var textAlignment: TextAlignment {
+        didSet {
+            setNeedsDisplay()
+        }
+    }
+    
+    /// Initializes a Label with the provided string
+    public convenience init (_ text: String,
+                             align: TextAlignment = .left,
+                             lineBreak: LineBreakMode = .byClipping)
+    {
+        self.init (AttributedString (text: text), align: align)
+    }
+    
+    public init (_ attrStr: AttributedString,
+                 align: TextAlignment = .left,
+                 lineBreak: LineBreakMode = .byClipping)
+    {
+        text = attrStr
+        self.textAlignment = align
+        self.lineBreak = lineBreak
+        super.init ()
+        coreAutoSize()
+    }
+
+    func coreAutoSize ()
+    {
+        if lineBreak == .byClipping {
+            let size = text.getBounds ()
+            width = Dim.sized (size.width)
+            height = Dim.sized(size.height)
+        } else {
+            width = Dim.sized(text.cellCount())
+            height = Dim.sized(1)
+        }
+    }
+    
+    /// This function sets the View's width and height properties based on the
+    /// lineBreak mode and the contents of the string.   This is called when the
+    /// object is first constructed, but you must manually call it if you change
+    /// the content of the label or other attributes, as those would not change
+    /// the active size configuration.
+    public func autoSize () {
+        coreAutoSize ()
+        setNeedsLayout()
+    }
+    
+    public override func redraw(region: Rect, painter: Painter) {
+        painter.clear ()
+        
+        switch lineBreak {
+        case .byClipping:
+            let lines = text.split(separator: "\n")
+            for line in 0..<lines.count {
+                if line < region.top || line > region.bottom {
+                    continue
+                }
+                let str = lines [line].align(to: textAlignment, width: bounds.width)
+                painter.goto(col: 0, row: line)
+                str.draw(on: painter)
+            }
+        }
+    }
+}
+
 /// Label view, displays a string at a given position, can include multiple lines.
 public class Label : View {
     var lines : [String] = []
     var recalcPending: Bool = true
     
+    /// Controls the text-alignemtn property of the label, changing it will redisplay the label.
+    public var textAlignment : TextAlignment {
+        didSet {
+            recalcPending = true
+            setNeedsDisplay()
+        }
+    }
+
     /// Initializes a Label with the provided string
     public init (_ text : String)
     {
@@ -36,14 +139,6 @@ public class Label : View {
     
     /// The text displayed by this view
     public var text : String {
-        didSet {
-            recalcPending = true
-            setNeedsDisplay()
-        }
-    }
-    
-    /// Controls the text-alignemtn property of the label, changing it will redisplay the label.
-    public var textAlignment : TextAlignment {
         didSet {
             recalcPending = true
             setNeedsDisplay()
@@ -205,5 +300,4 @@ public class Label : View {
     public override var debugDescription: String {
         return "Label (text=\"\(text)\", \(super.debugDescription))"
     }
-
 }

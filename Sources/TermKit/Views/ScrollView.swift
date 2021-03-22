@@ -288,7 +288,7 @@ public class ScrollView : View {
     }
     
     public override func layoutSubviews () {
-        var f = bounds
+        let f = bounds
         
         contentView.frame = Rect(
             x: f.minX,

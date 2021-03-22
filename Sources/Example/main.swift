@@ -121,10 +121,10 @@ if true {
     test.width = Dim.sized (60)
     test.height = Dim.sized (1)
     
-    let loginLabel = Label ("Login:")
+    let loginLabel = Label2 ("Login:")
     loginLabel.x = Pos.at (10)
     loginLabel.y = Pos.at (10)
-    loginLabel.width = Dim.sized(10)
+    //loginLabel.width = Dim.sized(10)
     
     let loginField = TextField("")
     loginField.x = Pos.right(of: loginLabel) + 2
