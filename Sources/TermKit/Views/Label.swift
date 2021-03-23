@@ -24,7 +24,6 @@ public enum TextAlignment {
 public enum LineBreakMode {
     /// This mode will clip the text to the specified width
     case byClipping
-    
 }
 
 /**
@@ -35,8 +34,19 @@ public enum LineBreakMode {
  * the text alignemtn) will not automatically change that.  You must call `autoSize()`
  * if you want to change those parameters.
  */
-public class Label2: View {
-    public var text: AttributedString {
+public class Label: View {
+    /// Accesses the content of the label as a String, if you want to use colors or attributed, set the `attributedText` property instead
+    public var text: String {
+        get {
+            attributedText.toString ()
+        }
+        set {
+            attributedText = AttributedString(text: newValue)
+        }
+    }
+    
+    /// Access the contents of the label as an attributed string
+    public var attributedText: AttributedString {
         didSet {
             setNeedsDisplay()
         }
@@ -68,7 +78,7 @@ public class Label2: View {
                  align: TextAlignment = .left,
                  lineBreak: LineBreakMode = .byClipping)
     {
-        text = attrStr
+        attributedText = attrStr
         self.textAlignment = align
         self.lineBreak = lineBreak
         super.init ()
@@ -78,7 +88,7 @@ public class Label2: View {
     func coreAutoSize ()
     {
         if lineBreak == .byClipping {
-            let size = text.getBounds ()
+            let size = attributedText.getBounds ()
             width = Dim.sized (size.width)
             height = Dim.sized(size.height)
         } else {
@@ -102,7 +112,7 @@ public class Label2: View {
         
         switch lineBreak {
         case .byClipping:
-            let lines = text.split(separator: "\n")
+            let lines = attributedText.split(separator: "\n")
             for line in 0..<lines.count {
                 if line < region.top || line > region.bottom {
                     continue
@@ -116,7 +126,7 @@ public class Label2: View {
 }
 
 /// Label view, displays a string at a given position, can include multiple lines.
-public class Label : View {
+public class Label3 : View {
     var lines : [String] = []
     var recalcPending: Bool = true
     
@@ -135,6 +145,7 @@ public class Label : View {
         textAlignment = .left
         super.init ()
         height = Dim.sized(1)
+        width = Dim.sized (text.cellCount())
     }
     
     /// The text displayed by this view
@@ -239,7 +250,7 @@ public class Label : View {
     func recalc ()
     {
         recalcPending = false
-        Label.recalc (text, lineResult: &lines, width: frame.width, align: textAlignment)
+        Label3.recalc (text, lineResult: &lines, width: frame.width, align: textAlignment)
     }
     
     public override func redraw(region: Rect, painter: Painter) {

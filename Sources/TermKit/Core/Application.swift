@@ -154,7 +154,9 @@ public class Application {
     static func processKeyEvent (event : KeyEvent)
     {
         defer {
-            postProcessEvent()
+            if Application.initialized {
+                postProcessEvent()
+            }
         }
         log ("processKeyEvent: \(event)")
         let toplevelCopy = toplevels.reversed()
@@ -267,7 +269,7 @@ public class Application {
         return p.x < 0 || p.x > r.width-1 || p.y < 0 || p.y > r.height - 1
     }
     
-    static func processMouseEvent (mouseEvent : MouseEvent)
+    static func processMouseEvent (mouseEvent: MouseEvent)
     {
         for h in rootMouseHandlers.values {
             h (mouseEvent)
@@ -277,6 +279,8 @@ public class Application {
         }
         
         let res = findDeepestView(start: c, x: mouseEvent.x, y: mouseEvent.y)
+        defer { postProcessEvent() }
+        
         if let r = res {
             if r.view.wantContinuousButtonPressed {
                 wantContinuousButtonPressedView = r.view
@@ -285,15 +289,15 @@ public class Application {
             }
             if let grab = mouseGrabView {
                 let newxy = grab.screenToView(x: mouseEvent.x, y: mouseEvent.y)
-                let nme = MouseEvent(x: newxy.x, y: newxy.y, ofX: mouseEvent.x - newxy.x, ofY: mouseEvent.y - newxy.y, flags: mouseEvent.flags, view: r.view)
+                let nme = MouseEvent(x: newxy.x, y: newxy.y, absX: mouseEvent.x, absY: mouseEvent.y, flags: mouseEvent.flags, view: r.view)
                 if outsideFrame(Point (x: nme.x, y: nme.y), grab.frame) {
                     let _ = lastMouseOwnerView?.mouseLeave(event: mouseEvent)
                 }
-                let _ = grab.mouseEnter(event: nme)
+                let _ = grab.mouseEvent(event: nme)
                 return
             }
             
-            let nme = MouseEvent(x: r.resx, y: r.resy, ofX: 0, ofY: 0, flags: mouseEvent.flags, view: r.view)
+            let nme = MouseEvent(x: r.resx, y: r.resy, absX: mouseEvent.x, absY: mouseEvent.y, flags: mouseEvent.flags, view: r.view)
             if lastMouseOwnerView == nil {
                 lastMouseOwnerView = r.view
                 let _ = r.view.mouseEnter(event: nme)
@@ -312,7 +316,7 @@ public class Application {
         } else {
             wantContinuousButtonPressedView = nil
         }
-        postProcessEvent()
+        
     }
     
     /**
@@ -405,6 +409,10 @@ public class Application {
     static func postProcessEvent ()
     {
         if let c = current {
+            if c.layoutNeeded {
+                try? c.layoutSubviews()
+                c.setNeedsDisplay()
+            }
             if !c.needDisplay.isEmpty || c._childNeedsDisplay {
                 c.redraw (region: c.bounds, painter: Painter.createRootPainter(from: c))
 //                if debugDrawBounds {
@@ -480,12 +488,9 @@ public class Application {
         for top in toplevels {
             top._running = false
         }
-        toplevels = []
-        _current = nil
-        _top = nil
-        
+        initialized = false
         driver.end ();
-        exit (0)
+        exit (Int32 (statusCode))
     }
 }
 

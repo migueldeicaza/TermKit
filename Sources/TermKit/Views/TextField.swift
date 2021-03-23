@@ -30,10 +30,14 @@ public class TextField : View {
     public var readOnly: Bool = false
     /// The contents of the text field
     
-    /// Changed event, raised when the text has changed.
-    /// The parameter contains the source that is raising the event, along with the old value that was on the TextField
-    public var textChanged = PassthroughSubject<(source: TextField, oldText: String),Never> ()
+    /// Changed event, raised when the text has changed as a Combine Subject
+    /// The parameter contains the source that is raising the event, along with the old value that was on the TextField,
+    /// for a simple event, use textChanged
+    public var textChangedSubject = PassthroughSubject<(source: TextField, oldText: String),Never> ()
     
+    /// Changed event that is triggered when the text changes, and provides the old text,
+    /// for a Combine version of this event, use `textChangedSubject`
+    public var textChanged: ((_ source: TextField, _ oldText: String) -> ())? = nil
     typealias TextBuffer = [(ch:Character,size:Int8)]
     
     // Store the string as an array of characters and the size in cells of each character
@@ -188,7 +192,10 @@ public class TextField : View {
     
     func raiseTextChanged (old: String)
     {
-        textChanged.send((self, old))
+        textChangedSubject.send((self, old))
+        if let cb = textChanged {
+            cb (self, old)
+        }
     }
     
     func setClipboard (_ text: String)

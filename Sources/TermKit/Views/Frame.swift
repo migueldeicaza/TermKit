@@ -11,7 +11,7 @@ import Foundation
 /**
  *  The FrameView is a container frame that draws a frame around the contents
  */
-public class FrameView : View {
+public class Frame : View {
     var contentView : View
     
     /// The title to be displayed for this window.
@@ -25,7 +25,7 @@ public class FrameView : View {
      * Initializes a the `FrameView` class with a specified title, and is suitable
      * for having its dimensions participate in x, y, width, height 
      */
-    public init (title: String? = nil)
+    public init (_ title: String? = nil)
     {
         contentView = View()
         self.title = title

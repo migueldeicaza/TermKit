@@ -190,7 +190,7 @@ public struct KeyEvent {
 /**
  * Flags for a mouse event
  */
-public struct MouseFlags: OptionSet {
+public struct MouseFlags: OptionSet, CustomDebugStringConvertible {
     public let rawValue: UInt
     
     public init (rawValue: UInt)
@@ -227,21 +227,55 @@ public struct MouseFlags: OptionSet {
     static let buttonAlt   = MouseFlags(rawValue: 0x4000000)
     
     static let mousePosition = MouseFlags (rawValue: 0x8000000)
+
+    static var debugDescriptions: [(Self, String)] = [
+        (.button1Pressed, "button1Pressed"),
+        (.button1Released, "button1Released"),
+        (.button1Clicked, "button1Clicked"),
+        (.button1DoubleClicked, "button1DoubleClicked"),
+        (.button1TripleClicked, "button1TripleClicked"),
+        (.button2Pressed, "button2Pressed"),
+        (.button2Released, "button2Released"),
+        (.button2Clicked, "button2Clicked"),
+        (.button2DoubleClicked, "button2DoubleClicked"),
+        (.button2TrippleClicked, "button2TrippleClicked"),
+        (.button3Pressed, "button3Pressed"),
+        (.button3Released, "button3Released"),
+        (.button3Clicked, "button3Clicked"),
+        (.button3DoubleClicked, "button3DoubleClicked"),
+        (.button3TripleClicked, "button3TripleClicked"),
+        (.button4Pressed, "button4Pressed"),
+        (.button4Released, "button4Released"),
+        (.button4Clicked, "button4Clicked"),
+        (.button4DoubleClicked, "button4DoubleClicked"),
+        (.button4TripleClicked, "button4TripleClicked"),
+        (.buttonShift, "buttonShift"),
+        (.buttonCtrl, "buttonCtrl"),
+        (.buttonAlt, "buttonAlt"),
+        (.mousePosition, "mousePosition")
+    ]
+
+    public var debugDescription: String {
+        get {
+            let result: [String] = Self.debugDescriptions.filter { contains($0.0) }.map { $0.1 }
+            return "MouseFlags (rawValue: \(self.rawValue)) \(result)"
+        }
+    }
 }
 
 /**
  * Describes a mouse event
  */
-public struct MouseEvent {
+public struct MouseEvent: CustomDebugStringConvertible {
     /// The X (column) location for the mouse event
     public var x: Int
     /// The Y (row) location for the mouse event
     public var y: Int
     
-    /// The offset X (column) location for the mouse event relative to the screen.
-    public var ofX: Int
-    /// The offset Y (column) location for the mouse event relative to the screen.
-    public var ofY: Int
+    /// The X position for the event in global coordinates
+    public var absX: Int
+    /// The Y position for the event in global coordinates
+    public var absY: Int
     
     /// The event flags
     public var flags: MouseFlags
@@ -253,19 +287,26 @@ public struct MouseEvent {
     {
         self.x = x
         self.y = y
-        self.ofX = 0
-        self.ofY = 0
+        self.absX = x
+        self.absY = y
         self.flags = flags
         self.view = view
     }
     
-    init (x: Int, y:Int, ofX: Int, ofY: Int, flags: MouseFlags, view: View? = nil)
+    init (x: Int, y:Int, absX: Int, absY: Int, flags: MouseFlags, view: View? = nil)
     {
         self.x = x
         self.y = y
-        self.ofX = ofX
-        self.ofY = ofY
+        self.absX = absX
+        self.absY = absY
         self.flags = flags
         self.view = view
+    }
+    
+    public var debugDescription: String {
+        get {
+            let v = view?.debugDescription ?? "noview"
+            return "MouseEvent(x: \(x), y: \(y), absX: \(absX), absY: \(absY), flags: \(flags), view: \(v)"
+        }
     }
 }

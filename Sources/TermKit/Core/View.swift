@@ -286,6 +286,27 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
         }
     }
     
+    /// Convenience method to set one or more of x, y, width and height properties to their numeric values
+    /// - Parameters:
+    ///   - x: Optional value for the x property, equivalent to setting it to Pos.at (x)
+    ///   - y: Optional value for the y property, equivalent to setting it to Pos.at (y)
+    ///   - width: Optional value for the width property, equivalent to setting it to Dim.sized (width)
+    ///   - height: Optional value for the height property, equivalent to setting it to Dim.sized (height)
+    public func set (x: Int? = nil, y: Int? = nil, width: Int? = nil, height: Int? = nil) {
+        if let xv = x {
+            self.x = Pos.at (xv)
+        }
+        if let yv = y {
+            self.y = Pos.at (yv)
+        }
+        if let widthv = width {
+            self.width = Dim.sized (widthv)
+        }
+        if let heightv = height {
+            self.height = Dim.sized (heightv)
+        }
+    }
+    
     /**
      * Invoke to flag that this view needs to be redisplayed, by any code
      * that alters the state of the view.
@@ -370,6 +391,15 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
         self.y = Pos.at (padding)
         self.width = Dim.fill(padding)
         self.height = Dim.fill (padding)
+    }
+    
+    /// Sets the x, y, width and height to occupy the specified percentage of the container
+    /// - Parameter percentage: Number between 0 and 100
+    public func fill(percentage: Float) {
+        self.x = try? Pos.percent(n: (100-percentage)/2)
+        self.y = try? Pos.percent(n: (100-percentage)/2)
+        self.width = Dim.percent(n: percentage)
+        self.width = Dim.percent(n: percentage)
     }
     
     /**
@@ -577,6 +607,9 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
     }
     
     var _hasFocus: Bool = false
+    
+    
+    /// True if this view currently has the focus (events go to this view)
     public var hasFocus: Bool {
         get {
             return _hasFocus

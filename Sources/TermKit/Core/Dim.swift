@@ -161,7 +161,19 @@ public class Dim {
     {
         return DimCombine (add: false, left: lhs, right: rhs)
     }
-    
+
+    /// Produces a dimension that adds the two specified dimensions together
+    public static func + (lhs: Dim, rhs: Int) -> Dim
+    {
+        return DimCombine (add: true, left: lhs, right: Dim.sized(rhs))
+    }
+
+    /// Produces a dimension that subtracts the second dimension value from the first
+    public static func - (lhs: Dim, rhs: Int) -> Dim
+    {
+        return DimCombine (add: false, left: lhs, right: Dim.sized (rhs))
+    }
+
     enum Side {
         case height
         case width

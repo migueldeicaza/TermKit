@@ -5,6 +5,12 @@
 //  Created by Miguel de Icaza on 5/23/19.
 //  Copyright © 2019 Miguel de Icaza. All rights reserved.
 //
+// TODO:
+//   - Mouse, toggle selection
+//   - Mouse, activate
+//   - leftColumn: the first column to render
+//   - scroll left/right
+//
 
 import Foundation
 
@@ -34,6 +40,16 @@ public protocol ListViewDelegate {
     ///   - line: The line where the rendering will take place
     ///   - width: The total number of columns to render
     func render (listView: ListView, painter: Painter, selected: Bool, item: Int, col: Int, line: Int, width: Int)
+    
+    /// This method is invoked when the currently selected item has changed
+    func selectionChanged (listView: ListView)
+    
+    /// Invoked when the return key has been pressed while on the ListView
+    /// - Parameters:
+    ///   - listView: the listview that is raising the event
+    ///   - item: The item that was postiioned
+    /// - Returns: should return true if handled, otherwise false
+    func activate (listView: ListView, item: Int) -> Bool
 }
 
 /**
@@ -67,18 +83,20 @@ public class ListView: View {
     public var allowsMultipleSelection: Bool = true {
         didSet {
             if allowsMultipleSelection == false {
-                // Need to clear anything that might have been selected
-                let count = dataSource.getCount (listView: self)
-                for idx in 0..<count {
-                    if idx != selected && dataSource.isMarked (listView: self, item: idx) {
-                        dataSource.setMark (listView: self, item: idx, state: false)
-                    }
-                }
+                clearMarks ()
             }
         }
     }
     
     class RenderDelegate : ListViewDelegate {
+        func selectionChanged(listView: ListView) {
+            
+        }
+        
+        func activate(listView: ListView, item: Int) -> Bool {
+            return false
+        }
+        
         var render: ((_ row: Int, _ width: Int) -> String)
         
         init (_ render: @escaping ((_ row: Int, _ width: Int) -> String))
@@ -122,13 +140,16 @@ public class ListView: View {
         }
     }
     
+    /// Specifies the delegate instance that will receive important notifications from the ListView
     public var delegate : ListViewDelegate {
         didSet {
             setNeedsDisplay()
         }
     }
     
-    var renderer: ((_ row: Int, _ width: Int) -> String)? = nil
+    /// Convenience callback method that is invoked with the index of the item that was activated, must return true if it
+    /// consumed the event, false otherwise.  If set, this is called after the `ListViewDelegate.activate` method.
+    public var activate: ((_ index: Int) -> Bool)? = nil
     
     /// Constructs a ListView with a datasource and a method that can produce a rendered line on demand
     /// - Parameters:
@@ -160,7 +181,8 @@ public class ListView: View {
     {
         self.dataSource = StringWrapperDataSource (items)
         self.delegate = RenderDelegate { row, width in
-            return items [row].padding (toLength: width, withPad: " ", startingAt: 0)
+            let value = row < items.count ? items [row] : ""
+                return value.padding (toLength: width, withPad: " ", startingAt: 0)
         }
         super.init ()
         canFocus = true
@@ -190,10 +212,16 @@ public class ListView: View {
                 return
             }
             selected = newValue
+            delegate.selectionChanged(listView: self)
             setNeedsDisplay()
         }
     }
     
+    /// If this property is set to true, when the user reaches the end of the scrollview boundaries
+    /// the event will not be processed, allowing automatically focusing the next view in the
+    /// direction of the moevemnt
+    public var autoNavigateToNextViewOnBoundary = false
+
     public override func redraw(region: Rect, painter: Painter) {
         let n = dataSource.getCount (listView: self)
         let b = bounds
@@ -224,14 +252,69 @@ public class ListView: View {
     public override func processKey(event: KeyEvent) -> Bool {
         switch event.key {
         case .cursorUp, .controlP:
-            return moveSelectionUp ()
+            return moveSelectionUp () || !autoNavigateToNextViewOnBoundary
         case .cursorDown, .controlN:
-            return moveSelectionDown ()
+            return moveSelectionDown () || !autoNavigateToNextViewOnBoundary
+        case .controlV, .pageDown:
+            return movePageDown () || !autoNavigateToNextViewOnBoundary
+        case .letter("v") where event.isAlt, .pageUp:
+            return movePageUp () || !autoNavigateToNextViewOnBoundary
+        case .letter(" "):
+            if toggleMarkOnRow ()  { return true }
+        case .controlJ:
+            if triggerActivate () { return true }
+        case .home:
+            moveHome ()
+            return true
+        case .end:
+            moveEnd ()
+            return true
         default:
+            break
+        }
+        return super.processKey(event: event)
+    }
+    
+    // Triggers the activation action for this item
+    func triggerActivate () -> Bool {
+        let count = dataSource.getCount (listView: self)
+        if count == 0 {
             return false
+            
+        }
+        
+        if delegate.activate(listView: self, item: selected) {
+            return true
+        }
+        if let cb = activate {
+            return cb (selected)
+        }
+        return false
+    }
+    
+    func clearMarks ()
+    {
+        // Need to clear anything that might have been selected
+        let count = dataSource.getCount (listView: self)
+        for idx in 0..<count {
+            if idx != selected && dataSource.isMarked (listView: self, item: idx) {
+                dataSource.setMark (listView: self, item: idx, state: false)
+            }
         }
     }
     
+    func toggleMarkOnRow () -> Bool {
+        guard allowMarking else { return false }
+        if dataSource.isMarked(listView: self, item: selected) {
+            dataSource.setMark(listView: self, item: selected, state: false)
+        } else {
+            if !allowsMultipleSelection {
+                clearMarks()
+            }
+            dataSource.setMark(listView: self, item: selected, state: true)
+        }
+        return true
+    }
     
     /// Moves the selection to the previous item
     /// - Returns: True if the selection was moved, false otherwise
@@ -250,8 +333,9 @@ public class ListView: View {
                 top = max (selected - frame.height + 1, 0)
             }
             setNeedsDisplay()
+            return true
         }
-        return true
+        return false
     }
     
     /// Moves the selection to the next item
@@ -271,8 +355,94 @@ public class ListView: View {
                 top = selected
             }
             setNeedsDisplay()
+            return true
+        }
+        return false
+    }
+
+    /// Moves the selection one page up
+    /// - Returns: true if this change the selected position, false otherwise
+    public func movePageUp () -> Bool {
+        let count = dataSource.getCount(listView: self)
+        if count == 0 {
+            return false
+        }
+        
+        if selected > 0 {
+            selected -= 1
+            if selected > count {
+                selectedItem = count - 1
+            }
+            if selected < top {
+                top = selected
+            } else if selected > top + frame.height {
+                top = max (selected - frame.height + 1, 0)
+            }
+            setNeedsDisplay()
+            return true
+        }
+        return false
+    }
+    
+    /// Moves the selection one page up
+    /// - Returns: true if this change the selected position, false otherwise
+    public func movePageDown () -> Bool {
+        let count = dataSource.getCount(listView: self)
+        if count == 0 {
+            return false
+        }
+        
+        if selected + 1 < count {
+            selectedItem += 1
+            if selected >= (top + frame.height) {
+                top += 1
+            } else if selected < top {
+                top = selected
+            }
+            setNeedsDisplay()
+            return true
+        }
+        return false
+    }
+
+    /// Moves the selection cursor to the first element
+    public func moveHome ()
+    {
+        if selected != 0 {
+            selectedItem = 0
+            top = selected
+            setNeedsDisplay()
+        }
+    }
+    
+    /// Moves the selection cursor to the last element
+    public func moveEnd ()
+    {
+        let count = dataSource.getCount(listView: self)
+        if selected != count - 1 {
+            selectedItem = count - 1
+            top = selected
+            setNeedsDisplay()
+        }
+    }
+
+    public override func positionCursor() {
+        moveTo (col: allowMarking ? 0 : bounds.width-1, row: selected-top)
+    }
+    
+    public override func mouseEvent(event: MouseEvent) -> Bool {
+        if !hasFocus && canFocus {
+            superview?.setFocus(self)
+        }
+        let c = dataSource.getCount(listView: self)
+        if event.y + top >= c {
+            return true
+        }
+        selectedItem = top + event.y
+        setNeedsDisplay()
+        if event.flags == [.button1DoubleClicked] {
+            _ = triggerActivate()
         }
         return true
     }
-
 }

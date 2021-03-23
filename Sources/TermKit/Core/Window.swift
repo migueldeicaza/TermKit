@@ -45,6 +45,9 @@ public class Window : Toplevel {
         contentView.height = Dim.fill(padding+1)
         super.init ()
         super.addSubview(contentView)
+        
+        wantMousePositionReports = true
+        wantContinuousButtonPressed = true
     }
     
     public override func addSubview(_ view: View)
@@ -54,6 +57,38 @@ public class Window : Toplevel {
             canFocus = true
         }
     }
+    
+    public var allowMove = false {
+        didSet {
+            setNeedsDisplay()
+        }
+    }
+    
+    // Before we maximize, we store the values here
+    var unmaximizedBounds: Rect? = nil
+    
+    public var allowMaximize = true {
+        didSet {
+            setNeedsDisplay()
+        }
+    }
+    
+    // Currently private, since I do not have a good palce to put this
+    var allowMinimize = false {
+        didSet {
+            setNeedsDisplay()
+        }
+    }
+    
+    public var allowClose = true {
+        didSet {
+            setNeedsDisplay()
+        }
+    }
+    
+    lazy var closeAttribute = colorScheme.normal.change(foreground: .red)
+    lazy var minimizeAttribute = colorScheme.normal.change(foreground: .brightYellow)
+    lazy var maximizeAttribute = colorScheme.normal.change(foreground: .green)
     
     // TODO: remove
     
@@ -66,12 +101,35 @@ public class Window : Toplevel {
             p.attribute = colorScheme!.normal
             p.drawFrame (bounds, padding: padding, fill: true)
             
+            var needButtons = (allowClose ? 1 : 0) + (allowMaximize ? 1 : 0) + (allowMinimize ? 1 : 0)
+            if needButtons > 0 {
+                let buttonIcon = Application.driver.filledCircle
+                
+                p.goto (col: 1+padding, row: padding)
+                p.add(rune: Application.driver.rightTee)
+                if allowClose {
+                    p.attribute = closeAttribute
+                    p.add(rune: buttonIcon)
+                }
+                if allowMinimize {
+                    p.attribute = minimizeAttribute
+                    p.add(rune: buttonIcon)
+                }
+                if allowMaximize {
+                    p.attribute = maximizeAttribute
+                    p.add(rune: buttonIcon)
+                }
+                p.attribute = colorScheme!.normal
+                p.add(rune: Application.driver.leftTee)
+                needButtons += 2
+            }
+            
             if hasFocus {
                 p.attribute = colorScheme!.normal
             }
             let width = frame.width
-            if let t = title, width > 4 {
-                p.goto (col: padding+1, row: padding)
+            if let t = title, width > 4+needButtons {
+                p.goto (col: padding+needButtons+1, row: padding)
                 p.add (rune: Unicode.Scalar(32))
                 let str = t.count > (width+4) ? t : String (t.prefix (width-4))
                 p.add (str: str)
@@ -83,6 +141,68 @@ public class Window : Toplevel {
         clearNeedsDisplay()
     }
     
+    open func closeClicked ()
+    {
+        superview?.remove(self)
+    }
+    
+    var grabbed: Point? = nil
+    
+    public override func mouseEvent(event: MouseEvent) -> Bool {
+        if let g = grabbed {
+            let deltax = event.absX - g.x
+            let deltay = event.absY - g.y
+
+            self.x = Pos.at (frame.minX + deltax)
+            self.y = Pos.at (frame.minY + deltay)
+            setNeedsLayout()
+            grabbed = Point (x: event.absX, y: event.absY)
+            return true
+        }
+        if event.flags == [.button1Clicked] && event.y == padding {
+            let x = event.x
+            var expect = 2+padding
+            if allowClose {
+                if x == expect {
+                    closeClicked ()
+                }
+                expect += 1
+            }
+            if allowMinimize {
+                if x == expect {
+                    log ("minimize")
+                }
+                expect += 1
+            }
+            if allowMaximize {
+                if x == expect {
+                    if let prev = unmaximizedBounds {
+                        set (x: prev.minX, y: prev.minY, width: prev.width, height: prev.height)
+                        unmaximizedBounds = nil
+                    } else {
+                        unmaximizedBounds = frame
+                        self.x = Pos.at (0)
+                        self.y = Pos.at (1)
+                        height = Dim.fill()
+                        width = Dim.fill()
+                        superview?.setFocus(self)
+                    }
+                }
+            }
+            
+            log ("grabbed")
+            //Application.grabMouse(from: self)
+        }
+        return true
+    }
+    
+    public override func positionCursor() {
+        if let f = focused {
+            f.positionCursor()
+        } else {
+            moveTo (col: 1, row: 1)
+        }
+    }
     public override var debugDescription: String {
         return "Window (\(super.debugDescription))"
     }

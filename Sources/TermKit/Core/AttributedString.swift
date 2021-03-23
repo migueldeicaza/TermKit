@@ -430,14 +430,19 @@ public class AttributedString: CustomDebugStringConvertible {
         maxWidth = max (maxWidth, cellCount)
         return Size(width: maxWidth, height: lines)
     }
+
+    /// Returns the string, without attributes
+    public func toString () -> String {
+        var res = ""
+        for x in expanded {
+            res.append(x.ch)
+        }
+        return res
+    }
     
     public var debugDescription: String {
         get {
-            var res = ""
-            for x in expanded {
-                res.append(x.ch)
-            }
-            return res
+            return toString ()
         }
     }
 }

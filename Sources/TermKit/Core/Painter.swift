@@ -41,7 +41,7 @@ public class Painter {
         self.view = view
         attribute = view.colorScheme!.normal
         origin = view.frame.origin
-        visible = view.bounds
+        visible = view.frame
         driver = Application.driver
         col = 0
         row = 0

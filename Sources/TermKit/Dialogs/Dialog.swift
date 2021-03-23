@@ -16,8 +16,8 @@ import Foundation
  * will execute the dialog until it terminates via the [ESC] key, or when one of the views
  *
  */
-public class Dialog : Window {
-    var buttons : [Button]
+public class Dialog: Window {
+    var buttons: [Button]
    
     /**
      * Initializes a new instance of the `Dialog` class with an optional set of buttons to display
@@ -41,6 +41,9 @@ public class Dialog : Window {
             addSubview(button)
         }
         modal = true
+        allowClose = true
+        allowMaximize = false
+        allowMinimize = false
     }
     
     /**
@@ -77,15 +80,19 @@ public class Dialog : Window {
     public override func processKey(event: KeyEvent) -> Bool {
         switch event.key {
         case .esc:
-            running = false
-            if let closed = closedCallback {
-                Application.requestStop ()
-                closed ()
-                
-            }
+            closeClicked()
             return true
         default:
             return super.processKey(event: event)
+        }
+    }
+    
+    public override func closeClicked() {
+        running = false
+        if let closed = closedCallback {
+            Application.requestStop ()
+            closed ()
+            
         }
     }
 }

@@ -83,7 +83,7 @@ public class MessageBox {
 
     static func query (_ title: String, message: String?, buttons: [String], width: Int? = nil, height: Int? = nil, useErrorColors: Bool, completion: @escaping (_ result: Int) -> ())
     {
-        let textWidth = Label.maxWidth(text: message ?? "", width: width ?? INTPTR_MAX)
+        let textWidth = Label3.maxWidth(text: message ?? "", width: width ?? INTPTR_MAX)
         var clicked = -1
         var count = 0
         var realWidth, realHeight : Int
@@ -91,7 +91,7 @@ public class MessageBox {
         let border = 4
         
         if width == nil {
-            realWidth = max (Label.maxWidth(text: title) + 2 + border, Label.maxWidth (text: message ?? "") + border + 2)
+            realWidth = max (Label3.maxWidth(text: title) + 2 + border, Label3.maxWidth (text: message ?? "") + border + 2)
         } else {
             realWidth = width!
         }

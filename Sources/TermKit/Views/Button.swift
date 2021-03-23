@@ -69,15 +69,17 @@ public class Button : View {
         canFocus = true
     }
     
-    /**
-     * Initializes a button with the text contained in the first parameter, the first uppercase letter by convention is the hotkey
-     *
-     * - Parameter text: Contains the text for the button.   The first uppercase letter in the button becomes the hotkey
-     */
-    public convenience init (_ text : String)
+    /// Initializes a button with the text contained in the first parameter, the first uppercase letter by convention is the hotkey
+    /// - Parameters:
+    ///   - text: Contains the text for the button.   The first uppercase letter in the button becomes the hotkey
+    ///   - clicked: Optional method to invoke when the button is clicked
+    public convenience init (_ text : String, clicked: (()->())? = nil)
     {
         self.init ()
         self.text = text
+        self.clicked = { x in
+            if let c = clicked { c () }
+        }
         update()
     }
     
@@ -103,6 +105,7 @@ public class Button : View {
             hotPos = 2
             hotKey = text.first
         }
+        width = Dim.sized(shownText.cellCount())
         setNeedsDisplay()
     }
     
@@ -113,6 +116,7 @@ public class Button : View {
         
         if let ch = hotKey {
             painter.goto (col: hotPos, row: 0)
+            painter.attribute = hasFocus ? colorScheme!.hotFocus : colorScheme!.hotNormal
             painter.add(str: String (ch))
         }
     }

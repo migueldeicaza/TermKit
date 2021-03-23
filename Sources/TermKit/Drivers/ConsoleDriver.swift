@@ -231,6 +231,9 @@ public class ConsoleDriver {
     var bottomTee = Unicode.Scalar (0x22a5)!
     var topTee = Unicode.Scalar (0x22a4)!
     
+    var filledCircle = Unicode.Scalar (0x25CF)!   // "●"
+    var emptyCircle = Unicode.Scalar (0x25CB)!    // "○"
+    
     public var clip : Rect
     
     /**
