@@ -24,7 +24,7 @@ func Assorted () -> Window {
         win.addSubview(another)
     }
 
-    let test = MarkupView ("[red]red[/],[green]green[/],[blue]blue[/],[underline]underline[/],[green on black]green on black[/]")
+    let test = MarkupView ("[red]red[/],[green]green[/],[brightYellow]yellow[/],[underline]underline[/],[green on black]green on black[/]")
     test.x = Pos.at (1)
     test.y = Pos.at (1)
     test.width = Dim.sized (60)
@@ -69,14 +69,14 @@ func Assorted () -> Window {
         rememberCount.text = "Remember has been toggled \(count) times"
     }
     
-    let b1 = Button("Button1")
+    let b1 = Button("_Button1")
     b1.x = Pos.at (10)
     b1.y = Pos.at (15)
     b1.width = Dim.sized (12)
     b1.clicked = { v in
         rememberCount.text = "You clicked the Button1"
     }
-    let b2 = Button ("Default")
+    let b2 = Button ("_Default")
     b2.x = Pos.at (10)
     b2.y = Pos.at (16)
     b2.width = Dim.sized (12)

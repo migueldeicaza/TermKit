@@ -53,6 +53,22 @@ public struct MenuItem {
         }
     }
     
+    mutating func getHotKey ()
+    {
+        var nextIsHot = false
+        for x in title {
+            if x == "_" {
+                nextIsHot = true;
+            } else {
+                if nextIsHot {
+                    hotkey = x.uppercased().first
+                    break
+                }
+                nextIsHot = false;
+            }
+        }
+    }
+                                            
     /**
      - Parameters:
      - title: Title for the menu item
@@ -70,7 +86,7 @@ public struct MenuItem {
         self.hotkey = hotkey
         self.style = style
         if hotkey == nil {
-            
+            getHotKey ()
         }
     }
 }

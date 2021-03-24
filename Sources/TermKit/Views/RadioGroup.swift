@@ -112,7 +112,7 @@ public class RadioGroup: View {
                 painter.goto(col: 0, row: line)
 
                 painter.attribute = hasFocus && (line == cursor) ? colorScheme.focus : colorScheme.normal
-                painter.add(str: line == selected ? "(x) " : "( ) ")
+                painter.add(str: line == selected ? "\(driver.radioOn) " : "\(driver.radioOff) ")
                 painter.drawHotString(
                     text: radioLabels[line],
                     focused: hasFocus && line == cursor,

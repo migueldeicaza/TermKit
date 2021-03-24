@@ -9,6 +9,10 @@
 import Foundation
 import Curses
 
+/// Turn this on to debug rendering problems, makes screen updates sync
+var sync: Bool = false
+
+
 // This is a lame hack to call into a global that has a name that clashes with a class member name
 class LameHack {
     static func doRefresh ()
@@ -17,15 +21,12 @@ class LameHack {
     }
 }
 
-class CursesDriver : ConsoleDriver {
-    var ccol : Int32 = 0
-    var crow : Int32 = 0
-    var needMove : Bool = false
+class CursesDriver: ConsoleDriver {
+    var ccol: Int32 = 0
+    var crow: Int32 = 0
+    var needMove: Bool = false
     
-    /// Turn this on to debug rendering problems, makes screen updates sync
-
-    var sync : Bool = false
-    var cursesWindow : OpaquePointer!
+    var cursesWindow: OpaquePointer!
     
     
     // Swift ncurses does not bind these
@@ -65,8 +66,8 @@ class CursesDriver : ConsoleDriver {
     let cursesReportMousePosition : Int32 = 0x8000000
     let cursesAllEvents : Int32 = 0x7ffffff
 
-    var oldMouseEvents : mmask_t
-    var mouseEvents : mmask_t
+    var oldMouseEvents: mmask_t
+    var mouseEvents: mmask_t
 
     typealias get_wch_def = @convention(c) (UnsafeMutablePointer<Int32>) -> Int
     
@@ -74,8 +75,8 @@ class CursesDriver : ConsoleDriver {
     typealias add_wch_def = @convention(c) (UnsafeMutablePointer<m_cchar_t>) -> CInt
     
     // Dynamically loaded definitions, because Darwin.ncurses does not bring these
-    var get_wch_fn : get_wch_def? = nil
-    var add_wch_fn : add_wch_def? = nil
+    var get_wch_fn: get_wch_def? = nil
+    var add_wch_fn: add_wch_def? = nil
     
 
     override init ()
@@ -204,7 +205,7 @@ class CursesDriver : ConsoleDriver {
     
     func inputReadCallback (input: FileHandle)
     {
-        var result : Int32 = 0
+        var result: Int32 = 0
         let status = get_wch_fn! (&result)
         if status == ERR {
             return
@@ -217,7 +218,7 @@ class CursesDriver : ConsoleDriver {
                 }
             }
             if result == KEY_MOUSE {
-                var mouseEvent : MEVENT = MEVENT(id: 0, x: 0, y: 0, z: 0, bstate: 0)
+                var mouseEvent: MEVENT = MEVENT(id: 0, x: 0, y: 0, z: 0, bstate: 0)
                 getmouse(&mouseEvent);
                 if mouseEvent.bstate == MouseFlags.button1Pressed.rawValue {
                     print ("here")
@@ -234,7 +235,7 @@ class CursesDriver : ConsoleDriver {
             timeout (200)
             let status2 = get_wch_fn! (&result)
             timeout (-1)
-            var ke : KeyEvent
+            var ke: KeyEvent
             let isControl = result >= 0 && result < 32
             
             if status2 == KEY_CODE_YES {
@@ -377,7 +378,7 @@ class CursesDriver : ConsoleDriver {
         return .SixteenColors
     }
     
-    static var lastColorPair : Int16 = 16
+    static var lastColorPair: Int16 = 16
     
     func encodeCursesAttribute (_ colors: (Int32, Int32), bold: Bool = false) -> Int32
     {
@@ -523,7 +524,7 @@ class CursesDriver : ConsoleDriver {
     }
     
     // Set when the method setAttribute is called
-    var currentAttr : Int32 = 0
+    var currentAttr: Int32 = 0
     
     public override func setAttribute (_ attr: Attribute)
     {

@@ -219,6 +219,24 @@ public class AttributedString: CustomDebugStringConvertible {
      *  `[color on color]` to specify the foreground and background colors.
      *  `[bg=color]` to specify a background color.
      *
+     * Colors:
+     *  `black`
+     *  `blue`
+     *  `green`
+     *  `cyan`
+     *  `red`
+     *  `magenta`
+     *  `brown`
+     *  `gray`
+     *  `darkGray`
+     *  `brightBlue`
+     *  `brightGreen`
+     *  `brightCyan`
+     *  `brightRed`
+     *  `brightMagenta`
+     *  `brightYellow`
+     *  `white`
+     *  
      * Attributes:
      *  `bold` to specify the attribute should be bolded, on ANSI terminals this might merely make the color brighter.
      *  `standout` terminal-specific, it chooses a color that will standout.

@@ -92,7 +92,6 @@ public class Dialog: Window {
         if let closed = closedCallback {
             Application.requestStop ()
             closed ()
-            
         }
     }
 }

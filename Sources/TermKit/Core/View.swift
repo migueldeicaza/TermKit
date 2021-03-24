@@ -399,7 +399,7 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
         self.x = try? Pos.percent(n: (100-percentage)/2)
         self.y = try? Pos.percent(n: (100-percentage)/2)
         self.width = Dim.percent(n: percentage)
-        self.width = Dim.percent(n: percentage)
+        self.height = Dim.percent(n: percentage)
     }
     
     /**

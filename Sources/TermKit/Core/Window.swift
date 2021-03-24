@@ -94,12 +94,24 @@ public class Window : Toplevel {
     
     // TODO: removeAll
     
+    public override func resignFirstResponder() -> Bool {
+        // so we re-render with the proper border
+        setNeedsDisplay()
+        return super.resignFirstResponder()
+    }
+    
+    public override func becomeFirstResponder() -> Bool {
+        // so we re-render with the proper border
+        setNeedsDisplay()
+        return super.becomeFirstResponder()
+    }
+    
     public override func redraw(region: Rect, painter p: Painter) {
         //log ("Window.redraw: \(frame) and region to redraw is: \(region)")
         
         if !needDisplay.isEmpty {
             p.attribute = colorScheme!.normal
-            p.drawFrame (bounds, padding: padding, fill: true)
+            p.drawFrame (bounds, padding: padding, fill: true, double: false)
             
             var needButtons = (allowClose ? 1 : 0) + (allowMaximize ? 1 : 0) + (allowMinimize ? 1 : 0)
             if needButtons > 0 {

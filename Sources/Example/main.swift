@@ -88,7 +88,9 @@ frame.addSubview(list)
 
 list.activate = { item in
     let win = (options [item].func)()
-    win.set (x: 1, y: 1)
+    if win.x == nil || win.y == nil {
+        win.set (x: 1, y: 1)
+    }
 
     let newTop = Toplevel ()
     newTop.addSubviews([makeMenu (), win])
@@ -103,6 +105,9 @@ win.x = Pos.at (0)
 win.y = Pos.at (1)
 win.addSubview(frame)
 
+let s = Desktop ()
+s.set (x: 1, y: 1, width: 20, height: 4)
+win.addSubview(s    )
 let subwin = Window()
 subwin.set (x: 2, y: 2, width: 10, height: 3)
 

@@ -163,6 +163,15 @@ public class ListView: View {
         canFocus = true
     }
     
+    /// Initialization method to allow the delegate and datasource to be set later, withour referencing self
+    public override init ()
+    {
+        self.dataSource = StringWrapperDataSource ([])
+        self.delegate = RenderDelegate { row, width in "" }
+        super.init ()
+        canFocus = true
+    }
+    
     /// Initialies a ListView with botht he source and delegate fully specified.
     /// - Parameter dataSource: Should provide information about the data being rendered
     /// - Parameter delegate: Should provide the methods to render and respond to the ListView
@@ -222,29 +231,33 @@ public class ListView: View {
     /// direction of the moevemnt
     public var autoNavigateToNextViewOnBoundary = false
 
+    public func redrawColor (_ painter: Painter, selection: Bool)
+    {
+        if selection {
+            painter.colorSelection()
+        } else {
+            painter.colorNormal()
+        }
+    }
     public override func redraw(region: Rect, painter: Painter) {
         let n = dataSource.getCount (listView: self)
         let b = bounds
         let lines = bounds.height
         
-        painter.colorNormal ()
+        redrawColor(painter, selection: false)
         
         for row in 0..<lines {
             let item = top + row
             painter.goto(col: 0, row: row)
-            if item == selected {
-                painter.colorSelection()
-            } else {
-                painter.colorNormal()
-            }
+            redrawColor(painter, selection: item == selected)
             var space = b.width
             if allowMarking {
-                painter.add(str: dataSource.isMarked(listView: self, item: item) ? "* " : "  ")
-                space -= 2
+                painter.add(str: dataSource.isMarked(listView: self, item: item) ? "*" : " ")
+                space -= 1
             }
             delegate.render(listView: self, painter: painter,
                             selected: selected == item,
-                            item: item, col: allowMarking ? 2 : 0,
+                            item: item, col: allowMarking ? 1 : 0,
                             line: row, width: space)
         }
     }
@@ -305,6 +318,7 @@ public class ListView: View {
     
     func toggleMarkOnRow () -> Bool {
         guard allowMarking else { return false }
+        guard allowsMultipleSelection else { return false }
         if dataSource.isMarked(listView: self, item: selected) {
             dataSource.setMark(listView: self, item: selected, state: false)
         } else {
@@ -313,6 +327,7 @@ public class ListView: View {
             }
             dataSource.setMark(listView: self, item: selected, state: true)
         }
+        setNeedsDisplay()
         return true
     }
     
@@ -326,7 +341,7 @@ public class ListView: View {
         }
         
         if selected > 0 {
-            selected -= 1
+            selectedItem -= 1
             if selected < top {
                 top = selected
             } else if selected > top + frame.height {
@@ -348,7 +363,7 @@ public class ListView: View {
         }
         
         if selected + 1 < count {
-            selected += 1
+            selectedItem += 1
             if selected >= (top + frame.height) {
                 top += 1
             } else if selected < top {
@@ -369,7 +384,7 @@ public class ListView: View {
         }
         
         if selected > 0 {
-            selected -= 1
+            selectedItem -= 1
             if selected > count {
                 selectedItem = count - 1
             }
@@ -426,6 +441,11 @@ public class ListView: View {
         }
     }
 
+    public func reload () {
+        selectedItem = 0
+        top = 0
+        setNeedsDisplay()
+    }
     public override func positionCursor() {
         moveTo (col: allowMarking ? 0 : bounds.width-1, row: selected-top)
     }

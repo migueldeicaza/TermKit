@@ -29,10 +29,10 @@ public func log (_ s: String)
     }
 }
 
-class SizeError : Error {
+class SizeError: Error {
 }
 
-enum ApplicationError : Error {
+enum ApplicationError: Error {
     case internalState(msg:String)
 }
 
@@ -87,14 +87,14 @@ enum ApplicationError : Error {
  */
 public class Application {
     /// Points to the global application
-    static var _top : Toplevel? = nil
-    static var _current : Toplevel? = nil
-    static var toplevels : [Toplevel] = []
-    static var debugDrawBounds : Bool = false
+    static var _top: Toplevel? = nil
+    static var _current: Toplevel? = nil
+    static var toplevels: [Toplevel] = []
+    static var debugDrawBounds: Bool = false
     static var initialized: Bool = false
     
     /// The Toplevel object used for the application on startup.
-    public static var top : Toplevel {
+    public static var top: Toplevel {
         get {
             guard let x = _top else {
                 print ("You must call Application.prepare()")
@@ -105,14 +105,14 @@ public class Application {
     }
     
     /// The current toplevel object.   This is updated when Application.Run enters and leaves and points to the current toplevel.
-    public static var current : Toplevel? {
+    public static var current: Toplevel? {
         get {
             return _current
         }
     }
 
     /// The current Console Driver in use.
-    static var driver : ConsoleDriver = CursesDriver()
+    static var driver: ConsoleDriver = CursesDriver()
     
     /**
      * Prepares the application, must be called before anything else.
@@ -141,7 +141,7 @@ public class Application {
     static public func refresh ()
     {
         driver.updateScreen ()
-        var last : View? = nil
+        var last: View? = nil
         for v in toplevels {
             v.setNeedsDisplay()
             v.redraw(region: v.bounds, painter: Painter.createRootPainter (from: v))
@@ -151,7 +151,7 @@ public class Application {
         driver.refresh()
     }
     
-    static func processKeyEvent (event : KeyEvent)
+    static func processKeyEvent (event: KeyEvent)
     {
         defer {
             if Application.initialized {
@@ -188,7 +188,7 @@ public class Application {
         }
     }
     
-    static func findDeepestView (start : View, x: Int, y: Int) -> (view: View, resx: Int, resy: Int)?
+    static func findDeepestView (start: View, x: Int, y: Int) -> (view: View, resx: Int, resy: Int)?
     {
         let startFrame = start.frame
         
@@ -235,21 +235,21 @@ public class Application {
     static var wantContinuousButtonPressedView: View? = nil
     static var lastMouseOwnerView: View? = nil
 
-    static var rootMouseHandlers : [Int:(MouseEvent)->()] = [:]
+    static var rootMouseHandlers: [Int:(MouseEvent)->()] = [:]
     static var lastMouseToken = 0
     
     /**
      * A token representing a registered root mouse handler
      */
     public struct MouseHandlerToken {
-        var token : Int
+        var token: Int
     }
     
     /**
      * Registers a global mouse event handler to be invoked for every mouse event, this
      * is called before any event processing takes place for the currently focused view.
      */
-    public static func addRootMouseHandler (_ handler : @escaping (MouseEvent)->()) -> MouseHandlerToken
+    public static func addRootMouseHandler (_ handler: @escaping (MouseEvent)->()) -> MouseHandlerToken
     {
         let ret = lastMouseToken
         rootMouseHandlers [lastMouseToken] = handler
@@ -332,7 +332,7 @@ public class Application {
      * - Parameter toplevel: Toplevel to prepare execution for.
      * - Returns: The runstate handle that needs to be passed to the `end` method upon completion
      */
-    public static func begin (toplevel : Toplevel)
+    public static func begin (toplevel: Toplevel)
     {
         if !initialized {
             print ("You should call Application.prepare() to initialize")
@@ -347,6 +347,7 @@ public class Application {
             try toplevel.layoutSubviews()
         } catch {}
         toplevel.willPresent()
+        
         redrawView (toplevel)
         toplevel.positionCursor()
         driver.refresh()

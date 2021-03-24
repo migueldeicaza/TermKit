@@ -187,18 +187,18 @@ public class Painter {
     /**
      * Clears the view region with the current color.
      */
-    public func clear ()
+    public func clear (with: Character = " ")
     {
-        clear (view.frame)
+        clear (view.frame, with: with)
     }
 
     /// Clears the specified region in painter coordinates
     /// - Parameter rect: the region to clear, the coordinates are relative to the view
-    public func clear (_ rect: Rect)
+    public func clear (_ rect: Rect, with: Character = " ")
     {
         let h = rect.height
         
-        let lstr = String (repeating: " ", count: rect.width)
+        let lstr = String (repeating: with, count: rect.width)
         
         for line in 0..<h {
             goto (col: rect.minX, row: line)
@@ -228,7 +228,7 @@ public class Painter {
      * - Parameter padding: Padding to add on the sides
      * - Parameter fill: If set to `true` it will clear the contents with the current color, otherwise the contents will be left untouched.
      */
-    public func drawFrame (_ region: Rect, padding : Int, fill : Bool)
+    public func drawFrame (_ region: Rect, padding : Int, fill : Bool, double: Bool = false)
     {
         let width = region.width;
         let height = region.height;
@@ -249,11 +249,11 @@ public class Painter {
         for _ in 0..<padding {
             add (ch: " ")
         }
-        add (rune: driver.ulCorner)
+        add (rune: double ? driver.doubleUlCorner : driver.ulCorner)
         for _ in 0..<(fwidth-2) {
-            add (rune: driver.hLine);
+            add (rune: double ? driver.doubleHLine : driver.hLine);
         }
-        add (rune: driver.urCorner);
+        add (rune: double ? driver.doubleUrCorner : driver.urCorner);
         for _ in 0..<padding {
             add (ch: " ")
         }
@@ -263,7 +263,7 @@ public class Painter {
             for _ in 0..<padding {
                 add (ch: " ")
             }
-            add (rune: driver.vLine);
+            add (rune: double ? driver.doubleVLine : driver.vLine);
             if fill {
                 for _ in 1..<(fwidth-1){
                     add (ch: " ")
@@ -271,7 +271,7 @@ public class Painter {
             } else {
                 goto (col: region.minX + fwidth - 1, row: region.minY + b)
             }
-            add (rune: driver.vLine);
+            add (rune: double ? driver.doubleVLine : driver.vLine);
             for _ in 0..<padding {
                 add (ch: " ")
             }
@@ -280,11 +280,11 @@ public class Painter {
         for _ in 0..<padding {
             add (ch: " ")
         }
-        add (rune: driver.llCorner);
+        add (rune: double ? driver.doubleLlCorner : driver.llCorner);
         for _ in 0..<(fwidth - 2) {
-            add (rune: driver.hLine);
+            add (rune: double ? driver.doubleHLine : driver.hLine);
         }
-        add (rune: driver.lrCorner);
+        add (rune: double ? driver.doubleLrCorner : driver.lrCorner);
         for _ in 0..<padding {
             add (ch: " ")
         }

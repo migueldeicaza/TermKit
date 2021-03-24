@@ -220,10 +220,17 @@ public class ConsoleDriver {
     var ulCorner = Unicode.Scalar (0x250c)!
     var llCorner = Unicode.Scalar (0x2514)!
     var hLine = Unicode.Scalar (0x2500)!
+    var vLine = Unicode.Scalar (0x2502)!
     var urCorner = Unicode.Scalar (0x2510)!
     var lrCorner = Unicode.Scalar (0x2518)!
+    var doubleUlCorner = Unicode.Scalar (0x2554)!   // ╔
+    var doubleLlCorner = Unicode.Scalar (0x255a)!   // ╚
+    var doubleHLine = Unicode.Scalar (0x2550)!      // ═
+    var doubleVLine = Unicode.Scalar (0x2551)!      // ║
+    var doubleUrCorner = Unicode.Scalar (0x2557)!   // ╗
+    var doubleLrCorner = Unicode.Scalar (0x255d)!   // ╝
+
     let space = Unicode.Scalar (32)!
-    var vLine = Unicode.Scalar (0x2502)!
     var stipple = Unicode.Scalar (0x2591)!
     var diamond = Unicode.Scalar (0x25c6)!
     var leftTee = Unicode.Scalar (0x251c)!
@@ -233,6 +240,10 @@ public class ConsoleDriver {
     
     var filledCircle = Unicode.Scalar (0x25CF)!   // "●"
     var emptyCircle = Unicode.Scalar (0x25CB)!    // "○"
+    
+    // Use these or [x] [ ]
+    var radioOn = "●"
+    var radioOff = "○"
     
     public var clip : Rect
     
