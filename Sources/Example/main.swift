@@ -111,6 +111,7 @@ win.addSubview(s    )
 
 // Create a floating window
 let subwin = Window()
+subwin.allowResize = true
 subwin.set (x: 2, y: 2, width: 10, height: 3)
 subwin.closeClicked { win in win.superview!.remove (win) }
 

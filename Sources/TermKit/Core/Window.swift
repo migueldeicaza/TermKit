@@ -113,6 +113,13 @@ public class Window : Toplevel {
             p.attribute = colorScheme!.normal
             p.drawFrame (bounds, padding: padding, fill: true, double: hasFocus)
             
+            if allowResize {
+                var b = bounds
+                p.goto(col: b.width-1-padding, row: b.height-1-padding)
+                
+                // Invert the character for resizable ones
+                p.add(rune: hasFocus ? driver.lrCorner : driver.doubleLrCorner)
+            }
             var needButtons = (allowClose ? 1 : 0) + (allowMaximize ? 1 : 0) + (allowMinimize ? 1 : 0)
             if needButtons > 0 {
                 let buttonIcon = Application.driver.filledCircle
