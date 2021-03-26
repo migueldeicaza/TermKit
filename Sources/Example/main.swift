@@ -108,11 +108,14 @@ win.addSubview(frame)
 let s = Desktop ()
 s.set (x: 1, y: 1, width: 20, height: 4)
 win.addSubview(s    )
+
+// Create a floating window
 let subwin = Window()
 subwin.set (x: 2, y: 2, width: 10, height: 3)
+subwin.closeClicked { win in win.superview!.remove (win) }
 
 Application.top.addSubview(win)
-//Application.top.addSubview(subwin)
+Application.top.addSubview(subwin)
 Application.top.addSubview(makeMenu ())
 Application.run()
 print ("ending")

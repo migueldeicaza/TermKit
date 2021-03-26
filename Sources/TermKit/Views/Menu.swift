@@ -5,9 +5,12 @@
 //  Created by Miguel de Icaza on 4/26/19.
 //  Copyright © 2019 Miguel de Icaza. All rights reserved.
 //
+// TODO:
+//  - Enable/disable menu item support
+//  - Checkbox on menu items (with a style, so radios can be done too)
+//  - nested menus
 
 import Foundation
-
 
 /// Specifies how a `MenuItem`shows selection state.
 public enum MenuItemStyle {
@@ -70,12 +73,12 @@ public struct MenuItem {
     }
                                             
     /**
-     - Parameters:
-     - title: Title for the menu item
-     - help: Help text to display
-     - action: Method to invoke when the menu is triggered
-     - shortcut: Global shortcut that can be used to invoke this menu
-     - hotkey: Key used to activate the menu, when the menu is active
+     * - Parameters:
+     *  - title: Title for the menu item
+     *  - help: Help text to display
+     *  - action: Method to invoke when the menu is triggered
+     *  - shortcut: Global shortcut that can be used to invoke this menu
+     *  - hotkey: Key used to activate the menu, when the menu is active
      */
     public init (title: String, help: String = "", action: (()->Void)? = nil, shortcut: Key? = nil, hotkey: Character? = nil, style: MenuItemStyle = .plain)
     {
@@ -102,9 +105,10 @@ public class MenuBarItem {
     /**
      * Initializes a new instance of the menubar item with the specified title and children
      *
-     * - Parameter title: The title to display, if the string contains an underscore, the next character
-     * becomes the hotkey, for example "_File" would make "F" the hotkey for the menu entry.
-     * - Parameter children: Array of menu items that describe the contents of the menu.
+     * - Parameters:
+     *  - title: The title to display, if the string contains an underscore, the next character
+     *    becomes the hotkey, for example "_File" would make "F" the hotkey for the menu entry.
+     *  - children: Array of menu items that describe the contents of the menu.
      */
     public init (title : String, children : [MenuItem?], parent: MenuItem? = nil)
     {
@@ -121,10 +125,10 @@ public class MenuBarItem {
     }
 }
 
-//
-// Displays the menu list when it is activated
-//
-public class Menu : View {
+/**
+ * Menus are views displayed vertically that contain various menu items, and are attached to a menubar.
+ */
+public class Menu: View {
     var barItems: MenuBarItem
     var host: MenuBar
     
@@ -260,6 +264,22 @@ public class Menu : View {
         default:
             return false
         }
+        return true
+    }
+     
+    public override func mouseEvent(event: MouseEvent) -> Bool {
+        guard event.y >= 1 else { return true }
+        let idx = event.y - 1
+        guard idx <= barItems.children.count else { return true }
+        guard let item = barItems.children [idx] else { return true }
+
+        if event.flags == .button1Clicked {
+            host.closeMenu()
+            run (action: item.action)
+        }
+        
+        current = idx
+        setNeedsDisplay()
         return true
     }
 }
@@ -427,7 +447,7 @@ public class MenuBar: View {
             selected = (selected! + 1) % menus.count
             
         case .esc, .controlC:
-            // TODO: running = false
+            Application.requestStop()
             break
             
         case let .letter (x):

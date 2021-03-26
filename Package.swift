@@ -26,7 +26,7 @@ let package = Package(
             name: "TermKit",
             dependencies: ["Curses", "OpenCombine"]),
         .systemLibrary(
-            name: "Curses"),
+            name: "Curses"), // , pkgConfig: "/tmp/ncursesw.pc"),
         .target(
             name: "Example",
             dependencies: ["TermKit"]),

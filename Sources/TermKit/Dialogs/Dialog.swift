@@ -44,6 +44,7 @@ public class Dialog: Window {
         allowClose = true
         allowMaximize = false
         allowMinimize = false
+        closeClicked { d in self.close () }
     }
     
     /**
@@ -80,18 +81,15 @@ public class Dialog: Window {
     public override func processKey(event: KeyEvent) -> Bool {
         switch event.key {
         case .esc:
-            closeClicked()
+            close ()
             return true
         default:
             return super.processKey(event: event)
         }
     }
     
-    public override func closeClicked() {
-        running = false
-        if let closed = closedCallback {
-            Application.requestStop ()
-            closed ()
-        }
+    func close ()
+    {
+        Application.requestStop()
     }
 }

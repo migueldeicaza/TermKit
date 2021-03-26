@@ -86,6 +86,8 @@ public class Window : Toplevel {
         }
     }
     
+    public var allowResize = false
+    
     lazy var closeAttribute = colorScheme.normal.change(foreground: .red)
     lazy var minimizeAttribute = colorScheme.normal.change(foreground: .brightYellow)
     lazy var maximizeAttribute = colorScheme.normal.change(foreground: .green)
@@ -111,7 +113,7 @@ public class Window : Toplevel {
         
         if !needDisplay.isEmpty {
             p.attribute = colorScheme!.normal
-            p.drawFrame (bounds, padding: padding, fill: true, double: false)
+            p.drawFrame (bounds, padding: padding, fill: true, double: hasFocus)
             
             var needButtons = (allowClose ? 1 : 0) + (allowMaximize ? 1 : 0) + (allowMinimize ? 1 : 0)
             if needButtons > 0 {
@@ -153,30 +155,53 @@ public class Window : Toplevel {
         clearNeedsDisplay()
     }
     
-    open func closeClicked ()
+    var closeCallback: (Window) -> () = { w in }
+    /// Call this method to set the close event handler
+    public func closeClicked (callback: @escaping (Window) -> ())
     {
-        superview?.remove(self)
+        closeCallback = callback
     }
     
-    var grabbed: Point? = nil
+    var moveGrab: Point? = nil
+    var resizeGrab: Point? = nil
     
     public override func mouseEvent(event: MouseEvent) -> Bool {
-        if let g = grabbed {
+        if event.flags == [.button4Released] {
+            if moveGrab != nil {
+                moveGrab = nil
+                return true
+            }
+            if resizeGrab != nil {
+                resizeGrab = nil
+                return true
+            }
+        }
+        if let g = moveGrab {
             let deltax = event.absX - g.x
             let deltay = event.absY - g.y
 
             self.x = Pos.at (frame.minX + deltax)
             self.y = Pos.at (frame.minY + deltay)
             setNeedsLayout()
-            grabbed = Point (x: event.absX, y: event.absY)
+            moveGrab = Point (x: event.absX, y: event.absY)
             return true
+        } else if let g = resizeGrab {
+            let deltax = event.absX - g.x
+            let deltay = event.absY - g.y
+
+            self.width = Dim.sized (frame.width + deltax)
+            self.height = Dim.sized (frame.height + deltay)
+            setNeedsLayout()
+            resizeGrab = Point (x: event.absX, y: event.absY)
+            return true
+
         }
         if event.flags == [.button1Clicked] && event.y == padding {
             let x = event.x
             var expect = 2+padding
             if allowClose {
                 if x == expect {
-                    closeClicked ()
+                    closeCallback (self)
                 }
                 expect += 1
             }
@@ -202,8 +227,16 @@ public class Window : Toplevel {
                 }
             }
             
-            log ("grabbed")
-            //Application.grabMouse(from: self)
+        }
+        if event.flags == [.button4Pressed] || event.flags == [.button1Pressed] {
+            print ("line: \(event.y) and \(frame.height-padding-1)")
+            if event.y == padding {
+                log ("grabbed")
+                Application.grabMouse(from: self)
+                moveGrab = Point (x: event.absX, y: event.absY)
+            } else if event.y == frame.height-padding-1 && event.x == frame.width-padding-1 {
+                resizeGrab = Point (x: event.absX, y: event.absY)
+            }
         }
         return true
     }

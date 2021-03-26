@@ -25,7 +25,7 @@ import OpenCombine
  * ```
  * var d = Dialog("_Hello")
  * var ok = Button ("Ok")
- * ok.clicked = { d.running = false }
+ * ok.clicked = { d.requestStop () }
  * d.addButton (ok)
  * Application.run (d)
  * ```

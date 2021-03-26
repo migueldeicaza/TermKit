@@ -10,6 +10,10 @@ import TermKit
 
 func FileDialogs () -> Window {
     let w = Window ()
+    w.closeClicked { _ in
+        Application.requestStop()
+    }
+
     w.fill (percentage: 80)
     w.allowClose = true
 

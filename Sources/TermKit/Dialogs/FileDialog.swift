@@ -1,8 +1,11 @@
 //
-//  File.swift
+// FileDialog.swift - implements the file save and file open dialogs
 //  
+// TODO:
+//   - canCreateDirectories
+//   - Add a path navigator
 //
-//  Created by Miguel de Icaza on 3/20/21.
+// Created by Miguel de Icaza on 3/20/21.
 //
 
 import Foundation
@@ -237,6 +240,7 @@ class DirListView: ListView, ListViewDataSource, ListViewDelegate {
         return true
     }
     
+    /// The array of filename extensions allowed (including the ".", or null if all file extensions are allowed
     var allowedFileTypes: [String]? = nil
     
     public var selectedPaths: [String] {
@@ -271,13 +275,16 @@ class DirListView: ListView, ListViewDataSource, ListViewDelegate {
     }
 }
 
-/// Base class for the `OpenDialog` and `SaveDialog`
+/// Base class for the `OpenDialog` and `SaveDialog`, use one of those subclasses.
 public class FileDialog: Dialog {
     var prompt, cancel: Button
     var nameFieldLabel, message, dirLabel: Label
     var dirEntry, nameEntry: TextField
     var dirListView: DirListView!
-    var canceled: Bool = true
+    
+    /// If true, this means that the dialog was canceled, otherwise, you can pick the various
+    /// properties to pick the selection.
+    public var canceled: Bool = false
     
     /// Initializes the FileDialog
     /// - Parameters:
@@ -335,10 +342,12 @@ public class FileDialog: Dialog {
         }
         cancel.clicked = { button in
             self.canceled = true
+            self.complete()
             Application.requestStop()
         }
         self.prompt.clicked = { button in
             self.canceled = false
+            self.complete()
             Application.requestStop()
         }
     }
@@ -367,16 +376,28 @@ public class FileDialog: Dialog {
         }
     }
     
-    var filePath: String = ""
-
+    // Overwritten by base classes
+    func complete () {
+    }
+    
+    /// The File path that is currently shown on the panel
+    public var filePath: String {
+        get {
+            directoryPath + "/" + nameEntry.text
+        }
+        set {
+            let asUrl = URL(fileURLWithPath: newValue)
+            nameEntry.text = asUrl.lastPathComponent
+        }
+    }
 }
 
 /**
  * The `SaveDialog` provides an interactive dialog box for users to pick a file to save.
  *
- * To use, create an instance of `SaveDialog`, and pass it to
- * `Application.present`. This will run the dialog and when you are done,
- * `fileName` property will contain the selected file name or`nil` if the user canceled.
+ * To use, create an instance of `SaveDialog`, and call present with a callback
+ * for completion.  Then you can examine the `fileName` property, that will
+ * contain the selected file name or`nil` if the user canceled.
  */
 public class SaveDialog: FileDialog {
     /// Creates a new instance of the SaveDialog
@@ -397,6 +418,23 @@ public class SaveDialog: FileDialog {
             }
             return filePath
         }
+    }
+    
+    override func complete () {
+        if let c = callback {
+            c (self)
+        }
+    }
+    
+    var callback: ((SaveDialog) -> ())? = nil
+    
+    /// Use this method to present the dialog, the callback will be invoked when the
+    /// dialog is closed, probe the `canceled` variable, if it is set to true, it means that
+    /// the user did cancel the dialog, otherwise the selection is on the `fileName` property
+    /// (that variable is nil if the user canceled as well)
+    public func present (_ callback: @escaping (SaveDialog) -> ()) {
+        self.callback = callback
+        Application.present(top: self)
     }
 }
 
@@ -428,6 +466,7 @@ public class OpenDialog: FileDialog {
         }
         set {
             dirListView.allowsMultipleSelection = newValue
+            dirListView.reload()
         }
     }
     
@@ -438,13 +477,45 @@ public class OpenDialog: FileDialog {
         }
         set {
             dirListView.canChooseDirectories = newValue
+            dirListView.reload()
+        }
+    }
+
+    /// Gets or sets a value indicating whether this `OpenDialog` can choose files.
+    public var canChooseFiles: Bool {
+        get {
+            dirListView.canChooseFiles
+        }
+        set {
+            dirListView.canChooseFiles = newValue
+            dirListView.reload()
+        }
+    }
+
+    /// The list of selected paths, nil if the user canceled the operation
+    public var filePaths: [String]? {
+        get {
+            if canceled {
+                return nil
+            }
+            return dirListView.selectedPaths
         }
     }
     
-    /// The list of selected paths
-    public var filePaths: [String] {
-        get {
-            dirListView.selectedPaths
+    override func complete () {
+        if let c = callback {
+            c (self)
         }
+    }
+    
+    var callback: ((OpenDialog) -> ())? = nil
+    
+    /// Use this method to present the dialog, the callback will be invoked when the
+    /// dialog is closed, probe the `canceled` variable, if it is set to true, it means that
+    /// the user did cancel the dialog, otherwise the selection is on the `fileName` property
+    /// (that variable is nil if the user canceled as well)
+    public func present (_ callback: @escaping (OpenDialog) -> ()) {
+        self.callback = callback
+        Application.present(top: self)
     }
 }

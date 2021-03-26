@@ -271,6 +271,7 @@ public class Application {
     
     static func processMouseEvent (mouseEvent: MouseEvent)
     {
+        log ("Event: \(mouseEvent)")
         for h in rootMouseHandlers.values {
             h (mouseEvent)
         }
@@ -319,18 +320,21 @@ public class Application {
         
     }
     
+    static func switchFocus ()
+    {
+        if let currentTop = toplevels.first {
+            currentTop.resignFirstResponder()
+        }
+    }
     /**
      * Building block API: Prepares the provided toplevel for execution.
      *
      * This method prepares the provided toplevel for running with the focus,
      * it adds this to the list of toplevels, sets up the mainloop to process the
      * event, lays out the subviews, focuses the first element, and draws the
-     * toplevel in the screen.   This is usually followed by executing
-     * the `RunLoop` method, and then the `End(RunState` method upon termination which
-     * will undo these changes
+     * toplevel in the screen.
      *
      * - Parameter toplevel: Toplevel to prepare execution for.
-     * - Returns: The runstate handle that needs to be passed to the `end` method upon completion
      */
     public static func begin (toplevel: Toplevel)
     {
@@ -338,6 +342,7 @@ public class Application {
             print ("You should call Application.prepare() to initialize")
             abort ()
         }
+        switchFocus ()
         toplevels.append(toplevel)
         _current = toplevel
         if toplevel.layoutStyle == .computed {
@@ -378,7 +383,6 @@ public class Application {
         driver.refresh()
     }
     
-    // Called by RunState when it disposes
     static func end (_ top: Toplevel) throws
     {
         if toplevels.last == nil {
@@ -447,8 +451,6 @@ public class Application {
     {
         DispatchQueue.global ().async {
             if let c = current {
-                c._running = false
-                
                 toplevels = toplevels.dropLast ()
                 if toplevels.count == 0 {
                     Application.shutdown ()
@@ -486,9 +488,6 @@ public class Application {
      */
     public static func shutdown(statusCode: Int = 0)
     {
-        for top in toplevels {
-            top._running = false
-        }
         initialized = false
         driver.end ();
         exit (Int32 (statusCode))
