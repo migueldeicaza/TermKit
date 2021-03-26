@@ -228,7 +228,7 @@ public class Painter {
      * - Parameter padding: Padding to add on the sides
      * - Parameter fill: If set to `true` it will clear the contents with the current color, otherwise the contents will be left untouched.
      */
-    public func drawFrame (_ region: Rect, padding : Int, fill : Bool, double: Bool = false)
+    public func drawFrame (_ region: Rect, padding: Int, fill: Bool, double: Bool = false)
     {
         let width = region.width;
         let height = region.height;

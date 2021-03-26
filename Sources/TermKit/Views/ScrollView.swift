@@ -27,13 +27,13 @@ import Foundation
  * If the region to display the scrollbar is larger than three characters,
  * arrow indicators are drawn.
  */
-public class ScrollBarView : View {
+public class ScrollBarView: View {
     var isVertical: Bool = false
     var size: Int
     var _position: Int
     
     /// This event is raised when the position on the scrollbar has changed.
-    public var changedPosition : (_ sender: ScrollBarView, _ old: Int, _ new: Int)->Void = { x, y, z in }
+    public var changedPosition: (_ sender: ScrollBarView, _ old: Int, _ new: Int)->Void = { x, y, z in }
     
     /**
      * Initializes the ScrollBarView
@@ -88,7 +88,7 @@ public class ScrollBarView : View {
             }
             let col = bounds.width - 1
             var bh = bounds.height
-            var special : Unicode.Scalar
+            var special: Unicode.Scalar
             if bh < 4 {
                 let by1 = position * bh / size;
                 let by2 = (position + bh) * bh / size;
@@ -138,7 +138,7 @@ public class ScrollBarView : View {
             }
             let row = bounds.height - 1;
             var bw = bounds.width;
-            var special : Unicode.Scalar
+            var special: Unicode.Scalar
             
             if (bw < 4) {
                 let bx1 = position * bw / size;
@@ -322,9 +322,9 @@ public class ScrollView : View {
         }
     }
     
-    var _contentOffset : Point = Point.zero
+    var _contentOffset: Point = Point.zero
     /// Represents the top left corner coordinate that is displayed by the scrollview
-    public var contentOffset : Point {
+    public var contentOffset: Point {
         get {
             return _contentOffset
         }
@@ -345,7 +345,7 @@ public class ScrollView : View {
     }
     
     /// Gets or sets the visibility for the horizontal scroll indicator
-    public var showHorizontalScrollIndicator : Bool {
+    public var showHorizontalScrollIndicator: Bool {
         get {
             return _showsHorizontalScrollIndicator
         }
@@ -364,7 +364,7 @@ public class ScrollView : View {
     }
     
     /// Gets or sets the visibility for the vertical scroll indicator
-    public var showVerticalScrollIndicator : Bool {
+    public var showVerticalScrollIndicator: Bool {
         get {
             return _showsVerticalScrollIndicator
         }

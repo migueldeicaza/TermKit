@@ -8,14 +8,22 @@
     <script src="../js/jquery.min.js" defer></script>
     <script src="../js/jazzy.js" defer></script>
     
+    <script src="../js/lunr.min.js" defer></script>
+    <script src="../js/typeahead.jquery.js" defer></script>
+    <script src="../js/jazzy.search.js" defer></script>
   </head>
   <body>
     <a name="//apple_ref/swift/Enum/Color" class="dashAnchor"></a>
     <a title="Color Enumeration Reference"></a>
     <header>
       <div class="content-wrapper">
-        <p><a href="../index.html">TermKit Docs</a> (77% documented)</p>
+        <p><a href="../index.html">TermKit Docs</a> (80% documented)</p>
         <p class="header-right"><a href="https://github.com/migueldeicaza/TermKit"><img src="../img/gh.png"/>View on GitHub</a></p>
+        <p class="header-right">
+          <form role="search" action="../search.json">
+            <input type="text" placeholder="Search documentation" data-typeahead>
+          </form>
+        </p>
       </div>
     </header>
     <div class="content-wrapper">
@@ -36,6 +44,9 @@
               </li>
               <li class="nav-group-task">
                 <a href="../Classes/Application.html#/s:7TermKit11ApplicationC17MouseHandlerTokenV">– MouseHandlerToken</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/AttributedString.html">AttributedString</a>
               </li>
               <li class="nav-group-task">
                 <a href="../Classes/Button.html">Button</a>
@@ -59,19 +70,31 @@
                 <a href="../Classes/ConsoleDriver/ColorSupport.html">– ColorSupport</a>
               </li>
               <li class="nav-group-task">
+                <a href="../Classes/Desktop.html">Desktop</a>
+              </li>
+              <li class="nav-group-task">
                 <a href="../Classes/Dialog.html">Dialog</a>
               </li>
               <li class="nav-group-task">
                 <a href="../Classes/Dim.html">Dim</a>
               </li>
               <li class="nav-group-task">
-                <a href="../Classes/FrameView.html">FrameView</a>
+                <a href="../Classes/FileDialog.html">FileDialog</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Frame.html">Frame</a>
               </li>
               <li class="nav-group-task">
                 <a href="../Classes/Label.html">Label</a>
               </li>
               <li class="nav-group-task">
+                <a href="../Classes/Label3.html">Label3</a>
+              </li>
+              <li class="nav-group-task">
                 <a href="../Classes/ListView.html">ListView</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MarkupView.html">MarkupView</a>
               </li>
               <li class="nav-group-task">
                 <a href="../Classes/Menu.html">Menu</a>
@@ -86,16 +109,31 @@
                 <a href="../Classes/MessageBox.html">MessageBox</a>
               </li>
               <li class="nav-group-task">
+                <a href="../Classes/OpenDialog.html">OpenDialog</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Painter.html">Painter</a>
+              </li>
+              <li class="nav-group-task">
                 <a href="../Classes/Pos.html">Pos</a>
               </li>
               <li class="nav-group-task">
                 <a href="../Classes/ProgressBar.html">ProgressBar</a>
               </li>
               <li class="nav-group-task">
+                <a href="../Classes/RadioGroup.html">RadioGroup</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/SaveDialog.html">SaveDialog</a>
+              </li>
+              <li class="nav-group-task">
                 <a href="../Classes/ScrollBarView.html">ScrollBarView</a>
               </li>
               <li class="nav-group-task">
                 <a href="../Classes/ScrollView.html">ScrollView</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/StatusBar.html">StatusBar</a>
               </li>
               <li class="nav-group-task">
                 <a href="../Classes/TextField.html">TextField</a>
@@ -127,6 +165,15 @@
                 <a href="../Enums/LayoutStyle.html">LayoutStyle</a>
               </li>
               <li class="nav-group-task">
+                <a href="../Enums/LineBreakMode.html">LineBreakMode</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/MenuItemStyle.html">MenuItemStyle</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/Orientation.html">Orientation</a>
+              </li>
+              <li class="nav-group-task">
                 <a href="../Enums/TextAlignment.html">TextAlignment</a>
               </li>
             </ul>
@@ -140,13 +187,21 @@
             </ul>
           </li>
           <li class="nav-group-name">
+            <a href="../Functions.html">Functions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Functions.html#/s:7TermKit3logyySSF">log(_:)</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
             <a href="../Protocols.html">Protocols</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
-                <a href="../Protocols.html#/s:7TermKit18ListViewDataSourceP">ListViewDataSource</a>
+                <a href="../Protocols/ListViewDataSource.html">ListViewDataSource</a>
               </li>
               <li class="nav-group-task">
-                <a href="../Protocols.html#/s:7TermKit16ListViewDelegateP">ListViewDelegate</a>
+                <a href="../Protocols/ListViewDelegate.html">ListViewDelegate</a>
               </li>
               <li class="nav-group-task">
                 <a href="../Protocols/Responder.html">Responder</a>
@@ -158,6 +213,9 @@
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a href="../Structs/Attribute.html">Attribute</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/CellFlags.html">CellFlags</a>
               </li>
               <li class="nav-group-task">
                 <a href="../Structs/KeyEvent.html">KeyEvent</a>
@@ -198,7 +256,8 @@
             <h1>Color</h1>
               <div class="declaration">
                 <div class="language">
-                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">Color</span></code></pre>
+                  
+                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">Color</span> <span class="p">:</span> <span class="kt">Hashable</span></code></pre>
 
                 </div>
               </div>
@@ -212,9 +271,9 @@ these can be used as parameters for creating Attributes.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:7TermKit5ColorO5BlackyA2CmF"></a>
-                    <a name="//apple_ref/swift/Element/Black" class="dashAnchor"></a>
-                    <a class="token" href="#/s:7TermKit5ColorO5BlackyA2CmF">Black</a>
+                    <a name="/s:7TermKit5ColorO5blackyA2CmF"></a>
+                    <a name="//apple_ref/swift/Element/black" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit5ColorO5blackyA2CmF">black</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -229,7 +288,7 @@ these can be used as parameters for creating Attributes.</p>
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="k">case</span> <span class="kt">Black</span></code></pre>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="n">black</span></code></pre>
 
                         </div>
                       </div>
@@ -239,9 +298,9 @@ these can be used as parameters for creating Attributes.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:7TermKit5ColorO4BlueyA2CmF"></a>
-                    <a name="//apple_ref/swift/Element/Blue" class="dashAnchor"></a>
-                    <a class="token" href="#/s:7TermKit5ColorO4BlueyA2CmF">Blue</a>
+                    <a name="/s:7TermKit5ColorO4blueyA2CmF"></a>
+                    <a name="//apple_ref/swift/Element/blue" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit5ColorO4blueyA2CmF">blue</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -256,7 +315,7 @@ these can be used as parameters for creating Attributes.</p>
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="k">case</span> <span class="kt">Blue</span></code></pre>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="n">blue</span></code></pre>
 
                         </div>
                       </div>
@@ -266,9 +325,9 @@ these can be used as parameters for creating Attributes.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:7TermKit5ColorO5GreenyA2CmF"></a>
-                    <a name="//apple_ref/swift/Element/Green" class="dashAnchor"></a>
-                    <a class="token" href="#/s:7TermKit5ColorO5GreenyA2CmF">Green</a>
+                    <a name="/s:7TermKit5ColorO5greenyA2CmF"></a>
+                    <a name="//apple_ref/swift/Element/green" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit5ColorO5greenyA2CmF">green</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -283,7 +342,7 @@ these can be used as parameters for creating Attributes.</p>
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="k">case</span> <span class="kt">Green</span></code></pre>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="n">green</span></code></pre>
 
                         </div>
                       </div>
@@ -293,9 +352,9 @@ these can be used as parameters for creating Attributes.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:7TermKit5ColorO4CyanyA2CmF"></a>
-                    <a name="//apple_ref/swift/Element/Cyan" class="dashAnchor"></a>
-                    <a class="token" href="#/s:7TermKit5ColorO4CyanyA2CmF">Cyan</a>
+                    <a name="/s:7TermKit5ColorO4cyanyA2CmF"></a>
+                    <a name="//apple_ref/swift/Element/cyan" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit5ColorO4cyanyA2CmF">cyan</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -310,7 +369,7 @@ these can be used as parameters for creating Attributes.</p>
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="k">case</span> <span class="kt">Cyan</span></code></pre>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="n">cyan</span></code></pre>
 
                         </div>
                       </div>
@@ -320,9 +379,9 @@ these can be used as parameters for creating Attributes.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:7TermKit5ColorO3RedyA2CmF"></a>
-                    <a name="//apple_ref/swift/Element/Red" class="dashAnchor"></a>
-                    <a class="token" href="#/s:7TermKit5ColorO3RedyA2CmF">Red</a>
+                    <a name="/s:7TermKit5ColorO3redyA2CmF"></a>
+                    <a name="//apple_ref/swift/Element/red" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit5ColorO3redyA2CmF">red</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -337,7 +396,7 @@ these can be used as parameters for creating Attributes.</p>
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="k">case</span> <span class="kt">Red</span></code></pre>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="n">red</span></code></pre>
 
                         </div>
                       </div>
@@ -347,9 +406,9 @@ these can be used as parameters for creating Attributes.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:7TermKit5ColorO7MagentayA2CmF"></a>
-                    <a name="//apple_ref/swift/Element/Magenta" class="dashAnchor"></a>
-                    <a class="token" href="#/s:7TermKit5ColorO7MagentayA2CmF">Magenta</a>
+                    <a name="/s:7TermKit5ColorO7magentayA2CmF"></a>
+                    <a name="//apple_ref/swift/Element/magenta" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit5ColorO7magentayA2CmF">magenta</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -364,7 +423,7 @@ these can be used as parameters for creating Attributes.</p>
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="k">case</span> <span class="kt">Magenta</span></code></pre>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="n">magenta</span></code></pre>
 
                         </div>
                       </div>
@@ -374,9 +433,9 @@ these can be used as parameters for creating Attributes.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:7TermKit5ColorO5BrownyA2CmF"></a>
-                    <a name="//apple_ref/swift/Element/Brown" class="dashAnchor"></a>
-                    <a class="token" href="#/s:7TermKit5ColorO5BrownyA2CmF">Brown</a>
+                    <a name="/s:7TermKit5ColorO5brownyA2CmF"></a>
+                    <a name="//apple_ref/swift/Element/brown" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit5ColorO5brownyA2CmF">brown</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -391,7 +450,7 @@ these can be used as parameters for creating Attributes.</p>
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="k">case</span> <span class="kt">Brown</span></code></pre>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="n">brown</span></code></pre>
 
                         </div>
                       </div>
@@ -401,9 +460,9 @@ these can be used as parameters for creating Attributes.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:7TermKit5ColorO4GrayyA2CmF"></a>
-                    <a name="//apple_ref/swift/Element/Gray" class="dashAnchor"></a>
-                    <a class="token" href="#/s:7TermKit5ColorO4GrayyA2CmF">Gray</a>
+                    <a name="/s:7TermKit5ColorO4grayyA2CmF"></a>
+                    <a name="//apple_ref/swift/Element/gray" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit5ColorO4grayyA2CmF">gray</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -418,7 +477,7 @@ these can be used as parameters for creating Attributes.</p>
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="k">case</span> <span class="kt">Gray</span></code></pre>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="n">gray</span></code></pre>
 
                         </div>
                       </div>
@@ -428,9 +487,9 @@ these can be used as parameters for creating Attributes.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:7TermKit5ColorO8DarkGrayyA2CmF"></a>
-                    <a name="//apple_ref/swift/Element/DarkGray" class="dashAnchor"></a>
-                    <a class="token" href="#/s:7TermKit5ColorO8DarkGrayyA2CmF">DarkGray</a>
+                    <a name="/s:7TermKit5ColorO8darkGrayyA2CmF"></a>
+                    <a name="//apple_ref/swift/Element/darkGray" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit5ColorO8darkGrayyA2CmF">darkGray</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -445,7 +504,7 @@ these can be used as parameters for creating Attributes.</p>
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="k">case</span> <span class="kt">DarkGray</span></code></pre>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="n">darkGray</span></code></pre>
 
                         </div>
                       </div>
@@ -455,9 +514,9 @@ these can be used as parameters for creating Attributes.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:7TermKit5ColorO10BrightBlueyA2CmF"></a>
-                    <a name="//apple_ref/swift/Element/BrightBlue" class="dashAnchor"></a>
-                    <a class="token" href="#/s:7TermKit5ColorO10BrightBlueyA2CmF">BrightBlue</a>
+                    <a name="/s:7TermKit5ColorO10brightBlueyA2CmF"></a>
+                    <a name="//apple_ref/swift/Element/brightBlue" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit5ColorO10brightBlueyA2CmF">brightBlue</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -472,7 +531,7 @@ these can be used as parameters for creating Attributes.</p>
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="k">case</span> <span class="kt">BrightBlue</span></code></pre>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="n">brightBlue</span></code></pre>
 
                         </div>
                       </div>
@@ -482,9 +541,9 @@ these can be used as parameters for creating Attributes.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:7TermKit5ColorO11BrightGreenyA2CmF"></a>
-                    <a name="//apple_ref/swift/Element/BrightGreen" class="dashAnchor"></a>
-                    <a class="token" href="#/s:7TermKit5ColorO11BrightGreenyA2CmF">BrightGreen</a>
+                    <a name="/s:7TermKit5ColorO11brightGreenyA2CmF"></a>
+                    <a name="//apple_ref/swift/Element/brightGreen" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit5ColorO11brightGreenyA2CmF">brightGreen</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -499,7 +558,7 @@ these can be used as parameters for creating Attributes.</p>
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="k">case</span> <span class="kt">BrightGreen</span></code></pre>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="n">brightGreen</span></code></pre>
 
                         </div>
                       </div>
@@ -509,9 +568,9 @@ these can be used as parameters for creating Attributes.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:7TermKit5ColorO10BrightCyanyA2CmF"></a>
-                    <a name="//apple_ref/swift/Element/BrightCyan" class="dashAnchor"></a>
-                    <a class="token" href="#/s:7TermKit5ColorO10BrightCyanyA2CmF">BrightCyan</a>
+                    <a name="/s:7TermKit5ColorO10brightCyanyA2CmF"></a>
+                    <a name="//apple_ref/swift/Element/brightCyan" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit5ColorO10brightCyanyA2CmF">brightCyan</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -526,7 +585,7 @@ these can be used as parameters for creating Attributes.</p>
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="k">case</span> <span class="kt">BrightCyan</span></code></pre>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="n">brightCyan</span></code></pre>
 
                         </div>
                       </div>
@@ -536,9 +595,9 @@ these can be used as parameters for creating Attributes.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:7TermKit5ColorO9BrightRedyA2CmF"></a>
-                    <a name="//apple_ref/swift/Element/BrightRed" class="dashAnchor"></a>
-                    <a class="token" href="#/s:7TermKit5ColorO9BrightRedyA2CmF">BrightRed</a>
+                    <a name="/s:7TermKit5ColorO9brightRedyA2CmF"></a>
+                    <a name="//apple_ref/swift/Element/brightRed" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit5ColorO9brightRedyA2CmF">brightRed</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -553,7 +612,7 @@ these can be used as parameters for creating Attributes.</p>
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="k">case</span> <span class="kt">BrightRed</span></code></pre>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="n">brightRed</span></code></pre>
 
                         </div>
                       </div>
@@ -563,9 +622,9 @@ these can be used as parameters for creating Attributes.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:7TermKit5ColorO13BrightMagentayA2CmF"></a>
-                    <a name="//apple_ref/swift/Element/BrightMagenta" class="dashAnchor"></a>
-                    <a class="token" href="#/s:7TermKit5ColorO13BrightMagentayA2CmF">BrightMagenta</a>
+                    <a name="/s:7TermKit5ColorO13brightMagentayA2CmF"></a>
+                    <a name="//apple_ref/swift/Element/brightMagenta" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit5ColorO13brightMagentayA2CmF">brightMagenta</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -580,7 +639,7 @@ these can be used as parameters for creating Attributes.</p>
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="k">case</span> <span class="kt">BrightMagenta</span></code></pre>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="n">brightMagenta</span></code></pre>
 
                         </div>
                       </div>
@@ -590,9 +649,9 @@ these can be used as parameters for creating Attributes.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:7TermKit5ColorO12BrightYellowyA2CmF"></a>
-                    <a name="//apple_ref/swift/Element/BrightYellow" class="dashAnchor"></a>
-                    <a class="token" href="#/s:7TermKit5ColorO12BrightYellowyA2CmF">BrightYellow</a>
+                    <a name="/s:7TermKit5ColorO12brightYellowyA2CmF"></a>
+                    <a name="//apple_ref/swift/Element/brightYellow" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit5ColorO12brightYellowyA2CmF">brightYellow</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -607,7 +666,7 @@ these can be used as parameters for creating Attributes.</p>
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="k">case</span> <span class="kt">BrightYellow</span></code></pre>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="n">brightYellow</span></code></pre>
 
                         </div>
                       </div>
@@ -617,9 +676,9 @@ these can be used as parameters for creating Attributes.</p>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:7TermKit5ColorO5WhiteyA2CmF"></a>
-                    <a name="//apple_ref/swift/Element/White" class="dashAnchor"></a>
-                    <a class="token" href="#/s:7TermKit5ColorO5WhiteyA2CmF">White</a>
+                    <a name="/s:7TermKit5ColorO5whiteyA2CmF"></a>
+                    <a name="//apple_ref/swift/Element/white" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit5ColorO5whiteyA2CmF">white</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -634,7 +693,61 @@ these can be used as parameters for creating Attributes.</p>
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="k">case</span> <span class="kt">White</span></code></pre>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="n">white</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7TermKit5ColorO3rgbyACSi_S2itcACmF"></a>
+                    <a name="//apple_ref/swift/Element/rgb(_:_:_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit5ColorO3rgbyACSi_S2itcACmF">rgb(_:<wbr>_:<wbr>_:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="k">case</span> <span class="nf">rgb</span><span class="p">(</span><span class="kt">Int</span><span class="p">,</span> <span class="kt">Int</span><span class="p">,</span> <span class="kt">Int</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7TermKit5ColorO5parseyACSgSSFZ"></a>
+                    <a name="//apple_ref/swift/Method/parse(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit5ColorO5parseyACSgSSFZ">parse(_:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kd">func</span> <span class="nf">parse</span><span class="p">(</span><span class="n">_</span> <span class="nv">name</span><span class="p">:</span> <span class="kt">String</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Color</span><span class="p">?</span></code></pre>
 
                         </div>
                       </div>
@@ -646,8 +759,8 @@ these can be used as parameters for creating Attributes.</p>
           </section>
         </section>
         <section id="footer">
-          <p>&copy; 2019 <a class="link" href="https://github.com/migueldeicaza" target="_blank" rel="external">Miguel de Icaza</a>. All rights reserved. (Last updated: 2019-05-28)</p>
-          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.9.6</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+          <p>&copy; 2021 <a class="link" href="https://github.com/migueldeicaza" target="_blank" rel="external">Miguel de Icaza</a>. All rights reserved. (Last updated: 2021-03-26)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.13.6</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external">Realm</a> project.</p>
         </section>
       </article>
     </div>

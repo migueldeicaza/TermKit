@@ -8,14 +8,22 @@
     <script src="../js/jquery.min.js" defer></script>
     <script src="../js/jazzy.js" defer></script>
     
+    <script src="../js/lunr.min.js" defer></script>
+    <script src="../js/typeahead.jquery.js" defer></script>
+    <script src="../js/jazzy.search.js" defer></script>
   </head>
   <body>
     <a name="//apple_ref/swift/Class/ListView" class="dashAnchor"></a>
     <a title="ListView Class Reference"></a>
     <header>
       <div class="content-wrapper">
-        <p><a href="../index.html">TermKit Docs</a> (77% documented)</p>
+        <p><a href="../index.html">TermKit Docs</a> (80% documented)</p>
         <p class="header-right"><a href="https://github.com/migueldeicaza/TermKit"><img src="../img/gh.png"/>View on GitHub</a></p>
+        <p class="header-right">
+          <form role="search" action="../search.json">
+            <input type="text" placeholder="Search documentation" data-typeahead>
+          </form>
+        </p>
       </div>
     </header>
     <div class="content-wrapper">
@@ -36,6 +44,9 @@
               </li>
               <li class="nav-group-task">
                 <a href="../Classes/Application.html#/s:7TermKit11ApplicationC17MouseHandlerTokenV">– MouseHandlerToken</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/AttributedString.html">AttributedString</a>
               </li>
               <li class="nav-group-task">
                 <a href="../Classes/Button.html">Button</a>
@@ -59,19 +70,31 @@
                 <a href="../Classes/ConsoleDriver/ColorSupport.html">– ColorSupport</a>
               </li>
               <li class="nav-group-task">
+                <a href="../Classes/Desktop.html">Desktop</a>
+              </li>
+              <li class="nav-group-task">
                 <a href="../Classes/Dialog.html">Dialog</a>
               </li>
               <li class="nav-group-task">
                 <a href="../Classes/Dim.html">Dim</a>
               </li>
               <li class="nav-group-task">
-                <a href="../Classes/FrameView.html">FrameView</a>
+                <a href="../Classes/FileDialog.html">FileDialog</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Frame.html">Frame</a>
               </li>
               <li class="nav-group-task">
                 <a href="../Classes/Label.html">Label</a>
               </li>
               <li class="nav-group-task">
+                <a href="../Classes/Label3.html">Label3</a>
+              </li>
+              <li class="nav-group-task">
                 <a href="../Classes/ListView.html">ListView</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MarkupView.html">MarkupView</a>
               </li>
               <li class="nav-group-task">
                 <a href="../Classes/Menu.html">Menu</a>
@@ -86,16 +109,31 @@
                 <a href="../Classes/MessageBox.html">MessageBox</a>
               </li>
               <li class="nav-group-task">
+                <a href="../Classes/OpenDialog.html">OpenDialog</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Painter.html">Painter</a>
+              </li>
+              <li class="nav-group-task">
                 <a href="../Classes/Pos.html">Pos</a>
               </li>
               <li class="nav-group-task">
                 <a href="../Classes/ProgressBar.html">ProgressBar</a>
               </li>
               <li class="nav-group-task">
+                <a href="../Classes/RadioGroup.html">RadioGroup</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/SaveDialog.html">SaveDialog</a>
+              </li>
+              <li class="nav-group-task">
                 <a href="../Classes/ScrollBarView.html">ScrollBarView</a>
               </li>
               <li class="nav-group-task">
                 <a href="../Classes/ScrollView.html">ScrollView</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/StatusBar.html">StatusBar</a>
               </li>
               <li class="nav-group-task">
                 <a href="../Classes/TextField.html">TextField</a>
@@ -127,6 +165,15 @@
                 <a href="../Enums/LayoutStyle.html">LayoutStyle</a>
               </li>
               <li class="nav-group-task">
+                <a href="../Enums/LineBreakMode.html">LineBreakMode</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/MenuItemStyle.html">MenuItemStyle</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/Orientation.html">Orientation</a>
+              </li>
+              <li class="nav-group-task">
                 <a href="../Enums/TextAlignment.html">TextAlignment</a>
               </li>
             </ul>
@@ -140,13 +187,21 @@
             </ul>
           </li>
           <li class="nav-group-name">
+            <a href="../Functions.html">Functions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Functions.html#/s:7TermKit3logyySSF">log(_:)</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
             <a href="../Protocols.html">Protocols</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
-                <a href="../Protocols.html#/s:7TermKit18ListViewDataSourceP">ListViewDataSource</a>
+                <a href="../Protocols/ListViewDataSource.html">ListViewDataSource</a>
               </li>
               <li class="nav-group-task">
-                <a href="../Protocols.html#/s:7TermKit16ListViewDelegateP">ListViewDelegate</a>
+                <a href="../Protocols/ListViewDelegate.html">ListViewDelegate</a>
               </li>
               <li class="nav-group-task">
                 <a href="../Protocols/Responder.html">Responder</a>
@@ -158,6 +213,9 @@
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a href="../Structs/Attribute.html">Attribute</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/CellFlags.html">CellFlags</a>
               </li>
               <li class="nav-group-task">
                 <a href="../Structs/KeyEvent.html">KeyEvent</a>
@@ -198,16 +256,87 @@
             <h1>ListView</h1>
               <div class="declaration">
                 <div class="language">
+                  
                   <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">ListView</span> <span class="p">:</span> <span class="kt"><a href="../Classes/View.html">View</a></span></code></pre>
 
                 </div>
               </div>
-            <p>ListView is a control used to displays rows of data</p>
+            <p>ListView is a control used to displays rows of data.</p>
+
+<p># Initialization:
+ The ListView offers both easy to use, as well as customizable options for the data being rendered.
+ For very simple scenarios there is a constructor that takes an array of strings, and provides a way of
+ rendering those, and selecting those (the selection can be retrieved through the API).</p>
+
+<p>If you desire to customize the rendering of the data, or if your data is not a string, a separate constructor
+ takes both a ListViewDataSource instance, which is used to describe your information to display, as well
+ as a rendering method that is invoked to render every line on demand and is expected to return a string,
+ which is in turn rendered.</p>
+
+<p>A more advanced method requires both the datasource and the delegate to be specified, in this scenario,
+ you can control directly how the contents of your data source are rendered.</p>
+
+<p>To scroll to a particular place, you can set the &ldquo;topItem&rdquo; property</p>
 
           </section>
           <section class="section task-group-section">
             <div class="task-group">
               <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7TermKit8ListViewC12allowMarkingSbvp"></a>
+                    <a name="//apple_ref/swift/Property/allowMarking" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit8ListViewC12allowMarkingSbvp">allowMarking</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>If set, this allows the elements on the list to be marked
+If true, this will render the items with the mark strings</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">allowMarking</span><span class="p">:</span> <span class="kt">Bool</span> <span class="p">{</span> <span class="k">get</span> <span class="k">set</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7TermKit8ListViewC23allowsMultipleSelectionSbvp"></a>
+                    <a name="//apple_ref/swift/Property/allowsMultipleSelection" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit8ListViewC23allowsMultipleSelectionSbvp">allowsMultipleSelection</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">allowsMultipleSelection</span><span class="p">:</span> <span class="kt">Bool</span> <span class="p">{</span> <span class="k">get</span> <span class="k">set</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
                 <li class="item">
                   <div>
                     <code>
@@ -228,7 +357,7 @@
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">dataSource</span><span class="p">:</span> <span class="kt"><a href="../Protocols.html#/s:7TermKit18ListViewDataSourceP">ListViewDataSource</a></span> <span class="p">{</span> <span class="k">get</span> <span class="k">set</span> <span class="p">}</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">dataSource</span><span class="p">:</span> <span class="kt"><a href="../Protocols/ListViewDataSource.html">ListViewDataSource</a></span> <span class="p">{</span> <span class="k">get</span> <span class="k">set</span> <span class="p">}</span></code></pre>
 
                         </div>
                       </div>
@@ -248,16 +377,102 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>Specifies the delegate instance that will receive important notifications from the ListView</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">delegate</span><span class="p">:</span> <span class="kt"><a href="../Protocols.html#/s:7TermKit16ListViewDelegateP">ListViewDelegate</a></span> <span class="p">{</span> <span class="k">get</span> <span class="k">set</span> <span class="p">}</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">delegate</span><span class="p">:</span> <span class="kt"><a href="../Protocols/ListViewDelegate.html">ListViewDelegate</a></span> <span class="p">{</span> <span class="k">get</span> <span class="k">set</span> <span class="p">}</span></code></pre>
 
                         </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7TermKit8ListViewC8activateSbSicSgvp"></a>
+                    <a name="//apple_ref/swift/Property/activate" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit8ListViewC8activateSbSicSgvp">activate</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Convenience callback method that is invoked with the index of the item that was activated, must return true if it
+consumed the event, false otherwise.  If set, this is called after the <code>ListViewDelegate.activate</code> method.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">activate</span><span class="p">:</span> <span class="p">((</span><span class="n">_</span> <span class="nv">index</span><span class="p">:</span> <span class="kt">Int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Bool</span><span class="p">)?</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7TermKit8ListViewC10dataSource10renderWithAcA0cd4DataF0_p_SSSi_Sitctcfc"></a>
+                    <a name="//apple_ref/swift/Method/init(dataSource:renderWith:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit8ListViewC10dataSource10renderWithAcA0cd4DataF0_p_SSSi_Sitctcfc">init(dataSource:<wbr>renderWith:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Constructs a ListView with a datasource and a method that can produce a rendered line on demand</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span><span class="nv">dataSource</span><span class="p">:</span> <span class="kt"><a href="../Protocols/ListViewDataSource.html">ListViewDataSource</a></span><span class="p">,</span> <span class="nv">renderWith</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="p">((</span><span class="n">_</span> <span class="nv">row</span><span class="p">:</span> <span class="kt">Int</span><span class="p">,</span> <span class="n">_</span> <span class="nv">width</span><span class="p">:</span> <span class="kt">Int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">String</span><span class="p">))</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>dataSource</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>the datasource describing the data</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>renderWith</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>method that can be used to render the data on demand by returning a string.</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
                       </div>
                     </section>
                   </div>
@@ -275,7 +490,8 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        
+                        <p>Initialization method to allow the delegate and datasource to be set later, withour referencing self</p>
+
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
@@ -288,13 +504,537 @@
                     </section>
                   </div>
                 </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7TermKit8ListViewC10dataSource8delegateAcA0cd4DataF0_p_AA0cD8Delegate_ptcfc"></a>
+                    <a name="//apple_ref/swift/Method/init(dataSource:delegate:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit8ListViewC10dataSource8delegateAcA0cd4DataF0_p_AA0cD8Delegate_ptcfc">init(dataSource:<wbr>delegate:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Initialies a ListView with botht he source and delegate fully specified.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="nf">init</span> <span class="p">(</span><span class="nv">dataSource</span><span class="p">:</span> <span class="kt"><a href="../Protocols/ListViewDataSource.html">ListViewDataSource</a></span><span class="p">,</span>
+             <span class="nv">delegate</span><span class="p">:</span> <span class="kt"><a href="../Protocols/ListViewDelegate.html">ListViewDelegate</a></span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>dataSource</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Should provide information about the data being rendered</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>delegate</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Should provide the methods to render and respond to the ListView</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7TermKit8ListViewC5itemsACSaySSG_tcfc"></a>
+                    <a name="//apple_ref/swift/Method/init(items:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit8ListViewC5itemsACSaySSG_tcfc">init(items:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Initialies a ListView that presents an array of strings with the default formatting</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span><span class="nv">items</span><span class="p">:</span> <span class="p">[</span><span class="kt">String</span><span class="p">])</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>items</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Array of strings to render</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7TermKit8ListViewC7topItemSivp"></a>
+                    <a name="//apple_ref/swift/Property/topItem" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit8ListViewC7topItemSivp">topItem</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The index of the item to display at the top of the list</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">topItem</span><span class="p">:</span> <span class="kt">Int</span> <span class="p">{</span> <span class="k">get</span> <span class="k">set</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7TermKit8ListViewC12selectedItemSivp"></a>
+                    <a name="//apple_ref/swift/Property/selectedItem" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit8ListViewC12selectedItemSivp">selectedItem</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Controls the current visibly selected item</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">selectedItem</span><span class="p">:</span> <span class="kt">Int</span> <span class="p">{</span> <span class="k">get</span> <span class="k">set</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7TermKit8ListViewC018autoNavigateToNextD10OnBoundarySbvp"></a>
+                    <a name="//apple_ref/swift/Property/autoNavigateToNextViewOnBoundary" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit8ListViewC018autoNavigateToNextD10OnBoundarySbvp">autoNavigateToNextViewOnBoundary</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>If this property is set to true, when the user reaches the end of the scrollview boundaries
+the event will not be processed, allowing automatically focusing the next view in the
+direction of the moevemnt</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">autoNavigateToNextViewOnBoundary</span><span class="p">:</span> <span class="kt">Bool</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7TermKit8ListViewC11redrawColor_9selectionyAA7PainterC_SbtF"></a>
+                    <a name="//apple_ref/swift/Method/redrawColor(_:selection:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit8ListViewC11redrawColor_9selectionyAA7PainterC_SbtF">redrawColor(_:<wbr>selection:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">redrawColor</span><span class="p">(</span><span class="n">_</span> <span class="nv">painter</span><span class="p">:</span> <span class="kt"><a href="../Classes/Painter.html">Painter</a></span><span class="p">,</span> <span class="nv">selection</span><span class="p">:</span> <span class="kt">Bool</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7TermKit8ListViewC6redraw6region7painteryAA4RectV_AA7PainterCtF"></a>
+                    <a name="//apple_ref/swift/Method/redraw(region:painter:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit8ListViewC6redraw6region7painteryAA4RectV_AA7PainterCtF">redraw(region:<wbr>painter:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">override</span> <span class="kd">func</span> <span class="nf">redraw</span><span class="p">(</span><span class="nv">region</span><span class="p">:</span> <span class="kt"><a href="../Structs/Rect.html">Rect</a></span><span class="p">,</span> <span class="nv">painter</span><span class="p">:</span> <span class="kt"><a href="../Classes/Painter.html">Painter</a></span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7TermKit8ListViewC10processKey5eventSbAA0F5EventV_tF"></a>
+                    <a name="//apple_ref/swift/Method/processKey(event:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit8ListViewC10processKey5eventSbAA0F5EventV_tF">processKey(event:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">override</span> <span class="kd">func</span> <span class="nf">processKey</span><span class="p">(</span><span class="nv">event</span><span class="p">:</span> <span class="kt"><a href="../Structs/KeyEvent.html">KeyEvent</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Bool</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7TermKit8ListViewC15moveSelectionUpSbyF"></a>
+                    <a name="//apple_ref/swift/Method/moveSelectionUp()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit8ListViewC15moveSelectionUpSbyF">moveSelectionUp()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Moves the selection to the previous item</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">moveSelectionUp</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">Bool</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>True if the selection was moved, false otherwise</p>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7TermKit8ListViewC17moveSelectionDownSbyF"></a>
+                    <a name="//apple_ref/swift/Method/moveSelectionDown()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit8ListViewC17moveSelectionDownSbyF">moveSelectionDown()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Moves the selection to the next item</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">moveSelectionDown</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">Bool</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>True if the selection was moved, false otherwise</p>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7TermKit8ListViewC10movePageUpSbyF"></a>
+                    <a name="//apple_ref/swift/Method/movePageUp()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit8ListViewC10movePageUpSbyF">movePageUp()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Moves the selection one page up</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">movePageUp</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">Bool</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>true if this change the selected position, false otherwise</p>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7TermKit8ListViewC12movePageDownSbyF"></a>
+                    <a name="//apple_ref/swift/Method/movePageDown()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit8ListViewC12movePageDownSbyF">movePageDown()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Moves the selection one page up</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">movePageDown</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">Bool</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>true if this change the selected position, false otherwise</p>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7TermKit8ListViewC8moveHomeyyF"></a>
+                    <a name="//apple_ref/swift/Method/moveHome()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit8ListViewC8moveHomeyyF">moveHome()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Moves the selection cursor to the first element</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">moveHome</span><span class="p">()</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7TermKit8ListViewC7moveEndyyF"></a>
+                    <a name="//apple_ref/swift/Method/moveEnd()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit8ListViewC7moveEndyyF">moveEnd()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Moves the selection cursor to the last element</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">moveEnd</span><span class="p">()</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7TermKit8ListViewC6reloadyyF"></a>
+                    <a name="//apple_ref/swift/Method/reload()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit8ListViewC6reloadyyF">reload()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">reload</span><span class="p">()</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7TermKit8ListViewC14positionCursoryyF"></a>
+                    <a name="//apple_ref/swift/Method/positionCursor()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit8ListViewC14positionCursoryyF">positionCursor()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">override</span> <span class="kd">func</span> <span class="nf">positionCursor</span><span class="p">()</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7TermKit8ListViewC10mouseEvent5eventSbAA05MouseF0V_tF"></a>
+                    <a name="//apple_ref/swift/Method/mouseEvent(event:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit8ListViewC10mouseEvent5eventSbAA05MouseF0V_tF">mouseEvent(event:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">override</span> <span class="kd">func</span> <span class="nf">mouseEvent</span><span class="p">(</span><span class="nv">event</span><span class="p">:</span> <span class="kt"><a href="../Structs/MouseEvent.html">MouseEvent</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Bool</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
               </ul>
             </div>
           </section>
         </section>
         <section id="footer">
-          <p>&copy; 2019 <a class="link" href="https://github.com/migueldeicaza" target="_blank" rel="external">Miguel de Icaza</a>. All rights reserved. (Last updated: 2019-05-28)</p>
-          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.9.6</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+          <p>&copy; 2021 <a class="link" href="https://github.com/migueldeicaza" target="_blank" rel="external">Miguel de Icaza</a>. All rights reserved. (Last updated: 2021-03-26)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.13.6</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external">Realm</a> project.</p>
         </section>
       </article>
     </div>

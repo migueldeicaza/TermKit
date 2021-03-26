@@ -12,18 +12,18 @@ import Foundation
  * A toplevel view that draws a frame around its region and has a "ContentView" subview where the contents are added.
  * with an optional title that is displayed at the top
  */
-public class Window : Toplevel {
-    var contentView : View
-    var padding : Int
+public class Window: Toplevel {
+    var contentView: View
+    var padding: Int
     
     /// The title to be displayed for this window.
-    public var title : String? {
+    public var title: String? {
         didSet {
             setNeedsDisplay()
         }
     }
     
-    class ContentView : View {
+    class ContentView: View {
         public override var debugDescription: String {
             return "Window.ContentView (\(super.debugDescription))"
         }
@@ -34,7 +34,7 @@ public class Window : Toplevel {
         self.init (nil, padding: 0)
     }
     
-    public init (_ title : String? = nil, padding : Int = 0)
+    public init (_ title: String? = nil, padding: Int = 0)
     {
         self.padding = padding
         self.title = title
@@ -160,12 +160,7 @@ public class Window : Toplevel {
         clearNeedsDisplay()
     }
     
-    var closeCallback: (Window) -> () = { w in }
-    /// Call this method to set the close event handler
-    public func closeClicked (callback: @escaping (Window) -> ())
-    {
-        closeCallback = callback
-    }
+    public var closeClicked: (Window) -> () = { w in }
     
     var moveGrab: Point? = nil
     var resizeGrab: Point? = nil
@@ -206,7 +201,7 @@ public class Window : Toplevel {
             var expect = 2+padding
             if allowClose {
                 if x == expect {
-                    closeCallback (self)
+                    closeClicked (self)
                 }
                 expect += 1
             }

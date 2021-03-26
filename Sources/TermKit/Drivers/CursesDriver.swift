@@ -40,31 +40,31 @@ class CursesDriver: ConsoleDriver {
     let A_PROTECT   : Int32 = 0x1000000
     let A_INVIS     : Int32 = 0x800000
     
-    let cursesButton1Pressed : Int32 = 0x2
-    let cursesButton1Released : Int32 = 0x1
-    let cursesButton1Clicked : Int32 = 0x4
-    let cursesButton1DoubleClicked : Int32 = 0x8
-    let cursesButton1TripleClicked : Int32 = 0x10
-    let cursesButton2Pressed : Int32 = 0x80
-    let cursesButton2Released : Int32 = 0x40
-    let cursesButton2Clicked : Int32 = 0x100
-    let cursesButton2DoubleClicked : Int32 = 0x200
-    let cursesButton2TrippleClicked : Int32 = 0x400
-    let cursesButton3Pressed : Int32 = 0x2000
-    let cursesButton3Released : Int32 = 0x1000
-    let cursesButton3Clicked : Int32 = 0x4000
-    let cursesButton3DoubleClicked : Int32 = 0x8000
-    let cursesButton3TripleClicked : Int32 = 0x10000
-    let cursesButton4Pressed : Int32 = 0x80000
-    let cursesButton4Released : Int32 = 0x40000
-    let cursesButton4Clicked : Int32 = 0x100000
-    let cursesButton4DoubleClicked : Int32 = 0x200000
-    let cursesButton4TripleClicked : Int32 = 0x400000
-    let cursesButtonShift : Int32 = 0x2000000
-    let cursesButtonCtrl : Int32 = 0x1000000
-    let cursesButtonAlt : Int32 = 0x4000000
-    let cursesReportMousePosition : Int32 = 0x8000000
-    let cursesAllEvents : Int32 = 0x7ffffff
+    let cursesButton1Pressed: Int32 = 0x2
+    let cursesButton1Released: Int32 = 0x1
+    let cursesButton1Clicked: Int32 = 0x4
+    let cursesButton1DoubleClicked: Int32 = 0x8
+    let cursesButton1TripleClicked: Int32 = 0x10
+    let cursesButton2Pressed: Int32 = 0x80
+    let cursesButton2Released: Int32 = 0x40
+    let cursesButton2Clicked: Int32 = 0x100
+    let cursesButton2DoubleClicked: Int32 = 0x200
+    let cursesButton2TrippleClicked: Int32 = 0x400
+    let cursesButton3Pressed: Int32 = 0x2000
+    let cursesButton3Released: Int32 = 0x1000
+    let cursesButton3Clicked: Int32 = 0x4000
+    let cursesButton3DoubleClicked: Int32 = 0x8000
+    let cursesButton3TripleClicked: Int32 = 0x10000
+    let cursesButton4Pressed: Int32 = 0x80000
+    let cursesButton4Released: Int32 = 0x40000
+    let cursesButton4Clicked: Int32 = 0x100000
+    let cursesButton4DoubleClicked: Int32 = 0x200000
+    let cursesButton4TripleClicked: Int32 = 0x400000
+    let cursesButtonShift: Int32 = 0x2000000
+    let cursesButtonCtrl: Int32 = 0x1000000
+    let cursesButtonAlt: Int32 = 0x4000000
+    let cursesReportMousePosition: Int32 = 0x8000000
+    let cursesAllEvents: Int32 = 0x7ffffff
 
     var oldMouseEvents: mmask_t
     var mouseEvents: mmask_t

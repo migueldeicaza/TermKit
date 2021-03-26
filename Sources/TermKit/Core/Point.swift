@@ -22,7 +22,7 @@ public struct Point: CustomDebugStringConvertible, Codable, Equatable {
     static var zero = Point(x: 0, y: 0)
     
     /// Initializes a new Point with the specified x and y coordinates
-    public init (x: Int, y : Int)
+    public init (x: Int, y: Int)
     {
         self.x = x
         self.y = y

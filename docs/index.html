@@ -8,13 +8,21 @@
     <script src="js/jquery.min.js" defer></script>
     <script src="js/jazzy.js" defer></script>
     
+    <script src="js/lunr.min.js" defer></script>
+    <script src="js/typeahead.jquery.js" defer></script>
+    <script src="js/jazzy.search.js" defer></script>
   </head>
   <body>
     <a title="TermKit  Reference"></a>
     <header>
       <div class="content-wrapper">
-        <p><a href="index.html">TermKit Docs</a> (77% documented)</p>
+        <p><a href="index.html">TermKit Docs</a> (80% documented)</p>
         <p class="header-right"><a href="https://github.com/migueldeicaza/TermKit"><img src="img/gh.png"/>View on GitHub</a></p>
+        <p class="header-right">
+          <form role="search" action="search.json">
+            <input type="text" placeholder="Search documentation" data-typeahead>
+          </form>
+        </p>
       </div>
     </header>
     <div class="content-wrapper">
@@ -35,6 +43,9 @@
               </li>
               <li class="nav-group-task">
                 <a href="Classes/Application.html#/s:7TermKit11ApplicationC17MouseHandlerTokenV">– MouseHandlerToken</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/AttributedString.html">AttributedString</a>
               </li>
               <li class="nav-group-task">
                 <a href="Classes/Button.html">Button</a>
@@ -58,19 +69,31 @@
                 <a href="Classes/ConsoleDriver/ColorSupport.html">– ColorSupport</a>
               </li>
               <li class="nav-group-task">
+                <a href="Classes/Desktop.html">Desktop</a>
+              </li>
+              <li class="nav-group-task">
                 <a href="Classes/Dialog.html">Dialog</a>
               </li>
               <li class="nav-group-task">
                 <a href="Classes/Dim.html">Dim</a>
               </li>
               <li class="nav-group-task">
-                <a href="Classes/FrameView.html">FrameView</a>
+                <a href="Classes/FileDialog.html">FileDialog</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/Frame.html">Frame</a>
               </li>
               <li class="nav-group-task">
                 <a href="Classes/Label.html">Label</a>
               </li>
               <li class="nav-group-task">
+                <a href="Classes/Label3.html">Label3</a>
+              </li>
+              <li class="nav-group-task">
                 <a href="Classes/ListView.html">ListView</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/MarkupView.html">MarkupView</a>
               </li>
               <li class="nav-group-task">
                 <a href="Classes/Menu.html">Menu</a>
@@ -85,16 +108,31 @@
                 <a href="Classes/MessageBox.html">MessageBox</a>
               </li>
               <li class="nav-group-task">
+                <a href="Classes/OpenDialog.html">OpenDialog</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/Painter.html">Painter</a>
+              </li>
+              <li class="nav-group-task">
                 <a href="Classes/Pos.html">Pos</a>
               </li>
               <li class="nav-group-task">
                 <a href="Classes/ProgressBar.html">ProgressBar</a>
               </li>
               <li class="nav-group-task">
+                <a href="Classes/RadioGroup.html">RadioGroup</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/SaveDialog.html">SaveDialog</a>
+              </li>
+              <li class="nav-group-task">
                 <a href="Classes/ScrollBarView.html">ScrollBarView</a>
               </li>
               <li class="nav-group-task">
                 <a href="Classes/ScrollView.html">ScrollView</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/StatusBar.html">StatusBar</a>
               </li>
               <li class="nav-group-task">
                 <a href="Classes/TextField.html">TextField</a>
@@ -126,6 +164,15 @@
                 <a href="Enums/LayoutStyle.html">LayoutStyle</a>
               </li>
               <li class="nav-group-task">
+                <a href="Enums/LineBreakMode.html">LineBreakMode</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Enums/MenuItemStyle.html">MenuItemStyle</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Enums/Orientation.html">Orientation</a>
+              </li>
+              <li class="nav-group-task">
                 <a href="Enums/TextAlignment.html">TextAlignment</a>
               </li>
             </ul>
@@ -139,13 +186,21 @@
             </ul>
           </li>
           <li class="nav-group-name">
+            <a href="Functions.html">Functions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Functions.html#/s:7TermKit3logyySSF">log(_:)</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
             <a href="Protocols.html">Protocols</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
-                <a href="Protocols.html#/s:7TermKit18ListViewDataSourceP">ListViewDataSource</a>
+                <a href="Protocols/ListViewDataSource.html">ListViewDataSource</a>
               </li>
               <li class="nav-group-task">
-                <a href="Protocols.html#/s:7TermKit16ListViewDelegateP">ListViewDelegate</a>
+                <a href="Protocols/ListViewDelegate.html">ListViewDelegate</a>
               </li>
               <li class="nav-group-task">
                 <a href="Protocols/Responder.html">Responder</a>
@@ -157,6 +212,9 @@
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a href="Structs/Attribute.html">Attribute</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/CellFlags.html">CellFlags</a>
               </li>
               <li class="nav-group-task">
                 <a href="Structs/KeyEvent.html">KeyEvent</a>
@@ -199,17 +257,58 @@
 <h1 id='termkit-terminal-ui-toolkit-for-swift' class='heading'>TermKit - Terminal UI Toolkit for Swift</h1>
 
 <p>This is a simple UI Toolkit for Swift, a port of my <a href="https://github.com/migueldeicaza/gui.cs">gui.cs library
-for .NET</a></p>
+for .NET</a>.   While I originally
+wrote gui.cs, it has evolved significantly by the contributions of
+Charlie Kindel (@tig), @BDisp and various other contributors - this port 
+is bringing their work.</p>
 
-<p>This toolkit contains various controls for build text user interfaces</p>
+<p>This toolkit contains various controls for build text user interfaces
+using Swift.</p>
 
-<p>Uses Dispatch for mainloop processing.</p>
+<p>You can <a href="https://migueldeicaza.github.io/TermKit/index.html">checkout the documentation</a></p>
+
+<p><img width="1222" alt="Screen Shot 2021-03-13 at 12 44 05 PM" src="https://user-images.githubusercontent.com/36863/111039012-d6df8400-83f9-11eb-9215-88549635a33f.png"></p>
+<h1 id='running-this' class='heading'>Running this</h1>
+
+<p>From the command line:</p>
+<pre class="highlight plaintext"><code>$ swift build
+$ swift run
+</code></pre>
+
+<p>From Xcode, if you want to debug, it is best to make sure that the
+application that you want to Debug (in this project, the &ldquo;Example&rdquo;
+target is what you want) has its Scheme for Running configured
+like this:</p>
+<pre class="highlight plaintext"><code> * Run/Info: Launch "Wait for Executable to be launched"
+</code></pre>
+
+<p>Then, when you run, switch to a console, and run the executable, I have my
+global settings for DerivedData to be relative to the current directory,
+so I can run it like this:</p>
+<pre class="highlight plaintext"><code>$ DerivedData/TermKit/Build/Products/Debug/Example
+</code></pre>
+
+<p>The location for where your executable is produced is configured in Xcode/Preferences/Locations,
+I just happen to like project-relative output like the example above shows.</p>
+<h1 id='debugging' class='heading'>Debugging</h1>
+
+<p>While debugging is useful, sometimes it can be obnoxious to single step or debug over
+code that is called too many times in a row, so printf-like debugging is convenient.</p>
+
+<p>Except that prints go to the same console where your application is running, making this
+experience painful.</p>
+
+<p>In that case, you can call <code>Application.log</code> with a message, and this message will use
+MacOS <code>os_log</code>, which you can then either look for in the Console.app, or you can monitor from 
+a terminal window like this:</p>
+<pre class="highlight plaintext"><code>$ log stream --style compact --predicate 'subsystem == "termkit"'
+</code></pre>
 
           </section>
         </section>
         <section id="footer">
-          <p>&copy; 2019 <a class="link" href="https://github.com/migueldeicaza" target="_blank" rel="external">Miguel de Icaza</a>. All rights reserved. (Last updated: 2019-05-28)</p>
-          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.9.6</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+          <p>&copy; 2021 <a class="link" href="https://github.com/migueldeicaza" target="_blank" rel="external">Miguel de Icaza</a>. All rights reserved. (Last updated: 2021-03-26)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.13.6</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external">Realm</a> project.</p>
         </section>
       </article>
     </div>

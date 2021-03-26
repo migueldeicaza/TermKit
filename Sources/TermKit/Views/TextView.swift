@@ -64,7 +64,7 @@ class TextModel {
     
     
     /// Number of lines in the model
-    var count : Int {
+    var count: Int {
         get {
             return lines.count
         }
@@ -131,15 +131,15 @@ class TextModel {
  * keys.
  */
 
-public class TextView : View {
+public class TextView: View {
     var model: TextModel = TextModel()
-    var topRow : Int = 0
-    var leftColumn : Int = 0
-    var currentRow : Int = 0
-    var currentColumn : Int = 0
-    var selectionStartColumn : Int = 0
-    var selectionStartRow : Int = 0
-    var selecting : Bool = false
+    var topRow: Int = 0
+    var leftColumn: Int = 0
+    var currentRow: Int = 0
+    var currentColumn: Int = 0
+    var selectionStartColumn: Int = 0
+    var selectionStartRow: Int = 0
+    var selecting: Bool = false
     
     /// Indicates readonly attribute of TextView, defaults to false
     public var isReadOnly = false
@@ -165,7 +165,7 @@ public class TextView : View {
     }
     
     /// Sets or gets the text in the view
-    public var text : String {
+    public var text: String {
         get {
             return model.toString()
         }
@@ -193,7 +193,7 @@ public class TextView : View {
     }
     
     /// Returns the current cursor position inside the buffer
-    public var cursorPosition : (col: Int, row: Int) {
+    public var cursorPosition: (col: Int, row: Int) {
         get {
             return (Int(currentColumn), Int(currentRow))
         }
@@ -399,7 +399,7 @@ public class TextView : View {
     }
     
     // The column we are tracking, or -1 if we are not tracking any column
-    var columnTrack : Int = -1
+    var columnTrack: Int = -1
     
     /// Tries to snap the cursor to the tracking column
     func trackColumn ()

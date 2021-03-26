@@ -26,9 +26,9 @@ import OpenCombine
  *
  * ```
  */
-public class Checkbox : View {
+public class Checkbox: View {
     /// The state of the checkbox.
-    public var checked : Bool = false {
+    public var checked: Bool = false {
         didSet {
             setNeedsDisplay()
         }
@@ -56,7 +56,7 @@ public class Checkbox : View {
             i += c.cellSize()
         }
     }
-    var hotPos : Int = -1
+    var hotPos: Int = -1
     
     var _hotKey: Character? = nil
     /// Used to override the hotkey to use for this checkbox
@@ -86,7 +86,7 @@ public class Checkbox : View {
     /// Sets the text for the checkbox, and will automatically pick the HotKey as the first
     /// uppercased letter in the string.  This can be later overwritten by setting HotKey
     /// directly.
-    public var text : String {
+    public var text: String {
         didSet {
             updateHotkeySettings ()
         }

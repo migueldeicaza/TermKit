@@ -44,7 +44,7 @@ public class Dialog: Window {
         allowClose = true
         allowMaximize = false
         allowMinimize = false
-        closeClicked { d in self.close () }
+        closeClicked =  { d in self.close () }
     }
     
     /**

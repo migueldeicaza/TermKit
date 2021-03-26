@@ -10,7 +10,7 @@ import TermKit
 
 func FileDialogs () -> Window {
     let w = Window ()
-    w.closeClicked { _ in
+    w.closeClicked = { _ in
         Application.requestStop()
     }
 

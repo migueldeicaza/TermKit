@@ -8,14 +8,22 @@
     <script src="js/jquery.min.js" defer></script>
     <script src="js/jazzy.js" defer></script>
     
+    <script src="js/lunr.min.js" defer></script>
+    <script src="js/typeahead.jquery.js" defer></script>
+    <script src="js/jazzy.search.js" defer></script>
   </head>
   <body>
     <a name="//apple_ref/swift/Section/Classes" class="dashAnchor"></a>
     <a title="Classes  Reference"></a>
     <header>
       <div class="content-wrapper">
-        <p><a href="index.html">TermKit Docs</a> (77% documented)</p>
+        <p><a href="index.html">TermKit Docs</a> (80% documented)</p>
         <p class="header-right"><a href="https://github.com/migueldeicaza/TermKit"><img src="img/gh.png"/>View on GitHub</a></p>
+        <p class="header-right">
+          <form role="search" action="search.json">
+            <input type="text" placeholder="Search documentation" data-typeahead>
+          </form>
+        </p>
       </div>
     </header>
     <div class="content-wrapper">
@@ -36,6 +44,9 @@
               </li>
               <li class="nav-group-task">
                 <a href="Classes/Application.html#/s:7TermKit11ApplicationC17MouseHandlerTokenV">– MouseHandlerToken</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/AttributedString.html">AttributedString</a>
               </li>
               <li class="nav-group-task">
                 <a href="Classes/Button.html">Button</a>
@@ -59,19 +70,31 @@
                 <a href="Classes/ConsoleDriver/ColorSupport.html">– ColorSupport</a>
               </li>
               <li class="nav-group-task">
+                <a href="Classes/Desktop.html">Desktop</a>
+              </li>
+              <li class="nav-group-task">
                 <a href="Classes/Dialog.html">Dialog</a>
               </li>
               <li class="nav-group-task">
                 <a href="Classes/Dim.html">Dim</a>
               </li>
               <li class="nav-group-task">
-                <a href="Classes/FrameView.html">FrameView</a>
+                <a href="Classes/FileDialog.html">FileDialog</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/Frame.html">Frame</a>
               </li>
               <li class="nav-group-task">
                 <a href="Classes/Label.html">Label</a>
               </li>
               <li class="nav-group-task">
+                <a href="Classes/Label3.html">Label3</a>
+              </li>
+              <li class="nav-group-task">
                 <a href="Classes/ListView.html">ListView</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/MarkupView.html">MarkupView</a>
               </li>
               <li class="nav-group-task">
                 <a href="Classes/Menu.html">Menu</a>
@@ -86,16 +109,31 @@
                 <a href="Classes/MessageBox.html">MessageBox</a>
               </li>
               <li class="nav-group-task">
+                <a href="Classes/OpenDialog.html">OpenDialog</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/Painter.html">Painter</a>
+              </li>
+              <li class="nav-group-task">
                 <a href="Classes/Pos.html">Pos</a>
               </li>
               <li class="nav-group-task">
                 <a href="Classes/ProgressBar.html">ProgressBar</a>
               </li>
               <li class="nav-group-task">
+                <a href="Classes/RadioGroup.html">RadioGroup</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/SaveDialog.html">SaveDialog</a>
+              </li>
+              <li class="nav-group-task">
                 <a href="Classes/ScrollBarView.html">ScrollBarView</a>
               </li>
               <li class="nav-group-task">
                 <a href="Classes/ScrollView.html">ScrollView</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/StatusBar.html">StatusBar</a>
               </li>
               <li class="nav-group-task">
                 <a href="Classes/TextField.html">TextField</a>
@@ -127,6 +165,15 @@
                 <a href="Enums/LayoutStyle.html">LayoutStyle</a>
               </li>
               <li class="nav-group-task">
+                <a href="Enums/LineBreakMode.html">LineBreakMode</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Enums/MenuItemStyle.html">MenuItemStyle</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Enums/Orientation.html">Orientation</a>
+              </li>
+              <li class="nav-group-task">
                 <a href="Enums/TextAlignment.html">TextAlignment</a>
               </li>
             </ul>
@@ -140,13 +187,21 @@
             </ul>
           </li>
           <li class="nav-group-name">
+            <a href="Functions.html">Functions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Functions.html#/s:7TermKit3logyySSF">log(_:)</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
             <a href="Protocols.html">Protocols</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
-                <a href="Protocols.html#/s:7TermKit18ListViewDataSourceP">ListViewDataSource</a>
+                <a href="Protocols/ListViewDataSource.html">ListViewDataSource</a>
               </li>
               <li class="nav-group-task">
-                <a href="Protocols.html#/s:7TermKit16ListViewDelegateP">ListViewDelegate</a>
+                <a href="Protocols/ListViewDelegate.html">ListViewDelegate</a>
               </li>
               <li class="nav-group-task">
                 <a href="Protocols/Responder.html">Responder</a>
@@ -158,6 +213,9 @@
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
                 <a href="Structs/Attribute.html">Attribute</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/CellFlags.html">CellFlags</a>
               </li>
               <li class="nav-group-task">
                 <a href="Structs/KeyEvent.html">KeyEvent</a>
@@ -273,10 +331,68 @@
                     </section>
                   </div>
                 </li>
-              </ul>
-            </div>
-            <div class="task-group">
-              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7TermKit10MarkupViewC"></a>
+                    <a name="//apple_ref/swift/Class/MarkupView" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit10MarkupViewC">MarkupView</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                        <a href="Classes/MarkupView.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">MarkupView</span> <span class="p">:</span> <span class="kt"><a href="Classes/View.html">View</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7TermKit16AttributedStringC"></a>
+                    <a name="//apple_ref/swift/Class/AttributedString" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit16AttributedStringC">AttributedString</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>AttributedString offers a simple way to markup strings to annotate them
+ with terminal attributes and colors.</p>
+
+<p>A convenient <code>init (markup:)</code> method is provided to create these
+ easily using a simple markup system, inspired by the Spectre.Console
+ markup, which is in turn inspired by BBCode.  Unlike BBCode,
+ does not use the word on the closing tag, it merely auto-closes.</p>
+
+                        <a href="Classes/AttributedString.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">AttributedString</span> <span class="p">:</span> <span class="kt">CustomDebugStringConvertible</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
                 <li class="item">
                   <div>
                     <code>
@@ -305,10 +421,6 @@
                     </section>
                   </div>
                 </li>
-              </ul>
-            </div>
-            <div class="task-group">
-              <ul>
                 <li class="item">
                   <div>
                     <code>
@@ -327,7 +439,7 @@
 <p>To create a <code>Dim</code> object, you can choose from one of the following options:</p>
 
 <ul>
-<li><code>Dim(n)</code> constructor creates an absolute dimension of size n</li>
+<li><code>Dim.sized(n)</code> creates an absolute dimension of size n</li>
 <li><code>Dim.percent(n)</code> creates a dimension that reprensents the n% of the container</li>
 <li><code>Dim.fill(margin)</code> creates a dimension that fills to the end of the container dimension, leaving the specified margin on the side</li>
 <li><code>Dim.width(view)</code> and <code>Dim.heigh(view)</code> are used to reference the computed width or height of another view.</li>
@@ -351,10 +463,35 @@
                     </section>
                   </div>
                 </li>
-              </ul>
-            </div>
-            <div class="task-group">
-              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7TermKit7PainterC"></a>
+                    <a name="//apple_ref/swift/Class/Painter" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit7PainterC">Painter</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The drawing context tracks the cursor position and attribute in use
+during the View&rsquo;s draw method, it enforced clipping on the view bounds.</p>
+
+                        <a href="Classes/Painter.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">Painter</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
                 <li class="item">
                   <div>
                     <code>
@@ -408,10 +545,6 @@
                     </section>
                   </div>
                 </li>
-              </ul>
-            </div>
-            <div class="task-group">
-              <ul>
                 <li class="item">
                   <div>
                     <code>
@@ -428,14 +561,17 @@
                         <p>Toplevel views can be modally executed.</p>
 
 <p>Toplevels can be modally executing views, and they return control
- to the caller when the <code>running</code> property is set to false, or
- by calling <code>Application.requestStop</code></p>
+ to the caller when the <code>requestStop</code> is called.</p>
 
 <p>There will be a toplevel created for you on the first time use
  and can be accessed from the property <code><a href="Classes/Application.html#/s:7TermKit11ApplicationC3topAA8ToplevelCvpZ">Application.top</a></code>
  but new toplevels can be created and ran on top of it.   To run, create the
  toplevel and then invoke `Application.run with the
  new toplevel.</p>
+
+<p>To make a toplevel modal, set the <code>modal</code> property to true,
+ this will prevent keyboard and mouse events to go to a previous
+ toplevel.</p>
 
                         <a href="Classes/Toplevel.html" class="slightly-smaller">See more</a>
                       </div>
@@ -450,10 +586,6 @@
                     </section>
                   </div>
                 </li>
-              </ul>
-            </div>
-            <div class="task-group">
-              <ul>
                 <li class="item">
                   <div>
                     <code>
@@ -472,11 +604,16 @@
 <p>The View defines the base functionality for user interface elements in TermKit.  Views
  can contain one or more subviews, can respond to user input and render themselves on the screen.</p>
 
-<p>Views can either be created by setting the X, Y, Width and Height properties on the view.    Coordinates are relative
- to the container they are being added to.</p>
+<p>Views can either be created with a constructor that takes a <code><a href="Structs/Rect.html">Rect</a></code> as the frame to used for the view,
+ which means that the view is using the <code>.fixed</code> LayoutStyle, or  with the empty construtor, and then
+ setting the <code>x</code>, <code>y</code>, <code>width</code> and <code>height</code> properties on the view which configures the view
+ to use the <code>.computed</code> layout style.</p>
+
+<p>The view layout system can be controlled by accessing the <code>layoutStyle</code> property, and is used
+ to transition from the fixed to the computed mode.</p>
 
 <p>The <code>x</code>, and <code>y</code> properties are of type <code><a href="Classes/Pos.html">Pos</a></code>, and you can use either absolute positions, percentages or anchor
- points</p>
+ points.</p>
 
 <p>The <code>width</code> and <code>height</code> properties are of type <code><a href="Classes/Dim.html">Dim</a></code>
  and can use absolute position, percentages and anchors.   These are useful as they will
@@ -527,10 +664,6 @@
                     </section>
                   </div>
                 </li>
-              </ul>
-            </div>
-            <div class="task-group">
-              <ul>
                 <li class="item">
                   <div>
                     <code>
@@ -544,7 +677,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>A toplevel view that draws a frame around its region and has a <q>ContentView</q> subview where the contents are added.
+                        <p>A toplevel view that draws a frame around its region and has a &ldquo;ContentView&rdquo; subview where the contents are added.
 with an optional title that is displayed at the top</p>
 
                         <a href="Classes/Window.html" class="slightly-smaller">See more</a>
@@ -560,10 +693,6 @@ with an optional title that is displayed at the top</p>
                     </section>
                   </div>
                 </li>
-              </ul>
-            </div>
-            <div class="task-group">
-              <ul>
                 <li class="item">
                   <div>
                     <code>
@@ -596,10 +725,102 @@ with an optional title that is displayed at the top</p>
                     </section>
                   </div>
                 </li>
-              </ul>
-            </div>
-            <div class="task-group">
-              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7TermKit10FileDialogC"></a>
+                    <a name="//apple_ref/swift/Class/FileDialog" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit10FileDialogC">FileDialog</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Base class for the <code><a href="Classes/OpenDialog.html">OpenDialog</a></code> and <code><a href="Classes/SaveDialog.html">SaveDialog</a></code>, use one of those subclasses.</p>
+
+                        <a href="Classes/FileDialog.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">FileDialog</span> <span class="p">:</span> <span class="kt"><a href="Classes/Dialog.html">Dialog</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7TermKit10SaveDialogC"></a>
+                    <a name="//apple_ref/swift/Class/SaveDialog" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit10SaveDialogC">SaveDialog</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The <code>SaveDialog</code> provides an interactive dialog box for users to pick a file to save.</p>
+
+<p>To use, create an instance of <code>SaveDialog</code>, and call present with a callback
+ for completion.  Then you can examine the <code>fileName</code> property, that will
+ contain the selected file name or<code>nil</code> if the user canceled.</p>
+
+                        <a href="Classes/SaveDialog.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">SaveDialog</span> <span class="p">:</span> <span class="kt"><a href="Classes/FileDialog.html">FileDialog</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7TermKit10OpenDialogC"></a>
+                    <a name="//apple_ref/swift/Class/OpenDialog" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit10OpenDialogC">OpenDialog</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The <code>OpenDialog</code> provides an interactive dialog box for users to select files or directories.</p>
+
+<p>The open dialog can be used to select files for opening, it can be configured to allow
+ multiple items to be selected (based on the <code>allowsMultipleSelection</code>) variable and
+ you can control whether this should allow files or directories to be selected.
+ To use, create an instance of <code>OpenDialog</code>, and pass it to
+ <code>Application.present</code>. When complete, the list of files will be available in the `filePaths property.</p>
+
+<p>To select more than one file, users can use the spacebar, or control-t.</p>
+
+                        <a href="Classes/OpenDialog.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">OpenDialog</span> <span class="p">:</span> <span class="kt"><a href="Classes/FileDialog.html">FileDialog</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
                 <li class="item">
                   <div>
                     <code>
@@ -620,7 +841,7 @@ with an optional title that is displayed at the top</p>
 <ul>
 <li><code>query</code> is used to show a message with buttons</li>
 <li><code>error</code> is similar to query, but uses the error color scheme for the dialogs</li>
-<li><code>info</code> merely takes a title and message, it is informational only, so the button <q>ok</q> is added</li>
+<li><code>info</code> merely takes a title and message, it is informational only, so the button &ldquo;ok&rdquo; is added</li>
 </ul>
 
 <p>The following example pops up a Message Box with 50 columns, and 7 lines, with the specified title and text, plus two buttons.
@@ -642,10 +863,6 @@ with an optional title that is displayed at the top</p>
                     </section>
                   </div>
                 </li>
-              </ul>
-            </div>
-            <div class="task-group">
-              <ul>
                 <li class="item">
                   <div>
                     <code>
@@ -741,10 +958,6 @@ some contrast over the default colors;  <code>menu</code> is used for the top-le
                     </section>
                   </div>
                 </li>
-              </ul>
-            </div>
-            <div class="task-group">
-              <ul>
                 <li class="item">
                   <div>
                     <code>
@@ -761,17 +974,17 @@ some contrast over the default colors;  <code>menu</code> is used for the top-le
                         <p>Button is a view that provides an item that invokes a callback when activated.</p>
 
 <p>Provides a button that can be clicked, or pressed with the enter key or space key.
- It also responds to hotkeys (the first uppercase letter in the button becomes
- the hotkey) and triggers the execution of a callback method.</p>
+ It also responds to hotkeys (the first letter after an underscore) and triggers
+ the execution of a callback method.</p>
 
 <p>If the button is configured as the default <code>IsDefault</code> the button
  will respond to the return key is no other view processes it, and
  turns this into a clicked event.</p>
 
 <p>To connect a clicked handler, set the <code>clicked</code> property here to your callback</p>
-<pre class="highlight swift"><code> <span class="k">var</span> <span class="nv">d</span> <span class="o">=</span> <span class="kt">Dialog</span><span class="p">(</span><span class="s">"Hello"</span><span class="p">)</span>
+<pre class="highlight swift"><code> <span class="k">var</span> <span class="nv">d</span> <span class="o">=</span> <span class="kt">Dialog</span><span class="p">(</span><span class="s">"_Hello"</span><span class="p">)</span>
  <span class="k">var</span> <span class="nv">ok</span> <span class="o">=</span> <span class="kt">Button</span> <span class="p">(</span><span class="s">"Ok"</span><span class="p">)</span>
- <span class="n">ok</span><span class="o">.</span><span class="n">clicked</span> <span class="o">=</span> <span class="p">{</span> <span class="n">d</span><span class="o">.</span><span class="n">running</span> <span class="o">=</span> <span class="kc">false</span> <span class="p">}</span>
+ <span class="n">ok</span><span class="o">.</span><span class="n">clicked</span> <span class="o">=</span> <span class="p">{</span> <span class="n">d</span><span class="o">.</span><span class="nf">requestStop</span> <span class="p">()</span> <span class="p">}</span>
  <span class="n">d</span><span class="o">.</span><span class="nf">addButton</span> <span class="p">(</span><span class="n">ok</span><span class="p">)</span>
  <span class="kt">Application</span><span class="o">.</span><span class="nf">run</span> <span class="p">(</span><span class="n">d</span><span class="p">)</span>
 </code></pre>
@@ -789,10 +1002,6 @@ some contrast over the default colors;  <code>menu</code> is used for the top-le
                     </section>
                   </div>
                 </li>
-              </ul>
-            </div>
-            <div class="task-group">
-              <ul>
                 <li class="item">
                   <div>
                     <code>
@@ -814,6 +1023,11 @@ some contrast over the default colors;  <code>menu</code> is used for the top-le
  <span class="n">c</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="kt">Pos</span><span class="o">.</span><span class="nf">at</span> <span class="p">(</span><span class="mi">0</span><span class="p">)</span>
  <span class="n">c</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="kt">Dim</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span>
  <span class="n">c</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="kt">Dim</span> <span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+ <span class="n">c</span><span class="o">.</span><span class="n">toggled</span> <span class="o">=</span> <span class="p">{</span> <span class="n">check</span> <span class="k">in</span> <span class="o">...</span> <span class="p">}</span>
+
+ <span class="c1">// Alternatively, you can use Combine to track the event changes:</span>
+ <span class="k">var</span> <span class="nv">cancellable</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">toggledSubject</span><span class="o">.</span><span class="n">sink</span> <span class="p">{</span> <span class="n">cbox</span> <span class="k">in</span> <span class="p">}</span>
+
 </code></pre>
 
                         <a href="Classes/Checkbox.html" class="slightly-smaller">See more</a>
@@ -829,16 +1043,40 @@ some contrast over the default colors;  <code>menu</code> is used for the top-le
                     </section>
                   </div>
                 </li>
-              </ul>
-            </div>
-            <div class="task-group">
-              <ul>
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:7TermKit9FrameViewC"></a>
-                    <a name="//apple_ref/swift/Class/FrameView" class="dashAnchor"></a>
-                    <a class="token" href="#/s:7TermKit9FrameViewC">FrameView</a>
+                    <a name="/s:7TermKit7DesktopC"></a>
+                    <a name="//apple_ref/swift/Class/Desktop" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit7DesktopC">Desktop</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                        <a href="Classes/Desktop.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">Desktop</span> <span class="p">:</span> <span class="kt"><a href="Classes/View.html">View</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7TermKit5FrameC"></a>
+                    <a name="//apple_ref/swift/Class/Frame" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit5FrameC">Frame</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -848,23 +1086,19 @@ some contrast over the default colors;  <code>menu</code> is used for the top-le
                       <div class="abstract">
                         <p>The FrameView is a container frame that draws a frame around the contents</p>
 
-                        <a href="Classes/FrameView.html" class="slightly-smaller">See more</a>
+                        <a href="Classes/Frame.html" class="slightly-smaller">See more</a>
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">FrameView</span> <span class="p">:</span> <span class="kt"><a href="Classes/View.html">View</a></span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">Frame</span> <span class="p">:</span> <span class="kt"><a href="Classes/View.html">View</a></span></code></pre>
 
                         </div>
                       </div>
                     </section>
                   </div>
                 </li>
-              </ul>
-            </div>
-            <div class="task-group">
-              <ul>
                 <li class="item">
                   <div>
                     <code>
@@ -880,6 +1114,11 @@ some contrast over the default colors;  <code>menu</code> is used for the top-le
                       <div class="abstract">
                         <p>Label view, displays a string at a given position, can include multiple lines.</p>
 
+<p>When labels are initiallly created, they compute a default width and height,
+ and additional changes to the configuration of the label (the text, the lineBreak,
+ the text alignemtn) will not automatically change that.  You must call <code>autoSize()</code>
+ if you want to change those parameters.</p>
+
                         <a href="Classes/Label.html" class="slightly-smaller">See more</a>
                       </div>
                       <div class="declaration">
@@ -893,10 +1132,34 @@ some contrast over the default colors;  <code>menu</code> is used for the top-le
                     </section>
                   </div>
                 </li>
-              </ul>
-            </div>
-            <div class="task-group">
-              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7TermKit6Label3C"></a>
+                    <a name="//apple_ref/swift/Class/Label3" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit6Label3C">Label3</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Label view, displays a string at a given position, can include multiple lines.</p>
+
+                        <a href="Classes/Label3.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">Label3</span> <span class="p">:</span> <span class="kt"><a href="Classes/View.html">View</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
                 <li class="item">
                   <div>
                     <code>
@@ -910,7 +1173,22 @@ some contrast over the default colors;  <code>menu</code> is used for the top-le
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>ListView is a control used to displays rows of data</p>
+                        <p>ListView is a control used to displays rows of data.</p>
+
+<p># Initialization:
+ The ListView offers both easy to use, as well as customizable options for the data being rendered.
+ For very simple scenarios there is a constructor that takes an array of strings, and provides a way of
+ rendering those, and selecting those (the selection can be retrieved through the API).</p>
+
+<p>If you desire to customize the rendering of the data, or if your data is not a string, a separate constructor
+ takes both a ListViewDataSource instance, which is used to describe your information to display, as well
+ as a rendering method that is invoked to render every line on demand and is expected to return a string,
+ which is in turn rendered.</p>
+
+<p>A more advanced method requires both the datasource and the delegate to be specified, in this scenario,
+ you can control directly how the contents of your data source are rendered.</p>
+
+<p>To scroll to a particular place, you can set the &ldquo;topItem&rdquo; property</p>
 
                         <a href="Classes/ListView.html" class="slightly-smaller">See more</a>
                       </div>
@@ -925,10 +1203,6 @@ some contrast over the default colors;  <code>menu</code> is used for the top-le
                     </section>
                   </div>
                 </li>
-              </ul>
-            </div>
-            <div class="task-group">
-              <ul>
                 <li class="item">
                   <div>
                     <code>
@@ -942,7 +1216,7 @@ some contrast over the default colors;  <code>menu</code> is used for the top-le
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>A menu bar item contains other menu items.</p>
+                        <p>A menu bar item contains either <code>MenuBarItem</code> or <code><a href="Structs/MenuItem.html">MenuItem</a></code></p>
 
                         <a href="Classes/MenuBarItem.html" class="slightly-smaller">See more</a>
                       </div>
@@ -970,7 +1244,7 @@ some contrast over the default colors;  <code>menu</code> is used for the top-le
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>Menus are views displayed vertically that contain various menu items, and are attached to a menubar.</p>
 
                         <a href="Classes/Menu.html" class="slightly-smaller">See more</a>
                       </div>
@@ -998,11 +1272,7 @@ some contrast over the default colors;  <code>menu</code> is used for the top-le
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>A menubar for your application</p>
-
-<p>Example:</p>
-<pre class="highlight swift"><code>
-</code></pre>
+                        <p>A menubar for your application, defaults to be at the top of its container.</p>
 
                         <a href="Classes/MenuBar.html" class="slightly-smaller">See more</a>
                       </div>
@@ -1017,10 +1287,6 @@ some contrast over the default colors;  <code>menu</code> is used for the top-le
                     </section>
                   </div>
                 </li>
-              </ul>
-            </div>
-            <div class="task-group">
-              <ul>
                 <li class="item">
                   <div>
                     <code>
@@ -1057,10 +1323,34 @@ some contrast over the default colors;  <code>menu</code> is used for the top-le
                     </section>
                   </div>
                 </li>
-              </ul>
-            </div>
-            <div class="task-group">
-              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7TermKit10RadioGroupC"></a>
+                    <a name="//apple_ref/swift/Class/RadioGroup" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit10RadioGroupC">RadioGroup</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                        <a href="Classes/RadioGroup.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">RadioGroup</span> <span class="p">:</span> <span class="kt"><a href="Classes/View.html">View</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
                 <li class="item">
                   <div>
                     <code>
@@ -1108,7 +1398,12 @@ some contrast over the default colors;  <code>menu</code> is used for the top-le
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>Scrollviews are views that present a window into a virtual space where
+subviews are added.  Similar to the iOS UIScrollView.</p>
+
+<p>The subviews that are added to this <code>Gui.ScrollView</code> are offset by the
+`<code>contentOffset</code> property.  The view itself is a window into the
+space represented by the <code>contentSize</code></p>
 
                         <a href="Classes/ScrollView.html" class="slightly-smaller">See more</a>
                       </div>
@@ -1123,10 +1418,34 @@ some contrast over the default colors;  <code>menu</code> is used for the top-le
                     </section>
                   </div>
                 </li>
-              </ul>
-            </div>
-            <div class="task-group">
-              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7TermKit9StatusBarC"></a>
+                    <a name="//apple_ref/swift/Class/StatusBar" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit9StatusBarC">StatusBar</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                        <a href="Classes/StatusBar.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">StatusBar</span> <span class="p">:</span> <span class="kt"><a href="Classes/View.html">View</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
                 <li class="item">
                   <div>
                     <code>
@@ -1140,7 +1459,9 @@ some contrast over the default colors;  <code>menu</code> is used for the top-le
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>Single-line text entry <code><a href="Classes/View.html">View</a></code></p>
+
+<p>This view provides line-editing and mouse support</p>
 
                         <a href="Classes/TextField.html" class="slightly-smaller">See more</a>
                       </div>
@@ -1155,10 +1476,6 @@ some contrast over the default colors;  <code>menu</code> is used for the top-le
                     </section>
                   </div>
                 </li>
-              </ul>
-            </div>
-            <div class="task-group">
-              <ul>
                 <li class="item">
                   <div>
                     <code>
@@ -1196,8 +1513,8 @@ some contrast over the default colors;  <code>menu</code> is used for the top-le
           </section>
         </section>
         <section id="footer">
-          <p>&copy; 2019 <a class="link" href="https://github.com/migueldeicaza" target="_blank" rel="external">Miguel de Icaza</a>. All rights reserved. (Last updated: 2019-05-28)</p>
-          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.9.6</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+          <p>&copy; 2021 <a class="link" href="https://github.com/migueldeicaza" target="_blank" rel="external">Miguel de Icaza</a>. All rights reserved. (Last updated: 2021-03-26)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.13.6</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external">Realm</a> project.</p>
         </section>
       </article>
     </div>

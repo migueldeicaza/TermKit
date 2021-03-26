@@ -14,17 +14,17 @@ import OpenCombine
  *
  * This view provides line-editing and mouse support
  */
-public class TextField : View {
+public class TextField: View {
     // Tracks the current position of the cursor
     var point: Int
     // Tracks the location of the mark (set with control space)
     var mark: Int?
     // The index of the first character displayed on the first cell
     var first: Int
-    var layoutPending : Bool
+    var layoutPending: Bool
     
     /// Indicates whether the user has used this control since it was created
-    public var used : Bool = false
+    public var used: Bool = false
     
     /// If set to true its not allow any changes in the text.
     public var readOnly: Bool = false
@@ -41,10 +41,10 @@ public class TextField : View {
     typealias TextBuffer = [(ch:Character,size:Int8)]
     
     // Store the string as an array of characters and the size in cells of each character
-    var textBuffer : TextBuffer = []
+    var textBuffer: TextBuffer = []
     
     /// Sets or gets the text held by the view.
-    public var text : String {
+    public var text: String {
         get {
             return TextField.fromTextBuffer (textBuffer)
         }
@@ -84,14 +84,14 @@ public class TextField : View {
     }
     
     /// If set, the contents of the entry are masked, used for passwords for example.
-    public var secret : Bool = false {
+    public var secret: Bool = false {
         didSet {
             setNeedsDisplay()
         }
     }
     
     /// Sets or gets the current cursor position.
-    public var cursorPosition : Int = 0 {
+    public var cursorPosition: Int = 0 {
         didSet {
             point = cursorPosition
             adjust ()
@@ -142,7 +142,7 @@ public class TextField : View {
     }
     
     /// Initializes the TextField, with the optional initial text
-    public init (_ initial : String = "")
+    public init (_ initial: String = "")
     {
         layoutPending = true
         point = 0
@@ -163,7 +163,7 @@ public class TextField : View {
         return true
     }
     
-    public override var frame : Rect {
+    public override var frame: Rect {
         didSet {
             adjust()
         }

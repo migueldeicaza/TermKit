@@ -24,7 +24,7 @@ import Foundation
  * this will prevent keyboard and mouse events to go to a previous
  * toplevel.
  */
-open class Toplevel : View {
+open class Toplevel: View {
     /// Initializes a new instance of the Toplevel, class with Computed layout, defaulting to full screen dimensions.
     public override init()
     {

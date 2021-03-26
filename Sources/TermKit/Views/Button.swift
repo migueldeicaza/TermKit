@@ -30,14 +30,14 @@ import OpenCombine
  * Application.run (d)
  * ```
  */
-public class Button : View {
+public class Button: View {
     
-    var shownText : String = ""
-    var hotKey : Character? = nil
-    var hotPos : Int = 0
+    var shownText: String = ""
+    var hotKey: Character? = nil
+    var hotPos: Int = 0
     
     /// When a button is the default, pressing return in the dialog will trigger this button if no other control consumes it
-    public var isDefault : Bool = false {
+    public var isDefault: Bool = false {
         didSet {
             update ()
         }
@@ -73,7 +73,7 @@ public class Button : View {
     /// - Parameters:
     ///   - text: Contains the text for the button.   The first uppercase letter in the button becomes the hotkey
     ///   - clicked: Optional method to invoke when the button is clicked
-    public convenience init (_ text : String, clicked: (()->())? = nil)
+    public convenience init (_ text: String, clicked: (()->())? = nil)
     {
         self.init ()
         self.text = text

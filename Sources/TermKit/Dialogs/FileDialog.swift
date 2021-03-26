@@ -73,7 +73,7 @@ class DirListView: ListView, ListViewDataSource, ListViewDelegate {
         }
     }
     
-    func isDirectory (_ attr: [FileAttributeKey : Any]) -> Bool {
+    func isDirectory (_ attr: [FileAttributeKey:Any]) -> Bool {
         if attr [.type] as? FileAttributeType == .typeDirectory {
             return true
         }
@@ -84,7 +84,7 @@ class DirListView: ListView, ListViewDataSource, ListViewDelegate {
     func reloadContents (_ dirsrc: String? = nil) -> Bool {
         let dir = dirsrc ?? directory
 
-        func isAllowed (_ path: String, _ attr:  [FileAttributeKey : Any]) -> Bool {
+        func isAllowed (_ path: String, _ attr:  [FileAttributeKey:Any]) -> Bool {
             if isDirectory(attr) { return true }
             
             if let filter = allowedFileTypes {

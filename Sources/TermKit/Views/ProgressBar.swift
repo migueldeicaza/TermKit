@@ -19,7 +19,7 @@ import Foundation
  * the Pulse() method.    You should call the `pulse` method repeatedly as
  * your application makes progress.
  */
-public class ProgressBar : View {
+public class ProgressBar: View {
     var isActivity = false
     var activityPos = 0, delta = 0
     
@@ -34,7 +34,7 @@ public class ProgressBar : View {
     /**
      * Gets or sets the progress indicator fraction to display, must be a value between 0 and 1
      */
-    public var fraction : Float {
+    public var fraction: Float {
         didSet {
             isActivity = false
             setNeedsDisplay()

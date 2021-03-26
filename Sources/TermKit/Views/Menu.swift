@@ -27,16 +27,16 @@ public enum MenuItemStyle {
  */
 public struct MenuItem {
     /// Gets or sets the title for the menu item
-    public var title : String = ""
+    public var title: String = ""
     
     /// Gets or sets the help text for the menu item, this is show next to the title
-    public var help : String = ""
+    public var help: String = ""
     
     /// Gets or sets the action to be invoked when the menu is triggered, can be nil
-    public var action : (() -> Void)? = nil
+    public var action: (() -> Void)? = nil
     
     /// This is the global setting that can be used as a global shortcut to invoke the action on the menu.
-    public var shortcut : Key? = nil
+    public var shortcut: Key? = nil
     
     /// The style to use for rendering this menu
     public var style: MenuItemStyle = .plain
@@ -47,9 +47,9 @@ public struct MenuItem {
      * For example HotKey would be "N" when the File Menu is open (assuming there is a "_New" entry
      * if the ShortCut is set to "Control-N", this would be a global hotkey that would trigger as well
      */
-    public var hotkey : Character?
+    public var hotkey: Character?
     
-    var width : Int {
+    var width: Int {
         get {
             return title.cellCount() + help.cellCount() + 1 + 2 +
             (style == .plain ? 0 : 2)
@@ -98,8 +98,8 @@ public struct MenuItem {
  * A menu bar item contains either `MenuBarItem` or `MenuItem`
  */
 public class MenuBarItem {
-    var title : String
-    var titleLen : Int
+    var title: String
+    var titleLen: Int
     var children: [MenuItem?]
     
     /**
@@ -110,7 +110,7 @@ public class MenuBarItem {
      *    becomes the hotkey, for example "_File" would make "F" the hotkey for the menu entry.
      *  - children: Array of menu items that describe the contents of the menu.
      */
-    public init (title : String, children : [MenuItem?], parent: MenuItem? = nil)
+    public init (title: String, children: [MenuItem?], parent: MenuItem? = nil)
     {
        var len = 0
         for ch in title {
@@ -289,8 +289,8 @@ public class Menu: View {
  */
 public class MenuBar: View {
     public var menus: [MenuBarItem]
-    var selected : Int? = nil
-    var action : (() -> Void)? = nil
+    var selected: Int? = nil
+    var action: (() -> Void)? = nil
 
     /**
      * Constructs the menubar with the specified array of MenuBarItems, which can contain nil values

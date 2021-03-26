@@ -88,7 +88,7 @@ public class ListView: View {
         }
     }
     
-    class RenderDelegate : ListViewDelegate {
+    class RenderDelegate: ListViewDelegate {
         func selectionChanged(listView: ListView) {
             
         }
@@ -134,14 +134,14 @@ public class ListView: View {
         }
     }
     
-    public var dataSource : ListViewDataSource {
+    public var dataSource: ListViewDataSource {
         didSet {
             setNeedsDisplay()
         }
     }
     
     /// Specifies the delegate instance that will receive important notifications from the ListView
-    public var delegate : ListViewDelegate {
+    public var delegate: ListViewDelegate {
         didSet {
             setNeedsDisplay()
         }

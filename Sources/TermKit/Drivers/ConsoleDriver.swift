@@ -145,13 +145,13 @@ public extension Int32 {
  */
 public class ColorScheme {
     /// The default color for text, when the view is not focused.
-    public var normal : Attribute
+    public var normal: Attribute
     /// The color for text when the view has the focus.
-    public var focus : Attribute
+    public var focus: Attribute
     /// The color for the hotkey when a view is not focused
-    public var hotNormal : Attribute
+    public var hotNormal: Attribute
     /// The color for the hotkey when the view is focused.
-    public var hotFocus : Attribute
+    public var hotFocus: Attribute
     
     public init (normal: Attribute, focus: Attribute, hotNormal: Attribute, hotFocus: Attribute)
     {
@@ -170,17 +170,17 @@ public class ColorScheme {
  * `error` is intended to have a set of attributes suitable to display error messages.
  */
 public class Colors {
-    static var _base, _dialog, _menu, _error : ColorScheme?
+    static var _base, _dialog, _menu, _error: ColorScheme?
     
     /// The base color scheme is used for the main UI elements in the application
-    public static var base : ColorScheme {
+    public static var base: ColorScheme {
         get {
             return _base!
         }
     }
     
     // The color scheme to display pop up dialogs
-    public static var dialog : ColorScheme {
+    public static var dialog: ColorScheme {
         get {
             return _dialog!
         }
@@ -194,7 +194,7 @@ public class Colors {
     }
     
     /// The color scheme used to display error messages
-    public static var error : ColorScheme {
+    public static var error: ColorScheme {
         get {
             return _error!
         }
@@ -215,8 +215,8 @@ public class ConsoleDriver {
         clip = Rect.zero
     }
     
-    var cols : Int
-    var rows : Int
+    var cols: Int
+    var rows: Int
     var ulCorner = Unicode.Scalar (0x250c)!
     var llCorner = Unicode.Scalar (0x2514)!
     var hLine = Unicode.Scalar (0x2500)!
@@ -245,7 +245,7 @@ public class ConsoleDriver {
     var radioOn = "●"
     var radioOff = "○"
     
-    public var clip : Rect
+    public var clip: Rect
     
     /**
      * Adds a rune at the current cursor position, not expected to work with graphemes, use when you know that the value being added will not compose
@@ -272,7 +272,7 @@ public class ConsoleDriver {
     /**
      * Moves the cursor to the screen to the specified column and row
      */
-    public func moveTo (col : Int, row : Int) {}
+    public func moveTo (col: Int, row: Int) {}
     
     /**
      * This method takes the platform-agnostic Color enumeration for foreground and background and produces an attribute

@@ -38,7 +38,7 @@ public enum Key {
     case controlG
     /// The key code for the user pressing Control-H
     case controlH
-    static var backspace : Key {
+    static var backspace: Key {
         get {
             return controlH
         }
@@ -49,7 +49,7 @@ public enum Key {
     /// The key code for the user pressing Control-J
     case controlJ
     
-    static var returnKey : Key {
+    static var returnKey: Key {
         get {
             return controlJ
         }
@@ -161,18 +161,18 @@ public enum Key {
  */
 public struct KeyEvent {
     /// Symbolic definition of the key
-    public var key : Key
-    var _isControl, _isAlt : Bool
+    public var key: Key
+    var _isControl, _isAlt: Bool
     
     /// Gets a value indicating whether the Alt key was pressed (real or synthesized)
-    public var isAlt : Bool {
+    public var isAlt: Bool {
         get {
             return  _isAlt
         }
     }
     
     /// Determines whether the value is a control key (a shortcut to avoid testing all the Control values)
-    public var isControl : Bool {
+    public var isControl: Bool {
         get {
             return _isControl
         }
