@@ -353,7 +353,24 @@ public class Application {
         } catch {}
         toplevel.willPresent()
         
-        redrawView (toplevel)
+        // SEE https://github.com/migueldeicaza/TermKit/issues/30
+        // This is a case where we could have use redrawView, but it
+        // currently does not take into consideration a global state of
+        // affected areas, which we probably should review.
+        //
+        // At least we should have a refresh version that does not queue
+        // a setNeedsDisplay.   Also see postProcessEvent, it worked
+        // in the previous era where the Toplevels would consume the whole
+        // screen and full obscure the back, but we should cross those
+        // boundaries and repaint even those.
+        
+        // THIS IS A BAND-AID, this for example is necessary to get
+        // the effect where the previous window will re-render with single
+        // line (unfocused) instead of double line (focused), if I call
+        // redrawView, it does not take into consideration that there is a
+        // pending and non-obscured region that is not getting redrawn
+        // otherwise.
+        refresh()
         toplevel.positionCursor()
         driver.refresh()
     }
@@ -381,23 +398,6 @@ public class Application {
         let painter = Painter.createRootPainter (from: view)
         view.redraw(region: view.bounds, painter: painter)
         driver.refresh()
-    }
-    
-    static func end (_ top: Toplevel) throws
-    {
-        if toplevels.last == nil {
-            throw ApplicationError.internalState(msg: "The current toplevel is null, and the end callback is being called")
-        }
-        if toplevels.last! != top {
-            throw ApplicationError.internalState(msg: "The current toplevel is not the one that this is being called on")
-        }
-        toplevels = toplevels.dropLast ()
-        if toplevels.count == 0 {
-            Application.shutdown ()
-        } else {
-            _current = toplevels.last as Toplevel?
-            refresh ()
-        }
     }
     
     // This is currently a hack invoked after any input events have been processed
@@ -456,6 +456,9 @@ public class Application {
                     Application.shutdown ()
                 } else {
                     _current = toplevels.last as Toplevel?
+                    if let c = _current {
+                        c.becomeFirstResponder()
+                    }
                     refresh ()
                 }
             } else {

@@ -95,15 +95,13 @@ public class Window : Toplevel {
     // TODO: remove
     
     // TODO: removeAll
-    
+
     public override func resignFirstResponder() -> Bool {
-        // so we re-render with the proper border
         setNeedsDisplay()
         return super.resignFirstResponder()
     }
     
     public override func becomeFirstResponder() -> Bool {
-        // so we re-render with the proper border
         setNeedsDisplay()
         return super.becomeFirstResponder()
     }

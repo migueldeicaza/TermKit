@@ -1231,13 +1231,21 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
         
     }
     
+    var oldFocused: View? = nil
     public func becomeFirstResponder() -> Bool {
-        // TODO: OnEnter
+        if let old = oldFocused {
+            setFocus(old)
+            if focused == old {
+                _ = old.becomeFirstResponder()
+            }
+        }
+        oldFocused = nil
         return true
     }
     
     public func resignFirstResponder() -> Bool {
-        // TODO: OnLeave
+        oldFocused = focused
+        setHasFocus(other: nil, value: false)
         return true
     }
     
