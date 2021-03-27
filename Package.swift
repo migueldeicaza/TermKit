@@ -18,7 +18,7 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         .package(url: "https://github.com/OpenCombine/OpenCombine.git", from: "0.11.0"),
-        .package(path: "/Users/miguel/cvs/TextBufferKit")
+        .package(url: "https://github.com/migueldeicaza/TextBufferKit.git", .revision("f6201640dcc064ecb54313badd2f48ef445a79db"))
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
