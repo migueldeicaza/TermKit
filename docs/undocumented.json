@@ -37,49 +37,49 @@
     },
     {
       "file": "/Users/miguel/cvs/TermKit/Sources/TermKit/Core/Painter.swift",
-      "line": 24,
+      "line": 25,
       "symbol": "Painter.origin",
       "symbol_kind": "source.lang.swift.decl.var.instance",
       "warning": "undocumented"
     },
     {
       "file": "/Users/miguel/cvs/TermKit/Sources/TermKit/Core/Painter.swift",
-      "line": 27,
+      "line": 28,
       "symbol": "Painter.visible",
       "symbol_kind": "source.lang.swift.decl.var.instance",
       "warning": "undocumented"
     },
     {
       "file": "/Users/miguel/cvs/TermKit/Sources/TermKit/Core/Painter.swift",
-      "line": 79,
+      "line": 78,
       "symbol": "Painter.colorNormal()",
       "symbol_kind": "source.lang.swift.decl.function.method.instance",
       "warning": "undocumented"
     },
     {
       "file": "/Users/miguel/cvs/TermKit/Sources/TermKit/Core/Painter.swift",
-      "line": 84,
+      "line": 83,
       "symbol": "Painter.colorSelection()",
       "symbol_kind": "source.lang.swift.decl.function.method.instance",
       "warning": "undocumented"
     },
     {
       "file": "/Users/miguel/cvs/TermKit/Sources/TermKit/Core/Painter.swift",
-      "line": 160,
+      "line": 157,
       "symbol": "Painter.add(str:)",
       "symbol_kind": "source.lang.swift.decl.function.method.instance",
       "warning": "undocumented"
     },
     {
       "file": "/Users/miguel/cvs/TermKit/Sources/TermKit/Core/Painter.swift",
-      "line": 171,
+      "line": 168,
       "symbol": "Painter.add(ch:)",
       "symbol_kind": "source.lang.swift.decl.function.method.instance",
       "warning": "undocumented"
     },
     {
       "file": "/Users/miguel/cvs/TermKit/Sources/TermKit/Core/Painter.swift",
-      "line": 182,
+      "line": 179,
       "symbol": "Painter.add(rune:)",
       "symbol_kind": "source.lang.swift.decl.function.method.instance",
       "warning": "undocumented"
@@ -408,7 +408,7 @@
     },
     {
       "file": "/Users/miguel/cvs/TermKit/Sources/TermKit/Core/Window.swift",
-      "line": 251,
+      "line": 253,
       "symbol": "Window.debugDescription",
       "symbol_kind": "source.lang.swift.decl.var.instance",
       "warning": "undocumented"

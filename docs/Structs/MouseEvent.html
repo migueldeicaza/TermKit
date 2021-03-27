@@ -261,7 +261,14 @@
 
                 </div>
               </div>
-            <p>Describes a mouse event</p>
+            <p>Describes a mouse event, the <code>pos</code> property contains the view relative position
+ where the mouse event took place, and the <code>absPos</code> contains the screen absolute
+ position of where the event took place.</p>
+
+<p>The state of the mouse event is described in <code>flags</code> and is used to determine
+ what kind of event this is (movement, press, release, click).</p>
+
+<p>The <code>view</code> property, if set, indicates on which view the event took place.</p>
 
           </section>
           <section class="section task-group-section">
@@ -270,9 +277,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:7TermKit10MouseEventV1xSivp"></a>
-                    <a name="//apple_ref/swift/Property/x" class="dashAnchor"></a>
-                    <a class="token" href="#/s:7TermKit10MouseEventV1xSivp">x</a>
+                    <a name="/s:7TermKit10MouseEventV3posAA5PointVvp"></a>
+                    <a name="//apple_ref/swift/Property/pos" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit10MouseEventV3posAA5PointVvp">pos</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -287,7 +294,7 @@
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">x</span><span class="p">:</span> <span class="kt">Int</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">pos</span><span class="p">:</span> <span class="kt"><a href="../Structs/Point.html">Point</a></span></code></pre>
 
                         </div>
                       </div>
@@ -297,36 +304,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:7TermKit10MouseEventV1ySivp"></a>
-                    <a name="//apple_ref/swift/Property/y" class="dashAnchor"></a>
-                    <a class="token" href="#/s:7TermKit10MouseEventV1ySivp">y</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>The Y (row) location for the mouse event</p>
-
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">y</span><span class="p">:</span> <span class="kt">Int</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:7TermKit10MouseEventV4absXSivp"></a>
-                    <a name="//apple_ref/swift/Property/absX" class="dashAnchor"></a>
-                    <a class="token" href="#/s:7TermKit10MouseEventV4absXSivp">absX</a>
+                    <a name="/s:7TermKit10MouseEventV6absPosAA5PointVvp"></a>
+                    <a name="//apple_ref/swift/Property/absPos" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit10MouseEventV6absPosAA5PointVvp">absPos</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -341,34 +321,7 @@
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">absX</span><span class="p">:</span> <span class="kt">Int</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/s:7TermKit10MouseEventV4absYSivp"></a>
-                    <a name="//apple_ref/swift/Property/absY" class="dashAnchor"></a>
-                    <a class="token" href="#/s:7TermKit10MouseEventV4absYSivp">absY</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>The Y position for the event in global coordinates</p>
-
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">absY</span><span class="p">:</span> <span class="kt">Int</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">absPos</span><span class="p">:</span> <span class="kt"><a href="../Structs/Point.html">Point</a></span></code></pre>
 
                         </div>
                       </div>

@@ -292,12 +292,12 @@
  and might also be updated continously.</p>
 
 <p>To execute a new nested toplevel, one that either obscures a portion of the screen, or the
- whole screen, you call the <code>run</code> method with the new instance.   To pop the toplevel from
+ whole screen, you call the <code>present</code> method with the new instance.   To pop the toplevel from
  the stack, you call the <code>Application.requestStop</code> method which will queue the toplevel for
  termination and will make the previous toplevel the active one.</p>
 
 <p># Main Loop Execution
- Calling the <code>run</code> method in <code>Application</code> will start the mainloop, which is implemented using
+ Calling the <code>present</code> method in <code>Application</code> will start the mainloop, which is implemented using
  the Dispatch framework.   This means that this method will never return, but also that all
  the operations that you have come to expect from using the Dispatch API (from Grand Central Dispatch)
  will work as expected.</p>

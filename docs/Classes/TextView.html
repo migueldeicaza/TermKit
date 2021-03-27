@@ -267,6 +267,35 @@
  with it with the standard Emacs commands for movement or the arrow
  keys.</p>
 
+<p>Navigation:</p>
+
+<ul>
+<li>Move left: left cursor, or Control-B</li>
+<li>Move right: right cursor key, or Control-F</li>
+<li>Move one page down: Page Down or Control-V</li>
+<li>Move one page up: Page Up or Alt-V</li>
+<li>Move to the beginning of the line: Home key or Control-A</li>
+<li>Move to the end of the line: End key or Control-E</li>
+</ul>
+
+<p>Editing:</p>
+
+<ul>
+<li>Backspace key: removes the previous character</li>
+<li>Delete character: Delete Key or Control-D</li>
+<li>Delete to the end-of-line: Control-K, appends contents to the clipboard</li>
+<li>Delete line at the end of the line: Control-K, appends content to the clipboard</li>
+<li>Paste contents of copy buffer: Control-Y</li>
+</ul>
+
+<p>Selection:</p>
+
+<ul>
+<li>Start selectrion: Control-Space</li>
+<li>Copy selection to clipboard: Alt-W</li>
+<li>Cut selection to clipboard: Control-W</li>
+</ul>
+
           </section>
           <section class="section task-group-section">
             <div class="task-group">
@@ -353,9 +382,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:7TermKit8TextViewC4textSSvp"></a>
+                    <a name="/s:7TermKit8TextViewC4textSSSgvp"></a>
                     <a name="//apple_ref/swift/Property/text" class="dashAnchor"></a>
-                    <a class="token" href="#/s:7TermKit8TextViewC4textSSvp">text</a>
+                    <a class="token" href="#/s:7TermKit8TextViewC4textSSSgvp">text</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -363,14 +392,42 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Sets or gets the text in the view</p>
+                        <p>Sets or gets the text in the view, this returns <code>nil</code> if there are any invalid UTF8 sequences in the buffer, use
+<code><a href="../Classes/TextView.html#/s:7TermKit8TextViewC10byteBufferSays5UInt8VGvp">byteBuffer</a></code> property if you do not need the string</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">text</span><span class="p">:</span> <span class="kt">String</span> <span class="p">{</span> <span class="k">get</span> <span class="k">set</span> <span class="p">}</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">text</span><span class="p">:</span> <span class="kt">String</span><span class="p">?</span> <span class="p">{</span> <span class="k">get</span> <span class="k">set</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7TermKit8TextViewC10byteBufferSays5UInt8VGvp"></a>
+                    <a name="//apple_ref/swift/Property/byteBuffer" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7TermKit8TextViewC10byteBufferSays5UInt8VGvp">byteBuffer</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Provides access to the TextView content as a byte array</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">byteBuffer</span><span class="p">:</span> <span class="p">[</span><span class="kt">UInt8</span><span class="p">]</span> <span class="p">{</span> <span class="k">get</span> <span class="k">set</span> <span class="p">}</span></code></pre>
 
                         </div>
                       </div>
@@ -428,9 +485,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:7TermKit8TextViewC14cursorPositionSi3col_Si3rowtvp"></a>
+                    <a name="/s:7TermKit8TextViewC14cursorPositionAA5PointVvp"></a>
                     <a name="//apple_ref/swift/Property/cursorPosition" class="dashAnchor"></a>
-                    <a class="token" href="#/s:7TermKit8TextViewC14cursorPositionSi3col_Si3rowtvp">cursorPosition</a>
+                    <a class="token" href="#/s:7TermKit8TextViewC14cursorPositionAA5PointVvp">cursorPosition</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -445,7 +502,7 @@
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">cursorPosition</span><span class="p">:</span> <span class="p">(</span><span class="nv">col</span><span class="p">:</span> <span class="kt">Int</span><span class="p">,</span> <span class="nv">row</span><span class="p">:</span> <span class="kt">Int</span><span class="p">)</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">cursorPosition</span><span class="p">:</span> <span class="kt"><a href="../Structs/Point.html">Point</a></span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
 
                         </div>
                       </div>

@@ -304,12 +304,12 @@
  and might also be updated continously.</p>
 
 <p>To execute a new nested toplevel, one that either obscures a portion of the screen, or the
- whole screen, you call the <code>run</code> method with the new instance.   To pop the toplevel from
+ whole screen, you call the <code>present</code> method with the new instance.   To pop the toplevel from
  the stack, you call the <code>Application.requestStop</code> method which will queue the toplevel for
  termination and will make the previous toplevel the active one.</p>
 
 <p># Main Loop Execution
- Calling the <code>run</code> method in <code>Application</code> will start the mainloop, which is implemented using
+ Calling the <code>present</code> method in <code>Application</code> will start the mainloop, which is implemented using
  the Dispatch framework.   This means that this method will never return, but also that all
  the operations that you have come to expect from using the Dispatch API (from Grand Central Dispatch)
  will work as expected.</p>
@@ -476,8 +476,11 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>The drawing context tracks the cursor position and attribute in use
-during the View&rsquo;s draw method, it enforced clipping on the view bounds.</p>
+                        <p>The drawing context tracks the cursor position, and attribute in use
+ during the View&rsquo;s draw method, it enforced clipping on the view bounds.</p>
+
+<p>Instances of this class are passed to a <code><a href="Classes/View.html">View</a></code>&lsquo;s redraw method to
+ paint</p>
 
                         <a href="Classes/Painter.html" class="slightly-smaller">See more</a>
                       </div>
@@ -1494,6 +1497,35 @@ space represented by the <code>contentSize</code></p>
 <p>The text view provides a multi-line text view.   Users interact
  with it with the standard Emacs commands for movement or the arrow
  keys.</p>
+
+<p>Navigation:</p>
+
+<ul>
+<li>Move left: left cursor, or Control-B</li>
+<li>Move right: right cursor key, or Control-F</li>
+<li>Move one page down: Page Down or Control-V</li>
+<li>Move one page up: Page Up or Alt-V</li>
+<li>Move to the beginning of the line: Home key or Control-A</li>
+<li>Move to the end of the line: End key or Control-E</li>
+</ul>
+
+<p>Editing:</p>
+
+<ul>
+<li>Backspace key: removes the previous character</li>
+<li>Delete character: Delete Key or Control-D</li>
+<li>Delete to the end-of-line: Control-K, appends contents to the clipboard</li>
+<li>Delete line at the end of the line: Control-K, appends content to the clipboard</li>
+<li>Paste contents of copy buffer: Control-Y</li>
+</ul>
+
+<p>Selection:</p>
+
+<ul>
+<li>Start selectrion: Control-Space</li>
+<li>Copy selection to clipboard: Alt-W</li>
+<li>Cut selection to clipboard: Control-W</li>
+</ul>
 
                         <a href="Classes/TextView.html" class="slightly-smaller">See more</a>
                       </div>

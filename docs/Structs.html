@@ -329,7 +329,14 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Describes a mouse event</p>
+                        <p>Describes a mouse event, the <code>pos</code> property contains the view relative position
+ where the mouse event took place, and the <code>absPos</code> contains the screen absolute
+ position of where the event took place.</p>
+
+<p>The state of the mouse event is described in <code>flags</code> and is used to determine
+ what kind of event this is (movement, press, release, click).</p>
+
+<p>The <code>view</code> property, if set, indicates on which view the event took place.</p>
 
                         <a href="Structs/MouseEvent.html" class="slightly-smaller">See more</a>
                       </div>

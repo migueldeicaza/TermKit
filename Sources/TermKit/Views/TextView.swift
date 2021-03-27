@@ -432,7 +432,6 @@ public class TextView: View {
                     setNeedsDisplay()
                 }
                 trackColumn()
-                // positionCursor()
             }
         case .pageUp,
              .letter ("v") where event.isAlt:
@@ -447,7 +446,6 @@ public class TextView: View {
                     setNeedsDisplay ();
                 }
                 trackColumn ();
-                // PositionCursor ();
             }
         case .controlN, .cursorDown:
             if currentRow + 1 < lineCount {
@@ -460,7 +458,6 @@ public class TextView: View {
                     setNeedsDisplay ()
                 }
                 trackColumn ();
-                // positionCursor ();
             }
             
         case .controlP, .cursorUp:
@@ -474,7 +471,6 @@ public class TextView: View {
                     setNeedsDisplay ()
                 }
                 trackColumn ();
-                // positionCursor ();
             }
             
         case .controlF, .cursorRight:
@@ -485,7 +481,6 @@ public class TextView: View {
                     leftColumn += 1
                     setNeedsDisplay()
                 }
-                // positionCursor()
             } else {
                 if currentRow + 1 < lineCount {
                     currentRow += 1
@@ -495,7 +490,6 @@ public class TextView: View {
                         topRow += 1
                     }
                     setNeedsDisplay()
-                    //positionCursor()
                 }
             }
             
@@ -569,7 +563,6 @@ public class TextView: View {
             if storage.getValueAt(index: p) == 10 {
                 storage.delete(offset: p, count: 1)
                 
-                
                 if (lastWasKill) {
                     appendClipboard(text: "\n")
                 } else {
@@ -594,9 +587,7 @@ public class TextView: View {
                     }
                 }
             }
-//            setNeedsDisplay (Rect (x: 0, y: currentRow - topRow, width: frame.width, height: frame.height))
-            // TODO: add smarts
-            setNeedsDisplay()
+            setNeedsDisplay (Rect (x: 0, y: currentRow - topRow, width: frame.width, height: frame.height))
             lastWasKill = true
             
             // yank
