@@ -5,123 +5,19 @@
 //  Created by Miguel de Icaza on 5/11/19.
 //  Copyright © 2019 Miguel de Icaza. All rights reserved.
 //
+// TODO:
+//   I need to either track the columns in UTF-8 byte offsets (sounds bad), or
+//   make the row+line to offset routine compute the offset to the first element
+//   of the row, and then manually add the column based on cellCount()
+//
+// Horizontal scrolling, when pasting among others
+// Additional mouse support (selection)
+// Does not seem to use cellSize very much yet.
 
 import Foundation
+import TextBufferKit
 
 typealias TextBuffer = TextField.TextBuffer
-typealias Position = Int64
-
-class TextModel {
-    var lines: [TextBuffer]
-    
-    init ()
-    {
-        lines = [[]]
-    }
-    
-    /// Converts a string into an array of TextBuffer arrays
-    static func stringToTextBufferArray (text: String) -> [TextBuffer]
-    {
-        var ret: [TextBuffer] = []
-        
-        let allLines = text.components(separatedBy: "\n")
-        for line in allLines {
-            let sizedLine = TextField.toTextBuffer(line)
-            ret.append(sizedLine)
-        }
-        return ret
-    }
-    
-    /// Converts an array of TextField.TextBuffers into a string
-    static func textBufferArrayToString (textArray: [TextBuffer]) -> String
-    {
-        var res: String = ""
-        for line in textArray {
-            let ps = TextField.fromTextBuffer(line)
-            res.append(ps)
-        }
-        return res
-    }
-    
-    /// Loads the file pointed out by path into this TextModel
-    func loadFile (path: String) throws
-    {
-        let all = try String (contentsOfFile: path)
-        lines = TextModel.stringToTextBufferArray(text: all)
-    }
-    
-    /// Sets the contents of this TextModel to the contents specified in the text
-    func loadString (text: String)
-    {
-            lines = TextModel.stringToTextBufferArray(text: text)
-    }
-    
-    /// Returns a string representation of this TextModel
-    func toString () -> String
-    {
-        return TextModel.textBufferArrayToString (textArray: lines)
-    }
-    
-    
-    /// Number of lines in the model
-    var count: Int {
-        get {
-            return lines.count
-        }
-    }
-    
-    /// Returns the specified line from the model
-    subscript (line: Int) -> TextBuffer {
-        get {
-            return lines [line]
-        }
-    }
-    
-    /// Adds a line to the model
-    func insert (line: TextBuffer, at: Int)
-    {
-        lines.insert(line, at: at)
-    }
-    
-    func insert (text: TextBuffer, atLine: Int, andCol: Int)
-    {
-        lines [atLine].insert(contentsOf: text, at: andCol)
-    }
-    
-    /// Inserts the specified character at the given line and column
-    func insert (char: Character, atLine: Int, andCol: Int)
-    {
-        lines [atLine].insert((ch: char, size: Int8(char.cellSize())), at: andCol)
-    }
-    
-    func removeLine (at: Int)
-    {
-        lines.remove (at: at)
-    }
-    
-    /// Encodes a column and row into a 64-bit position value, useful to compare ranges
-    static func toPosition (col: Int, row: Int) -> Position
-    {
-        return Int64 ((UInt32(row) << 32) | UInt32(col));
-    }
-    
-    static func fromPosition (_ position: Position) -> (col: Int, row: Int)
-    {
-        return (col: Int ((UInt32 (position) & 0xffffffff)), row: Int (position >> 32))
-    }
-    
-    func removeLineRange (atLine: Int, fromCol: Int, toCol: Int)
-    {
-        let lastCol = toCol == -1 ? lines [atLine].count : toCol
-        lines [atLine].removeSubrange (fromCol..<(lastCol))
-    }
-    
-    func appendText (atLine: Int, txt: TextBuffer)
-    {
-        lines [atLine] += txt
-    }
-
-}
 
 /**
  * Multi-line text editing view
@@ -129,10 +25,30 @@ class TextModel {
  * The text view provides a multi-line text view.   Users interact
  * with it with the standard Emacs commands for movement or the arrow
  * keys.
+ *
+ * Navigation:
+ * - Move left: left cursor, or Control-B
+ * - Move right: right cursor key, or Control-F
+ * - Move one page down: Page Down or Control-V
+ * - Move one page up: Page Up or Alt-V
+ * - Move to the beginning of the line: Home key or Control-A
+ * - Move to the end of the line: End key or Control-E
+ *
+ * Editing:
+ * - Backspace key: removes the previous character
+ * - Delete character: Delete Key or Control-D
+ * - Delete to the end-of-line: Control-K, appends contents to the clipboard
+ * - Delete line at the end of the line: Control-K, appends content to the clipboard
+ * - Paste contents of copy buffer: Control-Y
+ *
+ * Selection:
+ * - Start selectrion: Control-Space
+ * - Copy selection to clipboard: Alt-W
+ * - Cut selection to clipboard: Control-W
  */
 
 public class TextView: View {
-    var model: TextModel = TextModel()
+    var storage: PieceTreeTextBuffer
     var topRow: Int = 0
     var leftColumn: Int = 0
     var currentRow: Int = 0
@@ -146,16 +62,36 @@ public class TextView: View {
     
     public override init (frame: Rect)
     {
+        storage = TextView.createEmptyPieceTree ()
         super.init(frame: frame)
         canFocus = true
     }
     
     public override init ()
     {
+        storage = TextView.createEmptyPieceTree ()
         super.init ()
         canFocus = true
     }
     
+    static func createEmptyPieceTree (initialBlocks: [String]? = nil) -> PieceTreeTextBuffer {
+        let builder = PieceTreeTextBufferBuilder()
+        if let chunks = initialBlocks {
+            for chunk in chunks {
+                builder.acceptChunk(chunk)
+            }
+        }
+        let factory = builder.finish(normalizeEol: true)
+        return factory.create(DefaultEndOfLine.LF)
+    }
+
+    static func createEmptyPieceTree (buffer: [UInt8]) -> PieceTreeTextBuffer {
+        let builder = PieceTreeTextBufferBuilder()
+        builder.acceptChunk(buffer)
+        let factory = builder.finish(normalizeEol: true)
+        return factory.create(DefaultEndOfLine.LF)
+    }
+
     func resetPosition ()
     {
         topRow = 0
@@ -164,15 +100,27 @@ public class TextView: View {
         currentRow = 0
     }
     
-    /// Sets or gets the text in the view
-    public var text: String {
+    /// Sets or gets the text in the view, this returns `nil` if there are any invalid UTF8 sequences in the buffer, use
+    /// `byteBuffer` property if you do not need the string
+    public var text: String? {
         get {
-            return model.toString()
+            return String (bytes: storage.getLinesRawContent (), encoding: .utf8)
         }
-        set(value) {
+        set {
             resetPosition()
-            model.loadString(text: value)
+            storage = TextView.createEmptyPieceTree(initialBlocks: newValue == nil ? [] : [newValue!])
             setNeedsDisplay()
+        }
+    }
+    
+    /// Provides access to the TextView content as a byte array
+    public var byteBuffer: [UInt8] {
+        get {
+            return storage.getLinesRawContent ()
+        }
+        set {
+            resetPosition()
+            storage = TextView.createEmptyPieceTree(buffer: newValue)
         }
     }
     
@@ -189,13 +137,19 @@ public class TextView: View {
         resetPosition()
         setNeedsDisplay()
         
-        try model.loadFile(path: path)
+        let url = URL (fileURLWithPath: path)
+        let data = try Data(contentsOf: url)
+        
+        let builder = PieceTreeTextBufferBuilder()
+        builder.acceptChunk([UInt8] (data))
+        let factory = builder.finish(normalizeEol: true)
+        storage = factory.create(DefaultEndOfLine.LF)
     }
     
     /// Returns the current cursor position inside the buffer
-    public var cursorPosition: (col: Int, row: Int) {
+    public var cursorPosition: Point {
         get {
-            return (Int(currentColumn), Int(currentRow))
+            return Point (x: currentColumn, y: currentRow)
         }
     }
     
@@ -210,9 +164,9 @@ public class TextView: View {
     }
     
     /// Returns an encoded region start..end (top 32 bits are the row, low32 the column) for the current selection
-    func getEncodedRegionBounds () -> (start: Int64, end: Int64) {
-        let selection = TextModel.toPosition (col: selectionStartColumn, row: selectionStartRow);
-        let point =  TextModel.toPosition (col: currentColumn, row: currentRow)
+    func getRegionBoundIndexes () -> (start: Int, end: Int) {
+        let selection = makeTextBufferOffset (col: selectionStartColumn, row: selectionStartRow)
+        let point = makeTextBufferOffset(col: currentColumn, row: currentRow)
         
         if (selection > point) {
             return (point, selection)
@@ -221,82 +175,58 @@ public class TextView: View {
         }
     }
     
-    func getEncodedRegionCoords () -> (startCol: Int, startRow: Int, endCol: Int, endRow: Int)
-    {
-        let (start, end) = getEncodedRegionBounds()
-        
-        let (sc, sr) = TextModel.fromPosition (start)
-        let (ec, er) = TextModel.fromPosition (end)
-        return (sc, sr, ec, er)
-    }
-    
     /// Returns true if the specified column and row are inside the selection
     func pointInSelection (col: Int, row: Int) -> Bool {
-        let (start, end) = getEncodedRegionBounds()
-        let q = TextModel.toPosition(col: col, row: row)
-        return q >= start && q <= end
+        let (start, end) = getRegionBoundIndexes()
+        let q = makeTextBufferOffset(col: col, row: row)
+        let r =  q >= start && q <= end
+        
+        if r {
+            log ("probing for \(col) and \(row) -> \(r)")
+        }
+        return r
     }
     
     /// gets the selection as a string
     func getRegion () -> String
     {
-        let (startCol, startRow, endCol, endRow) = getEncodedRegionCoords()
-        let line = model [Int (startRow)]
-        if startRow == endRow {
-            return TextField.fromTextBuffer(Array (line [Int(startCol)..<Int(endCol)]))
-        }
-        var res = Array (line [Int(startCol)...])
-        let newline = (ch: Character ("\n"), size: Int8(0))
-        for row in (startRow+1)..<endRow {
-            res.append (newline)
-            res = res + model [Int(row)]
-        }
-        let lastLine = model [Int(endRow)]
-        res.append (newline)
-        res = res + Array (lastLine [0..<Int(endCol)])
-        return TextField.fromTextBuffer(res)
+        let (start, end) = getRegionBoundIndexes()
+        let data = storage.getValueInRange(range: Range.from(start: start, end: end, on: storage))
+        return String (bytes: data, encoding: .utf8) ?? ""
     }
     
     /// clears the contents of the selected region
     func clearRegion ()
     {
-        let (startCol, startRow, endCol, endRow) = getEncodedRegionCoords()
-
-        if startRow == endRow {
-            model.removeLineRange (atLine: startRow, fromCol: startCol, toCol: Int(endCol))
-            
-            currentColumn = startCol
-            setNeedsDisplay(Rect (x: 0, y: Int(startRow)-Int(topRow), width: frame.width, height: Int(startRow)-Int(topRow)+1))
-            return
-        }
-        model.removeLineRange(atLine: startRow, fromCol: startCol, toCol: -1)
-        let line2 = model [Int(endRow)]
+        let (start, end) = getRegionBoundIndexes()
+        storage.delete(offset: start, count: end-start)
         
-        model.appendText (atLine: Int(endRow), txt: Array (line2 [Int(endCol)...]))
-        
-        for row in (startRow+1)...endRow {
-            model.removeLine (at: Int (row))
-        }
-        if currentColumn == endRow && currentRow == endRow {
-            currentRow -= endRow - startRow
-        }
-        currentColumn = startCol
         setNeedsDisplay()
+    }
+    
+    func getTextBuffer (forLine: Int) -> TextBuffer {
+        // Coordinates in the TextBufferKit are 1-based
+        let lineBytes = storage.getLineContent(forLine+1)
+        if let x = String (bytes: lineBytes, encoding: .utf8) {
+            return TextField.toTextBuffer(x)
+        }
+        return []
     }
     
     public override func redraw(region: Rect, painter p: Painter) {
         p.colorNormal()
         let bottom = region.bottom
         let right = region.right
+        let lineCount = storage.lineCount
         
         for row in region.top ..< bottom {
             let textLine = Int(topRow) + row
-            if textLine > model.count {
+            if textLine > lineCount {
                 p.colorNormal()
                 p.clearRegion(left: region.left, top: row, right: region.right, bottom: row+1)
                 continue
             }
-            let line = model [textLine]
+            let line = getTextBuffer(forLine: textLine)
             let lineRuneCount = line.count
             
             // Works-ish, this needs to be replaced with actual rune counts at the specific position
@@ -304,14 +234,31 @@ public class TextView: View {
                 p.clearRegion(left: region.left, top: row, right: region.right, bottom: row+1)
                 continue
             }
-            moveTo (col: region.left, row: row)
+            p.goto(col: region.left, row: row)
+            var currentColorNormal: Bool = true
+            
+            p.colorNormal()
             for col in region.left..<right {
                 let lineCol = leftColumn + col
-                let char = lineCol >= lineRuneCount ? " " : line [lineCol].ch
-                if selecting && pointInSelection(col: col, row: row){
-                    p.colorSelection()
+                var char: Character
+                var useNormal = true
+                if lineCol >= lineRuneCount {
+                    char = " "
                 } else {
-                    p.colorNormal()
+                    char = line [lineCol].ch
+                    if selecting && pointInSelection(col: col, row: row) {
+                        useNormal = false
+                    } else {
+                        useNormal = true
+                    }
+                }
+                if currentColorNormal != useNormal {
+                    if useNormal {
+                        p.colorNormal()
+                    } else {
+                        p.colorSelection()
+                    }
+                    currentColorNormal = useNormal
                 }
                 p.add (str: String (char))
             }
@@ -340,62 +287,53 @@ public class TextView: View {
 
     func getCurrentLine () -> TextBuffer
     {
-        return model [currentRow]
+        return getTextBuffer(forLine: currentRow)
     }
     
+    func makeTextBufferOffset (col: Int, row: Int) -> Int {
+        // Coordinates in the TextBufferKit are 1-based
+        return storage.getOffsetAt(lineNumber: row+1, column: col+1)
+    }
+    
+    func cursorOffset () -> Int {
+        return makeTextBufferOffset(col: currentColumn, row: currentRow)
+    }
+    
+    func toPairs (_ p: TextBufferKit.Position) -> (col: Int, row: Int)
+    {
+        // Coordinates in the TextBufferKit are 1-based
+        return (p.column-1, p.line-1)
+    }
+    
+    func insert (utf8: [UInt8]) {
+        let cursor = cursorOffset()
+        storage.insert (offset: cursor, value: utf8)
+        
+        // TODO: fetch the line again, and use cellCount() to figure out the right column
+        // TODO adjust visibility based on new column/row
+
+        adjustCursor(offset: cursor + utf8.count)
+    }
+    
+    /// Offset is a TextBufferKit offset
+    func adjustCursor (offset: Int) {
+        (currentColumn, currentRow) = toPairs (storage.getPositionAt(offset: offset))
+
+        if currentRow < topRow {
+            topRow = currentRow
+            setNeedsDisplay()
+        }
+    }
     /// Inserts the provided character at the current cursor location
     func insert (char: Character)
     {
-        model.insert(char: char, atLine: currentRow, andCol: currentColumn)
-        currentColumn += char.cellSize()
-        let prow = currentRow - topRow
-        setNeedsDisplay (Rect(x: 0, y: prow, width: frame.width, height: prow+1))
+        insert(utf8: [UInt8](char.utf8))
     }
     
     /// Inserts the provided string at the current cursor location
     func insertText(text: String)
     {
-        let lines = TextModel.stringToTextBufferArray(text: text)
-        if lines.count == 0 {
-            return
-        }
-        
-        // Optimize single line
-        if lines.count == 1 {
-            model.insert(text: lines [0], atLine: currentRow, andCol: currentColumn)
-            currentColumn += text.cellCount()
-            if currentColumn - leftColumn > frame.width {
-                leftColumn = currentColumn - frame.width - 1
-            }
-            setNeedsDisplay(Rect (x: 0, y: currentRow-topRow, width: frame.width, height: currentRow-topRow+1))
-            return
-        }
-        // Keep a copy of the rest of the line
-        let line = getCurrentLine()
-        let rest = Array (line [currentColumn...])
-        model.removeLineRange(atLine: currentRow, fromCol: currentColumn, toCol: line.count)
-        
-        // first line is inserted at the cursor location, the rest is appended
-        model.insert(text: lines [0], atLine: currentRow, andCol: currentColumn)
-        for i in 1..<lines.count {
-            model.insert(line: lines [i], at: currentRow+i)
-        }
-        
-        let last = model [currentRow+lines.count-1]
-        let lastp = last.count
-        model.insert (text: rest, atLine: currentRow+lines.count-1, andCol: lastp)
-        
-        // Now adjust column and line positions
-        currentRow += lines.count + 1
-        let column = textBufferSize(Array (last [0..<lastp]))
-        currentColumn = column
-        if currentColumn < leftColumn {
-            leftColumn = currentColumn
-        }
-        if currentColumn - leftColumn >= frame.width {
-            leftColumn = currentColumn - frame.width + 1
-        }
-        setNeedsDisplay()
+        insert (utf8: [UInt8](text.utf8))
     }
     
     // The column we are tracking, or -1 if we are not tracking any column
@@ -459,7 +397,8 @@ public class TextView: View {
     public func scrollTo (row: Int)
     {
         let rrow = row < 0 ? 0 : row
-        topRow = rrow > model.count ? model.count-1 : rrow
+        let lineCount = storage.lineCount
+        topRow = rrow > lineCount ? lineCount-1 : rrow
         setNeedsDisplay()
     }
     
@@ -479,17 +418,17 @@ public class TextView: View {
         }
         
         // Dispatch the command
-        
+        let lineCount = storage.lineCount
         switch event.key {
         case .pageDown, .controlV:
             let nPageDnShift = frame.height - 1
-            if currentRow < model.count {
+            if currentRow < lineCount {
                 if columnTrack == -1 {
                     columnTrack = currentColumn
                 }
-                currentRow = (currentRow + nPageDnShift) > model.count ? model.count : currentRow + nPageDnShift
+                currentRow = (currentRow + nPageDnShift) > lineCount ? lineCount : currentRow + nPageDnShift
                 if topRow < currentRow - nPageDnShift {
-                    topRow = currentRow >= model.count ? currentRow - nPageDnShift : topRow + nPageDnShift
+                    topRow = currentRow >= lineCount ? currentRow - nPageDnShift : topRow + nPageDnShift
                     setNeedsDisplay()
                 }
                 trackColumn()
@@ -511,7 +450,7 @@ public class TextView: View {
                 // PositionCursor ();
             }
         case .controlN, .cursorDown:
-            if currentRow + 1 < model.count {
+            if currentRow + 1 < lineCount {
                 if columnTrack == -1 {
                     columnTrack = currentColumn
                 }
@@ -523,6 +462,7 @@ public class TextView: View {
                 trackColumn ();
                 // positionCursor ();
             }
+            
         case .controlP, .cursorUp:
             if currentRow > 0 {
                 if columnTrack == -1 {
@@ -547,7 +487,7 @@ public class TextView: View {
                 }
                 // positionCursor()
             } else {
-                if currentRow + 1 < model.count {
+                if currentRow + 1 < lineCount {
                     currentRow += 1
                     currentColumn = 0
                     leftColumn = 0
@@ -589,35 +529,15 @@ public class TextView: View {
             if isReadOnly {
                 break
             }
-            if currentColumn > 0 {
-                // Delete backwards
-                model.removeLineRange(atLine: currentRow, fromCol: currentColumn-1, toCol: currentColumn)
-                currentColumn -= 1
-                if currentColumn < leftColumn {
-                    leftColumn -= 1
-                    setNeedsDisplay ()
-                } else {
-                    setNeedsDisplay (Rect (x: 0, y: currentRow - topRow, width: 1, height: frame.width));
-                }
-            } else {
-                // Merges the current line with the previous one.
-                if currentRow == 0 {
-                    return true;
-                }
-                let prowIdx = currentRow - 1
-                let prevRow = model [prowIdx]
-                let prevCount = prevRow.count
-                model.appendText(atLine: prowIdx, txt: getCurrentLine())
-                model.removeLine(at: currentRow)
-                currentRow -= 1
-                currentColumn = prevCount
-                leftColumn = currentColumn - frame.width + 1
-                if (leftColumn < 0) {
-                    leftColumn = 0;
-                }
-                setNeedsDisplay ();
+            let p = cursorOffset()
+            if p < 1 {
+                return true
             }
-            
+            storage.delete (offset: p-1, count: 1)
+            adjustCursor(offset: p-1)
+            setNeedsDisplay()
+            // TODO: attempt to reduce region to display
+
         case .controlA, .home:
             currentColumn = 0
             if currentColumn < leftColumn {
@@ -629,31 +549,14 @@ public class TextView: View {
             if isReadOnly {
                 break
             }
-            let currentLine = getCurrentLine ()
-            if currentColumn == currentLine.count {
-                if currentRow + 1 == model.count {
-                    break;
-                }
-                model.appendText(atLine: currentRow, txt: model [currentRow + 1])
-                model.removeLine(at: currentRow + 1)
-                let sr = currentRow - topRow;
-                setNeedsDisplay (Rect (x: 0, y: sr, width: frame.width, height: sr + 1));
-            } else {
-                model.removeLineRange(atLine: currentRow, fromCol: currentColumn, toCol: currentColumn+1)
-                let r = currentRow - topRow;
-                setNeedsDisplay (Rect (x: currentColumn - leftColumn, y: r, width: frame.width, height: r + 1));
-            }
+            let p = cursorOffset()
+            storage.delete (offset: p, count: 1)
+            
+            // TODO optimize, depending on how much needs to be redrawn
+            setNeedsDisplay()
 
         case .end, .controlE:
-            currentColumn = textBufferSize(getCurrentLine())
-            let pcol = leftColumn
-            leftColumn = currentColumn - frame.width + 1
-            if leftColumn < 0 {
-                leftColumn = 0
-            }
-            if pcol != leftColumn {
-                setNeedsDisplay()
-            }
+            gotoEndOfLine ()
             
             // kill to end
         case .controlK:
@@ -661,8 +564,11 @@ public class TextView: View {
                 break
             }
             let currentLine = getCurrentLine ();
-            if currentLine.count == 0 {
-                model.removeLine(at: currentRow)
+            let p = cursorOffset()
+            
+            if storage.getValueAt(index: p) == 10 {
+                storage.delete(offset: p, count: 1)
+                
                 
                 if (lastWasKill) {
                     appendClipboard(text: "\n")
@@ -670,16 +576,27 @@ public class TextView: View {
                     setClipboard(text: "\n")
                 }
             } else {
-                let rest = Array (currentLine [currentColumn...])
-                
-                if (lastWasKill) {
-                    appendClipboard (buffer: rest)
-                } else {
-                    setClipboard (buffer: rest)
+                let nextLineOffset = makeTextBufferOffset(col: 0, row: currentRow+1)
+                var newLineOffset = nextLineOffset-1
+                if p == newLineOffset {
+                    newLineOffset = nextLineOffset
                 }
-                model.removeLineRange(atLine: currentRow, fromCol: currentColumn, toCol: -1)
+                if p != nextLineOffset {
+                    let deletedText = storage.getValueInRange(range: Range.from (start: p, end: newLineOffset, on: storage))
+                    storage.delete(offset: p, count: newLineOffset-p)
+                    
+                    if let rest = String(bytes: deletedText, encoding: .utf8) {
+                        if (lastWasKill) {
+                            appendClipboard (text: rest)
+                        } else {
+                            setClipboard (text: rest)
+                        }
+                    }
+                }
             }
-            setNeedsDisplay (Rect (x: 0, y: currentRow - topRow, width: frame.width, height: frame.height))
+//            setNeedsDisplay (Rect (x: 0, y: currentRow - topRow, width: frame.width, height: frame.height))
+            // TODO: add smarts
+            setNeedsDisplay()
             lastWasKill = true
             
             // yank
@@ -688,6 +605,8 @@ public class TextView: View {
                 break
             }
             insertText(text: Clipboard.contents)
+            // TODO: add smarts
+            setNeedsDisplay()
             selecting = false
             
         case .controlSpace:
@@ -725,29 +644,19 @@ public class TextView: View {
             if isReadOnly {
                 break
             }
-        
-            let currentLine = getCurrentLine ();
-            let rest = Array (currentLine [currentColumn...])
-            model.removeLineRange(atLine: currentRow, fromCol: currentColumn, toCol: -1)
-            model.insert (line: rest, at: currentRow + 1)
-            currentRow += 1
-            var fullNeedsDisplay = false
-            if currentRow >= topRow + frame.height {
-                topRow += 1
-                fullNeedsDisplay = true
-            }
-            currentColumn = 0
-            if currentColumn < leftColumn {
-                fullNeedsDisplay = true
-                leftColumn = 0
-            }
+            insert(utf8: [10])
+            setNeedsDisplay()
             
-            if fullNeedsDisplay {
-                setNeedsDisplay ()
-            } else {
-                setNeedsDisplay (Rect (x: 0, y: currentRow - topRow, width: 2, height: frame.height));
-            }
+        case .letter (">") where event.isAlt:
+            currentRow = storage.getLineCount()-1
+            adjust()
+            gotoEndOfLine()
+            setNeedsDisplay()
             
+        case .letter("<") where event.isAlt:
+            currentRow = 0
+            adjust()
+
         case let .letter(x):
             if isReadOnly {
                 break
@@ -757,6 +666,8 @@ public class TextView: View {
                 leftColumn += 1
                 setNeedsDisplay()
             }
+            // TODO: bring back smarts
+            setNeedsDisplay()
             return true
             
         default:
@@ -765,77 +676,134 @@ public class TextView: View {
         return true
     }
     
-    func moveNext (_ col: inout Int, _ row: inout Int, _ ch: inout Character) -> Bool {
-        var line = model [row]
-        if col + 1 < line.count {
-            col += 1
-            ch = line [col].ch
-            return true
+    func gotoEndOfLine ()
+    {
+        currentColumn = textBufferSize(getCurrentLine())
+        let pcol = leftColumn
+        leftColumn = currentColumn - frame.width + 1
+        if leftColumn < 0 {
+            leftColumn = 0
         }
-        while row + 1 < model.count {
-            col = 0;
-            row += 1
-            line = model [row]
-            if line.count > 0 {
-                ch = line [0].ch
-                return true
-            }
+        if pcol != leftColumn {
+            setNeedsDisplay()
         }
-        ch = " "
-        return false;
     }
     
-    func movePrev (_ col: inout Int, _ row: inout Int, _ ch: inout Character) -> Bool {
-        var line = model [row]
-        if col > 0 {
-            col -= 1
-            ch = line [col].ch
-            return true
+    // Helper routines to scan the text buffer, it keeps a cache to prevent going
+    // every time to the textbuffer to fetch a whole line and convert it to text+size
+    class Scanner {
+        var host: TextView
+        var buffer: TextBuffer = []
+        var row: Int
+        var oldCol, oldRow: Int
+        
+        init (host: TextView) {
+            self.host = host
+            row = -1
+            oldCol = -1
+            oldRow = -1
         }
-        if row == 0 {
+        
+        func fetchRow (row: Int) {
+            if self.row != row {
+                buffer = host.getTextBuffer(forLine: row)
+                self.row = row
+            }
+        }
+        
+        func getCell (col: Int, row: Int) -> (ch:Character,size:Int8)? {
+            fetchRow (row: row)
+            if col < buffer.count {
+                return buffer [col]
+            } else {
+                return nil
+            }
+        }
+        
+        func movePrev (_ col: inout Int, _ row: inout Int, _ ch: inout Character) -> Bool {
+            oldCol = col
+            oldRow = row
+            if col > 0 {
+                col -= 1
+                if let cell = getCell (col: col, row: row) {
+                    ch = cell.ch
+                    return true
+                }
+                abort()
+            }
+            if row == 0 {
+                ch = " "
+                return false
+            }
+            while row > 0 {
+                row -= 1
+                fetchRow (row: row)
+                col = buffer.count - 1
+                if col >= 0 && buffer.count != 0 {
+                    ch = buffer [col].ch
+                    return true
+                }
+            }
             ch = " "
             return false
         }
-        while row > 0 {
-            row -= 1
-            line = model [row]
-            col = line.count - 1
-            if col >= 0 {
-                ch = line [col].ch
+        
+        func moveNext (_ col: inout Int, _ row: inout Int, _ ch: inout Character) -> Bool {
+            oldCol = col
+            oldRow = row
+            fetchRow(row: row)
+            
+            if col + 1 < buffer.count {
+                col += 1
+                ch = buffer [col].ch
                 return true
             }
+            let lineCount = host.storage.lineCount
+            while row + 1 < lineCount {
+                col = 0;
+                row += 1
+                fetchRow(row: row)
+                if buffer.count > 0 {
+                    ch = buffer [0].ch
+                    return true
+                }
+            }
+            ch = " "
+            return false
         }
-        ch = " "
-        return false
     }
     
     func wordBackward (fromCol: Int, andRow: Int) -> (col: Int, row: Int)?
     {
-        if andRow == 0 || fromCol == 0 {
+        if andRow == 0 && fromCol == 0 {
             return nil
         }
         var col = fromCol
         var row = andRow
-        var ch = model [row][col].ch
+        let scanner = Scanner(host: self)
+        var ch: Character = " "
+        scanner.movePrev(&col, &row, &ch)
         
         if ch.isPunctuation || ch.isSymbol || ch.isWhitespace {
-            while movePrev (&col, &row, &ch){
+            while scanner.movePrev (&col, &row, &ch){
                 if ch.isLetter || ch.isNumber {
                     break
                 }
             }
-            while movePrev (&col, &row, &ch) {
+            while scanner.movePrev (&col, &row, &ch) {
                 if !(ch.isLetter || ch.isNumber) {
                     break
                 }
             }
         } else {
-            while movePrev (&col, &row, &ch) {
+            while scanner.movePrev (&col, &row, &ch) {
                 if !(ch.isLetter || ch.isNumber) {
                     break
                 }
             }
         }
+        (col, row) = (scanner.oldCol, scanner.oldRow)
+        
         if fromCol != col || andRow != row {
             return (col, row)
         }
@@ -844,29 +812,30 @@ public class TextView: View {
     
     func wordForward (fromCol: Int, andRow: Int) -> (col: Int, row: Int)?
     {
-        var col = fromCol;
+        var col = fromCol
         var row = andRow
-        var ch = model [row][col].ch
+        let scanner = Scanner (host: self)
+        var ch = scanner.getCell (col: col, row: row)?.ch ?? " "
         
         if ch.isPunctuation || ch.isWhitespace  {
-            while moveNext (&col, &row, &ch) {
+            while scanner.moveNext (&col, &row, &ch) {
                 if ch.isLetter || ch.isNumber {
                     break
                 }
             }
-            while moveNext (&col, &row, &ch) {
+            while scanner.moveNext (&col, &row, &ch) {
                 if !(ch.isLetter || ch.isNumber){
                     break
                 }
             }
         } else {
-            while moveNext (&col, &row, &ch) {
+            while scanner.moveNext (&col, &row, &ch) {
                 if !(ch.isLetter || ch.isNumber) {
-                    break;
+                    break
                 }
             }
         }
-        if (fromCol != col || andRow != row){
+        if fromCol != col || andRow != row {
             return (col, row)
         }
         return nil
@@ -879,17 +848,17 @@ public class TextView: View {
         if !hasFocus {
             superview?.setFocus(self)
         }
-        let maxCursorPositionableLine = (model.count - 1) - topRow;
-        if event.y > maxCursorPositionableLine {
-            currentRow = maxCursorPositionableLine;
+        let maxCursorPositionableLine = (storage.lineCount - 1) - topRow
+        if event.pos.y > maxCursorPositionableLine {
+            currentRow = maxCursorPositionableLine
         } else {
-            currentRow = event.y + topRow;
+            currentRow = event.pos.y + topRow
         }
-        let r = getCurrentLine ();
-        if event.x - leftColumn >= r.count {
+        let r = getCurrentLine ()
+        if event.pos.x - leftColumn >= r.count {
             currentColumn = r.count - leftColumn
         } else {
-            currentColumn = event.y - leftColumn
+            currentColumn = event.pos.y - leftColumn
         }
         
         positionCursor ()

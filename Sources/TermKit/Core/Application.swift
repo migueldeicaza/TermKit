@@ -70,12 +70,12 @@ enum ApplicationError: Error {
  * and might also be updated continously.
  *
  * To execute a new nested toplevel, one that either obscures a portion of the screen, or the
- * whole screen, you call the `run` method with the new instance.   To pop the toplevel from
+ * whole screen, you call the `present` method with the new instance.   To pop the toplevel from
  * the stack, you call the `Application.requestStop` method which will queue the toplevel for
  * termination and will make the previous toplevel the active one.
  *
  * # Main Loop Execution
- * Calling the `run` method in `Application` will start the mainloop, which is implemented using
+ * Calling the `present` method in `Application` will start the mainloop, which is implemented using
  * the Dispatch framework.   This means that this method will never return, but also that all
  * the operations that you have come to expect from using the Dispatch API (from Grand Central Dispatch)
  * will work as expected.
@@ -188,30 +188,31 @@ public class Application {
         }
     }
     
-    static func findDeepestView (start: View, x: Int, y: Int) -> (view: View, resx: Int, resy: Int)?
+    static func findDeepestView (start: View, pos: Point) -> (view: View, res: Point)?
     {
         let startFrame = start.frame
         
-        if !startFrame.contains(Point (x: x, y: y)){
+        if !startFrame.contains(pos){
             return nil
         }
 
         let count = start.subviews.count
         if count > 0 {
-            let location = Point(x: x - startFrame.minX, y: y - startFrame.minY)
+            let location = pos - startFrame.origin
+
             for i in (0..<(count)).reversed() {
                 let v = start.subviews[i]
                 if v.frame.contains(location) {
-                    let deep = findDeepestView(start: v, x: location.x, y: location.y)
+                    let deep = findDeepestView(start: v, pos: location)
                     if deep == nil {
-                        return (view: v, resx: 0, resy: 0)
+                        return (view: v, Point.zero)
                     }
                     return deep
                 }
             }
         }
 
-        return (view: start, resx: x-startFrame.minX, resy: y-startFrame.minY)
+        return (view: start, res: pos-startFrame.origin)
     }
     
     // Tracks the view that has grabbed the mouse
@@ -271,7 +272,7 @@ public class Application {
     
     static func processMouseEvent (mouseEvent: MouseEvent)
     {
-        log ("Event: \(mouseEvent)")
+        //log ("Event: \(mouseEvent)")
         for h in rootMouseHandlers.values {
             h (mouseEvent)
         }
@@ -279,7 +280,7 @@ public class Application {
             return
         }
         
-        let res = findDeepestView(start: c, x: mouseEvent.x, y: mouseEvent.y)
+        let res = findDeepestView(start: c, pos: mouseEvent.pos)
         defer { postProcessEvent() }
         
         if let r = res {
@@ -289,16 +290,16 @@ public class Application {
                 wantContinuousButtonPressedView = nil
             }
             if let grab = mouseGrabView {
-                let newxy = grab.screenToView(x: mouseEvent.x, y: mouseEvent.y)
-                let nme = MouseEvent(x: newxy.x, y: newxy.y, absX: mouseEvent.x, absY: mouseEvent.y, flags: mouseEvent.flags, view: r.view)
-                if outsideFrame(Point (x: nme.x, y: nme.y), grab.frame) {
+                let newxy = grab.screenToView(loc: mouseEvent.pos)
+                let nme = MouseEvent(pos: newxy, absPos: mouseEvent.absPos, flags: mouseEvent.flags, view: r.view)
+                if outsideFrame(nme.pos, grab.frame) {
                     let _ = lastMouseOwnerView?.mouseLeave(event: mouseEvent)
                 }
                 let _ = grab.mouseEvent(event: nme)
                 return
             }
             
-            let nme = MouseEvent(x: r.resx, y: r.resy, absX: mouseEvent.x, absY: mouseEvent.y, flags: mouseEvent.flags, view: r.view)
+            let nme = MouseEvent(pos: r.res, absPos: mouseEvent.absPos, flags: mouseEvent.flags, view: r.view)
             if lastMouseOwnerView == nil {
                 lastMouseOwnerView = r.view
                 let _ = r.view.mouseEnter(event: nme)
@@ -323,7 +324,7 @@ public class Application {
     static func switchFocus ()
     {
         if let currentTop = toplevels.first {
-            currentTop.resignFirstResponder()
+            _ = currentTop.resignFirstResponder()
         }
     }
     /**
@@ -450,14 +451,14 @@ public class Application {
     public static func requestStop ()
     {
         DispatchQueue.global ().async {
-            if let c = current {
+            if current != nil {
                 toplevels = toplevels.dropLast ()
                 if toplevels.count == 0 {
                     Application.shutdown ()
                 } else {
                     _current = toplevels.last as Toplevel?
                     if let c = _current {
-                        c.becomeFirstResponder()
+                        _ = c.becomeFirstResponder()
                     }
                     refresh ()
                 }

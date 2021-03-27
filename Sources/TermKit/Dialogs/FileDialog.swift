@@ -224,7 +224,7 @@ class DirListView: ListView, ListViewDataSource, ListViewDelegate {
             return false
         }
         let d = fileData [item]
-        var full = directory + "/" + d.name
+        let full = directory + "/" + d.name
         if d.isDirectory {
             if reloadContents(full) {
                 _directory = full

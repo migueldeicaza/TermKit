@@ -190,7 +190,7 @@ public class ScrollBarView: View {
         if event.flags != .button1Clicked {
             return false
         }
-        let location = isVertical ? event.y : event.x
+        let location = isVertical ? event.pos.y : event.pos.x
         var barsize = getBarSize ()
         
         if barsize < 4 {

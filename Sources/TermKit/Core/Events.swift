@@ -264,18 +264,21 @@ public struct MouseFlags: OptionSet, CustomDebugStringConvertible {
 }
 
 /**
- * Describes a mouse event
+ * Describes a mouse event, the `pos` property contains the view relative position
+ * where the mouse event took place, and the `absPos` contains the screen absolute
+ * position of where the event took place.
+ *
+ * The state of the mouse event is described in `flags` and is used to determine
+ * what kind of event this is (movement, press, release, click).
+ *
+ * The `view` property, if set, indicates on which view the event took place.
  */
 public struct MouseEvent: CustomDebugStringConvertible {
     /// The X (column) location for the mouse event
-    public var x: Int
-    /// The Y (row) location for the mouse event
-    public var y: Int
+    public var pos: Point
     
     /// The X position for the event in global coordinates
-    public var absX: Int
-    /// The Y position for the event in global coordinates
-    public var absY: Int
+    public var absPos: Point
     
     /// The event flags
     public var flags: MouseFlags
@@ -285,20 +288,24 @@ public struct MouseEvent: CustomDebugStringConvertible {
 
     init (x: Int, y: Int, flags: MouseFlags, view: View? = nil)
     {
-        self.x = x
-        self.y = y
-        self.absX = x
-        self.absY = y
+        self.pos = Point (x: x, y: y)
+        self.absPos = self.pos
+        self.flags = flags
+        self.view = view
+    }
+
+    init (pos: Point, absPos: Point, flags: MouseFlags, view: View? = nil)
+    {
+        self.pos = pos
+        self.absPos = absPos
         self.flags = flags
         self.view = view
     }
     
     init (x: Int, y:Int, absX: Int, absY: Int, flags: MouseFlags, view: View? = nil)
     {
-        self.x = x
-        self.y = y
-        self.absX = absX
-        self.absY = absY
+        self.pos = Point (x: x, y: y)
+        self.absPos = Point(x: absX, y: absY)
         self.flags = flags
         self.view = view
     }
@@ -306,7 +313,7 @@ public struct MouseEvent: CustomDebugStringConvertible {
     public var debugDescription: String {
         get {
             let v = view?.debugDescription ?? "noview"
-            return "MouseEvent(x: \(x), y: \(y), absX: \(absX), absY: \(absY), flags: \(flags), view: \(v)"
+            return "MouseEvent(pos: \(pos), absPos: \(absPos), flags: \(flags), view: \(v)"
         }
     }
 }

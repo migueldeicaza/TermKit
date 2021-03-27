@@ -418,12 +418,12 @@ public class AttributedString: CustomDebugStringConvertible {
             }
             return current
         }
-        let startCol = painter.col
+        let startCol = painter.pos.x
         for x in expanded {
             let newAttr = collapseAttr (styleList: x.styleRequest)
             painter.attribute = newAttr
             if x.ch == "\n" {
-                painter.goto(col: startCol, row: painter.row+1)
+                painter.goto(col: startCol, row: painter.pos.y+1)
             } else {
                 painter.add(str: String (x.ch))
             }

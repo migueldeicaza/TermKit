@@ -114,7 +114,7 @@ public class Window: Toplevel {
             p.drawFrame (bounds, padding: padding, fill: true, double: hasFocus)
             
             if allowResize {
-                var b = bounds
+                let b = bounds
                 p.goto(col: b.width-1-padding, row: b.height-1-padding)
                 
                 // Invert the character for resizable ones
@@ -166,6 +166,10 @@ public class Window: Toplevel {
     var resizeGrab: Point? = nil
     
     public override func mouseEvent(event: MouseEvent) -> Bool {
+        if event.absPos == event.pos {
+            print ("here")
+        }
+        log ("On Window: \(event)")
         if event.flags == [.button4Released] {
             if moveGrab != nil {
                 moveGrab = nil
@@ -177,27 +181,25 @@ public class Window: Toplevel {
             }
         }
         if let g = moveGrab {
-            let deltax = event.absX - g.x
-            let deltay = event.absY - g.y
+            let delta = event.absPos - g
 
-            self.x = Pos.at (frame.minX + deltax)
-            self.y = Pos.at (frame.minY + deltay)
+            self.x = Pos.at (frame.minX + delta.x)
+            self.y = Pos.at (frame.minY + delta.y)
             setNeedsLayout()
-            moveGrab = Point (x: event.absX, y: event.absY)
+            moveGrab = event.absPos
             return true
         } else if let g = resizeGrab {
-            let deltax = event.absX - g.x
-            let deltay = event.absY - g.y
+            let delta = event.absPos - g
 
-            self.width = Dim.sized (frame.width + deltax)
-            self.height = Dim.sized (frame.height + deltay)
+            self.width = Dim.sized (frame.width + delta.x)
+            self.height = Dim.sized (frame.height + delta.y)
             setNeedsLayout()
-            resizeGrab = Point (x: event.absX, y: event.absY)
+            resizeGrab = event.absPos
             return true
 
         }
-        if event.flags == [.button1Clicked] && event.y == padding {
-            let x = event.x
+        if event.flags == [.button1Clicked] && event.pos.y == padding {
+            let x = event.pos.x
             var expect = 2+padding
             if allowClose {
                 if x == expect {
@@ -229,13 +231,13 @@ public class Window: Toplevel {
             
         }
         if event.flags == [.button4Pressed] || event.flags == [.button1Pressed] {
-            print ("line: \(event.y) and \(frame.height-padding-1)")
-            if event.y == padding {
+            print ("line: \(event.pos.y) and \(frame.height-padding-1)")
+            if event.pos.y == padding {
                 log ("grabbed")
                 Application.grabMouse(from: self)
-                moveGrab = Point (x: event.absX, y: event.absY)
-            } else if event.y == frame.height-padding-1 && event.x == frame.width-padding-1 {
-                resizeGrab = Point (x: event.absX, y: event.absY)
+                moveGrab = event.absPos
+            } else if event.pos.y == frame.height-padding-1 && event.pos.x == frame.width-padding-1 {
+                resizeGrab = event.absPos
             }
         }
         return true

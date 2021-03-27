@@ -69,7 +69,7 @@ public class TextField: View {
         }
         return textBuffer
     }
-    
+
     // Convert from the internal buffer to a string
     static func fromTextBuffer (_ data: TextBuffer, from: Int = 0, to: Int = -1) -> String
     {
@@ -452,7 +452,7 @@ public class TextField: View {
         }
         
         // we could also set the cursor position
-        point = first + event.x
+        point = first + event.pos.x
         if point > text.count {
             point = text.count
         }

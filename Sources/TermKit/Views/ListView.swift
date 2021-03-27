@@ -455,10 +455,10 @@ public class ListView: View {
             superview?.setFocus(self)
         }
         let c = dataSource.getCount(listView: self)
-        if event.y + top >= c {
+        if event.pos.y + top >= c {
             return true
         }
-        selectedItem = top + event.y
+        selectedItem = top + event.pos.y
         setNeedsDisplay()
         if event.flags == [.button1DoubleClicked] {
             _ = triggerActivate()

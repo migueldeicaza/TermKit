@@ -193,9 +193,9 @@ public class RadioGroup: View {
                 print ("Need to implement mouseEvent for horizontal")
                 abort()
             case .vertical:
-                if event.y < radioLabels.count {
-                    setSelected(new: event.y)
-                    cursor = event.y
+                if event.pos.y < radioLabels.count {
+                    setSelected(new: event.pos.y)
+                    cursor = event.pos.y
                 }
             }
             

@@ -530,13 +530,13 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
      *
      * - Returns: the mapped point
      */
-    public func screenToView (x: Int, y: Int) -> Point
+    public func screenToView (loc: Point) -> Point
     {
         if let container = superview {
-            let parent = container.screenToView(x: x, y: y)
-            return Point(x: parent.x - frame.minX, y: parent.y - frame.minY)
+            let parent = container.screenToView(loc: loc)
+            return parent - frame.origin
         } else {
-            return Point (x: x - frame.minX, y: y - frame.minY)
+            return loc - frame.origin
         }
     }
     

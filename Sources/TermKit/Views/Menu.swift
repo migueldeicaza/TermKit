@@ -268,8 +268,8 @@ public class Menu: View {
     }
      
     public override func mouseEvent(event: MouseEvent) -> Bool {
-        guard event.y >= 1 else { return true }
-        let idx = event.y - 1
+        guard event.pos.y >= 1 else { return true }
+        let idx = event.pos.y - 1
         guard idx <= barItems.children.count else { return true }
         guard let item = barItems.children [idx] else { return true }
 
@@ -477,9 +477,9 @@ public class MenuBar: View {
     public override func mouseEvent(event: MouseEvent) -> Bool {
         if event.flags == .button1Clicked {
             var pos = 1
-            let cx = event.x
+            let cx = event.pos.x
             for i in 0..<menus.count {
-                if cx > pos && event.x < pos + 1 + menus [i].titleLen {
+                if cx > pos && event.pos.x < pos + 1 + menus [i].titleLen {
                     activate (index: i)
                     return true
                 }
