@@ -1,5 +1,4 @@
 
-[![Build Status](https://migueldeicaza.visualstudio.com/TermKit/_apis/build/status/TermKit-Xcode-CI?branchName=master)](https://migueldeicaza.visualstudio.com/TermKit/_build/latest?definitionId=10&branchName=master)
 
 # TermKit - Terminal UI Toolkit for Swift
 
