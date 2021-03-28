@@ -93,7 +93,7 @@ public protocol LocalProcessTerminalViewDelegate {
 ///
 public class TerminalView: View, TerminalDelegate {
     public func send(source: Terminal, data: ArraySlice<UInt8>) {
-        abort ()
+        terminalDelegate?.send (source: self, data: data)
     }
     
     var terminal: Terminal!
@@ -138,12 +138,12 @@ public class TerminalView: View, TerminalDelegate {
         case .ansi256(code: let code):
             switch code {
             case 0: return .black
-            case 1: return .blue
+            case 1: return .red
             case 2: return .green
-            case 3: return .cyan
-            case 4: return .red
+            case 3: return .brown
+            case 4: return .blue
             case 5: return .magenta
-            case 6: return .brown
+            case 6: return .cyan
             case 7: return .gray
             default:
                 return isBg ? .black : .gray
@@ -190,7 +190,7 @@ public class TerminalView: View, TerminalDelegate {
         let dim = frame.size
         let maxCol = dim.width
         let maxRow = dim.height
-        let yDisp = terminal.getTopVisibleRow()
+    
     
         var lastAttr: SwiftTerm.Attribute? = nil
         for row in 0..<maxRow {
@@ -199,7 +199,7 @@ public class TerminalView: View, TerminalDelegate {
             if row >= terminal.rows {
                 continue
             }
-            guard let line = terminal.getLine(row: row+yDisp) else {
+            guard let line = terminal.getLine(row: row) else {
                 continue
             }
             for col in 0..<maxCol {
@@ -208,7 +208,10 @@ public class TerminalView: View, TerminalDelegate {
                     lastAttr = cell.attribute
                     painter.attribute = mapAttribute(attr: cell.attribute)
                 }
-                let ch = cell.getCharacter()
+                var ch = cell.getCharacter()
+                if ch == "\u{0}" {
+                    ch = " "
+                }
                 // TODO: map chars here for non UTF-8 Terminals
                 painter.add(ch: ch)
             }
@@ -405,6 +408,7 @@ public class LocalProcessTerminalView: TerminalView, LocalProcessDelegate, Termi
         feed (byteArray: slice)
         //TODO use the proper system
         setNeedsDisplay()
+        Application.postProcessEvent()
     }
     
     public override var frame: Rect {
