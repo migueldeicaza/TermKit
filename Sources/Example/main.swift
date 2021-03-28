@@ -13,7 +13,6 @@ import OpenCombine
 // So the debugger can attach
 sleep (1)
 
-
 // Creates a nested editor
 func showEditor() {
     let ntop = Toplevel()
@@ -56,7 +55,8 @@ Application.prepare()
 func makeMenu () -> MenuBar {
     return MenuBar (menus: [
         MenuBarItem(title: "_File", children: [
-            MenuItem(title: "Text Editor Demo", action: showEditor),
+            MenuItem(title: "Text _Editor Demo", action: showEditor),
+            MenuItem(title: "Open _Terminal", action: openTerminal),
             MenuItem(title: "_New", help: "Creates new file", action: newFile),
             MenuItem(title: "_Open", action: openFile),
             MenuItem(title: "_Hex", action: showHex),
@@ -80,6 +80,7 @@ frame.set (x: 10, y: 10, width: 60, height: 20)
 var options: [(text: String, func: () -> Window)] = [
     ("Assorted",     { Assorted () }),
     ("File Dialogs", { FileDialogs () }),
+    ("Terminal",     { TerminalDemo () }),
     ("Quit",         { Application.shutdown(); return Window () })
 ]
 
@@ -103,6 +104,7 @@ list.activate = { item in
 let win = Window()
 win.x = Pos.at (0)
 win.y = Pos.at (1)
+
 win.addSubview(frame)
 
 let s = Desktop ()
