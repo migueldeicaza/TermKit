@@ -26,7 +26,9 @@ func TerminalDemo () -> Window {
     let term = LocalProcessTerminalView()
     w.addSubview(term)
     term.fill ()
-    term.startProcess()
+    term.frame = Rect (origin: Point (x: 0, y: 0), size: Size(width: 80, height: 25))
+    let vars = Terminal.getEnvironmentVariables(termName: "xterm-color")
+    term.startProcess(executable: "/bin/bash", environment: vars,execName: "-bash")
     term.feed(text: "Welcome to SwiftTerm in TermKit")
     w.closeClicked = { _ in
         Application.requestStop()

@@ -386,9 +386,9 @@ public class LocalProcessTerminalView: TerminalView, LocalProcessDelegate, Termi
      * - Parameter args: an array of strings that is passed as the arguments to the underlying process
      * - Parameter environment: an array of environment variables to pass to the child process, if this is null, this picks a good set of defaults from `Terminal.getEnvironmentVariables`.
      */
-    public func startProcess(executable: String = "/bin/bash", args: [String] = [], environment: [String]? = nil)
+    public func startProcess(executable: String = "/bin/bash", args: [String] = [], environment: [String]? = nil, execName: String? = nil)
     {
-        process.startProcess(executable: executable, args: args, environment: environment)
+        process.startProcess(executable: executable, args: args, environment: environment, execName: execName)
     }
     
     /**
