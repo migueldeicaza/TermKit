@@ -228,6 +228,10 @@ public class TerminalView: View, TerminalDelegate {
             quoteChar = false
             return false
         }
+        if event.isAlt {
+            send ([0x1b])
+        }
+
         switch event.key {
         case .esc:
             send([0x1b])
@@ -296,23 +300,23 @@ public class TerminalView: View, TerminalDelegate {
         case .delete:
             send([127])
         case .cursorUp:
-            feed (byteArray: terminal.applicationCursor ? [ 0x1b, 0x4f, 0x41 ] : [ 0x1b, 0x5b, 0x41 ])
+            send (terminal.applicationCursor ? [ 0x1b, 0x4f, 0x41 ] : [ 0x1b, 0x5b, 0x41 ])
         case .cursorDown:
-            feed (byteArray: terminal.applicationCursor ? [ 0x1b, 0x4f, 0x42 ] : [ 0x1b, 0x5b, 0x42 ])
+            send(terminal.applicationCursor ? [ 0x1b, 0x4f, 0x42 ] : [ 0x1b, 0x5b, 0x42 ])
         case .cursorLeft:
-            feed (byteArray: terminal.applicationCursor ? [ 0x1b, 0x4f, 0x44 ] : [ 0x1b, 0x5b, 0x44 ])
+            send(terminal.applicationCursor ? [ 0x1b, 0x4f, 0x44 ] : [ 0x1b, 0x5b, 0x44 ])
         case .cursorRight:
-            feed (byteArray: terminal.applicationCursor ? [ 0x1b, 0x4f, 0x43 ] : [ 0x1b, 0x5b, 0x43 ])
+            send(terminal.applicationCursor ? [ 0x1b, 0x4f, 0x43 ] : [ 0x1b, 0x5b, 0x43 ])
         case .pageUp:
-            feed (byteArray: [ 0x1b, 0x5b, 0x35, 0x7e ])
+            send([ 0x1b, 0x5b, 0x35, 0x7e ])
         case .pageDown:
-            feed (byteArray: [ 0x1b, 0x5b, 0x36, 0x7e ])
+            send([ 0x1b, 0x5b, 0x36, 0x7e ])
         case .home:
-            feed (byteArray: terminal.applicationCursor ? [ 0x1b, 0x4f, 0x48 ] : [ 0x1b, 0x5b, 0x48 ])
+            send(terminal.applicationCursor ? [ 0x1b, 0x4f, 0x48 ] : [ 0x1b, 0x5b, 0x48 ])
         case .end:
-            feed (byteArray: terminal.applicationCursor ? [ 0x1b, 0x4f, 0x46 ] : [ 0x1b, 0x5b, 0x46 ])
+            send(terminal.applicationCursor ? [ 0x1b, 0x4f, 0x46 ] : [ 0x1b, 0x5b, 0x46 ])
         case .deleteChar:
-            feed (byteArray: [0x1b, 0x5b, 0x33, 0x7e])
+            send([0x1b, 0x5b, 0x33, 0x7e])
         case .insertChar:
             // Mhm, how do I enter this on my mac?
             break
@@ -339,9 +343,6 @@ public class TerminalView: View, TerminalDelegate {
         case .backtab:
             send([ 0x1b, 0x5b, 0x5a ])
         case .letter(let x):
-            if event.isAlt {
-                send ([0x1b])
-            }
             send (([UInt8](x.utf8))[...])
         case .Unknown:
             return false
