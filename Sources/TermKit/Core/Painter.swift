@@ -197,7 +197,7 @@ public class Painter {
     public func clear (_ rect: Rect)
     {
         let h = rect.height
-        
+        let (scol, srow) = (col, row)
         let lstr = String (repeating: " ", count: rect.width)
         
         for line in 0..<h {
@@ -205,6 +205,7 @@ public class Painter {
 
             add (str: lstr)
         }
+        (col, row) = (scol, srow)
     }
     
     /// Clears a region of the view with spaces, the parameter are in view coordinates
