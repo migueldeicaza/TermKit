@@ -35,16 +35,18 @@ public class Painter {
     
     var posSet = false
     var attrSet = false
+    var isTop = false
     
-    private init (from view: View)
+    private init (from view: View, isTop: Bool = false)
     {
         self.view = view
         attribute = view.colorScheme!.normal
         origin = view.frame.origin
         visible = view.frame
-        driver = Application.driver
+        driver = isTop ? TopDriver (Application.driver,  top: view as! Toplevel) : Application.driver
         col = 0
         row = 0
+        self.isTop = isTop
     }
     
     /// Use this method to create a root painter, only used internally in general,
@@ -54,6 +56,12 @@ public class Painter {
     public static func createRootPainter (from view: View) -> Painter
     {
         return Painter (from: view)
+    }
+    
+    /// This creates a painter, that renders into the Toplevel backing buffer
+    public static func createTopPainter (from top: Toplevel) -> Painter {
+        top.allocateBackingStore()
+        return Painter (from: top, isTop: true)
     }
     
     /// Creates a new painter for the specified view, use this method when you want to create a painter to pass to
@@ -119,7 +127,9 @@ public class Painter {
     func applyContext ()
     {
         if !attrSet {
-            driver.setAttribute(attribute)
+            if isTop == false {
+                driver.setAttribute(attribute)
+            }
             attrSet = true
         }
     }
@@ -333,4 +343,90 @@ public class Painter {
         }
     }
     
+}
+
+// This is a ConsoleDriver that is used during the transition period
+// to not touch the painter code too much, it acts as a proxy for
+// attributes, but otherwise stores the data on the backing store
+// in the Toplevel that is provided.
+class TopDriver: ConsoleDriver {
+    var top: Toplevel
+    var backing: ConsoleDriver
+    var col: Int = 0
+    var row: Int = 0
+    var topSize: Size
+    var attribute: Attribute
+    var nullCell: Cell
+    
+    init (_ backing: ConsoleDriver, top: Toplevel) {
+        self.backing = backing
+        self.top = top
+        self.topSize = top.frame.size
+        self.attribute = top.colorScheme.normal
+        self.nullCell = Cell (ch: "\u{0}", attr: top.colorScheme.normal)
+    }
+
+    public override func moveTo (col: Int, row: Int) {
+        self.col = col
+        self.row = row
+    }
+    
+    public override func addRune(_ rune: rune) {
+        // I do not think this is necessary
+        abort ()
+    }
+    
+    // Returns the index into the backingstore array for col, row
+    func getPos () -> Int {
+        return col + row * topSize.width
+    }
+    
+    public override func addCharacter(_ char: Character) {
+        let s = top.frame
+        let start = getPos ()
+        let n = char.cellSize()
+        if n == 0 { return }
+        
+        if col < s.width {
+            top.backingStore [start] = Cell (ch: char, attr: attribute)
+            col += 1
+            if n == 2 && col < s.width {
+                top.backingStore [start+1] = nullCell
+                col += 1
+            }
+        }
+    }
+    
+    public override func change(_ attribute: Attribute, background: Color) -> Attribute {
+        backing.change(attribute, background: background)
+    }
+    
+    public override func change(_ attribute: Attribute, foreground: Color) -> Attribute {
+        backing.change(attribute, foreground: foreground)
+    }
+    
+    public override func change(_ attribute: Attribute, flags: CellFlags) -> Attribute {
+        backing.change(attribute, flags: flags)
+    }
+    
+    public override func colorSupport() -> ConsoleDriver.ColorSupport {
+        backing.colorSupport()
+    }
+    
+    public override func makeAttribute(fore: Color, back: Color, flags: CellFlags = []) -> Attribute {
+        backing.makeAttribute(fore: fore, back: back, flags: flags)
+    }
+    
+    public override func setAttribute(_ attr: Attribute) {
+        attribute = attr
+    }
+    
+    public override func cookMouse() {
+        // this not necessary during painting ops
+        abort ()
+    }
+    
+    public override func uncookMouse() {
+        // this not necessary during painting ops
+    }
 }

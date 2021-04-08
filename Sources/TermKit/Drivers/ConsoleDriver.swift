@@ -261,7 +261,7 @@ public class ConsoleDriver {
     /**
      * Moves the cursor to the screen to the specified column and row
      */
-    public func moveTo (col : Int, row : Int) {}
+    public func moveTo (col: Int, row: Int) {}
     
     /**
      * This method takes the platform-agnostic Color enumeration for foreground and background and produces an attribute

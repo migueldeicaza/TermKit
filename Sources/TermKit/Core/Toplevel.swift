@@ -8,6 +8,11 @@
 
 import Foundation
 
+struct Cell {
+    var ch: Character
+    var attr: Attribute
+}
+
 /**
  * Toplevel views can be modally executed.
  *
@@ -27,6 +32,8 @@ import Foundation
  */
 open class Toplevel : View {
     var _running : Bool
+    var backingStore: [Cell]
+    
     /// This flag is checked on each iteration of the mainloop and it continues running until this flag is set to false.
     public var running : Bool {
         get {
@@ -51,6 +58,7 @@ open class Toplevel : View {
     {
         _running = false
         modal = false
+        backingStore = []
         super.init ()
     
         colorScheme = Colors.base
@@ -234,5 +242,20 @@ open class Toplevel : View {
     
     public override var debugDescription: String {
         return "Toplevel (\(super.debugDescription))"
+    }
+    
+    public override var frame: Rect {
+        didSet {
+            allocateBackingStore()
+        }
+    }
+    
+    var topDirty = true
+    public func allocateBackingStore () {
+        let size = frame.size
+        let empty = Cell (ch: " ", attr: colorScheme.normal)
+        
+        backingStore = Array.init(repeating: empty, count: size.width*size.height)
+        topDirty = true
     }
 }
