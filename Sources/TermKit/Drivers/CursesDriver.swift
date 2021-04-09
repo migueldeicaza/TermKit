@@ -369,12 +369,12 @@ class CursesDriver : ConsoleDriver {
     public override func colorSupport () -> ColorSupport
     {
         if (!has_colors()) {
-            return .BlackAndWhite
+            return .blackAndWhite
         }
         if can_change_color() {
-            return .RgbColors
+            return .rgbColors
         }
-        return .SixteenColors
+        return .sixteenColors
     }
     
     static var lastColorPair : Int16 = 16

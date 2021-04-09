@@ -244,18 +244,24 @@ open class Toplevel : View {
         return "Toplevel (\(super.debugDescription))"
     }
     
-    public override var frame: Rect {
-        didSet {
-            allocateBackingStore()
-        }
+    static func allocateLayer (attr: Attribute, size: Size) -> [Cell] {
+        let empty = Cell (ch: " ", attr: attr)
+        
+        return Array.init(repeating: empty, count: size.width*size.height)
     }
     
     var topDirty = true
     public func allocateBackingStore () {
-        let size = frame.size
-        let empty = Cell (ch: " ", attr: colorScheme.normal)
-        
-        backingStore = Array.init(repeating: empty, count: size.width*size.height)
+        backingStore = Toplevel.allocateLayer (attr: colorScheme.normal, size: frame.size)
         topDirty = true
+    }
+    
+    func paintToBackingStore ()
+    {
+        if backingStore.count != bounds.width * bounds.height {
+            allocateBackingStore()
+        }
+        let rootPainter = Painter.createRootPainter(from: self)
+        redraw(region: bounds, painter: rootPainter)
     }
 }

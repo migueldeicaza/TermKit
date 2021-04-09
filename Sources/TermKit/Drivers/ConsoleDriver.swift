@@ -145,13 +145,13 @@ public extension Int32 {
  */
 public class ColorScheme {
     /// The default color for text, when the view is not focused.
-    public var normal : Attribute
+    public var normal: Attribute
     /// The color for text when the view has the focus.
-    public var focus : Attribute
+    public var focus: Attribute
     /// The color for the hotkey when a view is not focused
-    public var hotNormal : Attribute
+    public var hotNormal: Attribute
     /// The color for the hotkey when the view is focused.
-    public var hotFocus : Attribute
+    public var hotFocus: Attribute
     
     public init (normal: Attribute, focus: Attribute, hotNormal: Attribute, hotFocus: Attribute)
     {
@@ -215,8 +215,8 @@ public class ConsoleDriver {
         clip = Rect.zero
     }
     
-    var cols : Int
-    var rows : Int
+    var cols: Int
+    var rows: Int
     var ulCorner = Unicode.Scalar (0x250c)!
     var llCorner = Unicode.Scalar (0x2514)!
     var hLine = Unicode.Scalar (0x2500)!
@@ -260,6 +260,9 @@ public class ConsoleDriver {
     
     /**
      * Moves the cursor to the screen to the specified column and row
+     * - Parameters:
+     *  - col: the 0-indexed column
+     *  - row: the 0-indexed row
      */
     public func moveTo (col: Int, row: Int) {}
     
@@ -288,11 +291,11 @@ public class ConsoleDriver {
      */
     public enum ColorSupport {
         /// The terminal only supports black and white - generally, they are expected to at least have the VT100 capabilities: bold, italics, inverse, blink
-        case BlackAndWhite
+        case blackAndWhite
         /// The terminal supports 16 colors, usually the top 8 are bright colors
-        case SixteenColors
+        case sixteenColors
         /// The terminal can configure colors based on R, G, B values
-        case RgbColors
+        case rgbColors
     }
     
     /**
@@ -303,7 +306,7 @@ public class ConsoleDriver {
      */
     public func colorSupport () -> ColorSupport
     {
-        return .BlackAndWhite
+        return .blackAndWhite
     }
     
     /**
@@ -346,16 +349,14 @@ public class ConsoleDriver {
     /// Ends the execution of the console driver.
     public func end ()
     {
-        
     }
     
     public func cookMouse ()
     {
-        
     }
     
     public func uncookMouse ()
     {
-        
+
     }
 }

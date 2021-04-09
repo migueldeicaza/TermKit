@@ -242,7 +242,7 @@ public class Application {
      * A token representing a registered root mouse handler
      */
     public struct MouseHandlerToken {
-        var token : Int
+        var token: Int
     }
     
     /**
@@ -319,6 +319,54 @@ public class Application {
         
     }
     
+    static func compose () -> [Cell]
+    {
+        let screenSize = Size (width: Application.driver.cols, height: Application.driver.rows)
+        var screen = Toplevel.allocateLayer (attr: Colors.base.normal, size: screenSize)
+        
+        let screenFrame = Rect (origin: Point (x: 0, y: 0), size: screenSize)
+        for view in toplevels {
+            let vframe = view.frame
+            
+            let intersection = screenFrame.intersection (vframe)
+            if intersection == Rect.zero {
+                continue
+            }
+            
+            // the source location to copy from (clamped)
+            let sourceStart = Point (x: vframe.minX < 0 ? -vframe.minX : 0, y: vframe.minY < 0 ? -vframe.minY : 0)
+            for row in 0..<intersection.height {
+                let y = intersection.minY + row
+                
+                // the offset into the array
+                let targetOffset = y * screenSize.width + intersection.minX
+                let sourceOffset = (sourceStart.y + row) * vframe.width + sourceStart.x
+                screen.replaceSubrange(targetOffset..<(targetOffset + intersection.width), with: view.backingStore [sourceOffset..<sourceOffset+intersection.width])
+            }
+        }
+        return screen
+    }
+    
+    static func updateDisplay (_ buffer: [Cell]) {
+        let rows = Application.driver.rows
+        let cols = Application.driver.cols
+        var attr: Int32 = -1
+        var idx = 0
+        for y in 0..<rows {
+            driver.moveTo(col: 0, row: y)
+            
+            for x in 0..<cols {
+                let cell = buffer [idx]
+                if cell.attr.value != attr {
+                    attr = cell.attr.value
+                    driver.setAttribute(cell.attr)
+                }
+                driver.addCharacter(cell.ch)
+            }
+        }
+        driver.updateScreen()
+    }
+    
     /**
      * Building block API: Prepares the provided toplevel for execution.
      *
@@ -332,7 +380,7 @@ public class Application {
      * - Parameter toplevel: Toplevel to prepare execution for.
      * - Returns: The runstate handle that needs to be passed to the `end` method upon completion
      */
-    public static func begin (toplevel : Toplevel)
+    public static func begin (toplevel: Toplevel)
     {
         if !initialized {
             print ("You should call Application.prepare() to initialize")
@@ -347,7 +395,10 @@ public class Application {
             try toplevel.layoutSubviews()
         } catch {}
         toplevel.willPresent()
-        redrawView (toplevel)
+        toplevel.paintToBackingStore ()
+        let content = compose()
+        updateDisplay(content)
+        //redrawView (toplevel)
         toplevel.positionCursor()
         driver.refresh()
     }
