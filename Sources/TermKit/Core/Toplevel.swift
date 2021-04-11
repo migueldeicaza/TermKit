@@ -252,8 +252,10 @@ open class Toplevel : View {
     
     var topDirty = true
     public func allocateBackingStore () {
-        backingStore = Toplevel.allocateLayer (attr: colorScheme.normal, size: frame.size)
-        topDirty = true
+        if backingStore.count == 0 {
+            backingStore = Toplevel.allocateLayer (attr: colorScheme.normal, size: frame.size)
+            topDirty = true
+        }
     }
     
     func paintToBackingStore ()
@@ -261,7 +263,7 @@ open class Toplevel : View {
         if backingStore.count != bounds.width * bounds.height {
             allocateBackingStore()
         }
-        let rootPainter = Painter.createRootPainter(from: self)
+        let rootPainter = Painter.createTopPainter(from: self)
         redraw(region: bounds, painter: rootPainter)
     }
 }
