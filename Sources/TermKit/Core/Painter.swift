@@ -55,6 +55,7 @@ public class Painter {
     /// - Parameter view: the view to create the painter for
     public static func createRootPainter (from view: View) -> Painter
     {
+        abort ()
         return Painter (from: view)
     }
     
@@ -74,7 +75,7 @@ public class Painter {
         attribute = view.colorScheme!.normal
         col = 0
         row = 0
-        driver = Application.driver
+        driver = parent.driver
         
         origin = parent.origin + view.frame.origin
         visible = parent.visible.intersection(Rect (origin: origin, size: view.bounds.size))
@@ -367,32 +368,47 @@ class TopDriver: ConsoleDriver {
     }
 
     public override func moveTo (col: Int, row: Int) {
-        self.col = col
-        self.row = row
+        let origin = top.frame.origin
+        self.col = col-origin.x
+        self.row = row-origin.y
     }
     
     public override func addRune(_ rune: rune) {
-        // I do not think this is necessary
-        abort ()
+        if let start = getPos () {
+            let n = wcwidth(Int32(rune.value))
+            if n == 0 { return }
+            
+            top.backingStore [start] = Cell (ch: Character(rune), attr: attribute)
+            col += 1
+            if n == 2 && col < topSize.width {
+                top.backingStore [start+1] = nullCell
+                col += 1
+            }
+        }
     }
     
     // Returns the index into the backingstore array for col, row
-    func getPos () -> Int {
-        return col + row * topSize.width
+    func getPos () -> Int? {
+        if col < topSize.width && row < topSize.height {
+            return col + row * topSize.width
+        }
+        return nil
     }
     
     public override func addCharacter(_ char: Character) {
-        let s = top.frame
-        let start = getPos ()
-        let n = char.cellSize()
-        if n == 0 { return }
         
-        if col < s.width {
-            top.backingStore [start] = Cell (ch: char, attr: attribute)
-            col += 1
-            if n == 2 && col < s.width {
-                top.backingStore [start+1] = nullCell
+        if let start = getPos () {
+            let s = top.frame
+            let n = char.cellSize()
+            if n == 0 { return }
+            
+            if col < s.width {
+                top.backingStore [start] = Cell (ch: char, attr: attribute)
                 col += 1
+                if n == 2 && col < s.width {
+                    top.backingStore [start+1] = nullCell
+                    col += 1
+                }
             }
         }
     }
