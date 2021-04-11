@@ -329,9 +329,7 @@ class CursesDriver : ConsoleDriver {
                 move (crow, ccol)
                 needMove = false
             }
-            for rune in char.unicodeScalars {
-                addch (UInt32 (rune))
-            }
+            addstr (String (char))
         } else {
             needMove = true
         }
