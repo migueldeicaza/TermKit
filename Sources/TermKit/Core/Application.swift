@@ -140,15 +140,21 @@ public class Application {
      */
     static public func refresh ()
     {
-        driver.updateScreen ()
-        var last : View? = nil
-        for v in toplevels {
-            v.setNeedsDisplay()
-            v.redraw(region: v.bounds, painter: Painter.createRootPainter (from: v))
-            last = v
-        }
-        last?.positionCursor()
+        // This will be re-enabled later, but could just reuse our layers system at this point
+        // no need to redraw anymore - a redraw system still has debugging value, so maybe
+        // a different method, or a debug flag?
+        updateDisplay(compose ())
         driver.refresh()
+//        
+//        driver.updateScreen ()
+//        var last : View? = nil
+//        for v in toplevels {
+//            v.setNeedsDisplay()
+//            v.redraw(region: v.bounds, painter: Painter.createRootPainter (from: v))
+//            last = v
+//        }
+//        last?.positionCursor()
+//        driver.refresh()
     }
     
     static func processKeyEvent (event : KeyEvent)
@@ -323,7 +329,9 @@ public class Application {
     {
         let screenSize = Size (width: Application.driver.cols, height: Application.driver.rows)
         var screen = Toplevel.allocateLayer (attr: Colors.base.normal, size: screenSize)
-        
+        for x in 0..<screen.count {
+            screen [x].ch = "x"
+        }
         let screenFrame = Rect (origin: Point (x: 0, y: 0), size: screenSize)
         for view in toplevels {
             let vframe = view.frame
@@ -343,20 +351,26 @@ public class Application {
                 let sourceOffset = (sourceStart.y + row) * vframe.width + sourceStart.x
                 screen.replaceSubrange(targetOffset..<(targetOffset + intersection.width), with: view.backingStore [sourceOffset..<sourceOffset+intersection.width])
             }
+            updateDisplay(screen, Application.driver.cols, Application.driver.rows)
         }
         return screen
     }
     
     static func updateDisplay (_ buffer: [Cell]) {
-        let rows = Application.driver.rows
-        let cols = Application.driver.cols
+        updateDisplay(buffer, Application.driver.cols, Application.driver.rows)
+    }
+    
+    static func updateDisplay (_ buffer: [Cell], _ cols: Int, _ rows: Int) {
         var attr: Int32 = -1
         var idx = 0
+        (Application.driver as? CursesDriver)!.sync = true
         for y in 0..<rows {
             driver.moveTo(col: 0, row: y)
             
             for x in 0..<cols {
                 let cell = buffer [idx]
+                idx += 1
+                attr = -1
                 if cell.attr.value != attr {
                     attr = cell.attr.value
                     driver.setAttribute(cell.attr)
@@ -423,6 +437,7 @@ public class Application {
     
     static func redrawView (_ view: View)
     {
+        abort ()
         let painter = Painter.createRootPainter (from: view)
         view.redraw(region: view.bounds, painter: painter)
         driver.refresh()
@@ -465,7 +480,8 @@ public class Application {
                 c.setNeedsDisplay()
             }
             if !c.needDisplay.isEmpty || c._childNeedsDisplay {
-                c.redraw (region: c.bounds, painter: Painter.createRootPainter(from: c))
+                c.redraw (region: c.bounds, painter: Painter.createTopPainter(from: c))
+                updateDisplay(compose ())
 //                if debugDrawBounds {
 //                    drawBounds (c)
 //                }
