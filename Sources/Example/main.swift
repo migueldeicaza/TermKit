@@ -87,6 +87,8 @@ var list = ListView (items: options.map { $0.0 })
 frame.addSubview(list)
 
 list.activate = { item in
+    Application.present(top: OpenDialog (title: "Sample Open", message: "Pick a file to open"))
+    return true
     let win = (options [item].func)()
     win.set (x: 1, y: 1)
 
