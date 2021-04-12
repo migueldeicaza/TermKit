@@ -13,16 +13,16 @@ import Foundation
  */
 public struct Point: CustomDebugStringConvertible, Codable, Equatable {
     /// The x (column) component of this point
-    var x: Int
+    public var x: Int
     
     /// The y (row) component of this point
-    var y: Int
+    public var y: Int
     
     /// The point at the origin (0, 0)
-    static var zero = Point(x: 0, y: 0)
+    public static var zero = Point(x: 0, y: 0)
     
     /// Initializes a new Point with the specified x and y coordinates
-    public init (x: Int, y : Int)
+    public init (x: Int, y: Int)
     {
         self.x = x
         self.y = y

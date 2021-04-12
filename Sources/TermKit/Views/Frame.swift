@@ -11,11 +11,11 @@ import Foundation
 /**
  *  The FrameView is a container frame that draws a frame around the contents
  */
-public class Frame : View {
-    var contentView : View
+public class Frame: View {
+    var contentView: View
     
     /// The title to be displayed for this window.
-    public var title : String? = nil {
+    public var title: String? = nil {
         didSet {
             setNeedsDisplay()
         }

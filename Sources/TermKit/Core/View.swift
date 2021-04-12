@@ -399,7 +399,7 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
         self.x = try? Pos.percent(n: (100-percentage)/2)
         self.y = try? Pos.percent(n: (100-percentage)/2)
         self.width = Dim.percent(n: percentage)
-        self.width = Dim.percent(n: percentage)
+        self.height = Dim.percent(n: percentage)
     }
     
     /**
@@ -530,13 +530,13 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
      *
      * - Returns: the mapped point
      */
-    public func screenToView (x: Int, y: Int) -> Point
+    public func screenToView (loc: Point) -> Point
     {
         if let container = superview {
-            let parent = container.screenToView(x: x, y: y)
-            return Point(x: parent.x - frame.minX, y: parent.y - frame.minY)
+            let parent = container.screenToView(loc: loc)
+            return parent - frame.origin
         } else {
-            return Point (x: x - frame.minX, y: y - frame.minY)
+            return loc - frame.origin
         }
     }
     
@@ -557,30 +557,6 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
         let h = maxy >= driver.rows ? driver.rows - miny : rect.height
         
         return Rect(x: x, y: y, width: w, height: h)
-    }
-    
-    /**
-     * Sets the Console driver's clip region to the current View's `bounds`.
-     * - Paramater rect: xx
-     * - Returns: The existing driver's Clip region, which can be then set by setting the Driver.clip property.
-     */
-    public func clipToBounds () -> Rect
-    {
-       return self.setClip (bounds)
-    }
-    
-    /**
-     * Sets the clipping region to the specified region, the region is view-relative
-     * - Parameter rect: Rectangle region to clip into, the region is view-relative.
-     * - Returns: The previous clip region
-     */
-    @discardableResult
-    public func setClip (_ rect: Rect) -> Rect
-    {
-        let bscreen = rectToScreen(rect)
-        let previous = driver.clip
-        driver.clip = screenClip (bscreen)
-        return previous
     }
     
     /**
@@ -1231,13 +1207,21 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
         
     }
     
+    var oldFocused: View? = nil
     public func becomeFirstResponder() -> Bool {
-        // TODO: OnEnter
+        if let old = oldFocused {
+            setFocus(old)
+            if focused == old {
+                _ = old.becomeFirstResponder()
+            }
+        }
+        oldFocused = nil
         return true
     }
     
     public func resignFirstResponder() -> Bool {
-        // TODO: OnLeave
+        oldFocused = focused
+        setHasFocus(other: nil, value: false)
         return true
     }
     

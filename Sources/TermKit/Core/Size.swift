@@ -12,7 +12,7 @@ public struct Size: CustomDebugStringConvertible, Codable, Equatable {
     var width = 0
     var height = 0
     static public var empty: Size = Size (width: 0, height: 0)
-    public var IsEmpty : Bool {
+    public var IsEmpty: Bool {
         get {
             return width == 0 && height == 0
         }

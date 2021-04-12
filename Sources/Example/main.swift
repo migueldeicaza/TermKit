@@ -13,7 +13,6 @@ import OpenCombine
 // So the debugger can attach
 sleep (1)
 
-
 // Creates a nested editor
 func showEditor() {
     let ntop = Toplevel()
@@ -56,7 +55,8 @@ Application.prepare()
 func makeMenu () -> MenuBar {
     return MenuBar (menus: [
         MenuBarItem(title: "_File", children: [
-            MenuItem(title: "Text Editor Demo", action: showEditor),
+            MenuItem(title: "Text _Editor Demo", action: showEditor),
+            MenuItem(title: "Open _Terminal", action: openTerminal),
             MenuItem(title: "_New", help: "Creates new file", action: newFile),
             MenuItem(title: "_Open", action: openFile),
             MenuItem(title: "_Hex", action: showHex),
@@ -80,6 +80,7 @@ frame.set (x: 10, y: 10, width: 60, height: 20)
 var options: [(text: String, func: () -> Window)] = [
     ("Assorted",     { Assorted () }),
     ("File Dialogs", { FileDialogs () }),
+    ("Terminal",     { TerminalDemo () }),
     ("Quit",         { Application.shutdown(); return Window () })
 ]
 
@@ -87,10 +88,10 @@ var list = ListView (items: options.map { $0.0 })
 frame.addSubview(list)
 
 list.activate = { item in
-    Application.present(top: OpenDialog (title: "Sample Open", message: "Pick a file to open"))
-    return true
     let win = (options [item].func)()
-    win.set (x: 1, y: 1)
+    if win.x == nil || win.y == nil {
+        win.set (x: 1, y: 1)
+    }
 
     let newTop = Toplevel ()
     newTop.addSubviews([makeMenu (), win])
@@ -103,13 +104,21 @@ list.activate = { item in
 let win = Window()
 win.x = Pos.at (0)
 win.y = Pos.at (1)
+
 win.addSubview(frame)
 
+let s = Desktop ()
+s.set (x: 1, y: 1, width: 20, height: 4)
+win.addSubview(s    )
+
+// Create a floating window
 let subwin = Window()
+subwin.allowResize = true
 subwin.set (x: 2, y: 2, width: 10, height: 3)
+subwin.closeClicked = { win in win.superview!.remove (win) }
 
 Application.top.addSubview(win)
-//Application.top.addSubview(subwin)
+Application.top.addSubview(subwin)
 Application.top.addSubview(makeMenu ())
 Application.run()
 print ("ending")

@@ -170,17 +170,17 @@ public class ColorScheme {
  * `error` is intended to have a set of attributes suitable to display error messages.
  */
 public class Colors {
-    static var _base, _dialog, _menu, _error : ColorScheme?
+    static var _base, _dialog, _menu, _error: ColorScheme?
     
     /// The base color scheme is used for the main UI elements in the application
-    public static var base : ColorScheme {
+    public static var base: ColorScheme {
         get {
             return _base!
         }
     }
     
     // The color scheme to display pop up dialogs
-    public static var dialog : ColorScheme {
+    public static var dialog: ColorScheme {
         get {
             return _dialog!
         }
@@ -194,7 +194,7 @@ public class Colors {
     }
     
     /// The color scheme used to display error messages
-    public static var error : ColorScheme {
+    public static var error: ColorScheme {
         get {
             return _error!
         }
@@ -212,7 +212,6 @@ public class ConsoleDriver {
     {
         cols = 0
         rows = 0
-        clip = Rect.zero
     }
     
     var cols: Int
@@ -220,10 +219,17 @@ public class ConsoleDriver {
     var ulCorner = Unicode.Scalar (0x250c)!
     var llCorner = Unicode.Scalar (0x2514)!
     var hLine = Unicode.Scalar (0x2500)!
+    var vLine = Unicode.Scalar (0x2502)!
     var urCorner = Unicode.Scalar (0x2510)!
     var lrCorner = Unicode.Scalar (0x2518)!
+    var doubleUlCorner = Unicode.Scalar (0x2554)!   // ╔
+    var doubleLlCorner = Unicode.Scalar (0x255a)!   // ╚
+    var doubleHLine = Unicode.Scalar (0x2550)!      // ═
+    var doubleVLine = Unicode.Scalar (0x2551)!      // ║
+    var doubleUrCorner = Unicode.Scalar (0x2557)!   // ╗
+    var doubleLrCorner = Unicode.Scalar (0x255d)!   // ╝
+
     let space = Unicode.Scalar (32)!
-    var vLine = Unicode.Scalar (0x2502)!
     var stipple = Unicode.Scalar (0x2591)!
     var diamond = Unicode.Scalar (0x25c6)!
     var leftTee = Unicode.Scalar (0x251c)!
@@ -234,7 +240,9 @@ public class ConsoleDriver {
     var filledCircle = Unicode.Scalar (0x25CF)!   // "●"
     var emptyCircle = Unicode.Scalar (0x25CB)!    // "○"
     
-    public var clip : Rect
+    // Use these or [x] [ ]
+    var radioOn = "●"
+    var radioOff = "○"
     
     /**
      * Adds a rune at the current cursor position, not expected to work with graphemes, use when you know that the value being added will not compose

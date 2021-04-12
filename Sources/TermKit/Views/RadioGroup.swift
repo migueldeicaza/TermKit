@@ -112,7 +112,7 @@ public class RadioGroup: View {
                 painter.goto(col: 0, row: line)
 
                 painter.attribute = hasFocus && (line == cursor) ? colorScheme.focus : colorScheme.normal
-                painter.add(str: line == selected ? "(x) " : "( ) ")
+                painter.add(str: line == selected ? "\(driver.radioOn) " : "\(driver.radioOff) ")
                 painter.drawHotString(
                     text: radioLabels[line],
                     focused: hasFocus && line == cursor,
@@ -193,9 +193,9 @@ public class RadioGroup: View {
                 print ("Need to implement mouseEvent for horizontal")
                 abort()
             case .vertical:
-                if event.y < radioLabels.count {
-                    setSelected(new: event.y)
-                    cursor = event.y
+                if event.pos.y < radioLabels.count {
+                    setSelected(new: event.pos.y)
+                    cursor = event.pos.y
                 }
             }
             

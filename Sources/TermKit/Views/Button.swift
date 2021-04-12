@@ -13,8 +13,8 @@ import OpenCombine
  * Button is a view that provides an item that invokes a callback when activated.
  *
  * Provides a button that can be clicked, or pressed with the enter key or space key.
- * It also responds to hotkeys (the first uppercase letter in the button becomes
- * the hotkey) and triggers the execution of a callback method.
+ * It also responds to hotkeys (the first letter after an underscore) and triggers
+ * the execution of a callback method.
  *
  * If the button is configured as the default `IsDefault` the button
  * will respond to the return key is no other view processes it, and
@@ -23,21 +23,21 @@ import OpenCombine
  * To connect a clicked handler, set the `clicked` property here to your callback
  *
  * ```
- * var d = Dialog("Hello")
+ * var d = Dialog("_Hello")
  * var ok = Button ("Ok")
- * ok.clicked = { d.running = false }
+ * ok.clicked = { d.requestStop () }
  * d.addButton (ok)
  * Application.run (d)
  * ```
  */
-public class Button : View {
+public class Button: View {
     
-    var shownText : String = ""
-    var hotKey : Character? = nil
-    var hotPos : Int = 0
+    var shownText: String = ""
+    var hotKey: Character? = nil
+    var hotPos: Int = 0
     
     /// When a button is the default, pressing return in the dialog will trigger this button if no other control consumes it
-    public var isDefault : Bool = false {
+    public var isDefault: Bool = false {
         didSet {
             update ()
         }
@@ -73,7 +73,7 @@ public class Button : View {
     /// - Parameters:
     ///   - text: Contains the text for the button.   The first uppercase letter in the button becomes the hotkey
     ///   - clicked: Optional method to invoke when the button is clicked
-    public convenience init (_ text : String, clicked: (()->())? = nil)
+    public convenience init (_ text: String, clicked: (()->())? = nil)
     {
         self.init ()
         self.text = text
@@ -93,32 +93,28 @@ public class Button : View {
         hotPos = -1
         hotKey = nil
         var column = 0
-        for c in shownText {
-            if c.isUppercase {
-                hotKey = c
+        for x in 0..<shownText.count {
+            let c = shownText [shownText.index(shownText.startIndex, offsetBy: x)]
+            
+            if c == "_" {
                 hotPos = column
-                break;
+                hotKey = shownText [shownText.index(shownText.startIndex, offsetBy: x+1)]
+            } else {
+                column += c.cellSize()
             }
-            column += c.cellSize()
         }
         if hotPos == -1 {
             hotPos = 2
             hotKey = text.first
         }
-        width = Dim.sized(shownText.cellCount())
+        width = Dim.sized(column)
         setNeedsDisplay()
     }
     
     public override func redraw(region: Rect, painter: Painter) {
         painter.attribute = hasFocus ? colorScheme!.focus : colorScheme!.normal
         painter.goto(col: 0, row: 0)
-        painter.add(str: shownText)
-        
-        if let ch = hotKey {
-            painter.goto (col: hotPos, row: 0)
-            painter.attribute = hasFocus ? colorScheme!.hotFocus : colorScheme!.hotNormal
-            painter.add(str: String (ch))
-        }
+        painter.drawHotString(text: shownText, focused: hasFocus, scheme: colorScheme!)
     }
     
     public override func positionCursor() {

@@ -17,8 +17,7 @@ struct Cell {
  * Toplevel views can be modally executed.
  *
  * Toplevels can be modally executing views, and they return control
- * to the caller when the `running` property is set to false, or
- * by calling `Application.requestStop`
+ * to the caller when the `requestStop` is called.
  *
  * There will be a toplevel created for you on the first time use
  * and can be accessed from the property `Application.top`
@@ -31,32 +30,11 @@ struct Cell {
  * toplevel.
  */
 open class Toplevel : View {
-    var _running : Bool
     var backingStore: [Cell]
-    
-    /// This flag is checked on each iteration of the mainloop and it continues running until this flag is set to false.
-    public var running : Bool {
-        get {
-            return _running
-        }
-        set(value) {
-            if _running && value == false {
-                DispatchQueue.main.async {
-                    do {
-                        try Application.end (self)
-                    } catch {
-                        
-                    }
-                }
-            }
-            _running = value
-        }
-    }
-    
+
     /// Initializes a new instance of the Toplevel, class with Computed layout, defaulting to full screen dimensions.
     public override init()
     {
-        _running = false
         modal = false
         backingStore = []
         super.init ()

@@ -9,6 +9,10 @@
 import Foundation
 import Curses
 
+/// Turn this on to debug rendering problems, makes screen updates sync
+var sync: Bool = false
+
+
 // This is a lame hack to call into a global that has a name that clashes with a class member name
 class LameHack {
     static func doRefresh ()
@@ -17,15 +21,12 @@ class LameHack {
     }
 }
 
-class CursesDriver : ConsoleDriver {
-    var ccol : Int32 = 0
-    var crow : Int32 = 0
-    var needMove : Bool = false
+class CursesDriver: ConsoleDriver {
+    var ccol: Int32 = 0
+    var crow: Int32 = 0
+    var needMove: Bool = false
     
-    /// Turn this on to debug rendering problems, makes screen updates sync
-
-    var sync : Bool = false
-    var cursesWindow : OpaquePointer!
+    var cursesWindow: OpaquePointer!
     
     
     // Swift ncurses does not bind these
@@ -39,34 +40,34 @@ class CursesDriver : ConsoleDriver {
     let A_PROTECT   : Int32 = 0x1000000
     let A_INVIS     : Int32 = 0x800000
     
-    let cursesButton1Pressed : Int32 = 0x2
-    let cursesButton1Released : Int32 = 0x1
-    let cursesButton1Clicked : Int32 = 0x4
-    let cursesButton1DoubleClicked : Int32 = 0x8
-    let cursesButton1TripleClicked : Int32 = 0x10
-    let cursesButton2Pressed : Int32 = 0x80
-    let cursesButton2Released : Int32 = 0x40
-    let cursesButton2Clicked : Int32 = 0x100
-    let cursesButton2DoubleClicked : Int32 = 0x200
-    let cursesButton2TrippleClicked : Int32 = 0x400
-    let cursesButton3Pressed : Int32 = 0x2000
-    let cursesButton3Released : Int32 = 0x1000
-    let cursesButton3Clicked : Int32 = 0x4000
-    let cursesButton3DoubleClicked : Int32 = 0x8000
-    let cursesButton3TripleClicked : Int32 = 0x10000
-    let cursesButton4Pressed : Int32 = 0x80000
-    let cursesButton4Released : Int32 = 0x40000
-    let cursesButton4Clicked : Int32 = 0x100000
-    let cursesButton4DoubleClicked : Int32 = 0x200000
-    let cursesButton4TripleClicked : Int32 = 0x400000
-    let cursesButtonShift : Int32 = 0x2000000
-    let cursesButtonCtrl : Int32 = 0x1000000
-    let cursesButtonAlt : Int32 = 0x4000000
-    let cursesReportMousePosition : Int32 = 0x8000000
-    let cursesAllEvents : Int32 = 0x7ffffff
+    let cursesButton1Pressed: Int32 = 0x2
+    let cursesButton1Released: Int32 = 0x1
+    let cursesButton1Clicked: Int32 = 0x4
+    let cursesButton1DoubleClicked: Int32 = 0x8
+    let cursesButton1TripleClicked: Int32 = 0x10
+    let cursesButton2Pressed: Int32 = 0x80
+    let cursesButton2Released: Int32 = 0x40
+    let cursesButton2Clicked: Int32 = 0x100
+    let cursesButton2DoubleClicked: Int32 = 0x200
+    let cursesButton2TrippleClicked: Int32 = 0x400
+    let cursesButton3Pressed: Int32 = 0x2000
+    let cursesButton3Released: Int32 = 0x1000
+    let cursesButton3Clicked: Int32 = 0x4000
+    let cursesButton3DoubleClicked: Int32 = 0x8000
+    let cursesButton3TripleClicked: Int32 = 0x10000
+    let cursesButton4Pressed: Int32 = 0x80000
+    let cursesButton4Released: Int32 = 0x40000
+    let cursesButton4Clicked: Int32 = 0x100000
+    let cursesButton4DoubleClicked: Int32 = 0x200000
+    let cursesButton4TripleClicked: Int32 = 0x400000
+    let cursesButtonShift: Int32 = 0x2000000
+    let cursesButtonCtrl: Int32 = 0x1000000
+    let cursesButtonAlt: Int32 = 0x4000000
+    let cursesReportMousePosition: Int32 = 0x8000000
+    let cursesAllEvents: Int32 = 0x7ffffff
 
-    var oldMouseEvents : mmask_t
-    var mouseEvents : mmask_t
+    var oldMouseEvents: mmask_t
+    var mouseEvents: mmask_t
 
     typealias get_wch_def = @convention(c) (UnsafeMutablePointer<Int32>) -> Int
     
@@ -74,8 +75,8 @@ class CursesDriver : ConsoleDriver {
     typealias add_wch_def = @convention(c) (UnsafeMutablePointer<m_cchar_t>) -> CInt
     
     // Dynamically loaded definitions, because Darwin.ncurses does not bring these
-    var get_wch_fn : get_wch_def? = nil
-    var add_wch_fn : add_wch_def? = nil
+    var get_wch_fn: get_wch_def? = nil
+    var add_wch_fn: add_wch_def? = nil
     
 
     override init ()
@@ -109,7 +110,6 @@ class CursesDriver : ConsoleDriver {
         rows = Int (getmaxy (stdscr))
         
         clear ();
-        clip = Rect (x: 0, y: 0, width: cols, height: rows)
 
         let rtld_default = UnsafeMutableRawPointer(bitPattern: -2)
 
@@ -204,7 +204,7 @@ class CursesDriver : ConsoleDriver {
     
     func inputReadCallback (input: FileHandle)
     {
-        var result : Int32 = 0
+        var result: Int32 = 0
         let status = get_wch_fn! (&result)
         if status == ERR {
             return
@@ -217,7 +217,7 @@ class CursesDriver : ConsoleDriver {
                 }
             }
             if result == KEY_MOUSE {
-                var mouseEvent : MEVENT = MEVENT(id: 0, x: 0, y: 0, z: 0, bstate: 0)
+                var mouseEvent: MEVENT = MEVENT(id: 0, x: 0, y: 0, z: 0, bstate: 0)
                 getmouse(&mouseEvent);
                 if mouseEvent.bstate == MouseFlags.button1Pressed.rawValue {
                     print ("here")
@@ -234,7 +234,7 @@ class CursesDriver : ConsoleDriver {
             timeout (200)
             let status2 = get_wch_fn! (&result)
             timeout (-1)
-            var ke : KeyEvent
+            var ke: KeyEvent
             let isControl = result >= 0 && result < 32
             
             if status2 == KEY_CODE_YES {
@@ -290,13 +290,8 @@ class CursesDriver : ConsoleDriver {
     {
         ccol = Int32 (col)
         crow = Int32 (row)
-        if clip.contains (x: col, y: row) {
-            move (Int32 (row), Int32 (col))
-            needMove = false
-        } else {
-            move (Int32 (clip.minY), Int32 (clip.minX))
-            needMove = true
-        }
+        move (Int32 (row), Int32 (col))
+        needMove = false
     }
     
     //
@@ -304,18 +299,14 @@ class CursesDriver : ConsoleDriver {
     //
     public override func addRune (_ rune: rune)
     {
-        if clip.contains (x: Int (ccol), y: Int (crow)) {
-            if needMove {
-                move (crow, ccol)
-                needMove = false
-            }
-            
-            //var x = m_cchar_t(attr: currentAttr, chars: (wchar_t (rune.value), 0, 0, 0, 0))
-            //let _ = add_wch_fn! (&x)
-            addstr (String (rune))
-        } else {
-            needMove = true
+        if needMove {
+            move (crow, ccol)
+            needMove = false
         }
+        
+        //var x = m_cchar_t(attr: currentAttr, chars: (wchar_t (rune.value), 0, 0, 0, 0))
+        //let _ = add_wch_fn! (&x)
+        addstr (String (rune))
         if sync {
             refresh ()
         }
@@ -324,15 +315,11 @@ class CursesDriver : ConsoleDriver {
     
     public override func addCharacter (_ char: Character)
     {
-        if clip.contains (x: Int (ccol), y: Int (crow)) {
-            if needMove {
-                move (crow, ccol)
-                needMove = false
-            }
-            addstr (String (char))
-        } else {
-            needMove = true
+        if needMove {
+            move (crow, ccol)
+            needMove = false
         }
+        addstr (String (char))
         if sync {
             refresh ()
         }
@@ -375,7 +362,7 @@ class CursesDriver : ConsoleDriver {
         return .sixteenColors
     }
     
-    static var lastColorPair : Int16 = 16
+    static var lastColorPair: Int16 = 16
     
     func encodeCursesAttribute (_ colors: (Int32, Int32), bold: Bool = false) -> Int32
     {
@@ -521,7 +508,7 @@ class CursesDriver : ConsoleDriver {
     }
     
     // Set when the method setAttribute is called
-    var currentAttr : Int32 = 0
+    var currentAttr: Int32 = 0
     
     public override func setAttribute (_ attr: Attribute)
     {

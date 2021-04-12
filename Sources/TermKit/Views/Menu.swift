@@ -5,9 +5,12 @@
 //  Created by Miguel de Icaza on 4/26/19.
 //  Copyright © 2019 Miguel de Icaza. All rights reserved.
 //
+// TODO:
+//  - Enable/disable menu item support
+//  - Checkbox on menu items (with a style, so radios can be done too)
+//  - nested menus
 
 import Foundation
-
 
 /// Specifies how a `MenuItem`shows selection state.
 public enum MenuItemStyle {
@@ -24,16 +27,16 @@ public enum MenuItemStyle {
  */
 public struct MenuItem {
     /// Gets or sets the title for the menu item
-    public var title : String = ""
+    public var title: String = ""
     
     /// Gets or sets the help text for the menu item, this is show next to the title
-    public var help : String = ""
+    public var help: String = ""
     
     /// Gets or sets the action to be invoked when the menu is triggered, can be nil
-    public var action : (() -> Void)? = nil
+    public var action: (() -> Void)? = nil
     
     /// This is the global setting that can be used as a global shortcut to invoke the action on the menu.
-    public var shortcut : Key? = nil
+    public var shortcut: Key? = nil
     
     /// The style to use for rendering this menu
     public var style: MenuItemStyle = .plain
@@ -44,22 +47,38 @@ public struct MenuItem {
      * For example HotKey would be "N" when the File Menu is open (assuming there is a "_New" entry
      * if the ShortCut is set to "Control-N", this would be a global hotkey that would trigger as well
      */
-    public var hotkey : Character?
+    public var hotkey: Character?
     
-    var width : Int {
+    var width: Int {
         get {
             return title.cellCount() + help.cellCount() + 1 + 2 +
             (style == .plain ? 0 : 2)
         }
     }
     
+    mutating func getHotKey ()
+    {
+        var nextIsHot = false
+        for x in title {
+            if x == "_" {
+                nextIsHot = true;
+            } else {
+                if nextIsHot {
+                    hotkey = x.uppercased().first
+                    break
+                }
+                nextIsHot = false;
+            }
+        }
+    }
+                                            
     /**
-     - Parameters:
-     - title: Title for the menu item
-     - help: Help text to display
-     - action: Method to invoke when the menu is triggered
-     - shortcut: Global shortcut that can be used to invoke this menu
-     - hotkey: Key used to activate the menu, when the menu is active
+     * - Parameters:
+     *  - title: Title for the menu item
+     *  - help: Help text to display
+     *  - action: Method to invoke when the menu is triggered
+     *  - shortcut: Global shortcut that can be used to invoke this menu
+     *  - hotkey: Key used to activate the menu, when the menu is active
      */
     public init (title: String, help: String = "", action: (()->Void)? = nil, shortcut: Key? = nil, hotkey: Character? = nil, style: MenuItemStyle = .plain)
     {
@@ -70,7 +89,7 @@ public struct MenuItem {
         self.hotkey = hotkey
         self.style = style
         if hotkey == nil {
-            
+            getHotKey ()
         }
     }
 }
@@ -79,18 +98,19 @@ public struct MenuItem {
  * A menu bar item contains either `MenuBarItem` or `MenuItem`
  */
 public class MenuBarItem {
-    var title : String
-    var titleLen : Int
+    var title: String
+    var titleLen: Int
     var children: [MenuItem?]
     
     /**
      * Initializes a new instance of the menubar item with the specified title and children
      *
-     * - Parameter title: The title to display, if the string contains an underscore, the next character
-     * becomes the hotkey, for example "_File" would make "F" the hotkey for the menu entry.
-     * - Parameter children: Array of menu items that describe the contents of the menu.
+     * - Parameters:
+     *  - title: The title to display, if the string contains an underscore, the next character
+     *    becomes the hotkey, for example "_File" would make "F" the hotkey for the menu entry.
+     *  - children: Array of menu items that describe the contents of the menu.
      */
-    public init (title : String, children : [MenuItem?], parent: MenuItem? = nil)
+    public init (title: String, children: [MenuItem?], parent: MenuItem? = nil)
     {
        var len = 0
         for ch in title {
@@ -105,10 +125,10 @@ public class MenuBarItem {
     }
 }
 
-//
-// Displays the menu list when it is activated
-//
-public class Menu : View {
+/**
+ * Menus are views displayed vertically that contain various menu items, and are attached to a menubar.
+ */
+public class Menu: View {
     var barItems: MenuBarItem
     var host: MenuBar
     
@@ -246,6 +266,22 @@ public class Menu : View {
         }
         return true
     }
+     
+    public override func mouseEvent(event: MouseEvent) -> Bool {
+        guard event.pos.y >= 1 else { return true }
+        let idx = event.pos.y - 1
+        guard idx <= barItems.children.count else { return true }
+        guard let item = barItems.children [idx] else { return true }
+
+        if event.flags == .button1Clicked {
+            host.closeMenu()
+            run (action: item.action)
+        }
+        
+        current = idx
+        setNeedsDisplay()
+        return true
+    }
 }
 
 /**
@@ -253,8 +289,8 @@ public class Menu : View {
  */
 public class MenuBar: View {
     public var menus: [MenuBarItem]
-    var selected : Int? = nil
-    var action : (() -> Void)? = nil
+    var selected: Int? = nil
+    var action: (() -> Void)? = nil
 
     /**
      * Constructs the menubar with the specified array of MenuBarItems, which can contain nil values
@@ -411,7 +447,7 @@ public class MenuBar: View {
             selected = (selected! + 1) % menus.count
             
         case .esc, .controlC:
-            // TODO: running = false
+            Application.requestStop()
             break
             
         case let .letter (x):
@@ -441,9 +477,9 @@ public class MenuBar: View {
     public override func mouseEvent(event: MouseEvent) -> Bool {
         if event.flags == .button1Clicked {
             var pos = 1
-            let cx = event.x
+            let cx = event.pos.x
             for i in 0..<menus.count {
-                if cx > pos && event.x < pos + 1 + menus [i].titleLen {
+                if cx > pos && event.pos.x < pos + 1 + menus [i].titleLen {
                     activate (index: i)
                     return true
                 }

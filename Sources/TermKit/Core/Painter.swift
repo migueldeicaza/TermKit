@@ -8,17 +8,18 @@
 import Foundation
 
 /**
- * The drawing context tracks the cursor position and attribute in use
+ * The drawing context tracks the cursor position, and attribute in use
  * during the View's draw method, it enforced clipping on the view bounds.
+ *
+ * Instances of this class are passed to a `View`'s redraw method to
+ * paint
  */
 public class Painter {
     var driver: ConsoleDriver
     var view: View
     
     /// The current drawing column
-    public private(set) var col: Int
-    /// The current drawing row
-    public private(set) var row: Int
+    public private(set) var pos: Point
     
     // The origin for this painter, describes the offset in global coordinates
     public var origin: Point
@@ -44,8 +45,7 @@ public class Painter {
         origin = view.frame.origin
         visible = view.frame
         driver = isTop ? TopDriver (Application.driver,  top: view as! Toplevel) : Application.driver
-        col = 0
-        row = 0
+        pos = Point.zero
         self.isTop = isTop
     }
     
@@ -73,8 +73,7 @@ public class Painter {
     {
         self.view = view
         attribute = view.colorScheme!.normal
-        col = 0
-        row = 0
+        pos = Point.zero
         driver = parent.driver
         
         origin = parent.origin + view.frame.origin
@@ -105,8 +104,7 @@ public class Painter {
      */
     public func goto (col: Int, row: Int)
     {
-        self.col = col
-        self.row = row
+        self.pos = Point(x: col, y: row)
         posSet = false
     }
     
@@ -119,8 +117,7 @@ public class Painter {
      */
     public func go (to: Point)
     {
-        self.col = to.x
-        self.row = to.y
+        self.pos = to
         posSet = false
     }
 
@@ -135,58 +132,58 @@ public class Painter {
         }
     }
     
-    func add (rune: UnicodeScalar, bounds: Rect)
+    func add (rune: UnicodeScalar, maxWidth: Int)
     {
         if rune.value == 10 {
-            col = 0
-            row += 1
+            pos.x = 0
+            pos.y += 1
             return
         }
         // TODO: optimize, we can handle the visibility for rows before and later just do
         // columns rather than testing both.
         let len = Int32 (wcwidth(wchar_t (bitPattern: rune.value)))
-        let npos = col + Int (len)
+        let npos = pos.x + Int (len)
 
-        if npos > bounds.width {
+        if npos > maxWidth {
             // We are out of bounds, but the width might be larger than 1 cell
             // so we should draw a space
-            while col < bounds.width {
+            while pos.x < maxWidth {
                 driver.addStr(" ")
-                col += 1
+                pos.x += 1
             }
         } else {
-            if visible.contains(Point (x: col, y: row)+origin) {
+            if visible.contains(pos+origin) {
                 if !posSet {
-                    let cursor = Point (x: col + origin.x, y: row + origin.y)
+                    let cursor = pos + origin
                     driver.moveTo(col: cursor.x, row: cursor.y)
                     posSet = true
                 }
 
                 driver.addRune (rune)
             }
-            col += Int (len)
+            pos.x += Int (len)
         }
     }
     
     public func add (str: String)
     {
         let strScalars = str.unicodeScalars
-        let bounds = view.bounds
+        let maxWidth = view.bounds.width
         
         applyContext ()
         for uscalar in strScalars {
-            add (rune: uscalar, bounds: bounds)
+            add (rune: uscalar, maxWidth: maxWidth)
         }
     }
 
     public func add (ch: Character)
     {
         let strScalars = ch.unicodeScalars
-        let bounds = view.bounds
+        let maxWidth = view.bounds.width
         
         applyContext ()
         for uscalar in strScalars {
-            add (rune: uscalar, bounds: bounds)
+            add (rune: uscalar, maxWidth: maxWidth)
         }
     }
 
@@ -198,23 +195,24 @@ public class Painter {
     /**
      * Clears the view region with the current color.
      */
-    public func clear ()
+    public func clear (with: Character = " ")
     {
-        clear (view.frame)
+        clear (view.frame, with: with)
     }
 
     /// Clears the specified region in painter coordinates
     /// - Parameter rect: the region to clear, the coordinates are relative to the view
-    public func clear (_ rect: Rect)
+    public func clear (_ rect: Rect, with: Character = " ")
     {
         let h = rect.height
-        
-        let lstr = String (repeating: " ", count: rect.width)
+        let w = rect.width
         
         for line in 0..<h {
             goto (col: rect.minX, row: line)
 
-            add (str: lstr)
+            for _ in 0..<w {
+                add (rune: UnicodeScalar(" "), maxWidth: w)
+            }
         }
     }
     
@@ -239,7 +237,7 @@ public class Painter {
      * - Parameter padding: Padding to add on the sides
      * - Parameter fill: If set to `true` it will clear the contents with the current color, otherwise the contents will be left untouched.
      */
-    public func drawFrame (_ region: Rect, padding : Int, fill : Bool)
+    public func drawFrame (_ region: Rect, padding: Int, fill: Bool, double: Bool = false)
     {
         let width = region.width;
         let height = region.height;
@@ -260,11 +258,11 @@ public class Painter {
         for _ in 0..<padding {
             add (ch: " ")
         }
-        add (rune: driver.ulCorner)
+        add (rune: double ? driver.doubleUlCorner : driver.ulCorner)
         for _ in 0..<(fwidth-2) {
-            add (rune: driver.hLine);
+            add (rune: double ? driver.doubleHLine : driver.hLine);
         }
-        add (rune: driver.urCorner);
+        add (rune: double ? driver.doubleUrCorner : driver.urCorner);
         for _ in 0..<padding {
             add (ch: " ")
         }
@@ -274,7 +272,7 @@ public class Painter {
             for _ in 0..<padding {
                 add (ch: " ")
             }
-            add (rune: driver.vLine);
+            add (rune: double ? driver.doubleVLine : driver.vLine);
             if fill {
                 for _ in 1..<(fwidth-1){
                     add (ch: " ")
@@ -282,7 +280,7 @@ public class Painter {
             } else {
                 goto (col: region.minX + fwidth - 1, row: region.minY + b)
             }
-            add (rune: driver.vLine);
+            add (rune: double ? driver.doubleVLine : driver.vLine);
             for _ in 0..<padding {
                 add (ch: " ")
             }
@@ -291,11 +289,11 @@ public class Painter {
         for _ in 0..<padding {
             add (ch: " ")
         }
-        add (rune: driver.llCorner);
+        add (rune: double ? driver.doubleLlCorner : driver.llCorner);
         for _ in 0..<(fwidth - 2) {
-            add (rune: driver.hLine);
+            add (rune: double ? driver.doubleHLine : driver.hLine);
         }
-        add (rune: driver.lrCorner);
+        add (rune: double ? driver.doubleLrCorner : driver.lrCorner);
         for _ in 0..<padding {
             add (ch: " ")
         }

@@ -12,18 +12,18 @@ import Foundation
  * A toplevel view that draws a frame around its region and has a "ContentView" subview where the contents are added.
  * with an optional title that is displayed at the top
  */
-public class Window : Toplevel {
-    var contentView : View
-    var padding : Int
+public class Window: Toplevel {
+    var contentView: View
+    var padding: Int
     
     /// The title to be displayed for this window.
-    public var title : String? {
+    public var title: String? {
         didSet {
             setNeedsDisplay()
         }
     }
     
-    class ContentView : View {
+    class ContentView: View {
         public override var debugDescription: String {
             return "Window.ContentView (\(super.debugDescription))"
         }
@@ -34,7 +34,7 @@ public class Window : Toplevel {
         self.init (nil, padding: 0)
     }
     
-    public init (_ title : String? = nil, padding : Int = 0)
+    public init (_ title: String? = nil, padding: Int = 0)
     {
         self.padding = padding
         self.title = title
@@ -86,6 +86,8 @@ public class Window : Toplevel {
         }
     }
     
+    public var allowResize = false
+    
     lazy var closeAttribute = colorScheme.normal.change(foreground: .red)
     lazy var minimizeAttribute = colorScheme.normal.change(foreground: .brightYellow)
     lazy var maximizeAttribute = colorScheme.normal.change(foreground: .green)
@@ -93,14 +95,31 @@ public class Window : Toplevel {
     // TODO: remove
     
     // TODO: removeAll
+
+    public override func resignFirstResponder() -> Bool {
+        setNeedsDisplay()
+        return super.resignFirstResponder()
+    }
+    
+    public override func becomeFirstResponder() -> Bool {
+        setNeedsDisplay()
+        return super.becomeFirstResponder()
+    }
     
     public override func redraw(region: Rect, painter p: Painter) {
         //log ("Window.redraw: \(frame) and region to redraw is: \(region)")
         
         if !needDisplay.isEmpty {
             p.attribute = colorScheme!.normal
-            p.drawFrame (bounds, padding: padding, fill: true)
+            p.drawFrame (bounds, padding: padding, fill: true, double: hasFocus)
             
+            if allowResize {
+                let b = bounds
+                p.goto(col: b.width-1-padding, row: b.height-1-padding)
+                
+                // Invert the character for resizable ones
+                p.add(rune: hasFocus ? driver.lrCorner : driver.doubleLrCorner)
+            }
             var needButtons = (allowClose ? 1 : 0) + (allowMaximize ? 1 : 0) + (allowMinimize ? 1 : 0)
             if needButtons > 0 {
                 let buttonIcon = Application.driver.filledCircle
@@ -141,30 +160,50 @@ public class Window : Toplevel {
         clearNeedsDisplay()
     }
     
-    open func closeClicked ()
-    {
-        superview?.remove(self)
-    }
+    public var closeClicked: (Window) -> () = { w in }
     
-    var grabbed: Point? = nil
+    var moveGrab: Point? = nil
+    var resizeGrab: Point? = nil
     
     public override func mouseEvent(event: MouseEvent) -> Bool {
-        if let g = grabbed {
-            let deltax = event.absX - g.x
-            let deltay = event.absY - g.y
-
-            self.x = Pos.at (frame.minX + deltax)
-            self.y = Pos.at (frame.minY + deltay)
-            setNeedsLayout()
-            grabbed = Point (x: event.absX, y: event.absY)
-            return true
+        if event.absPos == event.pos {
+            print ("here")
         }
-        if event.flags == [.button1Clicked] && event.y == padding {
-            let x = event.x
+        log ("On Window: \(event)")
+        if event.flags == [.button4Released] {
+            if moveGrab != nil {
+                moveGrab = nil
+                return true
+            }
+            if resizeGrab != nil {
+                resizeGrab = nil
+                return true
+            }
+        }
+        if let g = moveGrab {
+            let delta = event.absPos - g
+
+            self.x = Pos.at (frame.minX + delta.x)
+            self.y = Pos.at (frame.minY + delta.y)
+            setNeedsLayout()
+            moveGrab = event.absPos
+            return true
+        } else if let g = resizeGrab {
+            let delta = event.absPos - g
+
+            self.width = Dim.sized (frame.width + delta.x)
+            self.height = Dim.sized (frame.height + delta.y)
+            setNeedsLayout()
+            resizeGrab = event.absPos
+            return true
+
+        }
+        if event.flags == [.button1Clicked] && event.pos.y == padding {
+            let x = event.pos.x
             var expect = 2+padding
             if allowClose {
                 if x == expect {
-                    closeClicked ()
+                    closeClicked (self)
                 }
                 expect += 1
             }
@@ -190,8 +229,16 @@ public class Window : Toplevel {
                 }
             }
             
-            log ("grabbed")
-            //Application.grabMouse(from: self)
+        }
+        if event.flags == [.button4Pressed] || event.flags == [.button1Pressed] {
+            print ("line: \(event.pos.y) and \(frame.height-padding-1)")
+            if event.pos.y == padding {
+                log ("grabbed")
+                Application.grabMouse(from: self)
+                moveGrab = event.absPos
+            } else if event.pos.y == frame.height-padding-1 && event.pos.x == frame.width-padding-1 {
+                resizeGrab = event.absPos
+            }
         }
         return true
     }

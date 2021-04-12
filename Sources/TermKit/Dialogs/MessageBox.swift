@@ -86,7 +86,7 @@ public class MessageBox {
         let textWidth = Label3.maxWidth(text: message ?? "", width: width ?? INTPTR_MAX)
         var clicked = -1
         var count = 0
-        var realWidth, realHeight : Int
+        var realWidth, realHeight: Int
         
         let border = 4
         

@@ -29,10 +29,10 @@ public func log (_ s: String)
     }
 }
 
-class SizeError : Error {
+class SizeError: Error {
 }
 
-enum ApplicationError : Error {
+enum ApplicationError: Error {
     case internalState(msg:String)
 }
 
@@ -70,12 +70,12 @@ enum ApplicationError : Error {
  * and might also be updated continously.
  *
  * To execute a new nested toplevel, one that either obscures a portion of the screen, or the
- * whole screen, you call the `run` method with the new instance.   To pop the toplevel from
+ * whole screen, you call the `present` method with the new instance.   To pop the toplevel from
  * the stack, you call the `Application.requestStop` method which will queue the toplevel for
  * termination and will make the previous toplevel the active one.
  *
  * # Main Loop Execution
- * Calling the `run` method in `Application` will start the mainloop, which is implemented using
+ * Calling the `present` method in `Application` will start the mainloop, which is implemented using
  * the Dispatch framework.   This means that this method will never return, but also that all
  * the operations that you have come to expect from using the Dispatch API (from Grand Central Dispatch)
  * will work as expected.
@@ -87,14 +87,14 @@ enum ApplicationError : Error {
  */
 public class Application {
     /// Points to the global application
-    static var _top : Toplevel? = nil
-    static var _current : Toplevel? = nil
-    static var toplevels : [Toplevel] = []
-    static var debugDrawBounds : Bool = false
+    static var _top: Toplevel? = nil
+    static var _current: Toplevel? = nil
+    static var toplevels: [Toplevel] = []
+    static var debugDrawBounds: Bool = false
     static var initialized: Bool = false
     
     /// The Toplevel object used for the application on startup.
-    public static var top : Toplevel {
+    public static var top: Toplevel {
         get {
             guard let x = _top else {
                 print ("You must call Application.prepare()")
@@ -105,14 +105,14 @@ public class Application {
     }
     
     /// The current toplevel object.   This is updated when Application.Run enters and leaves and points to the current toplevel.
-    public static var current : Toplevel? {
+    public static var current: Toplevel? {
         get {
             return _current
         }
     }
 
     /// The current Console Driver in use.
-    static var driver : ConsoleDriver = CursesDriver()
+    static var driver: ConsoleDriver = CursesDriver()
     
     /**
      * Prepares the application, must be called before anything else.
@@ -140,24 +140,13 @@ public class Application {
      */
     static public func refresh ()
     {
-        // This will be re-enabled later, but could just reuse our layers system at this point
-        // no need to redraw anymore - a redraw system still has debugging value, so maybe
-        // a different method, or a debug flag?
         updateDisplay(compose ())
-        driver.refresh()
-//        
-//        driver.updateScreen ()
-//        var last : View? = nil
-//        for v in toplevels {
-//            v.setNeedsDisplay()
-//            v.redraw(region: v.bounds, painter: Painter.createRootPainter (from: v))
-//            last = v
-//        }
-//        last?.positionCursor()
-//        driver.refresh()
+        
+        // updatescreen, unlike refresh, calls the curses call that repaints the whole region
+        driver.updateScreen()
     }
     
-    static func processKeyEvent (event : KeyEvent)
+    static func processKeyEvent (event: KeyEvent)
     {
         defer {
             if Application.initialized {
@@ -194,30 +183,31 @@ public class Application {
         }
     }
     
-    static func findDeepestView (start : View, x: Int, y: Int) -> (view: View, resx: Int, resy: Int)?
+    static func findDeepestView (start: View, pos: Point) -> (view: View, res: Point)?
     {
         let startFrame = start.frame
         
-        if !startFrame.contains(Point (x: x, y: y)){
+        if !startFrame.contains(pos){
             return nil
         }
 
         let count = start.subviews.count
         if count > 0 {
-            let location = Point(x: x - startFrame.minX, y: y - startFrame.minY)
+            let location = pos - startFrame.origin
+
             for i in (0..<(count)).reversed() {
                 let v = start.subviews[i]
                 if v.frame.contains(location) {
-                    let deep = findDeepestView(start: v, x: location.x, y: location.y)
+                    let deep = findDeepestView(start: v, pos: location)
                     if deep == nil {
-                        return (view: v, resx: 0, resy: 0)
+                        return (view: v, Point.zero)
                     }
                     return deep
                 }
             }
         }
 
-        return (view: start, resx: x-startFrame.minX, resy: y-startFrame.minY)
+        return (view: start, res: pos-startFrame.origin)
     }
     
     // Tracks the view that has grabbed the mouse
@@ -241,7 +231,7 @@ public class Application {
     static var wantContinuousButtonPressedView: View? = nil
     static var lastMouseOwnerView: View? = nil
 
-    static var rootMouseHandlers : [Int:(MouseEvent)->()] = [:]
+    static var rootMouseHandlers: [Int:(MouseEvent)->()] = [:]
     static var lastMouseToken = 0
     
     /**
@@ -255,7 +245,7 @@ public class Application {
      * Registers a global mouse event handler to be invoked for every mouse event, this
      * is called before any event processing takes place for the currently focused view.
      */
-    public static func addRootMouseHandler (_ handler : @escaping (MouseEvent)->()) -> MouseHandlerToken
+    public static func addRootMouseHandler (_ handler: @escaping (MouseEvent)->()) -> MouseHandlerToken
     {
         let ret = lastMouseToken
         rootMouseHandlers [lastMouseToken] = handler
@@ -277,6 +267,7 @@ public class Application {
     
     static func processMouseEvent (mouseEvent: MouseEvent)
     {
+        //log ("Event: \(mouseEvent)")
         for h in rootMouseHandlers.values {
             h (mouseEvent)
         }
@@ -284,7 +275,7 @@ public class Application {
             return
         }
         
-        let res = findDeepestView(start: c, x: mouseEvent.x, y: mouseEvent.y)
+        let res = findDeepestView(start: c, pos: mouseEvent.pos)
         defer { postProcessEvent() }
         
         if let r = res {
@@ -294,16 +285,16 @@ public class Application {
                 wantContinuousButtonPressedView = nil
             }
             if let grab = mouseGrabView {
-                let newxy = grab.screenToView(x: mouseEvent.x, y: mouseEvent.y)
-                let nme = MouseEvent(x: newxy.x, y: newxy.y, absX: mouseEvent.x, absY: mouseEvent.y, flags: mouseEvent.flags, view: r.view)
-                if outsideFrame(Point (x: nme.x, y: nme.y), grab.frame) {
+                let newxy = grab.screenToView(loc: mouseEvent.pos)
+                let nme = MouseEvent(pos: newxy, absPos: mouseEvent.absPos, flags: mouseEvent.flags, view: r.view)
+                if outsideFrame(nme.pos, grab.frame) {
                     let _ = lastMouseOwnerView?.mouseLeave(event: mouseEvent)
                 }
                 let _ = grab.mouseEvent(event: nme)
                 return
             }
             
-            let nme = MouseEvent(x: r.resx, y: r.resy, absX: mouseEvent.x, absY: mouseEvent.y, flags: mouseEvent.flags, view: r.view)
+            let nme = MouseEvent(pos: r.res, absPos: mouseEvent.absPos, flags: mouseEvent.flags, view: r.view)
             if lastMouseOwnerView == nil {
                 lastMouseOwnerView = r.view
                 let _ = r.view.mouseEnter(event: nme)
@@ -351,7 +342,7 @@ public class Application {
                 let sourceOffset = (sourceStart.y + row) * vframe.width + sourceStart.x
                 screen.replaceSubrange(targetOffset..<(targetOffset + intersection.width), with: view.backingStore [sourceOffset..<sourceOffset+intersection.width])
             }
-            updateDisplay(screen, Application.driver.cols, Application.driver.rows)
+            //updateDisplay(screen, Application.driver.cols, Application.driver.rows)
         }
         return screen
     }
@@ -363,43 +354,63 @@ public class Application {
     static func updateDisplay (_ buffer: [Cell], _ cols: Int, _ rows: Int) {
         var attr: Int32 = -1
         var idx = 0
-        (Application.driver as? CursesDriver)!.sync = true
-        for y in 0..<rows {
-            driver.moveTo(col: 0, row: y)
-            
-            for x in 0..<cols {
-                let cell = buffer [idx]
-                idx += 1
-                attr = -1
-                if cell.attr.value != attr {
-                    attr = cell.attr.value
-                    driver.setAttribute(cell.attr)
-                }
-                driver.addCharacter(cell.ch)
+        
+        driver.moveTo (col: 0, row: 0)
+        for cell in buffer {
+            idx += 1
+            attr = -1
+            if cell.attr.value != attr {
+                attr = cell.attr.value
+                driver.setAttribute(cell.attr)
+            }
+            driver.addCharacter(cell.ch)
+
+            if (idx % cols) == 0 {
+                driver.moveTo(col: 0, row: idx / cols)
             }
         }
-        driver.updateScreen()
+//        for y in 0..<rows {
+//            driver.moveTo(col: 0, row: y)
+//
+//            for x in 0..<cols {
+//                let cell = buffer [idx]
+//                idx += 1
+//                attr = -1
+//                if cell.attr.value != attr {
+//                    attr = cell.attr.value
+//                    driver.setAttribute(cell.attr)
+//                }
+//                driver.addCharacter(cell.ch)
+//            }
+//        }
+        driver.refresh()
     }
     
+    static func switchFocus ()
+    {
+        if let currentTop = toplevels.first {
+            _ = currentTop.resignFirstResponder()
+        }
+    }
+
     /**
      * Building block API: Prepares the provided toplevel for execution.
      *
      * This method prepares the provided toplevel for running with the focus,
      * it adds this to the list of toplevels, sets up the mainloop to process the
      * event, lays out the subviews, focuses the first element, and draws the
-     * toplevel in the screen.   This is usually followed by executing
-     * the `RunLoop` method, and then the `End(RunState` method upon termination which
-     * will undo these changes
+     * toplevel in the screen.
      *
      * - Parameter toplevel: Toplevel to prepare execution for.
-     * - Returns: The runstate handle that needs to be passed to the `end` method upon completion
      */
+    
     public static func begin (toplevel: Toplevel)
     {
         if !initialized {
             print ("You should call Application.prepare() to initialize")
             abort ()
         }
+        switchFocus ()
         toplevels.append(toplevel)
         _current = toplevel
         if toplevel.layoutStyle == .computed {
@@ -409,10 +420,13 @@ public class Application {
             try toplevel.layoutSubviews()
         } catch {}
         toplevel.willPresent()
+
         toplevel.paintToBackingStore ()
+        
         let content = compose()
         updateDisplay(content)
-        //redrawView (toplevel)
+        
+        
         toplevel.positionCursor()
         driver.refresh()
     }
@@ -441,24 +455,6 @@ public class Application {
         let painter = Painter.createRootPainter (from: view)
         view.redraw(region: view.bounds, painter: painter)
         driver.refresh()
-    }
-    
-    // Called by RunState when it disposes
-    static func end (_ top: Toplevel) throws
-    {
-        if toplevels.last == nil {
-            throw ApplicationError.internalState(msg: "The current toplevel is null, and the end callback is being called")
-        }
-        if toplevels.last! != top {
-            throw ApplicationError.internalState(msg: "The current toplevel is not the one that this is being called on")
-        }
-        toplevels = toplevels.dropLast ()
-        if toplevels.count == 0 {
-            Application.shutdown ()
-        } else {
-            _current = toplevels.last as Toplevel?
-            refresh ()
-        }
     }
     
     // This is currently a hack invoked after any input events have been processed
@@ -512,14 +508,15 @@ public class Application {
     public static func requestStop ()
     {
         DispatchQueue.global ().async {
-            if let c = current {
-                c._running = false
-                
+            if current != nil {
                 toplevels = toplevels.dropLast ()
                 if toplevels.count == 0 {
                     Application.shutdown ()
                 } else {
                     _current = toplevels.last as Toplevel?
+                    if let c = _current {
+                        _ = c.becomeFirstResponder()
+                    }
                     refresh ()
                 }
             } else {
@@ -531,7 +528,6 @@ public class Application {
     static func terminalResized ()
     {
         let full = Rect(x: 0, y: 0, width: driver.cols, height: driver.rows)
-        driver.clip = full
         for top in toplevels {
             top.relativeLayout(hostFrame: full)
             do {
@@ -552,9 +548,6 @@ public class Application {
      */
     public static func shutdown(statusCode: Int = 0)
     {
-        for top in toplevels {
-            top._running = false
-        }
         initialized = false
         driver.end ();
         exit (Int32 (statusCode))

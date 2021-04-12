@@ -13,9 +13,9 @@ import Foundation
  */
 public protocol Responder {
     /// Gets or sets a value indicating whether this `Responder` can focus.
-    var canFocus : Bool { get set }
+    var canFocus: Bool { get set }
     /// Gets or sets a value indicating whether this `Responder` has focus.
-    var hasFocus : Bool { get }
+    var hasFocus: Bool { get }
     
     /**
      * This method can be overwritten by view that want to provide
@@ -31,7 +31,7 @@ public protocol Responder {
      * dispatched to other views.
      *
      */
-    func processHotKey (event : KeyEvent) -> Bool
+    func processHotKey (event: KeyEvent) -> Bool
     
     /**
      * If the view is focused, gives the view a chance to process the
@@ -71,21 +71,21 @@ public protocol Responder {
      * - Parameter event: Contains the details about the mouse event.
      * - Returns: `true` if the event was handled, `false` otherwise
      */
-    func mouseEvent (event : MouseEvent) -> Bool
+    func mouseEvent (event: MouseEvent) -> Bool
     
     /**
      * Method invoked when a mouse event is generated for the first time.
      * - Parameter event: Contains the details about the mouse event.
      * - Returns: `true` if the event was handled, `false` otherwise
      */
-    func mouseEnter (event : MouseEvent) -> Bool
+    func mouseEnter (event: MouseEvent) -> Bool
     
     /**
      * Method invoked when a mouse event is generated for the last time.
      * - Parameter event: Contains the details about the mouse event.
      * - Returns: `true` if the event was handled, `false` otherwise
      */
-    func mouseLeave (event : MouseEvent) -> Bool
+    func mouseLeave (event: MouseEvent) -> Bool
     
     /**
      * Makes this the first responder object (has the focus)

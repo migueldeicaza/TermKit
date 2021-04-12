@@ -27,7 +27,7 @@ extension String {
     //
     // Returns a string that will fit in the "n" slots in the screen
     //
-    func getVisibleString (_ n : Int) -> String
+    func getVisibleString (_ n: Int) -> String
     {
         var slen = 0
         var res = ""
