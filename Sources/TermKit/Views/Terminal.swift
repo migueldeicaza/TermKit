@@ -185,7 +185,6 @@ public class TerminalView: View, TerminalDelegate {
         }
         // TODO: perhaps I need to use a different color?  Look at what the UIView/NSView are using
         painter.attribute = mapAttribute (attr: terminal.currentAttribute)
-        painter.clear()
 
         let dim = frame.size
         let maxCol = dim.width
