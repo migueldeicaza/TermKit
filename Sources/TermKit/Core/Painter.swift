@@ -197,7 +197,7 @@ public class Painter {
         
         let lstr = String (repeating: with, count: rect.width)
         
-        for line in 0..<h {
+        for line in rect.minY...rect.maxY {
             goto (col: rect.minX, row: line)
 
             add (str: lstr)
