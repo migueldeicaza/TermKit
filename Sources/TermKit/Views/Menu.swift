@@ -168,7 +168,8 @@ public class Menu: View {
     
     public override func redraw(region: Rect, painter: Painter) {
         driver.setAttribute(colorScheme!.normal)
-        painter.drawFrame(region, padding: 0, fill: true)
+        painter.clear(needDisplay)
+        painter.drawFrame(region, padding: 0, fill: false)
         
         for i in 0..<barItems.children.count {
             let item = barItems.children [i]

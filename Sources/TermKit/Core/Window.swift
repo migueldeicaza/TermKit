@@ -108,10 +108,10 @@ public class Window: Toplevel {
     
     public override func redraw(region: Rect, painter p: Painter) {
         //log ("Window.redraw: \(frame) and region to redraw is: \(region)")
-        
         if !needDisplay.isEmpty {
+            p.clear (needDisplay)
             p.attribute = colorScheme!.normal
-            p.drawFrame (bounds, padding: padding, fill: true, double: hasFocus)
+            p.drawFrame (bounds, padding: padding, fill: false, double: hasFocus)
             
             if allowResize {
                 let b = bounds
@@ -166,11 +166,9 @@ public class Window: Toplevel {
     var resizeGrab: Point? = nil
     
     public override func mouseEvent(event: MouseEvent) -> Bool {
-        if event.absPos == event.pos {
-            print ("here")
-        }
-        log ("On Window: \(event)")
+
         if event.flags == [.button4Released] {
+            log ("FINISHED")
             if moveGrab != nil {
                 moveGrab = nil
                 return true
@@ -181,6 +179,7 @@ public class Window: Toplevel {
             }
         }
         if let g = moveGrab {
+            log ("---- MOVE GRAB ----")
             let delta = event.absPos - g
 
             self.x = Pos.at (frame.minX + delta.x)
@@ -231,7 +230,6 @@ public class Window: Toplevel {
             
         }
         if event.flags == [.button4Pressed] || event.flags == [.button1Pressed] {
-            print ("line: \(event.pos.y) and \(frame.height-padding-1)")
             if event.pos.y == padding {
                 log ("grabbed")
                 Application.grabMouse(from: self)

@@ -207,7 +207,7 @@ public class Painter {
         let h = rect.height
         let w = rect.width
         
-        for line in 0..<h {
+        for line in rect.minY...rect.maxY {
             goto (col: rect.minX, row: line)
 
             for _ in 0..<w {

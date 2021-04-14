@@ -183,7 +183,7 @@ public class Application {
         }
     }
     
-    static func findDeepestView (start: View, pos: Point) -> (view: View, res: Point)?
+    static func findDeepestView (start: View, pos: Point) -> (view: View, localPoint: Point)?
     {
         let startFrame = start.frame
         
@@ -207,7 +207,7 @@ public class Application {
             }
         }
 
-        return (view: start, res: pos-startFrame.origin)
+        return (view: start, localPoint: pos-startFrame.origin)
     }
     
     // Tracks the view that has grabbed the mouse
@@ -274,42 +274,41 @@ public class Application {
         guard let c = _current else {
             return
         }
-        
-        let res = findDeepestView(start: c, pos: mouseEvent.pos)
+
         defer { postProcessEvent() }
         
-        if let r = res {
-            if r.view.wantContinuousButtonPressed {
-                wantContinuousButtonPressedView = r.view
+        if let grab = mouseGrabView {
+            let newxy = grab.screenToView(loc: mouseEvent.pos)
+            let nme = MouseEvent(pos: newxy, absPos: mouseEvent.absPos, flags: mouseEvent.flags, view: grab)
+            if outsideFrame(nme.pos, grab.frame) {
+                let _ = lastMouseOwnerView?.mouseLeave(event: mouseEvent)
+            }
+            let _ = grab.mouseEvent(event: nme)
+            return
+        }
+        
+        if let deepest = findDeepestView(start: c, pos: mouseEvent.pos) {
+            if deepest.view.wantContinuousButtonPressed {
+                wantContinuousButtonPressedView = deepest.view
             } else {
                 wantContinuousButtonPressedView = nil
             }
-            if let grab = mouseGrabView {
-                let newxy = grab.screenToView(loc: mouseEvent.pos)
-                let nme = MouseEvent(pos: newxy, absPos: mouseEvent.absPos, flags: mouseEvent.flags, view: r.view)
-                if outsideFrame(nme.pos, grab.frame) {
-                    let _ = lastMouseOwnerView?.mouseLeave(event: mouseEvent)
-                }
-                let _ = grab.mouseEvent(event: nme)
-                return
-            }
-            
-            let nme = MouseEvent(pos: r.res, absPos: mouseEvent.absPos, flags: mouseEvent.flags, view: r.view)
+            let nme = MouseEvent(pos: deepest.localPoint, absPos: mouseEvent.absPos, flags: mouseEvent.flags, view: deepest.view)
             if lastMouseOwnerView == nil {
-                lastMouseOwnerView = r.view
-                let _ = r.view.mouseEnter(event: nme)
-            } else if lastMouseOwnerView != r.view {
+                lastMouseOwnerView = deepest.view
+                let _ = deepest.view.mouseEnter(event: nme)
+            } else if lastMouseOwnerView != deepest.view {
                 let _ = lastMouseOwnerView?.mouseLeave(event: nme)
-                let _ = r.view.mouseEnter(event: nme)
-                lastMouseOwnerView = r.view
+                let _ = deepest.view.mouseEnter(event: nme)
+                lastMouseOwnerView = deepest.view
             }
-            if !r.view.wantMousePositionReports && (mouseEvent.flags == MouseFlags.mousePosition) {
+            if !deepest.view.wantMousePositionReports && (mouseEvent.flags == MouseFlags.mousePosition) {
                 return
             }
-            wantContinuousButtonPressedView = r.view.wantContinuousButtonPressed ? r.view : nil
+            wantContinuousButtonPressedView = deepest.view.wantContinuousButtonPressed ? deepest.view : nil
             
             // Should we bubble up the event if it not handled?
-            let _ = r.view.mouseEvent (event: nme)
+            let _ = deepest.view.mouseEvent (event: nme)
         } else {
             wantContinuousButtonPressedView = nil
         }
@@ -475,9 +474,8 @@ public class Application {
                 try? c.layoutSubviews()
                 c.setNeedsDisplay()
             }
-            if !c.needDisplay.isEmpty || c._childNeedsDisplay {
-                c.redraw (region: c.bounds, painter: Painter.createTopPainter(from: c))
-                updateDisplay(compose ())
+            if !c.needDisplay.isEmpty {
+                c.redraw (region: c.needDisplay, painter: Painter.createRootPainter(from: c))
 //                if debugDrawBounds {
 //                    drawBounds (c)
 //                }
