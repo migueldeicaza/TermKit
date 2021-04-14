@@ -95,7 +95,6 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
     var viewId: Int
     var id: String = ""
     var needDisplay: Rect = Rect.zero
-    var _childNeedsDisplay: Bool = false
     var _canFocus: Bool = false
     static var globalId: Int = 0
     var _layoutStyle: LayoutStyle = .computed
@@ -264,13 +263,16 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
         }
         
         set (value){
+            if value == _frame {
+                return
+            }
             if let parent = superview {
                 parent.setNeedsDisplay (_frame)
                 parent.setNeedsDisplay (value)
             }
             _frame = value
             setNeedsLayout ()
-            setNeedsDisplay (frame)
+            setNeedsDisplay (bounds)
         }
     }
     
@@ -318,7 +320,7 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
     
     /**
      * Flags the specified rectangle region on this view as needing to be repainted.
-     * - Parameter region: The region that must be flagged for repaint.
+     * - Parameter region: The region that must be flagged for repaint, this is in the coordinates of the receiver.
      */
     public func setNeedsDisplay (_ region: Rect)
     {
@@ -327,13 +329,18 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
         } else {
             let x = min (needDisplay.minX, region.minX)
             let y = min (needDisplay.minY, region.minY)
-            let w = max (needDisplay.maxX, region.maxX)
-            let h = max (needDisplay.maxY, region.maxY)
-            needDisplay = Rect (x: x, y: y, width: w, height: h)
+            let w = max (needDisplay.width, region.width)
+            let h = max (needDisplay.height, region.height)
+            let newRegion = Rect (x: x, y: y, width: w, height: h)
+            if newRegion == needDisplay {
+                return
+            }
+            needDisplay = newRegion
         }
         
         if let container = superview {
-            container.childNeedsDisplay ()
+            let containerRegion = Rect (origin: frame.origin+region.origin, size: region.size)
+            container.setNeedsDisplay(containerRegion)
         }
         if subviews.count == 0 {
             return
@@ -357,14 +364,6 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
         layoutNeeded = true
         if let container = superview {
             container.layoutNeeded = true
-        }
-    }
-    
-    public func childNeedsDisplay ()
-    {
-        _childNeedsDisplay = true
-        if let container = superview {
-            container.childNeedsDisplay()
         }
     }
     
@@ -683,7 +682,6 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
     public func clearNeedsDisplay ()
     {
         needDisplay = Rect.zero
-        _childNeedsDisplay = false
     }
     
     /**
@@ -696,16 +694,16 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
      */
     open func redraw(region: Rect, painter: Painter)
     {
+        painter.clear(needDisplay)
         let clipRect = Rect (origin: Point.zero, size: frame.size)
         for view in subviews {
-            if !view.needDisplay.isEmpty || view._childNeedsDisplay {
+            if !view.needDisplay.isEmpty {
                 if view.frame.intersects(clipRect) && view.frame.intersects(region){
                     // TODO: optimize this by computing the intersection of region and view.Bounds
                     let childPainter = Painter (from: view, parent: painter)
                     view.redraw (region: view.bounds, painter: childPainter)
                 }
                 view.needDisplay = Rect.zero
-                view._childNeedsDisplay = false
             }
         }
         clearNeedsDisplay()

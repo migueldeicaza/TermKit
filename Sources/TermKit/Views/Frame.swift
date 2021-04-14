@@ -53,7 +53,8 @@ public class Frame: View {
     public override func redraw(region: Rect, painter: Painter) {
         if !needDisplay.isEmpty {
             painter.attribute = colorScheme!.normal
-            painter.drawFrame (bounds, padding: 0, fill: true)
+            painter.clear (needDisplay)
+            painter.drawFrame (bounds, padding: 0, fill: false)
             if hasFocus {
                 painter.attribute = colorScheme!.focus
             }
