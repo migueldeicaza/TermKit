@@ -69,14 +69,11 @@ class CursesDriver: ConsoleDriver {
     var oldMouseEvents: mmask_t
     var mouseEvents: mmask_t
 
-    typealias get_wch_def = @convention(c) (UnsafeMutablePointer<Int32>) -> Int
     
-    // This is wrong
-    typealias add_wch_def = @convention(c) (UnsafeMutablePointer<m_cchar_t>) -> CInt
+    typealias get_wch_def = @convention(c) (UnsafeMutablePointer<Int32>) -> Int
     
     // Dynamically loaded definitions, because Darwin.ncurses does not bring these
     var get_wch_fn: get_wch_def? = nil
-    var add_wch_fn: add_wch_def? = nil
     
 
     override init ()
@@ -118,8 +115,6 @@ class CursesDriver: ConsoleDriver {
         let get_wch_ptr = dlsym (rtld_default, "get_wch")
         get_wch_fn = unsafeBitCast(get_wch_ptr, to: get_wch_def.self)
         
-        let add_wch_ptr = dlsym (rtld_default, "add_wch")
-        add_wch_fn = unsafeBitCast(add_wch_ptr, to: add_wch_def.self)
         selectColors()
     }
     
