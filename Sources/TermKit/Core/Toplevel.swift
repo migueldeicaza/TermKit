@@ -9,10 +9,16 @@
 import Foundation
 
 /**
- * Toplevel views can be modally executed.
+ * Toplevel views provide both the basic keyboard navigation between views
+ * using cursor keys and tab keys and they also contain the drawing backing
+ * store for views that are added to it.
  *
- * Toplevels can be modally executing views, and they return control
- * to the caller when the `requestStop` is called.
+ * Toplevels are the views that are expected to be passed to Application.present
+ * to be rendered.   It introduces an independent rendering chain, in addition
+ * to the View rendering chain.
+ *
+ * Calling `Application.requestStop` will remove the last Toplevel from
+ * the execution stack, redrawing the screen contents if necessary.
  *
  * There will be a toplevel created for you on the first time use
  * and can be accessed from the property `Application.top`
