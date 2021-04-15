@@ -8,11 +8,6 @@
 
 import Foundation
 
-struct Cell {
-    var ch: Character
-    var attr: Attribute
-}
-
 /**
  * Toplevel views can be modally executed.
  *
@@ -30,13 +25,11 @@ struct Cell {
  * toplevel.
  */
 open class Toplevel : View {
-    var backingStore: [Cell]
-
     /// Initializes a new instance of the Toplevel, class with Computed layout, defaulting to full screen dimensions.
     public override init()
     {
         modal = false
-        backingStore = []
+        layer = Layer.empty
         super.init ()
     
         colorScheme = Colors.base
@@ -65,6 +58,9 @@ open class Toplevel : View {
         }
     }
     
+    // Contains the contents where we render on
+    var layer: Layer
+
     /**
      * Determines whether the `TopLevel` is modal or not.
      * Causes  `Application.processKey to propagate keys upwards
@@ -222,25 +218,15 @@ open class Toplevel : View {
         return "Toplevel (\(super.debugDescription))"
     }
     
-    static func allocateLayer (attr: Attribute, size: Size) -> [Cell] {
-        let empty = Cell (ch: " ", attr: attr)
-        
-        return Array.init(repeating: empty, count: size.width*size.height)
-    }
-    
-    var topDirty = true
-    public func allocateBackingStore () {
-        if backingStore.count == 0 {
-            backingStore = Toplevel.allocateLayer (attr: colorScheme.normal, size: frame.size)
-            topDirty = true
+    func ensureLayer ()
+    {
+        if layer.size != bounds.size {
+            layer = Layer (size: bounds.size)
         }
     }
     
     func paintToBackingStore ()
     {
-        if backingStore.count != bounds.width * bounds.height {
-            allocateBackingStore()
-        }
         let rootPainter = Painter.createTopPainter(from: self)
         redraw(region: bounds, painter: rootPainter)
     }

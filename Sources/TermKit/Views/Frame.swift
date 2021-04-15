@@ -27,7 +27,7 @@ public class Frame: View {
      */
     public init (_ title: String? = nil)
     {
-        contentView = View()
+        contentView = ContentView()
         self.title = title
         
         super.init ()

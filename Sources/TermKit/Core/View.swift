@@ -155,7 +155,6 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
         }
     }
     
-    
     /**
      * Controls how the view's `frame` is computed during the layoutSubviews method, if `absolute`, then
      * `layoutSubviews` does not change the `frame` properties, otherwise the `frame` is updated from the
@@ -670,14 +669,14 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
      */
     open func redraw(region: Rect, painter: Painter)
     {
-        painter.clear(needDisplay)
+        //painter.clear(needDisplay)
         let clipRect = Rect (origin: Point.zero, size: frame.size)
         for view in subviews {
             if !view.needDisplay.isEmpty {
                 if view.frame.intersects(clipRect) && view.frame.intersects(region){
                     // TODO: optimize this by computing the intersection of region and view.Bounds
                     let childPainter = Painter (from: view, parent: painter)
-                    view.redraw (region: view.bounds, painter: childPainter)
+                    view.redraw (region: view.needDisplay, painter: childPainter)
                 }
                 view.needDisplay = Rect.zero
             }

@@ -140,6 +140,7 @@ public class Application {
      */
     static public func refresh ()
     {
+        screen = Layer.empty
         updateDisplay(compose ())
         
         // updatescreen, unlike refresh, calls the curses call that repaints the whole region
@@ -315,13 +316,26 @@ public class Application {
         
     }
     
-    static func compose () -> [Cell]
+    static var screen: Layer = Layer.empty
+    
+    static func compose () -> Layer
     {
         let screenSize = Size (width: Application.driver.cols, height: Application.driver.rows)
-        var screen = Toplevel.allocateLayer (attr: Colors.base.normal, size: screenSize)
-        for x in 0..<screen.count {
-            screen [x].ch = "x"
+        var dirtyLines: [Bool]
+        
+        if screen.size != screenSize {
+            screen = Layer (size: screenSize)
+            dirtyLines = Array.init(repeating: true, count: screenSize.height)
+        } else {
+            dirtyLines = Array.init(repeating: false, count: screenSize.height)
         }
+        
+        #if debug
+        for x in 0..<screen.store.count {
+            screen.store [x].ch = "x"
+        }
+        #endif
+        var linesCopied = 0
         let screenFrame = Rect (origin: Point (x: 0, y: 0), size: screenSize)
         for view in toplevels {
             let vframe = view.frame
@@ -331,31 +345,39 @@ public class Application {
                 continue
             }
             
+            
             // the source location to copy from (clamped)
             let sourceStart = Point (x: vframe.minX < 0 ? -vframe.minX : 0, y: vframe.minY < 0 ? -vframe.minY : 0)
             for row in 0..<intersection.height {
                 let y = intersection.minY + row
+                let sourceRow = sourceStart.y + row
                 
+                let viewLineIsDirty = view.layer.dirtyRows [sourceRow]
+                dirtyLines [y] = dirtyLines [y] || viewLineIsDirty
+                
+                guard dirtyLines [y] else {
+                    continue
+                }
+                linesCopied += 1
                 // the offset into the array
                 let targetOffset = y * screenSize.width + intersection.minX
-                let sourceOffset = (sourceStart.y + row) * vframe.width + sourceStart.x
-                screen.replaceSubrange(targetOffset..<(targetOffset + intersection.width), with: view.backingStore [sourceOffset..<sourceOffset+intersection.width])
+                let sourceOffset = sourceRow * vframe.width + sourceStart.x
+                screen.store.replaceSubrange(targetOffset..<(targetOffset + intersection.width), with: view.layer.store [sourceOffset..<sourceOffset+intersection.width])
             }
+            view.layer.clearDirty ()
             //updateDisplay(screen, Application.driver.cols, Application.driver.rows)
         }
+        log ("Lines copied \(linesCopied)")
         return screen
     }
     
-    static func updateDisplay (_ buffer: [Cell]) {
-        updateDisplay(buffer, Application.driver.cols, Application.driver.rows)
-    }
-    
-    static func updateDisplay (_ buffer: [Cell], _ cols: Int, _ rows: Int) {
+    static func updateDisplay (_ layer: Layer) {
         var attr: Int32 = -1
         var idx = 0
+        let cols = layer.size.width
         
         driver.moveTo (col: 0, row: 0)
-        for cell in buffer {
+        for cell in layer.store {
             idx += 1
             attr = -1
             if cell.attr.value != attr {
@@ -368,20 +390,6 @@ public class Application {
                 driver.moveTo(col: 0, row: idx / cols)
             }
         }
-//        for y in 0..<rows {
-//            driver.moveTo(col: 0, row: y)
-//
-//            for x in 0..<cols {
-//                let cell = buffer [idx]
-//                idx += 1
-//                attr = -1
-//                if cell.attr.value != attr {
-//                    attr = cell.attr.value
-//                    driver.setAttribute(cell.attr)
-//                }
-//                driver.addCharacter(cell.ch)
-//            }
-//        }
         driver.refresh()
     }
     
@@ -475,10 +483,11 @@ public class Application {
                 c.setNeedsDisplay()
             }
             if !c.needDisplay.isEmpty {
-                c.redraw (region: c.needDisplay, painter: Painter.createRootPainter(from: c))
+                c.redraw (region: c.needDisplay, painter: Painter.createTopPainter(from: c))
 //                if debugDrawBounds {
 //                    drawBounds (c)
 //                }
+                updateDisplay(compose ())
                 c.positionCursor()
                 driver.refresh()
             } else {

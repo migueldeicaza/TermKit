@@ -8,6 +8,19 @@
 
 import Foundation
 
+class ContentView: View {
+    public override var debugDescription: String {
+        return "Window.ContentView (\(super.debugDescription))"
+    }
+    
+    public override func redraw(region: Rect, painter: Painter) {
+        painter.attribute = superview!.colorScheme.normal
+        painter.clear (needDisplay)
+        super.redraw(region: region, painter: painter)
+    }
+}
+
+
 /**
  * A toplevel view that draws a frame around its region and has a "ContentView" subview where the contents are added.
  * with an optional title that is displayed at the top
@@ -20,12 +33,6 @@ public class Window: Toplevel {
     public var title: String? {
         didSet {
             setNeedsDisplay()
-        }
-    }
-    
-    class ContentView: View {
-        public override var debugDescription: String {
-            return "Window.ContentView (\(super.debugDescription))"
         }
     }
     
@@ -108,8 +115,9 @@ public class Window: Toplevel {
     
     public override func redraw(region: Rect, painter p: Painter) {
         //log ("Window.redraw: \(frame) and region to redraw is: \(region)")
-        if !needDisplay.isEmpty {
-            p.clear (needDisplay)
+        let contentFrame = contentView.frame
+        let containedInChild = contentFrame.contains(region.origin) && contentFrame.contains (x: region.maxX, y: region.maxY)
+        if !needDisplay.isEmpty && !containedInChild {
             p.attribute = colorScheme!.normal
             p.drawFrame (bounds, padding: padding, fill: false, double: hasFocus)
             
@@ -156,7 +164,11 @@ public class Window: Toplevel {
             }
             p.attribute = colorScheme!.normal
         }
-        contentView.redraw(region: contentView.bounds, painter: Painter (from: contentView, parent: p))
+        var contentRegion = contentFrame.intersection(region)
+        
+        // Now turn it into their local coordinates
+        contentRegion.origin = contentRegion.origin - contentFrame.origin
+        contentView.redraw(region: contentRegion, painter: Painter (from: contentView, parent: p))
         clearNeedsDisplay()
     }
     

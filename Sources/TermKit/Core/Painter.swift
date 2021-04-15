@@ -61,7 +61,7 @@ public class Painter {
     
     /// This creates a painter, that renders into the Toplevel backing buffer
     public static func createTopPainter (from top: Toplevel) -> Painter {
-        top.allocateBackingStore()
+        top.ensureLayer()
         return Painter (from: top, isTop: true)
     }
     
@@ -372,41 +372,28 @@ class TopDriver: ConsoleDriver {
     }
     
     public override func addRune(_ rune: rune) {
-        if let start = getPos () {
-            let n = wcwidth(Int32(rune.value))
-            if n == 0 { return }
-            
-            top.backingStore [start] = Cell (ch: Character(rune), attr: attribute)
+        let n = wcwidth(Int32(rune.value))
+        if n == 0 { return }
+        let cell = Cell (ch: Character(rune), attr: attribute)
+        top.layer.add (cell: cell, col: col, row: row)
+        col += 1
+        if n == 2 && col < topSize.width {
+            top.layer.add (cell: nullCell, col: col, row: row)
             col += 1
-            if n == 2 && col < topSize.width {
-                top.backingStore [start+1] = nullCell
-                col += 1
-            }
         }
-    }
-    
-    // Returns the index into the backingstore array for col, row
-    func getPos () -> Int? {
-        if col < topSize.width && row < topSize.height {
-            return col + row * topSize.width
-        }
-        return nil
     }
     
     public override func addCharacter(_ char: Character) {
+        let s = top.frame
+        let n = char.cellSize()
+        if n == 0 { return }
         
-        if let start = getPos () {
-            let s = top.frame
-            let n = char.cellSize()
-            if n == 0 { return }
-            
-            if col < s.width {
-                top.backingStore [start] = Cell (ch: char, attr: attribute)
+        if col < s.width {
+            top.layer.add (cell: Cell (ch: char, attr: attribute), col: col, row: row)
+            col += 1
+            if n == 2 && col < s.width {
+                top.layer.add (cell: nullCell, col: col, row: row)
                 col += 1
-                if n == 2 && col < s.width {
-                    top.backingStore [start+1] = nullCell
-                    col += 1
-                }
             }
         }
     }
