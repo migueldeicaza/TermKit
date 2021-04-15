@@ -128,7 +128,9 @@ func Assorted () -> Window {
     fi.height = Dim.sized (Filler.h)
     sv.addSubview(fi)
     
-    
+    win.closeClicked = { _ in
+        Application.requestStop()
+    }
     win.addSubviews([loginLabel, loginField, pass, passField, remember, rememberCount, b1, b2, radio, list, sv, test])
     return win
 }

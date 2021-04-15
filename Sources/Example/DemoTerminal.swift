@@ -9,16 +9,18 @@ import Foundation
 import TermKit
 import SwiftTerm
 
-func openTerminal () {
-    let w = Window ()
-    w.fill(percentage: 70)
-    let t = LocalProcessTerminalView()
-    w.addSubview(t)
-    t.fill ()
-    Application.top.addSubview(w)
+// This is added to our window
+func openTerminal (_ on: View) {
+    let w = makeTerminalWindow()
+    w.closeClicked = { term in
+        
+        term.superview?.remove (term)
+    }
+    
+    on.addSubview(w)
 }
 
-func TerminalDemo () -> Window {
+func makeTerminalWindow () -> Window {
     let w = Window ()
     w.allowClose = true
     w.allowResize = true
@@ -30,6 +32,12 @@ func TerminalDemo () -> Window {
     let vars = Terminal.getEnvironmentVariables(termName: "xterm-color")
     term.startProcess(executable: "/bin/zsh", environment: vars,execName: "-zsh")
     term.feed(text: "Welcome to SwiftTerm in TermKit")
+    return w
+}
+
+// This one will be Application.presented
+func TerminalDemo () -> Window {
+    let w = makeTerminalWindow ()
     w.closeClicked = { _ in
         Application.requestStop()
     }
