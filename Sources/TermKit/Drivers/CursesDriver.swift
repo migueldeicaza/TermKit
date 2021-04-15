@@ -208,7 +208,9 @@ class CursesDriver: ConsoleDriver {
         if status == KEY_CODE_YES {
             if result == KEY_RESIZE {
                 if LINES != rows || COLS != cols {
-                    Application.terminalResized()
+                    DispatchQueue.main.async {
+                        Application.terminalResized()
+                    }
                     return
                 }
             }
@@ -218,19 +220,27 @@ class CursesDriver: ConsoleDriver {
                 if mouseEvent.bstate == MouseFlags.button1Pressed.rawValue {
                     print ("here")
                 }
-                Application.processMouseEvent(mouseEvent: toAppMouseEvent (mouseEvent))
+                let me = toAppMouseEvent (mouseEvent)
+                DispatchQueue.main.async {
+                    Application.processMouseEvent(mouseEvent: me)
+                }
                 return
             }
-            Application.processKeyEvent(event: KeyEvent(key: toAppKeyEvent (result)))
+            let ke = KeyEvent(key: toAppKeyEvent (result))
+            DispatchQueue.main.async {
+                Application.processKeyEvent(event: ke)
+            }
             return
         }
+        
+        var ke: KeyEvent
         
         // Special handling for ESC, we want to try to catch ESC+letter to simulate alt-letter, as well as alt-FKey
         if result == 27 {
             timeout (200)
             let status2 = get_wch_fn! (&result)
             timeout (-1)
-            var ke: KeyEvent
+            
             let isControl = result >= 0 && result < 32
             
             if status2 == KEY_CODE_YES {
@@ -268,12 +278,13 @@ class CursesDriver: ConsoleDriver {
                     ke = KeyEvent (key: Key.esc)
                 }
             }
-            Application.processKeyEvent(event: ke)
         } else {
             // Pass the rest of the keystrokes
-            Application.processKeyEvent(event: KeyEvent(key: toAppKeyEvent(result)))
+            ke = KeyEvent(key: toAppKeyEvent(result))
         }
-        
+        DispatchQueue.main.async {
+            Application.processKeyEvent(event: ke)
+        }
     }
     
     func setupInput ()
