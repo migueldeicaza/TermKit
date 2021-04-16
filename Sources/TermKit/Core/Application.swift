@@ -141,6 +141,11 @@ public class Application {
     static public func refresh ()
     {
         screen = Layer.empty
+        for t in toplevels {
+            t.setNeedsDisplay()
+            let painter = Painter.createTopPainter (from: t)
+            t.redraw(region: t.bounds, painter: painter)
+        }
         updateDisplay(compose ())
         
         // updatescreen, unlike refresh, calls the curses call that repaints the whole region
@@ -454,14 +459,6 @@ public class Application {
     {
         begin (toplevel: top)
         dispatchMain()
-    }
-    
-    static func redrawView (_ view: View)
-    {
-        abort ()
-        let painter = Painter.createRootPainter (from: view)
-        view.redraw(region: view.bounds, painter: painter)
-        driver.refresh()
     }
     
     // This is currently a hack invoked after any input events have been processed
