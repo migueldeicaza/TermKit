@@ -160,7 +160,7 @@ public class TextField: View {
         if Application.mouseGrabView == self {
             Application.ungrabMouse()
         }
-        return true
+        return super.resignFirstResponder ()
     }
     
     public override var frame: Rect {
