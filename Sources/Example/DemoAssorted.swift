@@ -81,7 +81,15 @@ func Assorted () -> Window {
     b2.y = Pos.at (16)
     b2.width = Dim.sized (12)
     b2.isDefault = true
-    
+
+    let b3 = Button ("_Quit")
+    b3.x = Pos.right (of: b1) + 3
+    b3.y = Pos.at (15)
+    b3.width = Dim.sized (12)
+    b3.clicked = { _ in
+        Application.requestStop()
+    }
+
     // Shows the use of the API using OpemCombine instead
     e = b2.clickedSubject.sink { v in
         rememberCount.text = "Default button was activated"
@@ -131,7 +139,7 @@ func Assorted () -> Window {
     win.closeClicked = { _ in
         Application.requestStop()
     }
-    win.addSubviews([loginLabel, loginField, pass, passField, remember, rememberCount, b1, b2, radio, list, sv, test])
+    win.addSubviews([loginLabel, loginField, pass, passField, remember, rememberCount, b1, b2, b3, radio, list, sv, test])
     return win
 }
 
