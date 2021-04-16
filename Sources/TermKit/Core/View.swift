@@ -105,12 +105,6 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
     /// Event fired when a subview was removed from this view.
     public var subviewRemoved = PassthroughSubject<View,Never> ()
 
-    /// Event fired when the view is no longer the focused one (the first responder), the View paramter specified the view that is getting the focus
-    public var resignedResponder = PassthroughSubject<View?,Never> ()
-    
-    /// Event fired when the view is no longer the focused one (the first responder), the View parameter specifies the view that had the focus before.
-    public var becameFirstResponder = PassthroughSubject<View?,Never> ()
-    
     /// Event fired when the view receives the mouse event for the first time.
     public var mouseEntered = PassthroughSubject<MouseEvent,Never> ()
     
@@ -189,7 +183,7 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
             }
         }
     }
-    
+        
     /// If this is true, it indicates that the current view has a pending layout operation
     var layoutNeeded: Bool = true
     
@@ -323,31 +317,33 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
      */
     public func setNeedsDisplay (_ region: Rect)
     {
+        var newRegion = region
         if needDisplay.isEmpty {
             needDisplay = region
         } else {
-            let x = min (needDisplay.minX, region.minX)
-            let y = min (needDisplay.minY, region.minY)
-            let w = max (needDisplay.width, region.width)
-            let h = max (needDisplay.height, region.height)
-            let newRegion = Rect (x: x, y: y, width: w, height: h)
+            let minX = min (needDisplay.minX, region.minX)
+            let minY = min (needDisplay.minY, region.minY)
+            let maxX = max (needDisplay.maxX, region.maxX)
+            let maxY = max (needDisplay.maxY, region.maxY)
+            newRegion = Rect (x: minX, y: minY, width: maxX-minX, height: maxY-minY)
             if newRegion == needDisplay {
                 return
             }
             needDisplay = newRegion
         }
-        
+        log ("view: \(type (of: self)) adding region: \(region)")
+        log ("    total: \(needDisplay)")
         if let container = superview {
-            let containerRegion = Rect (origin: frame.origin+region.origin, size: region.size)
-            container.setNeedsDisplay(containerRegion)
+            let containerRegion = Rect (origin: frame.origin+region.origin, size: newRegion.size)
+            container.setNeedsDisplay(containerRegion.intersection (container.bounds))
         }
         if subviews.count == 0 {
             return
         }
         
         for view in subviews {
-            if view.frame.intersects(region){
-                var childRegion = view.frame.intersection(region)
+            if view.frame.intersects(newRegion){
+                var childRegion = view.frame.intersection(newRegion)
                 childRegion.origin.x -= view.frame.minX
                 childRegion.origin.y -= view.frame.minY
                 view.setNeedsDisplay (childRegion)
@@ -594,21 +590,16 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
     {
         if hasFocus != value {
             _hasFocus = value
-            if let o = other {
-                if value {
-                    becameFirstResponder.send (o)
-                } else {
-                    resignedResponder.send (o)
-                }
+            if _hasFocus {
+                becomeFirstResponder ()
+            } else {
+                resignFirstResponder ()
             }
-            setNeedsDisplay()
         }
         // Remove focus down the chain of subviews if focus is removed
         if let f = focused {
             if !value && focused != other {
-                if let o = other {
-                    f.resignedResponder.send (o)
-                }
+                f.resignFirstResponder()
                 f.setHasFocus(other: other, value: false)
                 focused = nil
             }
@@ -672,14 +663,12 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
         //painter.clear(needDisplay)
         let clipRect = Rect (origin: Point.zero, size: frame.size)
         for view in subviews {
-            if !view.needDisplay.isEmpty {
-                if view.frame.intersects(clipRect) && view.frame.intersects(region){
-                    // TODO: optimize this by computing the intersection of region and view.Bounds
-                    let childPainter = Painter (from: view, parent: painter)
-                    view.redraw (region: view.needDisplay, painter: childPainter)
-                }
-                view.needDisplay = Rect.zero
+            if view.frame.intersects(clipRect) && view.frame.intersects(region){
+                // TODO: optimize this by computing the intersection of region and view.Bounds
+                let childPainter = Painter (from: view, parent: painter)
+                view.redraw (region: view.needDisplay, painter: childPainter)
             }
+            view.needDisplay = Rect.zero
         }
         clearNeedsDisplay()
     }
@@ -719,9 +708,8 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
         let oldFocused = focused
         focused = theView
         theView.setHasFocus(other: oldFocused, value: true)
-
         theView.ensureFocus()
-        
+
         // Send focus upwards
         if let s = superview {
             s.setFocus (self)
@@ -963,7 +951,7 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
                     w = max (rwidth.anchor (hostFrame.width - _x), 0)
                 }
             } else {
-                w = hostFrame.width
+                w = hostFrame.width - _x
             }
         }
         
@@ -987,7 +975,7 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
                     h = max (rheight.anchor (hostFrame.height - _y), 0)
                 }
             } else {
-                h = hostFrame.height
+                h = hostFrame.height - _y
             }
         }
         
@@ -1212,6 +1200,7 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
                 _ = old.becomeFirstResponder()
             }
         }
+        setNeedsDisplay()
         oldFocused = nil
         return true
     }
@@ -1219,6 +1208,7 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
     public func resignFirstResponder() -> Bool {
         oldFocused = focused
         setHasFocus(other: nil, value: false)
+        setNeedsDisplay()
         return true
     }
     
@@ -1233,7 +1223,7 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
                 subtext += "    \(t)\n"
             }
         }
-        return "viewId:\(viewId) frame: \(frame)\n\n\(subtext)"
+        return "view \(type(of:self))-\(viewId) frame: \(frame)\n\n\(subtext)"
     }
     
     /// Helper utility that can be used to determine if the event contains a hotkey invocation, which is Alt+letter

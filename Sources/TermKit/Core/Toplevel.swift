@@ -102,10 +102,7 @@ open class Toplevel : View {
             if !focusNext() {
                 focusNext ()
             }
-            if old != focused {
-                old?.setNeedsDisplay()
-                focused?.setNeedsDisplay()
-            } else {
+            if old == focused {
                 focusNearestView (getToplevelSubviews (forward: true))
             }
             return true
@@ -115,10 +112,7 @@ open class Toplevel : View {
             if !focusPrev(){
                 focusPrev()
             }
-            if old != focused {
-                old?.setNeedsDisplay()
-                focused?.setNeedsDisplay()
-            } else {
+            if old == focused {
                 focusNearestView(getToplevelSubviews(forward: false))
             }
             return true

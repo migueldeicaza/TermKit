@@ -28,6 +28,9 @@ public class Layer {
     func add (cell: Cell, col: Int, row: Int) {
         if col < size.width && row < size.height {
             store [col + row * size.width] = cell
+//            if !dirtyRows [row] {
+//                log ("New dirty row \(row)")
+//            }
             dirtyRows [row] = true
         }
     }
