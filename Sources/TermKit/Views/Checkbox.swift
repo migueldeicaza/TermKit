@@ -98,6 +98,7 @@ public class Checkbox: View {
         self.checked = checked
         super.init ()
         self.height = Dim.sized(1)
+        self.width = Dim.sized (text.cellCount () + 4)
         canFocus = true
         updateHotkeySettings()
     }
