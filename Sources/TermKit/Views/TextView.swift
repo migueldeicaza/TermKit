@@ -557,7 +557,6 @@ public class TextView: View {
             if isReadOnly {
                 break
             }
-            let currentLine = getCurrentLine ();
             let p = cursorOffset()
             
             if storage.getValueAt(index: p) == 10 {

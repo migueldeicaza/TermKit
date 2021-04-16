@@ -103,8 +103,7 @@ class CursesDriver: ConsoleDriver {
         keypad (stdscr, true)
         setupInput ()
         
-        cols = Int (getmaxx (stdscr))
-        rows = Int (getmaxy (stdscr))
+        size = Size (width: Int (getmaxx (stdscr)), height: Int (getmaxy (stdscr)))
         
         clear ();
 
@@ -206,7 +205,7 @@ class CursesDriver: ConsoleDriver {
         }
         if status == KEY_CODE_YES {
             if result == KEY_RESIZE {
-                if LINES != rows || COLS != cols {
+                if LINES != size.height || COLS != size.width {
                     DispatchQueue.main.async {
                         Application.terminalResized()
                     }

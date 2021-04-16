@@ -132,7 +132,7 @@ public class Application {
         rootMouseHandlers = [:]
         lastMouseToken = 0
         let _ = driver
-        log ("Columns/rows: \(driver.cols) \(driver.rows)")
+        log ("Driver.size: \(driver.size)")
     }
     
     /**
@@ -325,7 +325,7 @@ public class Application {
     
     static func compose () -> Layer
     {
-        let screenSize = Size (width: Application.driver.cols, height: Application.driver.rows)
+        let screenSize = Application.driver.size
         var dirtyLines: [Bool]
         
         if screen.size != screenSize {
@@ -426,7 +426,7 @@ public class Application {
         toplevels.append(toplevel)
         _current = toplevel
         if toplevel.layoutStyle == .computed {
-            toplevel.relativeLayout(hostFrame: Rect(x: 0, y: 0, width: driver.cols, height: driver.rows))
+            toplevel.relativeLayout(hostFrame: Rect (origin: Point.zero, size: driver.size))
         }
         do {
             try toplevel.layoutSubviews()
@@ -531,7 +531,7 @@ public class Application {
     
     static func terminalResized ()
     {
-        let full = Rect(x: 0, y: 0, width: driver.cols, height: driver.rows)
+        let full = Rect(origin: Point.zero, size: driver.size)
         for top in toplevels {
             top.relativeLayout(hostFrame: full)
             do {

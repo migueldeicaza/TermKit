@@ -49,16 +49,6 @@ public class Painter {
         self.isTop = isTop
     }
     
-    /// Use this method to create a root painter, only used internally in general,
-    /// in general, you will want to call the public constructor that takes a parent
-    /// painter argument, unless you are at the root view.
-    /// - Parameter view: the view to create the painter for
-    public static func createRootPainter (from view: View) -> Painter
-    {
-        abort ()
-        return Painter (from: view)
-    }
-    
     /// This creates a painter, that renders into the Toplevel backing buffer
     public static func createTopPainter (from top: Toplevel) -> Painter {
         top.ensureLayer()
@@ -204,7 +194,6 @@ public class Painter {
     /// - Parameter rect: the region to clear, the coordinates are relative to the view
     public func clear (_ rect: Rect, with: Character = " ")
     {
-        let h = rect.height
         let w = rect.width
         
         for line in rect.minY..<rect.maxY {

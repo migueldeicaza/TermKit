@@ -510,8 +510,8 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
         if clipped {
             let driver = Application.driver
             
-            let rrow = max (0, min (r.y, driver.rows-1))
-            let rcol = max (0, min (r.x, driver.cols-1))
+            let rrow = max (0, min (r.y, driver.size.height - 1))
+            let rcol = max (0, min (r.x, driver.size.width - 1))
             r = Point(x: rcol, y: rrow)
         }
         return r
@@ -539,18 +539,6 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
     {
         let pos = viewToScreen(rect.origin, clipped: false)
         return Rect (origin: pos, size: rect.size)
-    }
-    
-     // Clips a rectangle in screen coordinates to the dimensions currently available on the screen
-    func screenClip (_ rect: Rect) -> Rect
-    {
-        let (minx, miny, maxx, maxy) = (rect.minX, rect.minY, rect.maxX, rect.maxY)
-        let x = minx < 0 ? 0 : minx
-        let y = miny < 0 ? 0 : miny
-        let w = maxx >= driver.cols ? driver.cols - minx : rect.width
-        let h = maxy >= driver.rows ? driver.rows - miny : rect.height
-        
-        return Rect(x: x, y: y, width: w, height: h)
     }
     
     /**
@@ -591,15 +579,15 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
         if hasFocus != value {
             _hasFocus = value
             if _hasFocus {
-                becomeFirstResponder ()
+                _ = becomeFirstResponder ()
             } else {
-                resignFirstResponder ()
+                _ = resignFirstResponder ()
             }
         }
         // Remove focus down the chain of subviews if focus is removed
         if let f = focused {
             if !value && focused != other {
-                f.resignFirstResponder()
+                _ = f.resignFirstResponder()
                 f.setHasFocus(other: other, value: false)
                 focused = nil
             }

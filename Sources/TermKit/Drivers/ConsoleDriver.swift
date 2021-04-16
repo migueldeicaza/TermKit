@@ -210,12 +210,10 @@ public class Colors {
 public class ConsoleDriver {
     init ()
     {
-        cols = 0
-        rows = 0
+        size = Size.empty
     }
     
-    var cols: Int
-    var rows: Int
+    var size: Size
     var ulCorner = Unicode.Scalar (0x250c)!
     var llCorner = Unicode.Scalar (0x2514)!
     var hLine = Unicode.Scalar (0x2500)!

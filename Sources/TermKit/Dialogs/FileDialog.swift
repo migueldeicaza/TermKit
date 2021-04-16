@@ -206,7 +206,7 @@ class DirListView: ListView, ListViewDataSource, ListViewDelegate {
             painter.goto(col: f.width-10, row: line)
             painter.add(str: leftPadding (tformatter.string(from: d.date), toLength: 8, withPad: " "))
         } else {
-            for x in 0..<f.width {
+            for _ in 0..<f.width {
                 painter.add(ch: " ")
             }
         }
