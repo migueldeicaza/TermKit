@@ -339,6 +339,9 @@ public class ScrollView : View {
         }
     }
     
+    public override func setNeedsDisplay (_ region: Rect) {
+        super.setNeedsDisplay (region.intersection (bounds))
+    }
     /// Adds the view to the scrollview.
     public override func addSubview(_ view: View) {
         contentView.addSubview(view)
