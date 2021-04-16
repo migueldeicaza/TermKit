@@ -162,12 +162,6 @@ class DirListView: ListView, ListViewDataSource, ListViewDelegate {
         }
     }
 
-    public override func redraw(region: Rect, painter: Painter) {
-        painter.attribute = colorScheme!.focus
-        painter.clear ()
-        super.redraw(region: region, painter: painter)
-    }
-    
     public override func redrawColor (_ painter: Painter, selection: Bool) {
         if hasFocus {
             if selection {
@@ -211,6 +205,10 @@ class DirListView: ListView, ListViewDataSource, ListViewDelegate {
             painter.add(str: leftPadding (dformatter.string(from: d.date), toLength: 8, withPad: " "))
             painter.goto(col: f.width-10, row: line)
             painter.add(str: leftPadding (tformatter.string(from: d.date), toLength: 8, withPad: " "))
+        } else {
+            for x in 0..<f.width {
+                painter.add(ch: " ")
+            }
         }
     }
     
