@@ -207,7 +207,7 @@ public class Painter {
         let h = rect.height
         let w = rect.width
         
-        for line in rect.minY...rect.maxY {
+        for line in rect.minY..<rect.maxY {
             goto (col: rect.minX, row: line)
 
             for _ in 0..<w {
@@ -278,7 +278,7 @@ public class Painter {
                     add (ch: " ")
                 }
             } else {
-                goto (col: region.minX + fwidth - 1, row: region.minY + b)
+                goto (col: region.minX + padding + fwidth - 1, row: region.minY + b)
             }
             add (rune: double ? driver.doubleVLine : driver.vLine);
             for _ in 0..<padding {
@@ -341,7 +341,13 @@ public class Painter {
             drawHotString(text: text, hotColor: scheme.hotNormal, normalColor: scheme.normal)
         }
     }
-    
+ 
+    public func debug ()
+    {
+        if let topDriver = driver as? TopDriver {
+            Application.updateDisplay (topDriver.top.layer)
+        }
+    }
 }
 
 // This is a ConsoleDriver that is used during the transition period
