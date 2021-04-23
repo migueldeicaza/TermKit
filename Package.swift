@@ -22,7 +22,7 @@ let package = Package(
         // Dependencies declare other packages that this package depends on.
         .package(url: "https://github.com/OpenCombine/OpenCombine.git", from: "0.11.0"),
         .package(url: "https://github.com/migueldeicaza/TextBufferKit.git", from: "0.2.0"),
-        .package(url: "https://github.com/migueldeicaza/SwiftTerm.git", from: "1.0.2")
+        .package(url: "https://github.com/migueldeicaza/SwiftTerm.git", from: "1.0.4")
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.

@@ -29,7 +29,7 @@ func makeTerminalWindow () -> Window {
     w.addSubview(term)
     term.fill ()
     term.frame = Rect (origin: Point (x: 0, y: 0), size: Size(width: 80, height: 25))
-    let vars = Terminal.getEnvironmentVariables(termName: "xterm-color")
+    let vars = Terminal.getEnvironmentVariables(termName: "xterm-color", trueColor: false)
     term.startProcess(executable: "/bin/zsh", environment: vars,execName: "-zsh")
     term.feed(text: "Welcome to SwiftTerm in TermKit")
     return w
