@@ -21,7 +21,7 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         .package(url: "https://github.com/OpenCombine/OpenCombine.git", from: "0.11.0"),
-        .package(url: "https://github.com/migueldeicaza/TextBufferKit.git", from: "0.2.0"),
+        .package(url: "https://github.com/migueldeicaza/TextBufferKit.git", from: "0.3.0"),
         .package(url: "https://github.com/migueldeicaza/SwiftTerm.git", from: "1.0.4")
     ],
     targets: [
