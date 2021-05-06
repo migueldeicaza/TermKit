@@ -4,6 +4,10 @@
 //
 //  Created by Miguel de Icaza on 3/11/21.
 //
+// TODO:
+// - Add an API to return the lenght of the string
+// - Add an API to left, center, right, justify a line of text
+//
 
 import Foundation
 

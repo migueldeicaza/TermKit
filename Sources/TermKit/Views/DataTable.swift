@@ -5,7 +5,12 @@
 // I changed the name from "TableView" to "DataTable", as "TableView" has a different
 // connotation in UIKit land
 //
-
+// TODO:
+// Should use TermKit's ability to render AttributedStrings
+// Probably shoudl have a way of providing column styles in the protocol with some defaults
+// Would be nice to expose a method "edit (cell)" which would present some custom editor
+// at the location where the cell is.
+//
 import Foundation
 
 /// Protocol that describes a matrix made up of columns and rows, where the columns can be labeled
@@ -16,15 +21,18 @@ public protocol DataSource {
     var rows: Int { get }
     /// The titles for the columns
     var columnTitles: [String] { get }
-    /// Whether the data source can be modified, in that case, the subscript method would be invoked with
-    /// a new value to update the specific cell
-    var isEditable: Bool { get }
     /// Indexer used to access the data.
     subscript (col: Int, row: Int) -> String { get set }
+    
+    /// This method returns the column style for the given column, can return nil if it should just use the defaults,
+    /// the default implenentation returns nil
+    func getColumnStyle (col: Int) -> ColumnStyle?
 }
 
-public protocol DataEditor {
-    func edit (frame: Rect, source: DataTable, col: Int, row: Int, completion: () -> ())
+public extension DataSource {
+    func getColumnStyle (col: Int) -> ColumnStyle? {
+        nil
+    }
 }
 
 /// The DataTable provides an easy way to display data tables, that are made up of rows and columns
@@ -43,9 +51,10 @@ public class DataTable: View {
     public var fullRowSelect: Bool = false
     
     /// True to allow regions to be selected
-    var multiSelect: Bool = true
+    public var multiSelect: Bool = true
     
-    // var multiSelectedRegions: [TableSelection] = []
+    var multiSelectedRegions: [Rect] = []
+    
     public var rowOffset: Int = 0 {
         didSet {
             rowOffset = max (0, min (rowOffset, source.rows-1))
@@ -102,15 +111,17 @@ public class DataTable: View {
     /// The key which when pressed should trigger `cellActivated`event.  Defaults to Return.
     public var cellActivationKey: Key = Key.controlJ
     
+    func reload () {
+        _selectedRow = 0
+        _selectedColumn = 0
+        columnOffset = 0
+        rowOffset = 0
+    }
     /// When scrolling down always lock the column headers in place as the first row of the table
     public var alwaysShowHeaders: Bool = false {
         didSet {
             setNeedsDisplay()
         }
-    }
-    
-    func reload () {
-        abort ()
     }
     
     /// True to render a solid line above the headers
@@ -147,11 +158,93 @@ public class DataTable: View {
     public init (source: DataSource) {
         self.source = source
         super.init()
+        canFocus = true
     }
+    
+    func calculateViewport (bounds: Rect, padding: Int = 1) -> [ColumnToRender] {
+        var columnsToRender: [ColumnToRender] = []
+        var usedSpace = 0
         
+        //if horizontal space is required at the start of the line (before the first header)
+        if showVerticalHeaderLines || showVerticalCellLines {
+            usedSpace += 1
+        }
+        let availableHorizontalSpace = bounds.width
+        var rowsToRender = bounds.height
+        
+        // reserved for the headers row
+        if shouldRenderHeaders {
+            rowsToRender -= getHeaderHeight()
+        }
+        
+        var first = true
+        let cols = source.cols
+        
+        for col in 0..<cols {
+            if col < columnOffset {
+                continue
+            }
+            let startingIdxForCurrentHeader = usedSpace
+            let colStyle = getColumnStyle(col: col)
+            
+            // is there enough space for this column (and it's data)?
+            usedSpace += calculateMaxCellWidth (col: col, rowsToRender: rowsToRender, colStyle: colStyle) + padding
+            
+            // no (don't render it) unless its the only column we are render (that must be one massively wide column!)
+            if (!first && usedSpace > availableHorizontalSpace) {
+                break
+            }
+            
+            
+            columnsToRender.append(ColumnToRender (col: col, x: startingIdxForCurrentHeader))
+            first = false
+        }
+        return columnsToRender
+    }
+    
     var shouldRenderHeaders: Bool {
         source.cols == 0 ? false : (alwaysShowHeaders || rowOffset == 0)
     }
+    
+    func calculateMaxCellWidth (col: Int, rowsToRender: Int, colStyle: ColumnStyle?) -> Int {
+        let rows = source.rows
+        let titles = source.columnTitles
+        var spaceRequired = titles [col].cellCount()
+        
+        // if table has no rows
+        if rowOffset < 0 {
+            return spaceRequired
+        }
+        
+        var i = rowOffset
+        while i < rowOffset + rowsToRender && i < rows {
+            defer { i += 1 }
+            
+            //expand required space if cell is bigger than the last biggest cell or header
+            spaceRequired = max (spaceRequired, getRepresentation (value: source [col, i], colStyle: colStyle).cellCount())
+        }
+        
+        // Don't require more space than the style allows
+        if let style = colStyle {
+            // enforce maximum cell width based on style
+            if spaceRequired > style.maxWidth {
+                spaceRequired = style.maxWidth
+            }
+            
+            // enforce minimum cell width based on style
+            if spaceRequired < style.minWidth {
+                spaceRequired = style.minWidth
+            }
+        }
+        
+        // enforce maximum cell width based on global table style
+        if spaceRequired > maxCellWidth {
+            spaceRequired = maxCellWidth
+        }
+
+        return spaceRequired
+    }
+    
     func clearLine (row: Int, width: Int, painter: Painter) {
         painter.goto(col: 0, row: row)
         painter.colorNormal()
@@ -218,12 +311,12 @@ public class DataTable: View {
             painter.add(rune: driver.vLine)
         }
         
-        var titles = source.columnTitles
+        let titles = source.columnTitles
         for i in 0..<columnsToRender.count {
             let current =  columnsToRender [i]
-            var availableWidthForCell = getCellWidth (columnsToRender: columnsToRender, i: i)
-            var colStyle = getColumnStyle (col: current.col)
-            var colName = titles [current.col]
+            let availableWidthForCell = getCellWidth (columnsToRender: columnsToRender, i: i)
+            let colStyle = getColumnStyle (col: current.col)
+            let colName = titles [current.col]
 
             painter.goto(col: current.x-1, row: row)
             painter.add (str: getSeparator(isHeader: true))
@@ -293,7 +386,7 @@ public class DataTable: View {
             painter.goto(col: current.x, row: row)
 
             // Set color scheme based on whether the current cell is the selected one
-            var isSelectedCell = isSelected (col: current.col, row: rowToRender)
+            let isSelectedCell = isSelected (col: current.col, row: rowToRender)
 
             painter.attribute = isSelectedCell ? colorScheme.hotFocus : colorScheme.normal
 
@@ -302,7 +395,7 @@ public class DataTable: View {
             // Render the (possibly truncated) cell value
             let representation = getRepresentation (value: val, colStyle: colStyle)
             
-            driver.addStr(truncateOrPad (val, representation, availableWidthForCell, colStyle))
+            painter.add(str: truncateOrPad (val, representation, availableWidthForCell, colStyle))
             
             // If not in full row select mode always, reset color scheme to normal and render the vertical line (or space) at the end of the cell
             if !fullRowSelect {
@@ -329,109 +422,335 @@ public class DataTable: View {
         if representation == "" {
             return ""
         }
-        abort ()
         // if value is not wide enough
-//        if  representation.Sum(c=>Rune.ColumnWidth(c)) < availableHorizontalSpace) {
-//
-//            // pad it out with spaces to the given alignment
-//            int toPad = availableHorizontalSpace - (representation.Sum(c=>Rune.ColumnWidth(c)) +1 /*leave 1 space for cell boundary*/);
-//
-//            switch(colStyle?.GetAlignment(originalCellValue) ?? TextAlignment.Left) {
-//
-//            case TextAlignment.Left :
-//                return representation + new string(' ',toPad);
-//            case TextAlignment.Right :
-//                return new string(' ',toPad) + representation;
-//
-//            // TODO: With single line cells, centered and justified are the same right?
-//            case TextAlignment.Centered :
-//            case TextAlignment.Justified :
-//                return
-//                    new string(' ',(int)Math.Floor(toPad/2.0)) + // round down
-//                        representation +
-//                        new string(' ',(int)Math.Ceiling(toPad/2.0)) ; // round up
-//            }
-//        }
-//
-//        // value is too wide
-//        return new string(representation.TakeWhile(c=>(availableHorizontalSpace-= Rune.ColumnWidth(c))>0).ToArray());
+        let rcell = representation.cellCount()
+        if rcell < availableHorizontalSpace {
+            // pad it out with spaces to the given alignment
+            let toPad = availableHorizontalSpace - rcell + 1
+            
+            switch colStyle?.getAlignment(originalCellValue) ?? .left {
+            case .left:
+                return representation + String (repeating: " ", count: toPad)
+                
+            case .right:
+                return String(repeating: " ", count: toPad) + representation
+                
+            // TODO: With single line cells, centered and justified are the same right?
+            case .centered, .justified:
+                let n = toPad/2
+                return String(repeating: " ", count: n) + representation + String(repeating: " ", count: toPad-n)
+            }
+        }
+        
+        // value is too wide
+        return representation.getVisibleString(availableHorizontalSpace)
     }
     
     public override func redraw(region: Rect, painter: Painter) {
         painter.goto(col: 0, row: 0)
         let f = frame
+        let width = f.width
         
-//        // What columns to render at what X offset in viewport
-//        var columnsToRender = CalculateViewport(bounds).ToArray();
-//
-//        Driver.SetAttribute (ColorScheme.Normal);
-//
-//        //invalidate current row (prevents scrolling around leaving old characters in the frame
-//        Driver.AddStr (new string (' ', bounds.Width));
-//
-//        int line = 0;
-//
-//        if(ShouldRenderHeaders()){
-//            // Render something like:
-//            /*
-//                ┌────────────────────┬──────────┬───────────┬──────────────┬─────────┐
-//                │ArithmeticComparator│chi       │Healthboard│Interpretation│Labnumber│
-//                └────────────────────┴──────────┴───────────┴──────────────┴─────────┘
-//            */
-//            if(Style.ShowHorizontalHeaderOverline){
-//                RenderHeaderOverline(line,bounds.Width,columnsToRender);
-//                line++;
-//            }
-//
-//            RenderHeaderMidline(line,columnsToRender);
-//            line++;
-//
-//            if(Style.ShowHorizontalHeaderUnderline){
-//                RenderHeaderUnderline(line,bounds.Width,columnsToRender);
-//                line++;
-//            }
-//        }
-//
-//        int headerLinesConsumed = line;
-//
-//        //render the cells
-//        for (; line < frame.Height; line++) {
-//
-//            ClearLine(line,bounds.Width);
-//
-//            //work out what Row to render
-//            var rowToRender = RowOffset + (line - headerLinesConsumed);
-//
-//            //if we have run off the end of the table
-//            if ( Table == null || rowToRender >= Table.Rows.Count || rowToRender < 0)
-//                continue;
-//
-//            RenderRow(line,rowToRender,columnsToRender);
-//        }
+        // What columns to render at what X offset in viewport
+        let columnsToRender = calculateViewport (bounds: bounds)
+        
+        painter.attribute = colorScheme.normal
+
+        //invalidate current row (prevents scrolling around leaving old characters in the frame
+        clearLine(row: 0, width: width, painter: painter)
+
+        var line = 0
+        
+        if shouldRenderHeaders {
+            // Render something like:
+            /*
+             ┌────────────────────┬──────────┬───────────┬──────────────┬─────────┐
+             │ArithmeticComparator│chi       │Healthboard│Interpretation│Labnumber│
+             └────────────────────┴──────────┴───────────┴──────────────┴─────────┘
+             */
+            if showHorizontalHeaderOverline {
+                renderHeaderOverline(row: line, availableWidth: width, columnsToRender: columnsToRender, painter: painter)
+                line += 1
+            }
+            
+            renderHeaderMidline(row: line, columnsToRender: columnsToRender, painter: painter)
+            line += 1
+            
+            if showHorizontalHeaderUnderline {
+                renderHeaderUnderline(row: line, availableWidth: width, columnsToRender: columnsToRender, painter: painter)
+                line += 1
+            }
+        }
+        let headerLinesConsumed = line
+        let height = frame.height
+        //render the cells
+        while line < height {
+            defer { line += 1 }
+            clearLine(row: line, width: width, painter: painter)
+            
+            //work out what Row to render
+            let rowToRender = rowOffset + (line - headerLinesConsumed)
+            
+            // if we have run off the end of the table
+            if rowToRender >= source.rows || rowToRender < 0 {
+                continue
+            }
+            renderRow(row: line, rowToRender: rowToRender, columnsToRender: columnsToRender, painter: painter)
+        }
     }
     
     public func isSelected (col: Int, row: Int) -> Bool {
-//                // Cell is also selected if in any multi selection region
-//                if(MultiSelect && MultiSelectedRegions.Any(r=>r.Rect.Contains(col,row)))
-//                    return true;
-//
-//                // Cell is also selected if Y axis appears in any region (when FullRowSelect is enabled)
-//                if(FullRowSelect && MultiSelect && MultiSelectedRegions.Any(r=>r.Rect.Bottom> row  && r.Rect.Top <= row))
-//                    return true;
-//
-//                return row == SelectedRow &&
-//                        (col == SelectedColumn || FullRowSelect);
-        abort ()
+        
+        // Cell is also selected if in any multi selection region
+        if multiSelect && multiSelectedRegions.contains(where: { rect in rect.contains(x: col, y: row) }) {
+            return true
+        }
+        
+        // Cell is also selected if Y axis appears in any region (when FullRowSelect is enabled)
+        if fullRowSelect && multiSelect && multiSelectedRegions.contains(where: { rect in rect.contains(x: col, y: row)}) {
+            return true
+        }
+        return row == selectedRow && (col == selectedColumn || fullRowSelect)
     }
     
-    func getRepresentation(value: Any, colStyle: ColumnStyle?) -> String
+    func getRepresentation(value: String?, colStyle: ColumnStyle?) -> String
     {
-        abort ()
-//        if (value == null || value == DBNull.Value) {
-//            return NullSymbol;
-//        }
-//
-//        return colStyle != null ? colStyle.GetRepresentation(value): value.ToString();
+        guard let str = value else {
+            return nilChar
+        }
+        return colStyle?.getRepresentation(str) ?? str
+    }
+    
+    public override func processKey(event: KeyEvent) -> Bool {
+        switch event.key {
+        case .controlJ:
+            cellActivated (source, selectedColumn, selectedRow)
+            
+        case .cursorLeft:
+        //case .cursorLeft | Key.ShiftMask:
+            changeSelectionByOffset (offsetX: -1, offsetY: 0, extendExistingSelection: false)
+            update()
+            
+        case .cursorRight:
+            // case .cursorRight + shift
+            changeSelectionByOffset (offsetX: 1, offsetY: 0, extendExistingSelection: false)
+            update ()
+            
+        case .cursorDown:
+            changeSelectionByOffset (offsetX: 0, offsetY: 1, extendExistingSelection: false)
+            update()
+            
+        case .cursorUp:
+            changeSelectionByOffset (offsetX: 0, offsetY: -1, extendExistingSelection: false)
+            update()
+            
+        case .pageUp:
+            changeSelectionByOffset (offsetX: 0, offsetY: -(bounds.height-getHeaderHeightIfAny()), extendExistingSelection: false)
+            update ()
+
+        case .pageDown:
+            changeSelectionByOffset (offsetX: 0, offsetY: (bounds.height-getHeaderHeightIfAny()), extendExistingSelection: false)
+            update ()
+            
+        case .home:
+            setSelection(col: 0, row: 0, extendExistingSelection: false)
+            update ()
+
+        case .end:
+            setSelection(col: source.cols-1, row: source.rows-1, extendExistingSelection: false)
+            update ()
+
+        case .controlA:
+            selectAll ()
+            update ()
+            
+        default:
+            // Not a keystroke we care about
+            return false
+        }
+        return true
+    }
+    
+    func createTableSelection (_ col1: Int, _ row1: Int, _ col2: Int, _ row2: Int) -> Rect {
+        Rect (x: min (col1, col2), y: min (row1, row2), width: abs (col2-col2)+1, height: abs (row2-row1)+1)
+    }
+    
+    /// Moves the `SelectedRow` and `SelectedColumn` to the given col/row. Optionally starting a box selection if `multiSelect` is set.
+    /// - Parameters:
+    ///   - col: Column location to add to the selection
+    ///   - row: Row location to add to the selection
+    ///   - extendExistingSelection: if multiSelect is true, this extends the selection
+    public func setSelection (col: Int, row: Int, extendExistingSelection: Bool)
+    {
+        if !multiSelect || !extendExistingSelection {
+            multiSelectedRegions = []
+        }
+
+        if extendExistingSelection {
+            // If we are extending current selection but there isn't one
+            if multiSelectedRegions.count == 0 {
+                // Create a new region between the old active cell and the new cell
+                let rect = createTableSelection (selectedColumn, selectedRow, col, row)
+                multiSelectedRegions.append (rect)
+            } else {
+                // Extend the current head selection to include the new cell
+                let head = multiSelectedRegions.last!
+                let newRect = createTableSelection (head.minX, head.minY, col, row)
+                multiSelectedRegions.append (newRect)
+            }
+        }
+
+        selectedColumn = col
+        selectedRow = row
+    }
+
+    /// Moves the `selectedRow` and `selectedCol` by the provided offsets. Optionally starting a box selection (if `multiSelect` is set)
+    /// - Parameters:
+    ///   - offsetX: Offset in number of columns
+    ///   - offsetY: Offset in number of rows
+    ///   - extendExistingSelection: True to create a multi cell selection or adjust an existing one
+    public func changeSelectionByOffset (offsetX: Int, offsetY: Int, extendExistingSelection: Bool)
+    {
+        setSelection (col: selectedColumn + offsetX, row: selectedRow + offsetY, extendExistingSelection: extendExistingSelection)
+    }
+
+    /// When `MultiSelect` is on, creates selection over all cells in the table (replacing any old selection regions)
+    public func selectAll() {
+        if !multiSelect || source.rows == 0 {
+            return
+        }
+        multiSelectedRegions = []
+
+        // Create a single region over entire table, set the origin of the selection to the active cell so that a followup spread selection e.g. shift-right behaves properly
+        multiSelectedRegions.append(createTableSelection(selectedColumn, selectedRow, source.cols, source.rows))
+        update ()
+    }
+    
+    public func update () {
+        setNeedsDisplay()
+        
+        ensureValidScrollOffsets ()
+        ensureValidSelection ()
+        ensureSelectedCellIsVisible ()
+    }
+    
+    func ensureValidScrollOffsets () {
+        columnOffset = max (min (columnOffset, source.cols - 1), 0)
+        rowOffset = max (min (rowOffset, source.rows - 1), 0)
+    }
+    
+    func ensureValidSelection () {
+        selectedColumn = max (min (selectedColumn, source.cols - 1), 0)
+        selectedRow = max (min (selectedRow, source.rows - 1), 0)
+
+        let oldRegions = multiSelectedRegions.reversed()
+        
+        multiSelectedRegions = []
+        
+        // evaluate
+        for region in oldRegions  {
+            // ignore regions entirely below current table state
+            if region.top >= source.rows {
+                continue
+            }
+            
+            // ignore regions entirely too far right of table columns
+            if region.left >= source.cols {
+                continue
+            }
+            
+            // ensure region's origin exists
+            // ensure regions do not go over edge of table bounds
+            let new = Rect(
+                left: max(min(region.origin.x, source.cols - 1),0),
+                top: max(min(region.origin.y, source.rows - 1),0),
+                right: max(min(region.right, source.cols), 0),
+                bottom:max(min(region.bottom, source.rows), 0))
+            
+            multiSelectedRegions.append (new)
+        }
+    }
+    
+    func ensureSelectedCellIsVisible () {
+        let columnsToRender = calculateViewport (bounds: bounds)
+        let headerHeight = getHeaderHeightIfAny()
+        
+        // if we have scrolled too far to the left
+        let minCol = columnsToRender.min (by: { a, b in a.col < b.col })?.col ?? 0
+        let maxCol = columnsToRender.max (by: { a, b in a.col < b.col })?.col ?? source.cols-1
+        
+        if selectedColumn < minCol {
+            columnOffset = selectedColumn
+        }
+        
+        // if we have scrolled too far to the right
+        if selectedColumn > maxCol {
+            columnOffset = selectedColumn
+        }
+        
+        // if we have scrolled too far down
+        if selectedRow >= rowOffset + (bounds.height - headerHeight) {
+            rowOffset = selectedRow
+        }
+        
+        // if we have scrolled too far up
+        if selectedRow < rowOffset {
+            rowOffset = selectedRow
+        }
+    }
+    
+    /// Returns the column and row of <see cref="Table"/> that corresponds to a given point on the screen (relative to the control client area).  Returns null if the point is in the header, no table is loaded or outside the control bounds
+    /// <param name="clientX">X offset from the top left of the control</param>
+    /// <param name="clientY">Y offset from the top left of the control</param>
+    /// <returns></returns>
+    public func screenToCell (clientX: Int, clientY: Int) -> Point? {
+        let viewPort = calculateViewport (bounds: bounds)
+        let headerHeight = getHeaderHeightIfAny ()
+        let col = viewPort.last(where: {c in c.x <= clientX })
+        
+        // Click is on the header section of rendered UI
+        if clientY < headerHeight {
+            return nil
+        }
+        let rowIdx = rowOffset - headerHeight + clientY
+        
+        if let c = col, rowIdx >= 0 {
+            return Point (x: c.col, y: rowIdx)
+        }
+        return nil
+    }
+    
+    /// <summary>
+    /// Returns the screen position (relative to the control client area) that the given cell is rendered or null if it is outside the current scroll area or no table is loaded
+    /// </summary>
+    /// <param name="tableColumn">The index of the <see cref="Table"/> column you are looking for, use <see cref="DataColumn.Ordinal"/></param>
+    /// <param name="tableRow">The index of the row in <see cref="Table"/> that you are looking for</param>
+    /// <returns></returns>
+    public func cellToScreen (tableColumn: Int, tableRow: Int) -> Point? {
+        let viewPort = calculateViewport (bounds: bounds)
+        let headerHeight = getHeaderHeightIfAny()
+
+        // If it is outside
+        guard let colHit = viewPort.first(where: {c in c.col == tableColumn}) else {
+            return nil
+        }
+        
+        // the cell is too far up above the current scroll area
+        if rowOffset > tableRow {
+            return nil
+        }
+    
+        // the cell is way down below the scroll area and off the screen
+        if tableRow > rowOffset + (bounds.height - headerHeight) {
+            return nil
+        }
+        return Point (x: colHit.x, y: tableRow + headerHeight - rowOffset)
+    }
+    
+    public override func positionCursor() {
+        if let screenPoint = cellToScreen (tableColumn: selectedColumn, tableRow: selectedRow) {
+            moveTo(col: screenPoint.x, row: screenPoint.y)
+        }
     }
 }
 
@@ -439,7 +758,17 @@ public class DataTable: View {
 /// and textual representation of cells (e.g. date formats)
 public struct ColumnStyle {
     /// Defines the default alignment for all values rendered in this column.  For custom alignment based on cell contents use <see cref="AlignmentGetter"/>.
-    var alignment: TextAlignment
+    var defaultAlignment: TextAlignment = .left
+    var maxWidth = 100
+    var minWidth = 1
+    
+    func getAlignment (_ text: String) -> TextAlignment {
+        return defaultAlignment
+    }
+    
+    func getRepresentation (_ text: String) -> String {
+        return text
+    }
 }
 
 struct ColumnToRender {

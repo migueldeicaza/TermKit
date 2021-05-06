@@ -13,7 +13,7 @@ import OpenCombine
  * Message box displays a modal message to the user, with a title, a message and a series of options that the user can choose from.
  *
  * There are a couple of options:
- * - `query` is used to show a message with buttons
+ * - `query` is used to show a message with buttons and the user chooses one option from many.
  * - `error` is similar to query, but uses the error color scheme for the dialogs
  * - `info` merely takes a title and message, it is informational only, so the button "ok" is added
  *
@@ -21,8 +21,13 @@ import OpenCombine
  * The value -1 is returned when the user cancels the dialog by pressing the ESC key.
  *
  * ```
- *
- *
+ * MessageBox.query (
+ *     "Title",
+ *     message: "Explanatory text",
+ *     buttons: ["Yes", "No", "Maybe"],
+ *     completion: { button in
+ *         rememberCount.text = button == -1 ? "User canceled" : "User chose \(button)"
+ *     }
  * ```
  */
 public class MessageBox {

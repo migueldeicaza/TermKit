@@ -85,6 +85,7 @@ var options: [(text: String, func: () -> Window)] = [
     ("Assorted",     { Assorted () }),
     ("File Dialogs", { FileDialogs () }),
     ("Terminal",     { TerminalDemo () }),
+    ("DataTable",    { DataTableDialogs () }),
     ("Quit",         { Application.shutdown(); return Window () })
 ]
 
