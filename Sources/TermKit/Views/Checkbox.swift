@@ -26,7 +26,7 @@ import OpenCombine
  *
  * ```
  */
-public class Checkbox: View {
+open class Checkbox: View {
     /// The state of the checkbox.
     public var checked: Bool = false {
         didSet {
@@ -159,7 +159,7 @@ public class Checkbox: View {
         return true
     }
     
-    public override var debugDescription: String {
+    open override var debugDescription: String {
         return "Checkbox (\(super.debugDescription))"
     }
 

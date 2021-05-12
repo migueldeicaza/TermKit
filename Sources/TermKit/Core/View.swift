@@ -186,6 +186,7 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
         
     /// If this is true, it indicates that the current view has a pending layout operation
     var layoutNeeded: Bool = true
+    var childNeedsLayout: Bool = true
     
     /**
      * Points to the current driver in use by the view, it is a convenience property
@@ -349,6 +350,7 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
                 view.setNeedsDisplay (childRegion)
             }
         }
+        Application.requestPostProcess()
     }
     
     func setNeedsLayout ()
@@ -357,9 +359,16 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
             return
         }
         layoutNeeded = true
-        if let container = superview {
-            container.layoutNeeded = true
+        var from = self
+        while true {
+            if let container = from.superview {
+                container.childNeedsLayout = true
+                from = container
+            } else {
+                break
+            }
         }
+        Application.requestPostProcess()
     }
     
     /**
@@ -373,6 +382,7 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
             _canFocus = true
         }
         setNeedsLayout()
+        setNeedsDisplay()
         subviewAdded.send (view)
     }
     
@@ -1109,12 +1119,28 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
         case recursive(msg:String)
     }
     
+    func layout () {
+        if layoutNeeded  {
+            try? layoutSubviews()
+            setNeedsDisplay()
+        }
+        if childNeedsLayout {
+            for sub in subviews {
+                sub.layout ()
+            }
+        }
+        childNeedsLayout = false
+    }
+    
     open func layoutSubviews () throws
     {
         if !layoutNeeded {
             return
         }
         
+        if self is Desktop {
+            var a = String ("a")
+        }
         // Sort out the dependencies of the X, Y, Width, Height properties
         var nodes = Set<View>()
         var edges = Set<Edge>()
@@ -1167,6 +1193,7 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
         }
         
         layoutNeeded = false
+        childNeedsLayout = false
     }
     
     public func mouseEnter(event: MouseEvent) -> Bool {

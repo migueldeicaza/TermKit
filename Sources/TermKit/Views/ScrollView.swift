@@ -27,7 +27,7 @@ import Foundation
  * If the region to display the scrollbar is larger than three characters,
  * arrow indicators are drawn.
  */
-public class ScrollBarView: View {
+open class ScrollBarView: View {
     var isVertical: Bool = false
     var size: Int
     var _position: Int
@@ -219,7 +219,7 @@ public class ScrollBarView: View {
         isVertical ? bounds.height : bounds.width
     }
     
-    public override var debugDescription: String {
+    open override var debugDescription: String {
         return "ScrollBarView (\(super.debugDescription))"
     }
 }
@@ -240,7 +240,7 @@ class _ContentView: View {
         let pos = scrollView.viewToScreen(Point (x: 0, y: 0))
         driver.moveTo(col: pos.x, row: pos.y)
     }
-    public override var debugDescription: String {
+    open override var debugDescription: String {
         get {
             "ScrollView._ContentView()"
         }
@@ -254,7 +254,7 @@ class _ContentView: View {
 /// ``contentOffset` property.  The view itself is a window into the
 /// space represented by the `contentSize`
 
-public class ScrollView : View {
+open class ScrollView : View {
     var contentView: _ContentView!
     var vertical, horizontal: ScrollBarView
     var _showsHorizontalScrollIndicator = false
@@ -489,7 +489,7 @@ public class ScrollView : View {
         }
     }
     
-    public override var debugDescription: String {
+    open override var debugDescription: String {
         return "ScrollView (\(super.debugDescription))"
     }
 }

@@ -9,7 +9,7 @@
 import Foundation
 
 class ContentView: View {
-    public override var debugDescription: String {
+    open override var debugDescription: String {
         return "Window.ContentView (\(super.debugDescription))"
     }
     
@@ -25,7 +25,7 @@ class ContentView: View {
  * A toplevel view that draws a frame around its region and has a "ContentView" subview where the contents are added.
  * with an optional title that is displayed at the top
  */
-public class Window: Toplevel {
+open class Window: Toplevel {
     var contentView: View
     var padding: Int
     
@@ -178,7 +178,7 @@ public class Window: Toplevel {
     var resizeGrab: Point? = nil
     
     public override func mouseEvent(event: MouseEvent) -> Bool {
-
+        log ("Mouse event on Window \(viewId) -> \(event)")
         if event.flags == [.button4Released] {
             log ("FINISHED")
             if moveGrab != nil {
@@ -209,18 +209,24 @@ public class Window: Toplevel {
             return true
 
         }
+        if event.flags == [.button1Clicked] {
+            log ("oops")
+        }
         if event.flags == [.button1Clicked] && event.pos.y == padding {
             let x = event.pos.x
             var expect = 2+padding
             if allowClose {
                 if x == expect {
                     closeClicked (self)
+                    return true
                 }
                 expect += 1
             }
             if allowMinimize {
                 if x == expect {
                     log ("minimize")
+                    // TODO
+                    return true
                 }
                 expect += 1
             }
@@ -237,9 +243,13 @@ public class Window: Toplevel {
                         width = Dim.fill()
                         superview?.setFocus(self)
                     }
+                    return true
                 }
             }
-            
+            if !hasFocus {
+                superview?.setFocus(self)
+            }
+            return true
         }
         if event.flags == [.button4Pressed] || event.flags == [.button1Pressed] {
             if event.pos.y == padding {
@@ -260,7 +270,7 @@ public class Window: Toplevel {
             moveTo (col: 1, row: 1)
         }
     }
-    public override var debugDescription: String {
+    open override var debugDescription: String {
         return "Window (\(super.debugDescription))"
     }
 }

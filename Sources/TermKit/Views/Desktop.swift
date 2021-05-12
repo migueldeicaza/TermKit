@@ -8,9 +8,10 @@
 
 import Foundation
 
-public class Desktop: View {
+class Desktop: View {
     
     public override func redraw(region: Rect, painter: Painter) {
-        painter.clear(with: "░")
+        painter.clear(region, with: "░")
+        super.redraw(region: region, painter: painter)
     }
 }

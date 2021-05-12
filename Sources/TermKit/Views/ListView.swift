@@ -70,7 +70,7 @@ public protocol ListViewDelegate {
  *
  * To scroll to a particular place, you can set the "topItem" property
  */
-public class ListView: View {
+open class ListView: View {
     var top: Int = 0
     var selected: Int = 0
     

@@ -30,7 +30,7 @@ import OpenCombine
  * Application.run (d)
  * ```
  */
-public class Button: View {
+open class Button: View {
     
     var shownText: String = ""
     var hotKey: Character? = nil
@@ -187,7 +187,7 @@ public class Button: View {
         return false
     }
     
-    public override var debugDescription: String {
+    open override var debugDescription: String {
         return "Button (\(super.debugDescription), text=\(text)))"
     }
 }

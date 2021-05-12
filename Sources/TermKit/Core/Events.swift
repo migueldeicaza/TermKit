@@ -312,8 +312,7 @@ public struct MouseEvent: CustomDebugStringConvertible {
     
     public var debugDescription: String {
         get {
-            let v = view?.debugDescription ?? "noview"
-            return "MouseEvent(pos: \(pos), absPos: \(absPos), flags: \(flags), view: \(v)"
+            return "MouseEvent(pos: \(pos), absPos: \(absPos), flags: \(flags), viewId: \(view?.viewId ?? -1)"
         }
     }
 }

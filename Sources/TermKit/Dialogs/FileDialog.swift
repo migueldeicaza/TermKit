@@ -232,6 +232,7 @@ class DirListView: ListView, ListViewDataSource, ListViewDelegate {
             parent?.cbFileChanged(full)
             if canChooseFiles {
                 parent?.canceled = false
+                parent?.complete ()
                 Application.requestStop()
             }
         }
@@ -274,7 +275,7 @@ class DirListView: ListView, ListViewDataSource, ListViewDelegate {
 }
 
 /// Base class for the `OpenDialog` and `SaveDialog`, use one of those subclasses.
-public class FileDialog: Dialog {
+open class FileDialog: Dialog {
     var prompt, cancel: Button
     var nameFieldLabel, message, dirLabel: Label
     var dirEntry, nameEntry: TextField
@@ -397,7 +398,7 @@ public class FileDialog: Dialog {
  * for completion.  Then you can examine the `fileName` property, that will
  * contain the selected file name or`nil` if the user canceled.
  */
-public class SaveDialog: FileDialog {
+open class SaveDialog: FileDialog {
     /// Creates a new instance of the SaveDialog
     /// - Parameters:
     ///   - title: Tilte to show for the dialog
@@ -442,12 +443,12 @@ public class SaveDialog: FileDialog {
  * The open dialog can be used to select files for opening, it can be configured to allow
  * multiple items to be selected (based on the `allowsMultipleSelection`) variable and
  * you can control whether this should allow files or directories to be selected.
- * To use, create an instance of `OpenDialog`, and pass it to
- * `Application.present`. When complete, the list of files will be available in the `filePaths property.
+ * To use, create an instance of `OpenDialog`, and call it to
+ * `present`. When complete, the list of files will be available in the `filePaths property.
  *
  * To select more than one file, users can use the spacebar, or control-t.
  */
-public class OpenDialog: FileDialog {
+open class OpenDialog: FileDialog {
     /// Creates a new instance of the OpenDialog
     /// - Parameters:
     ///   - title: Tilte to show for the dialog

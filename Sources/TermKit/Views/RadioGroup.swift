@@ -15,7 +15,7 @@ public enum Orientation {
     case vertical
 }
 
-public class RadioGroup: View {
+open class RadioGroup: View {
     var _selected: Int? = nil
     var cursor: Int = 0
     
@@ -204,7 +204,7 @@ public class RadioGroup: View {
         return false
     }
     
-    public override var debugDescription: String {
+    open override var debugDescription: String {
         return "ProgressBar (\(super.debugDescription))"
     }
 }

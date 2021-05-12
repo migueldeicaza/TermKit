@@ -34,7 +34,7 @@ public enum LineBreakMode {
  * the text alignemtn) will not automatically change that.  You must call `autoSize()`
  * if you want to change those parameters.
  */
-public class Label: View {
+open class Label: View {
     /// Accesses the content of the label as a String, if you want to use colors or attributed, set the `attributedText` property instead
     public var text: String {
         get {
@@ -308,7 +308,7 @@ public class Label3 : View {
         }
     }
     
-    public override var debugDescription: String {
+    open override var debugDescription: String {
         return "Label (text=\"\(text)\", \(super.debugDescription))"
     }
 }

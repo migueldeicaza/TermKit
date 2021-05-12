@@ -132,7 +132,35 @@ public class Application {
         rootMouseHandlers = [:]
         lastMouseToken = 0
         let _ = driver
+        setupPostProcessPipes ()
         log ("Driver.size: \(driver.size)")
+    }
+    
+    /// We use this pipe to trigger a call to postProcessEvent
+    static var pipePostProcessEvent: [Int32] = [0, 0]
+    static var pipeReader: DispatchSourceRead?
+    static let bufferSize = 128
+    static var buffer = UnsafeMutableRawPointer.allocate(byteCount: bufferSize, alignment: 8)
+    
+    static func setupPostProcessPipes () {
+        pipe(&pipePostProcessEvent)
+        _ = fcntl(pipePostProcessEvent[0], F_SETFL, O_NONBLOCK)
+        let reader = DispatchSource.makeReadSource(fileDescriptor: pipePostProcessEvent[0], queue: .main)
+        pipeReader = reader
+        reader.setEventHandler {
+            // Read all pending requests in one go
+            var count = 0
+            repeat {
+                count = read(pipePostProcessEvent[0], buffer, bufferSize)
+                //let status = (count == -1 && errno == EWOULDBLOCK)
+            } while count > 0
+            postProcessEvent()
+        }
+        reader.activate()
+    }
+    
+    static func requestPostProcess () {
+        write(pipePostProcessEvent [1], &pipePostProcessEvent, 1)
     }
     
     /**
@@ -273,7 +301,7 @@ public class Application {
     
     static func processMouseEvent (mouseEvent: MouseEvent)
     {
-        //log ("Event: \(mouseEvent)")
+        log ("Application Event: \(mouseEvent)")
         for h in rootMouseHandlers.values {
             h (mouseEvent)
         }
@@ -475,10 +503,7 @@ public class Application {
     static func postProcessEvent ()
     {
         if let c = current {
-            if c.layoutNeeded {
-                try? c.layoutSubviews()
-                c.setNeedsDisplay()
-            }
+            c.layout ()
             if !c.needDisplay.isEmpty {
                 c.redraw (region: c.needDisplay, painter: Painter.createTopPainter(from: c))
 //                if debugDrawBounds {
@@ -511,7 +536,7 @@ public class Application {
      */
     public static func requestStop ()
     {
-        DispatchQueue.global ().async {
+        DispatchQueue.main.async {
             if current != nil {
                 toplevels = toplevels.dropLast ()
                 if toplevels.count == 0 {
@@ -553,6 +578,13 @@ public class Application {
     public static func shutdown(statusCode: Int = 0)
     {
         initialized = false
+        
+        
+        close (pipePostProcessEvent[0])
+        close (pipePostProcessEvent[1])
+        pipeReader?.cancel()
+        pipeReader = nil
+        
         driver.end ();
         exit (Int32 (statusCode))
     }

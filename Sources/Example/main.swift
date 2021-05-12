@@ -81,11 +81,12 @@ print ("starting")
 var frame = Frame ("Samples")
 frame.set (x: 10, y: 10, width: 60, height: 20)
 
-var options: [(text: String, func: () -> Window)] = [
+var options: [(text: String, func: () -> Toplevel)] = [
     ("Assorted",     { Assorted () }),
     ("File Dialogs", { FileDialogs () }),
     ("Terminal",     { TerminalDemo () }),
     ("DataTable",    { DataTableDialogs () }),
+    ("Editor",       { DemoDesktop () }),
     ("Quit",         { Application.shutdown(); return Window () })
 ]
 
@@ -94,23 +95,23 @@ frame.addSubview(list)
 
 list.activate = { item in
     let win = (options [item].func)()
-    if win.x == nil || win.y == nil {
-        win.set (x: 1, y: 1)
+    var newTop: Toplevel
+    if win is Window {
+        if win.x == nil || win.y == nil {
+            win.set (x: 1, y: 1)
+        }
+
+        newTop = Toplevel ()
+        newTop.addSubviews([makeMenu (), win])
+    } else {
+        newTop = win
     }
-
-    let newTop = Toplevel ()
-    newTop.addSubviews([makeMenu (), win])
-
     Application.present(top: newTop)
 
     return true
 }
 
 win.addSubview(frame)
-
-let s = Desktop ()
-s.set (x: 1, y: 1, width: 20, height: 4)
-win.addSubview(s    )
 
 // Create a floating window
 let subwin = Window()

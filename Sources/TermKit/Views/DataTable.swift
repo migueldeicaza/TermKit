@@ -40,7 +40,7 @@ public extension DataSource {
 ///
 /// For user data, you must implement the `DataSource` protocol that provides a bridge to your data
 ///
-public class DataTable: View {
+open class DataTable: View {
     
     /// The data table to render in the view.  Setting this property automatically updates and redraws the control.
     public var source: DataSource {

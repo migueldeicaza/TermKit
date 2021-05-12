@@ -11,7 +11,7 @@ import Foundation
 /**
  *  The FrameView is a container frame that draws a frame around the contents
  */
-public class Frame: View {
+open class Frame: View {
     var contentView: View
     
     /// The title to be displayed for this window.
@@ -72,7 +72,7 @@ public class Frame: View {
         clearNeedsDisplay()
     }
     
-    public override var debugDescription: String {
+    open override var debugDescription: String {
         return "Frame (\(super.debugDescription))"
     }
 }

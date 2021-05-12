@@ -207,7 +207,7 @@ public class Colors {
  * Currently there is a Curses implementation, but an implementation that does not rely on Curses and
  * that purely uses Terminfo would be desirable, as well as a Windows console one
  */
-public class ConsoleDriver {
+open class ConsoleDriver {
     init ()
     {
         size = Size.empty

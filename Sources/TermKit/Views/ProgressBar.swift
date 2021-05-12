@@ -19,7 +19,7 @@ import Foundation
  * the Pulse() method.    You should call the `pulse` method repeatedly as
  * your application makes progress.
  */
-public class ProgressBar: View {
+open class ProgressBar: View {
     var isActivity = false
     var activityPos = 0, delta = 0
     
@@ -87,7 +87,7 @@ public class ProgressBar: View {
         }
     }
     
-    public override var debugDescription: String {
+    open override var debugDescription: String {
         return "ProgressBar (\(super.debugDescription))"
     }
 }

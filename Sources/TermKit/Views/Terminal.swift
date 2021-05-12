@@ -91,7 +91,7 @@ public protocol LocalProcessTerminalViewDelegate {
 /// The terminal captures almost all input, if you want to send a command to the toolkit, you can use
 /// Control-Q which will quote the next keystroke, and will instead be prcessed by TermKit.
 ///
-public class TerminalView: View, TerminalDelegate {
+open class TerminalView: View, TerminalDelegate {
     public func send(source: Terminal, data: ArraySlice<UInt8>) {
         terminalDelegate?.send (source: self, data: data)
     }

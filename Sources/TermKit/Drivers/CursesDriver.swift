@@ -528,6 +528,7 @@ class CursesDriver: ConsoleDriver {
     
     public override func refresh ()
     {
+        dispatchPrecondition(condition: .onQueue(.main))
         LameHack.doRefresh()
     }
     

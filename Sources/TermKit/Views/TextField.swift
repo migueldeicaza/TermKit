@@ -14,7 +14,7 @@ import OpenCombine
  *
  * This view provides line-editing and mouse support
  */
-public class TextField: View {
+open class TextField: View {
     // Tracks the current position of the cursor
     var point: Int
     // Tracks the location of the mark (set with control space)
@@ -463,7 +463,7 @@ public class TextField: View {
         return true
     }
     
-    public override var debugDescription: String {
+    open override var debugDescription: String {
         return "TextField (\(super.debugDescription))"
     }
 }

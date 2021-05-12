@@ -47,7 +47,7 @@ typealias TextBuffer = TextField.TextBuffer
  * - Cut selection to clipboard: Control-W
  */
 
-public class TextView: View {
+open class TextView: View {
     var storage: PieceTreeTextBuffer
     var topRow: Int = 0
     var leftColumn: Int = 0

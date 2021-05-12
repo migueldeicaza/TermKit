@@ -187,20 +187,34 @@ public class Painter {
      */
     public func clear (with: Character = " ")
     {
-        clear (view.frame, with: with)
+        clear (view.bounds, with: with)
     }
 
     /// Clears the specified region in painter coordinates
     /// - Parameter rect: the region to clear, the coordinates are relative to the view
     public func clear (_ rect: Rect, with: Character = " ")
     {
-        let w = rect.width
+        let scalars = with.unicodeScalars
         
-        for line in rect.minY..<rect.maxY {
-            goto (col: rect.minX, row: line)
+        if scalars.count == 1 {
+            let s = scalars.first!
+            let w = rect.width
+            
+            for line in rect.minY..<rect.maxY {
+                goto (col: rect.minX, row: line)
 
-            for _ in 0..<w {
-                add (rune: UnicodeScalar(" "), maxWidth: w)
+                for _ in 0..<w {
+                    add (rune: s, maxWidth: w)
+                }
+            }
+        } else {
+            let w = rect.width
+            for line in rect.minY..<rect.maxY {
+                goto (col: rect.minX, row: line)
+
+                for _ in 0..<w {
+                    add (ch: with)
+                }
             }
         }
     }
@@ -256,22 +270,24 @@ public class Painter {
             add (ch: " ")
         }
         
-        for b in (1+padding)..<fheight {
-            goto (col: region.minX, row: region.minY + b);
-            for _ in 0..<padding {
-                add (ch: " ")
-            }
-            add (rune: double ? driver.doubleVLine : driver.vLine);
-            if fill {
-                for _ in 1..<(fwidth-1){
+        if fheight > 1+padding {
+            for b in (1+padding)..<fheight {
+                goto (col: region.minX, row: region.minY + b);
+                for _ in 0..<padding {
                     add (ch: " ")
                 }
-            } else {
-                goto (col: region.minX + padding + fwidth - 1, row: region.minY + b)
-            }
-            add (rune: double ? driver.doubleVLine : driver.vLine);
-            for _ in 0..<padding {
-                add (ch: " ")
+                add (rune: double ? driver.doubleVLine : driver.vLine);
+                if fill {
+                    for _ in 1..<(fwidth-1){
+                        add (ch: " ")
+                    }
+                } else {
+                    goto (col: region.minX + padding + fwidth - 1, row: region.minY + b)
+                }
+                add (rune: double ? driver.doubleVLine : driver.vLine);
+                for _ in 0..<padding {
+                    add (ch: " ")
+                }
             }
         }
         goto (col: region.minX, row: region.minY + fheight)

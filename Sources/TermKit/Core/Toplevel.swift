@@ -74,12 +74,6 @@ open class Toplevel : View {
      */
     public var modal: Bool
     
-    /// Gets or sets the menu for this Toplevel
-    public var menuBar: MenuBar? 
-    
-    /// Gets or sets the status bar for this Toplevel
-    public var statusBar: StatusBar?
-    
     public override func processKey(event: KeyEvent) -> Bool {
         if super.processKey(event: event) {
             return true
@@ -186,25 +180,6 @@ open class Toplevel : View {
         }
     }
     
-    public override func addSubview(_ view: View) {
-        if view is MenuBar {
-            self.menuBar = (view as! MenuBar)
-        }
-        if view is StatusBar {
-            self.statusBar = (view as! StatusBar)
-        }
-        super.addSubview(view)
-    }
-    
-    public override func remove(_ view: View) {
-        if view == self.menuBar {
-            self.menuBar = nil
-        }
-        if view == self.statusBar {
-            self.statusBar = nil
-        }
-        super.remove (view)
-    }
     /**
      *  This method is invoked by Application.Begin as part of the Application.Run after
      * the views have been laid out, and before the views are drawn for the first time.
@@ -214,7 +189,7 @@ open class Toplevel : View {
         focusFirst()
     }
     
-    public override var debugDescription: String {
+    open override var debugDescription: String {
         return "Toplevel (\(super.debugDescription))"
     }
     

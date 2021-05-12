@@ -16,7 +16,7 @@ import Foundation
  * will execute the dialog until it terminates via the [ESC] key, or when one of the views
  *
  */
-public class Dialog: Window {
+open class Dialog: Window {
     var buttons: [Button]
    
     /**

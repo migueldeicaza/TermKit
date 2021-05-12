@@ -97,7 +97,7 @@ public struct MenuItem {
 /**
  * A menu bar item contains either `MenuBarItem` or `MenuItem`
  */
-public class MenuBarItem {
+open class MenuBarItem {
     var title: String
     var titleLen: Int
     var children: [MenuItem?]
@@ -288,7 +288,7 @@ public class Menu: View {
 /**
  * A menubar for your application, defaults to be at the top of its container.
  */
-public class MenuBar: View {
+open class MenuBar: View {
     public var menus: [MenuBarItem]
     var selected: Int? = nil
     var action: (() -> Void)? = nil
@@ -490,7 +490,7 @@ public class MenuBar: View {
         return false
     }
     
-    public override var debugDescription: String {
+    open override var debugDescription: String {
         return "Menubar (\(super.debugDescription))"
     }
 }
