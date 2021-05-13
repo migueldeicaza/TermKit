@@ -60,6 +60,9 @@ open class TextView: View {
     /// Indicates readonly attribute of TextView, defaults to false
     public var isReadOnly = false
     
+    /// Tracks changed made by the user, but also can be set externally by the application
+    public var isDirty = false
+    
     public override init (frame: Rect)
     {
         storage = TextView.createEmptyPieceTree ()
@@ -144,6 +147,7 @@ open class TextView: View {
         builder.acceptChunk([UInt8] (data))
         let factory = builder.finish(normalizeEol: true)
         storage = factory.create(DefaultEndOfLine.LF)
+        isDirty = false
     }
     
     /// Returns the current cursor position inside the buffer
@@ -404,6 +408,20 @@ open class TextView: View {
     
     var lastWasKill = false
     
+    // Flags one line for needing to be updated
+    // row is in buffer coordinates
+    func needDisplay (row: Int) {
+        let r = row-topRow
+        setNeedsDisplay (Rect (x: 0, y: r, width: frame.width, height: r+1))
+    }
+    
+    // Flags from the specified line all the way to the bottom of the buffer to be redisplayed
+    // row is in buffer coordinates
+    func needDisplayToEnd (row: Int) {
+        let r = row-topRow
+        setNeedsDisplay (Rect (x: 0, y: r, width: frame.width, height: frame.height-r))
+    }
+    
     public override func processKey(event: KeyEvent) -> Bool {
         // Handle some state here - whether the last command was a kill
         // operation and the column tracking (up/down)
@@ -527,6 +545,7 @@ open class TextView: View {
             if p < 1 {
                 return true
             }
+            isDirty = true
             storage.delete (offset: p-1, count: 1)
             adjustCursor(offset: p-1)
             setNeedsDisplay()
@@ -545,7 +564,7 @@ open class TextView: View {
             }
             let p = cursorOffset()
             storage.delete (offset: p, count: 1)
-            
+            isDirty = true
             // TODO optimize, depending on how much needs to be redrawn
             setNeedsDisplay()
 
@@ -570,6 +589,10 @@ open class TextView: View {
             } else {
                 let nextLineOffset = makeTextBufferOffset(col: 0, row: currentRow+1)
                 var newLineOffset = nextLineOffset-1
+                // See if we are the last line, and there is no newline at the end
+                if storage.getPositionAt(offset: nextLineOffset).column != 0 {
+                    newLineOffset = nextLineOffset
+                }
                 if p == newLineOffset {
                     newLineOffset = nextLineOffset
                 }
@@ -586,7 +609,8 @@ open class TextView: View {
                     }
                 }
             }
-            setNeedsDisplay (Rect (x: 0, y: currentRow - topRow, width: frame.width, height: frame.height))
+            isDirty = true
+            needDisplayToEnd(row: currentRow)
             lastWasKill = true
             
             // yank
@@ -595,8 +619,8 @@ open class TextView: View {
                 break
             }
             insertText(text: Clipboard.contents)
-            // TODO: add smarts
-            setNeedsDisplay()
+            isDirty = true
+            needDisplayToEnd(row: currentRow)
             selecting = false
             
         case .controlSpace:
@@ -611,6 +635,7 @@ open class TextView: View {
         case .controlW:
             setClipboard(text: getRegion ())
             if !isReadOnly {
+                isDirty = true
                 clearRegion ()
             }
             selecting = false
@@ -635,7 +660,8 @@ open class TextView: View {
                 break
             }
             insert(utf8: [10])
-            setNeedsDisplay()
+            isDirty = true
+            needDisplayToEnd(row: currentRow)
             
         case .letter (">") where event.isAlt:
             currentRow = storage.getLineCount()-1
@@ -651,13 +677,14 @@ open class TextView: View {
             if isReadOnly {
                 break
             }
+            isDirty = true
             insert(char: x)
             if currentColumn >= leftColumn + frame.width {
                 leftColumn += 1
                 setNeedsDisplay()
+            } else {
+                needDisplay(row: currentRow)
             }
-            // TODO: bring back smarts
-            setNeedsDisplay()
             return true
             
         default:

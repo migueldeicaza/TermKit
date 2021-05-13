@@ -14,8 +14,8 @@ open class StatusBar: View {
     }
     
     public override func redraw(region: Rect, painter: Painter) {
-        painter.attribute = Colors.dialog.normal
-        painter.clear ()
+        painter.attribute = Colors.menu.normal
+        painter.clear(region)
         painter.goto(col: 0, row: 0)
         painter.add(str: "Statusbar")
     }

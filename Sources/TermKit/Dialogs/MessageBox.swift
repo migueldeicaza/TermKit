@@ -64,10 +64,10 @@ public class MessageBox {
      * - Parameter buttons: an array of strings that will be used for the buttons.   The first uppercase letter in each button becomes the hotkey
      * - Parameter width: optional desired width, if not specified, this is auto-computed
      * - Parameter height: optional desired heigh, if not specified, this is auot-computed
-     * - Parameter completion: function to invoke when the user selects a result, the parameter is
+     * - Parameter completion: optional function to invoke when the user selects a result, the parameter is
      *   the index of the button selected, or -1 if the user pressed the ESC key
      */
-    public static func error (_ title: String, message: String, buttons: [String], width: Int? = nil, height: Int? = nil, completion: @escaping (_ result: Int) -> ())
+    public static func error (_ title: String, message: String, buttons: [String], width: Int? = nil, height: Int? = nil, completion: @escaping (_ result: Int) -> () = { v in })
     {
         query(title, message: message, buttons: buttons, useErrorColors: true, completion: completion)
     }
@@ -80,8 +80,10 @@ public class MessageBox {
      * - Parameter message: the message to display inside the dialog box, it can contain multiple lines
      * - Parameter width: optional desired width, if not specified, this is auto-computed
      * - Parameter height: optional desired heigh, if not specified, this is auot-computed
+     * - Parameter completion: optional function to invoke when the user selects a result, the parameter is
+     *   the index of the button selected (0 for OK), or -1 if the user pressed the ESC key
      */
-    public static func info (_ title: String, message: String, width: Int? = nil, height: Int? = nil, completion: @escaping (_ result: Int) -> ())
+    public static func info (_ title: String, message: String, width: Int? = nil, height: Int? = nil, completion: @escaping (_ result: Int) -> () = { v in })
     {
         query(title, message: message, buttons: ["Ok"], useErrorColors: false, completion: completion)
     }

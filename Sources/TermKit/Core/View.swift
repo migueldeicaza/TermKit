@@ -376,6 +376,10 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
      */
     public func addSubview (_ view: View)
     {
+        if view.superview != nil {
+            print ("This view is already attached elsewhere")
+            abort ()
+        }
         _subviews.append (view)
         view.superview = self
         if view.canFocus {
@@ -1215,6 +1219,12 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
                 _ = old.becomeFirstResponder()
             }
         }
+        if let sup = superview {
+            if sup.focused != self {
+                sup.setFocus(self)
+            }
+        }
+            
         setNeedsDisplay()
         oldFocused = nil
         return true

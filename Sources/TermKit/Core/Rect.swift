@@ -139,6 +139,15 @@ public struct Rect: CustomDebugStringConvertible, Codable, Equatable {
         return contains (x: point.x, y: point.y)
     }
     
+    public func contains (_ rect: Rect) -> Bool {
+        if rect.origin.x < origin.x || rect.right > right {
+            return false
+        }
+        if rect.origin.y < origin.y || rect.bottom > bottom {
+            return false
+        }
+        return true
+    }
     public var debugDescription: String {
         return "Rect(origin: \(origin), size: \(size))"
     }

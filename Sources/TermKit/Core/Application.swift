@@ -370,7 +370,11 @@ public class Application {
         #endif
         var linesCopied = 0
         let screenFrame = Rect (origin: Point (x: 0, y: 0), size: screenSize)
-        for view in toplevels {
+        
+        // Start at the last toplevel that fully obscures the screen
+        let start = toplevels.lastIndex(where: {top in top.frame == screenFrame}) ?? 0
+        
+        for view in toplevels[start...] {
             let vframe = view.frame
             
             let intersection = screenFrame.intersection (vframe)

@@ -187,6 +187,7 @@ public class Painter {
      */
     public func clear (with: Character = " ")
     {
+        applyContext()
         clear (view.bounds, with: with)
     }
 
@@ -195,7 +196,7 @@ public class Painter {
     public func clear (_ rect: Rect, with: Character = " ")
     {
         let scalars = with.unicodeScalars
-        
+        applyContext()
         if scalars.count == 1 {
             let s = scalars.first!
             let w = rect.width
@@ -227,6 +228,7 @@ public class Painter {
     ///   - bottom: Bottom row
     func clearRegion (left: Int, top: Int, right: Int, bottom: Int)
     {
+        applyContext()
         let lstr = String (repeating: " ", count: right-left)
         for row in top..<bottom {
             goto(col: left, row: row)

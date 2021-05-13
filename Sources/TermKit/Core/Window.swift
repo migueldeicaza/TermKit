@@ -116,7 +116,7 @@ open class Window: Toplevel {
     public override func redraw(region: Rect, painter p: Painter) {
         //log ("Window.redraw: \(frame) and region to redraw is: \(region)")
         let contentFrame = contentView.frame
-        let containedInChild = contentFrame.contains(region.origin) && contentFrame.contains (x: region.maxX, y: region.maxY)
+        let containedInChild = contentFrame.contains(region)
         if !needDisplay.isEmpty && !containedInChild {
             p.attribute = colorScheme!.normal
             p.drawFrame (bounds, padding: padding, fill: false, double: hasFocus)

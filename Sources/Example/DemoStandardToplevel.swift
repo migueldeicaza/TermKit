@@ -29,6 +29,7 @@ func DemoDesktop2 () -> Toplevel {
 
 // Convenient place to track the open files - we have a 1:1 mapping, an open window is an open file
 class FileWindow: Window {
+    static var untitledCount = 0
     var filename: String?
     var textView: TextView
     
@@ -37,7 +38,7 @@ class FileWindow: Window {
         self.filename = filename
         textView = TextView ()
         textView.text = contents
-        super.init(filename ?? "Untitled", padding: 0)
+        super.init(filename ?? FileWindow.getUntitled(), padding: 0)
         
         allowMove = true
         allowClose = true
@@ -45,27 +46,80 @@ class FileWindow: Window {
         
         textView.fill ()
         addSubview(textView)
-        setFocus(textView)
+        _ = textView.becomeFirstResponder()
+    }
+    
+    static func getUntitled () -> String {
+        if FileWindow.untitledCount == 0 { return "Untitled" }
+        FileWindow.untitledCount += 1
+        return "Untitled-\(FileWindow.untitledCount)"
     }
     
     open override var debugDescription: String {
         get {
-            return "FileWindow (\(filename))"
+            return "FileWindow (\(filename ?? "Untitled"))"
         }
+    }
+    
+    // expects filename to be set
+    func saveFile (_ target: String) {
+        do {
+            try textView.text?.write(toFile: target, atomically: true, encoding: .utf8)
+            isDirty = false
+        } catch {
+            MessageBox.error("Error", message: "Could not save the file to \(target)", buttons: ["Ok"]) { _ in }
+        }
+    }
+
+    func saveAs (_ initial: String?) {
+        let s = SaveDialog (title: "Save", message: "Choose file to save")
+        s.filePath = initial ?? ""
+        
+        s.present {_ in
+            guard let target = s.fileName else {
+                return
+            }
+            self.filename = target
+            self.saveFile (target)
+        }
+    }
+    
+    func save() {
+        if filename == nil {
+            saveAs (nil)
+        } else {
+            saveFile (filename!)
+        }
+    }
+    
+    var isDirty: Bool {
+        get { textView.isDirty }
+        set { textView.isDirty = newValue }
     }
 }
 
 class SimpleEditor: StandardToplevel {
     
-    func place (window: Window) {
+    func place (window: FileWindow) {
         window.frame = Rect (origin: Point.zero, size: desk.bounds.size)
         manage (window: window)
+        window.closeClicked = handleClose
+    }
+    
+    func handleClose (w: Window)  {
+        guard let filewin = w as? FileWindow else {
+            return
+        }
+        if filewin.isDirty {
+            filewin.save()
+        }
+        drop (window: w)
     }
     
     func newFile () {
         let file = FileWindow (filename: nil)
-        addSubview(file)
         place (window: file)
+        _ = file.becomeFirstResponder()
     }
     
     func openFile () {
@@ -86,11 +140,31 @@ class SimpleEditor: StandardToplevel {
     }
     
     func saveFile () {
-        
+        for win in windows {
+            guard let fileWin = win as? FileWindow else {
+                continue
+            }
+            if fileWin.hasFocus {
+                fileWin.save ()
+                return
+            }
+        }
+        MessageBox.error("Error", message: "There is no current window selected", buttons: ["Ok"])
     }
+    
     func saveAsFile () {
-        
+        for win in windows {
+            guard let fileWin = win as? FileWindow else {
+                continue
+            }
+            if fileWin.hasFocus {
+                fileWin.saveAs (fileWin.filename)
+                return
+            }
+        }
+        MessageBox.error("Error", message: "There is no current window selected", buttons: ["Ok"])
     }
+    
     override init () {
         super.init ()
         

@@ -48,7 +48,8 @@ open class StandardToplevel: Toplevel {
     }
     
     /// Use this to register a window that will be managed
-    /// by the StandardToplevel, this allow things like tiling, moving and tile views
+    /// by the StandardToplevel, this allow things like tiling, moving and tile views,
+    /// to remove a window that is being managed, call `drop`
     public func manage (window: Window) {
         // Make sure this wont use the layout manager
         window.x = nil
@@ -59,6 +60,15 @@ open class StandardToplevel: Toplevel {
         
         windows.append(window)
         desk.addSubview(window)
+    }
+    
+    /// This removes the window from the list of managed windows (`windows`) and
+    /// also removes it from the subviews
+    public func drop (window: Window) {
+        if let idx = windows.firstIndex(of: window) {
+            windows.remove(at: idx)
+        }
+        desk.remove(window)
     }
     
     public override func addSubview(_ view: View) {
