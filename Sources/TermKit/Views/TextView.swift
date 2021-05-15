@@ -49,13 +49,19 @@ typealias TextBuffer = TextField.TextBuffer
 
 open class TextView: View {
     var storage: PieceTreeTextBuffer
-    var topRow: Int = 0
-    var leftColumn: Int = 0
-    public private(set) var currentRow: Int = 0
-    public private(set) var currentColumn: Int = 0
     var selectionStartColumn: Int = 0
     var selectionStartRow: Int = 0
     var selecting: Bool = false
+
+    /// The leftmost column being displayed
+    public private(set) var leftColumn: Int = 0
+
+    /// The first row shown on the textview, at the top
+    public private(set) var topRow: Int = 0
+    /// The current row in the buffer
+    public private(set) var currentRow: Int = 0
+    /// The current column in the buffer
+    public private(set) var currentColumn: Int = 0
     
     /// Indicates readonly attribute of TextView, defaults to false
     public var isReadOnly = false
@@ -162,7 +168,7 @@ open class TextView: View {
             let minRow = min (max (min (selectionStartRow, currentRow)-topRow, 0), frame.height)
             let maxRow = min (max (max (selectionStartRow, currentRow)-topRow, 0), frame.height)
             
-            setNeedsDisplay(Rect(x: 0, y: Int(minRow), width: frame.width, height: Int(maxRow)))
+            //setNeedsDisplay(Rect(x: 0, y: Int(minRow), width: frame.width, height: Int(maxRow)))
         }
         moveTo (col: Int(currentColumn-leftColumn), row: Int(currentRow-topRow))
     }
@@ -217,6 +223,14 @@ open class TextView: View {
         return []
     }
     
+    /// Controls how tabs are rendered
+    public var tabSize: Int = 8 {
+        didSet {
+            if tabSize < 1 {
+                tabSize = 8
+            }
+        }
+    }
     open override func redraw(region: Rect, painter p: Painter) {
         p.colorNormal()
         let bottom = region.bottom
@@ -242,7 +256,8 @@ open class TextView: View {
             var currentColorNormal: Bool = true
             
             p.colorNormal()
-            for col in region.left..<right {
+            var col = region.left
+            while col < right {
                 let lineCol = leftColumn + col
                 var char: Character
                 var useNormal = true
@@ -264,9 +279,18 @@ open class TextView: View {
                     }
                     currentColorNormal = useNormal
                 }
-                p.add (str: String (char))
+//                if char == "\t" {
+//                    let n = tabSize-(lineCol % tabSize)
+//                    p.add (str: String (repeating: " ", count: n))
+//                    col += n
+//                    continue
+//                } else {
+                    p.add (str: String (char))
+                    col += 1
+//                }
             }
         }
+        super.redraw(region: region, painter: p)
     }
 
     func setClipboard(text: String)
@@ -343,19 +367,27 @@ open class TextView: View {
     /// Inserts the provided character at the current cursor location
     func insertChar (_ char: Character)
     {
-        let start = storage.getPositionAt(offset: cursorOffset ())
-        insert(utf8: [UInt8](char.utf8))
-        let end = storage.getPositionAt(offset: cursorOffset ())
-        textEdit (TextRange (start: start, end: end), String (char))
     }
     
     /// Inserts the provided string at the current cursor location
-    func insertText(_ text: String)
+    public func insert(text: String)
     {
+        if isReadOnly {
+            return
+        }
+        let row = currentRow
         let start = storage.getPositionAt(offset: cursorOffset ())
+        
         insert (utf8: [UInt8](text.utf8))
         let end = storage.getPositionAt(offset: cursorOffset ())
         textEdit (TextRange (start: start, end: end), String (text))
+        if row != currentRow {
+            needDisplayToEnd(row: currentRow)
+        } else {
+            needDisplay (row: row)
+        }
+        isDirty = true
+        selecting = false
     }
     
     // The column we are tracking, or -1 if we are not tracking any column
@@ -640,13 +672,7 @@ open class TextView: View {
     
     /// Pastes the contents of the clipboard
     public func emacsYank () {
-        if isReadOnly {
-            return
-        }
-        insertText(Clipboard.contents)
-        isDirty = true
-        needDisplayToEnd(row: currentRow)
-        selecting = false
+        insert (text: Clipboard.contents)
     }
     
     /// Sets the mark
@@ -677,13 +703,24 @@ open class TextView: View {
         if isReadOnly {
             return
         }
+        let row = currentRow
+        
         isDirty = true
-        insertChar (character)
+
+        let start = storage.getPositionAt(offset: cursorOffset ())
+        insert(utf8: [UInt8](character.utf8))
+        let end = storage.getPositionAt(offset: cursorOffset ())
+        textEdit (TextRange (start: start, end: end), String (character))
+
         if currentColumn >= leftColumn + frame.width {
             leftColumn += 1
             setNeedsDisplay()
         } else {
-            needDisplay(row: currentRow)
+            if currentRow != row {
+                needDisplayToEnd(row: row)
+            } else {
+                needDisplay(row: currentRow)
+            }
         }
     }
     
@@ -754,6 +791,8 @@ open class TextView: View {
         case .controlB, .cursorLeft:
             backwardCharacter ();
             
+        case .controlI:
+            insert (character: "\t")
         case .delete:
             deleteBackwardCharacter()
 
@@ -791,12 +830,7 @@ open class TextView: View {
 
             // Return key
         case Key.controlJ:
-            if isReadOnly {
-                break
-            }
-            needDisplayToEnd(row: currentRow)
-            insert(utf8: [10])
-            isDirty = true
+            insert(character: "\n")
             
         case .letter (">") where event.isAlt:
             endOfBuffer ()
