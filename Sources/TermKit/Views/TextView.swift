@@ -51,8 +51,8 @@ open class TextView: View {
     var storage: PieceTreeTextBuffer
     var topRow: Int = 0
     var leftColumn: Int = 0
-    var currentRow: Int = 0
-    var currentColumn: Int = 0
+    public private(set) var currentRow: Int = 0
+    public private(set) var currentColumn: Int = 0
     var selectionStartColumn: Int = 0
     var selectionStartRow: Int = 0
     var selecting: Bool = false
