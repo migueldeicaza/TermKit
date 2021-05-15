@@ -328,16 +328,34 @@ open class TextView: View {
             setNeedsDisplay()
         }
     }
+    
+    /// A range in a text document expressed as (zero-based) start and end positions.
+    public struct TextRange {
+        /// Start position
+        public var start: TextBufferKit.Position
+        /// End position
+        public var end: TextBufferKit.Position
+    }
+    
+    /// This callback is invoked when a change is made to the text buffer, and it inclues the range being changed and the text that is changed, an empty text is used to delete text
+    public var textEdit: (_ range: TextRange, _ text: String) -> () = { range, text in }
+    
     /// Inserts the provided character at the current cursor location
-    func insert (char: Character)
+    func insertChar (_ char: Character)
     {
+        let start = storage.getPositionAt(offset: cursorOffset ())
         insert(utf8: [UInt8](char.utf8))
+        let end = storage.getPositionAt(offset: cursorOffset ())
+        textEdit (TextRange (start: start, end: end), String (char))
     }
     
     /// Inserts the provided string at the current cursor location
-    func insertText(text: String)
+    func insertText(_ text: String)
     {
+        let start = storage.getPositionAt(offset: cursorOffset ())
         insert (utf8: [UInt8](text.utf8))
+        let end = storage.getPositionAt(offset: cursorOffset ())
+        textEdit (TextRange (start: start, end: end), String (text))
     }
     
     // The column we are tracking, or -1 if we are not tracking any column
@@ -422,6 +440,286 @@ open class TextView: View {
         setNeedsDisplay (Rect (x: 0, y: r, width: frame.width, height: frame.height-r))
     }
     
+    /// Scrolls one page down
+    public func pageDown () {
+        let nPageDnShift = frame.height - 1
+        
+        if currentRow < storage.lineCount {
+            if columnTrack == -1 {
+                columnTrack = currentColumn
+            }
+            let lineCount = storage.lineCount
+            currentRow = (currentRow + nPageDnShift) > lineCount ? lineCount : currentRow + nPageDnShift
+            if topRow < currentRow - nPageDnShift {
+                topRow = currentRow >= lineCount ? currentRow - nPageDnShift : topRow + nPageDnShift
+                setNeedsDisplay()
+            }
+            trackColumn()
+        }
+    }
+    
+    /// Scrolls one page up
+    public func pageUp () {
+        let nPageUpShift = frame.height - 1;
+        if currentRow > 0 {
+            if columnTrack == -1 {
+                columnTrack = currentColumn;
+            }
+            currentRow = currentRow - nPageUpShift < 0 ? 0 : currentRow - nPageUpShift;
+            if currentRow < topRow {
+                topRow = topRow - nPageUpShift < 0 ? 0 : topRow - nPageUpShift;
+                setNeedsDisplay ();
+            }
+            trackColumn ();
+        }
+    }
+    
+    /// moves the cursor to the next line
+    public func nextLine () {
+        let lineCount = storage.lineCount
+
+        if currentRow + 1 < lineCount {
+            if columnTrack == -1 {
+                columnTrack = currentColumn
+            }
+            currentRow += 1
+            if currentRow >= topRow + frame.height {
+                topRow += 1
+                setNeedsDisplay ()
+            }
+            trackColumn ();
+        }
+    }
+    
+    /// moves the cursor to the previous line
+    public func previousLine () {
+        if currentRow > 0 {
+            if columnTrack == -1 {
+                columnTrack = currentColumn
+            }
+            currentRow -= 1
+            if currentRow < topRow {
+                topRow -= 1
+                setNeedsDisplay ()
+            }
+            trackColumn ();
+        }
+    }
+    
+    /// moves the cursor one character forward
+    public func forwardCharacter () {
+        let currentLine = getCurrentLine()
+        if currentColumn < textBufferSize(currentLine) {
+            currentColumn += 1
+            if currentColumn >= leftColumn + frame.width {
+                leftColumn += 1
+                setNeedsDisplay()
+            }
+        } else {
+            let lineCount = storage.lineCount
+
+            if currentRow + 1 < lineCount {
+                currentRow += 1
+                currentColumn = 0
+                leftColumn = 0
+                if currentRow >= topRow + frame.height {
+                    topRow += 1
+                }
+                setNeedsDisplay()
+            }
+        }
+    }
+    
+    /// moves the cursor one character backwards
+    public func backwardCharacter () {
+        if currentColumn > 0 {
+            currentColumn -= 1
+            if currentColumn < leftColumn {
+                leftColumn -= 1
+                setNeedsDisplay()
+            }
+        } else {
+            if currentRow > 0 {
+                currentRow -= 1
+                if currentRow < topRow {
+                    topRow -= 1
+                }
+                let currentLine = getCurrentLine()
+                currentColumn = textBufferSize(currentLine)
+                let prev = leftColumn
+                leftColumn = currentColumn - frame.width + 1
+                if leftColumn < 0 {
+                    leftColumn = 0
+                }
+                if prev != leftColumn {
+                    setNeedsDisplay()
+                }
+            }
+        }
+    }
+    
+    /// moves the cursor to the beginning of the line
+    public func moveBeginningOfLine () {
+        currentColumn = 0
+        if currentColumn < leftColumn {
+            leftColumn = 0
+            setNeedsDisplay()
+        }
+    }
+    
+    /// Deletes the character before the cursor position
+    public func deleteBackwardCharacter () {
+        if isReadOnly {
+            return
+        }
+        let p = cursorOffset()
+        if p < 1 {
+            return
+        }
+        isDirty = true
+        storage.delete (offset: p-1, count: 1)
+        adjustCursor(offset: p-1)
+        setNeedsDisplay()
+        // TODO: attempt to reduce region to display
+    }
+    
+    /// Deletes the character on top of the cursor
+    public func deleteCharacter () {
+        if isReadOnly {
+            return
+        }
+        let p = cursorOffset()
+        storage.delete (offset: p, count: 1)
+        isDirty = true
+        // TODO optimize, depending on how much needs to be redrawn
+        setNeedsDisplay()
+    }
+    
+    /// Deletes all characters from the current cursor position until the end of the line, and copies the result into the clipboard
+    public func emacsKillToEndOfLine () {
+        if isReadOnly {
+            return
+        }
+        let p = cursorOffset()
+        
+        if storage.getValueAt(index: p) == 10 {
+            storage.delete(offset: p, count: 1)
+            
+            if (lastWasKill) {
+                appendClipboard(text: "\n")
+            } else {
+                setClipboard(text: "\n")
+            }
+        } else {
+            let nextLineOffset = makeTextBufferOffset(col: 0, row: currentRow+1)
+            var newLineOffset = nextLineOffset-1
+            // See if we are the last line, and there is no newline at the end
+            if storage.getPositionAt(offset: nextLineOffset).column != 0 {
+                newLineOffset = nextLineOffset
+            }
+            if p == newLineOffset {
+                newLineOffset = nextLineOffset
+            }
+            if p != nextLineOffset {
+                let deletedText = storage.getValueInRange(range: Range.from (start: p, end: newLineOffset, on: storage))
+                storage.delete(offset: p, count: newLineOffset-p)
+                
+                if let rest = String(bytes: deletedText, encoding: .utf8) {
+                    if (lastWasKill) {
+                        appendClipboard (text: rest)
+                    } else {
+                        setClipboard (text: rest)
+                    }
+                }
+            }
+        }
+        isDirty = true
+        needDisplayToEnd(row: currentRow)
+        lastWasKill = true
+    }
+    
+    /// Pastes the contents of the clipboard
+    public func emacsYank () {
+        if isReadOnly {
+            return
+        }
+        insertText(Clipboard.contents)
+        isDirty = true
+        needDisplayToEnd(row: currentRow)
+        selecting = false
+    }
+    
+    /// Sets the mark
+    public func setMark () {
+        selecting = true
+        selectionStartColumn = currentColumn
+        selectionStartRow = currentRow
+    }
+    
+    /// Copies the contents between the mark and the cursor into the clipboard (The copy selection operation)
+    public func emacsKillRingSave () {
+        setClipboard(text: getRegion())
+        selecting = false
+    }
+    
+    /// Copies the contents between the mark and the cursor into the clipboard, and removes that region from the text (the cut selection operation)
+    public func emacsKillRegion () {
+        setClipboard(text: getRegion ())
+        if !isReadOnly {
+            isDirty = true
+            clearRegion ()
+        }
+        selecting = false
+    }
+    
+    /// Inserts the specified character at the current cursor position
+    public func insert (character: Character) {
+        if isReadOnly {
+            return
+        }
+        isDirty = true
+        insertChar (character)
+        if currentColumn >= leftColumn + frame.width {
+            leftColumn += 1
+            setNeedsDisplay()
+        } else {
+            needDisplay(row: currentRow)
+        }
+    }
+    
+    /// Moves the cursor one word backwards
+    public func backwardWord () {
+        if let newPos = wordBackward (fromCol: currentColumn, andRow: currentRow) {
+            currentColumn = newPos.col;
+            currentRow = newPos.row;
+        }
+        adjust ();
+    }
+    
+    /// Moves the cursor one word forward
+    public func forwardWord () {
+        if let newPos = wordForward (fromCol: currentColumn, andRow: currentRow) {
+            currentColumn = newPos.col
+            currentRow = newPos.row
+        }
+        adjust ()
+    }
+    
+    /// Moves the cursor to the end of the buffer
+    public func endOfBuffer () {
+        currentRow = storage.getLineCount()-1
+        adjust()
+        gotoEndOfLine()
+        setNeedsDisplay()
+    }
+    
+    /// Moves the cursor to the beginning of the buffer
+    public func beginningOfBuffer () {
+        currentRow = 0
+        currentColumn = 0
+        adjust()
+    }
+    
     open override func processKey(event: KeyEvent) -> Bool {
         // Handle some state here - whether the last command was a kill
         // operation and the column tracking (up/down)
@@ -436,256 +734,78 @@ open class TextView: View {
         }
         
         // Dispatch the command
-        let lineCount = storage.lineCount
         switch event.key {
         case .pageDown, .controlV:
-            let nPageDnShift = frame.height - 1
-            if currentRow < lineCount {
-                if columnTrack == -1 {
-                    columnTrack = currentColumn
-                }
-                currentRow = (currentRow + nPageDnShift) > lineCount ? lineCount : currentRow + nPageDnShift
-                if topRow < currentRow - nPageDnShift {
-                    topRow = currentRow >= lineCount ? currentRow - nPageDnShift : topRow + nPageDnShift
-                    setNeedsDisplay()
-                }
-                trackColumn()
-            }
+            pageDown ()
+
         case .pageUp,
              .letter ("v") where event.isAlt:
-            let nPageUpShift = frame.height - 1;
-            if currentRow > 0 {
-                if columnTrack == -1 {
-                    columnTrack = currentColumn;
-                }
-                currentRow = currentRow - nPageUpShift < 0 ? 0 : currentRow - nPageUpShift;
-                if currentRow < topRow {
-                    topRow = topRow - nPageUpShift < 0 ? 0 : topRow - nPageUpShift;
-                    setNeedsDisplay ();
-                }
-                trackColumn ();
-            }
+            pageUp ()
+            
         case .controlN, .cursorDown:
-            if currentRow + 1 < lineCount {
-                if columnTrack == -1 {
-                    columnTrack = currentColumn
-                }
-                currentRow += 1
-                if currentRow >= topRow + frame.height {
-                    topRow += 1
-                    setNeedsDisplay ()
-                }
-                trackColumn ();
-            }
+            nextLine ()
             
         case .controlP, .cursorUp:
-            if currentRow > 0 {
-                if columnTrack == -1 {
-                    columnTrack = currentColumn
-                }
-                currentRow -= 1
-                if currentRow < topRow {
-                    topRow -= 1
-                    setNeedsDisplay ()
-                }
-                trackColumn ();
-            }
+            previousLine ()
             
         case .controlF, .cursorRight:
-            let currentLine = getCurrentLine()
-            if currentColumn < textBufferSize(currentLine) {
-                currentColumn += 1
-                if currentColumn >= leftColumn + frame.width {
-                    leftColumn += 1
-                    setNeedsDisplay()
-                }
-            } else {
-                if currentRow + 1 < lineCount {
-                    currentRow += 1
-                    currentColumn = 0
-                    leftColumn = 0
-                    if currentRow >= topRow + frame.height {
-                        topRow += 1
-                    }
-                    setNeedsDisplay()
-                }
-            }
+            forwardCharacter ()
             
         case .controlB, .cursorLeft:
-            if currentColumn > 0 {
-                currentColumn -= 1
-                if currentColumn < leftColumn {
-                    leftColumn -= 1
-                    setNeedsDisplay()
-                }
-            } else {
-                if currentRow > 0 {
-                    currentRow -= 1
-                    if currentRow < topRow {
-                        topRow -= 1
-                    }
-                    let currentLine = getCurrentLine()
-                    currentColumn = textBufferSize(currentLine)
-                    let prev = leftColumn
-                    leftColumn = currentColumn - frame.width + 1
-                    if leftColumn < 0 {
-                        leftColumn = 0
-                    }
-                    if prev != leftColumn {
-                        setNeedsDisplay()
-                    }
-                }
-            }
+            backwardCharacter ();
             
         case .delete:
-            if isReadOnly {
-                break
-            }
-            let p = cursorOffset()
-            if p < 1 {
-                return true
-            }
-            isDirty = true
-            storage.delete (offset: p-1, count: 1)
-            adjustCursor(offset: p-1)
-            setNeedsDisplay()
-            // TODO: attempt to reduce region to display
+            deleteBackwardCharacter()
 
         case .controlA, .home:
-            currentColumn = 0
-            if currentColumn < leftColumn {
-                leftColumn = 0
-                setNeedsDisplay()
-            }
+            moveBeginningOfLine ()
             
         case .deleteChar, .controlD:
-            if isReadOnly {
-                break
-            }
-            let p = cursorOffset()
-            storage.delete (offset: p, count: 1)
-            isDirty = true
-            // TODO optimize, depending on how much needs to be redrawn
-            setNeedsDisplay()
+            deleteCharacter ()
 
         case .end, .controlE:
             gotoEndOfLine ()
             
             // kill to end
         case .controlK:
-            if isReadOnly {
-                break
-            }
-            let p = cursorOffset()
-            
-            if storage.getValueAt(index: p) == 10 {
-                storage.delete(offset: p, count: 1)
-                
-                if (lastWasKill) {
-                    appendClipboard(text: "\n")
-                } else {
-                    setClipboard(text: "\n")
-                }
-            } else {
-                let nextLineOffset = makeTextBufferOffset(col: 0, row: currentRow+1)
-                var newLineOffset = nextLineOffset-1
-                // See if we are the last line, and there is no newline at the end
-                if storage.getPositionAt(offset: nextLineOffset).column != 0 {
-                    newLineOffset = nextLineOffset
-                }
-                if p == newLineOffset {
-                    newLineOffset = nextLineOffset
-                }
-                if p != nextLineOffset {
-                    let deletedText = storage.getValueInRange(range: Range.from (start: p, end: newLineOffset, on: storage))
-                    storage.delete(offset: p, count: newLineOffset-p)
-                    
-                    if let rest = String(bytes: deletedText, encoding: .utf8) {
-                        if (lastWasKill) {
-                            appendClipboard (text: rest)
-                        } else {
-                            setClipboard (text: rest)
-                        }
-                    }
-                }
-            }
-            isDirty = true
-            needDisplayToEnd(row: currentRow)
-            lastWasKill = true
-            
+            emacsKillToEndOfLine()
+
             // yank
         case .controlY:
-            if isReadOnly {
-                break
-            }
-            insertText(text: Clipboard.contents)
-            isDirty = true
-            needDisplayToEnd(row: currentRow)
-            selecting = false
+            emacsYank ()
             
         case .controlSpace:
-            selecting = true
-            selectionStartColumn = currentColumn
-            selectionStartRow = currentRow
+            setMark ()
             
         case .letter("w") where event.isAlt:
-            setClipboard(text: getRegion())
-            selecting = false
+            emacsKillRingSave ()
             
         case .controlW:
-            setClipboard(text: getRegion ())
-            if !isReadOnly {
-                isDirty = true
-                clearRegion ()
-            }
-            selecting = false
+            emacsKillRegion ()
             
         case .letter("b") where event.isAlt:
-            if let newPos = wordBackward (fromCol: currentColumn, andRow: currentRow) {
-                currentColumn = newPos.col;
-                currentRow = newPos.row;
-            }
-            adjust ();
+            backwardWord ()
             
         case .letter("f") where event.isAlt:
-            if let newPos = wordForward (fromCol: currentColumn, andRow: currentRow) {
-                currentColumn = newPos.col
-                currentRow = newPos.row
-            }
-            adjust ()
+            forwardWord ()
 
             // Return key
         case Key.controlJ:
             if isReadOnly {
                 break
             }
+            needDisplayToEnd(row: currentRow)
             insert(utf8: [10])
             isDirty = true
-            needDisplayToEnd(row: currentRow)
             
         case .letter (">") where event.isAlt:
-            currentRow = storage.getLineCount()-1
-            adjust()
-            gotoEndOfLine()
-            setNeedsDisplay()
+            endOfBuffer ()
             
         case .letter("<") where event.isAlt:
-            currentRow = 0
-            adjust()
+            beginningOfBuffer ()
 
         case let .letter(x):
-            if isReadOnly {
-                break
-            }
-            isDirty = true
-            insert(char: x)
-            if currentColumn >= leftColumn + frame.width {
-                leftColumn += 1
-                setNeedsDisplay()
-            } else {
-                needDisplay(row: currentRow)
-            }
-            return true
+            insert (character: x)
             
         default:
             return false
