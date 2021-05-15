@@ -55,7 +55,8 @@ public protocol ListViewDelegate {
 /**
  * ListView is a control used to displays rows of data.
  *
- * # Initialization:
+ * # Initialization
+ *
  * The ListView offers both easy to use, as well as customizable options for the data being rendered.
  * For very simple scenarios there is a constructor that takes an array of strings, and provides a way of
  * rendering those, and selecting those (the selection can be retrieved through the API).
@@ -68,7 +69,13 @@ public protocol ListViewDelegate {
  * A more advanced method requires both the datasource and the delegate to be specified, in this scenario,
  * you can control directly how the contents of your data source are rendered.
  *
- * To scroll to a particular place, you can set the "topItem" property
+ * To scroll to a particular place, you can set the "topItem" property.
+ *
+ * You can set the `selectedMarker` property to a string value if you want to show a visual indicator
+ * of where the seleciton is.   For example, it could be something like ">" or an emoji of your choice.
+ *
+ * You can also set the `markerStrings` to an array of two strings to control which character is used
+ * to show markers
  */
 open class ListView: View {
     var top: Int = 0
@@ -80,6 +87,7 @@ open class ListView: View {
         didSet { setNeedsDisplay () }
     }
 
+    /// If set, allows multiple items to be selected
     public var allowsMultipleSelection: Bool = true {
         didSet {
             if allowsMultipleSelection == false {
@@ -88,6 +96,32 @@ open class ListView: View {
         }
     }
     
+    var selectedMarkerEmpty: String = ""
+    var selectedMarkerCount: Int = 0
+    /// If set, uses this as the visual aid to show for the selected row for simple rendering
+    public var selectedMarker: String? = nil {
+        didSet {
+            if let m = selectedMarker {
+                selectedMarkerCount = m.cellCount()
+                selectedMarkerEmpty = String (repeating: " ", count: selectedMarkerCount)
+            } else {
+                selectedMarkerEmpty = ""
+            }
+        }
+    }
+
+    var markerCount: Int = 0
+    /// An array of two strings with the unmarked, marked values, defaults to [" ", "*"], the first array value
+    /// is for items that are not marked, the second is for items that are marked.
+    public var markerStrings: [String] = [" ", "*"] {
+        didSet {
+            if markerStrings.count != 2 {
+                markerStrings = [" ", "*"]
+            }
+            markerCount = markerStrings [0].cellCount()
+        }
+    }
+
     class RenderDelegate: ListViewDelegate {
         func selectionChanged(listView: ListView) {
             
@@ -107,10 +141,24 @@ open class ListView: View {
         func render (listView: ListView, painter: Painter, selected: Bool,
                      item: Int, col: Int, line: Int, width: Int)
         {
-            let txt = render (item, width)
+            let txt = render (item, width-listView.selectedMarkerCount)
+            let count = txt.cellCount()
             painter.goto (col: col, row: line)
             painter.attribute = listView.hasFocus && selected ? listView.colorScheme.focus : listView.colorScheme.normal
+            if let m = listView.selectedMarker {
+                if selected {
+                    painter.add(str: m)
+                } else {
+                    painter.add(str: listView.selectedMarkerEmpty)
+                }
+            }
             painter.add (str: txt)
+            if count < width {
+                let space = UnicodeScalar(" ")
+                for _ in count..<width {
+                    painter.add(rune: space)
+                }
+            }
         }
     }
     
@@ -252,7 +300,7 @@ open class ListView: View {
             redrawColor(painter, selection: item == selected)
             var space = b.width
             if allowMarking {
-                painter.add(str: dataSource.isMarked(listView: self, item: item) ? "*" : " ")
+                painter.add(str: dataSource.isMarked(listView: self, item: item) ? markerStrings [1]: markerStrings [0])
                 space -= 1
             }
             delegate.render(listView: self, painter: painter,
@@ -384,7 +432,7 @@ open class ListView: View {
         }
         
         if selected > 0 {
-            selectedItem -= 1
+            selectedItem = max (0, selectedItem-frame.height)
             if selected > count {
                 selectedItem = count - 1
             }
@@ -408,9 +456,9 @@ open class ListView: View {
         }
         
         if selected + 1 < count {
-            selectedItem += 1
+            selectedItem = min (selectedItem + frame.height, count-1)
             if selected >= (top + frame.height) {
-                top += 1
+                top = max (0, selected-frame.height+1)
             } else if selected < top {
                 top = selected
             }
