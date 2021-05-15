@@ -40,7 +40,7 @@ open class Frame: View {
         super.addSubview(contentView)
     }
     
-    public override func addSubview(_ view: View) {
+    open override func addSubview(_ view: View) {
         contentView.addSubview(view)
         if view.canFocus {
             canFocus = true
@@ -50,7 +50,7 @@ open class Frame: View {
     // TODO: implement remove
     // TODO: implement removeAll
     
-    public override func redraw(region: Rect, painter: Painter) {
+    open override func redraw(region: Rect, painter: Painter) {
         if !needDisplay.isEmpty {
             painter.attribute = colorScheme!.normal
             painter.clear (needDisplay)

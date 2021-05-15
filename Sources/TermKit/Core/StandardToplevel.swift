@@ -71,7 +71,7 @@ open class StandardToplevel: Toplevel {
         desk.remove(window)
     }
     
-    public override func addSubview(_ view: View) {
+    open override func addSubview(_ view: View) {
         if view is MenuBar {
             if let existing = menubar {
                 remove (existing)
@@ -95,7 +95,7 @@ open class StandardToplevel: Toplevel {
         super.addSubview(view)
     }
     
-    public override func remove(_ view: View) {
+    open override func remove(_ view: View) {
         if view == self.menubar {
             self.menubar = nil
         }

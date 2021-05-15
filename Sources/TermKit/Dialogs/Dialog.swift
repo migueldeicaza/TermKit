@@ -78,7 +78,7 @@ open class Dialog: Window {
     /// Method to invoke if the dialog is closed with [ESC}, used by Dialog
     public var closedCallback: (() -> ())? = nil
     
-    public override func processKey(event: KeyEvent) -> Bool {
+    open override func processKey(event: KeyEvent) -> Bool {
         switch event.key {
         case .esc:
             close ()

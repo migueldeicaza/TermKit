@@ -157,7 +157,7 @@ open class TextView: View {
         }
     }
     
-    public override func positionCursor() {
+    open override func positionCursor() {
         if selecting {
             let minRow = min (max (min (selectionStartRow, currentRow)-topRow, 0), frame.height)
             let maxRow = min (max (max (selectionStartRow, currentRow)-topRow, 0), frame.height)
@@ -217,7 +217,7 @@ open class TextView: View {
         return []
     }
     
-    public override func redraw(region: Rect, painter p: Painter) {
+    open override func redraw(region: Rect, painter p: Painter) {
         p.colorNormal()
         let bottom = region.bottom
         let right = region.right
@@ -422,7 +422,7 @@ open class TextView: View {
         setNeedsDisplay (Rect (x: 0, y: r, width: frame.width, height: frame.height-r))
     }
     
-    public override func processKey(event: KeyEvent) -> Bool {
+    open override func processKey(event: KeyEvent) -> Bool {
         // Handle some state here - whether the last command was a kill
         // operation and the column tracking (up/down)
         switch event.key {
@@ -858,7 +858,7 @@ open class TextView: View {
         return nil
     }
     
-    public override func mouseEvent(event: MouseEvent) -> Bool {
+    open override func mouseEvent(event: MouseEvent) -> Bool {
         if !event.flags.contains(MouseFlags.button1Clicked) {
             return false
         }

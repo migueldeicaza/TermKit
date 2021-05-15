@@ -13,7 +13,7 @@ class ContentView: View {
         return "Window.ContentView (\(super.debugDescription))"
     }
     
-    public override func redraw(region: Rect, painter: Painter) {
+    open override func redraw(region: Rect, painter: Painter) {
         painter.attribute = superview!.colorScheme.normal
         painter.clear (needDisplay)
         super.redraw(region: region, painter: painter)
@@ -57,7 +57,7 @@ open class Window: Toplevel {
         wantContinuousButtonPressed = true
     }
     
-    public override func addSubview(_ view: View)
+    open override func addSubview(_ view: View)
     {
         contentView.addSubview(view)
         if view.canFocus {
@@ -103,17 +103,17 @@ open class Window: Toplevel {
     
     // TODO: removeAll
 
-    public override func resignFirstResponder() -> Bool {
+    open override func resignFirstResponder() -> Bool {
         setNeedsDisplay()
         return super.resignFirstResponder()
     }
     
-    public override func becomeFirstResponder() -> Bool {
+    open override func becomeFirstResponder() -> Bool {
         setNeedsDisplay()
         return super.becomeFirstResponder()
     }
     
-    public override func redraw(region: Rect, painter p: Painter) {
+    open override func redraw(region: Rect, painter p: Painter) {
         //log ("Window.redraw: \(frame) and region to redraw is: \(region)")
         let contentFrame = contentView.frame
         let containedInChild = contentFrame.contains(region)
@@ -177,7 +177,7 @@ open class Window: Toplevel {
     var moveGrab: Point? = nil
     var resizeGrab: Point? = nil
     
-    public override func mouseEvent(event: MouseEvent) -> Bool {
+    open override func mouseEvent(event: MouseEvent) -> Bool {
         log ("Mouse event on Window \(viewId) -> \(event)")
         if event.flags == [.button4Released] {
             log ("FINISHED")
@@ -263,7 +263,7 @@ open class Window: Toplevel {
         return true
     }
     
-    public override func positionCursor() {
+    open override func positionCursor() {
         if let f = focused {
             f.positionCursor()
         } else {

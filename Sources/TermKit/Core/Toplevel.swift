@@ -74,7 +74,7 @@ open class Toplevel : View {
      */
     public var modal: Bool
     
-    public override func processKey(event: KeyEvent) -> Bool {
+    open override func processKey(event: KeyEvent) -> Bool {
         if super.processKey(event: event) {
             return true
         }
@@ -133,7 +133,7 @@ open class Toplevel : View {
         return view
     }
     
-    public override func processColdKey(event: KeyEvent) -> Bool {
+    open override func processColdKey(event: KeyEvent) -> Bool {
         if super.processColdKey(event: event) {
             return true
         }

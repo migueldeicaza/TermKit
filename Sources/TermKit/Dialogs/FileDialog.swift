@@ -64,7 +64,7 @@ class DirListView: ListView, ListViewDataSource, ListViewDelegate {
         }
     }
     
-    public override var frame: Rect {
+    open override var frame: Rect {
         get {
             super.frame
         }
@@ -162,7 +162,7 @@ class DirListView: ListView, ListViewDataSource, ListViewDelegate {
         }
     }
 
-    public override func redrawColor (_ painter: Painter, selection: Bool) {
+    open override func redrawColor (_ painter: Painter, selection: Bool) {
         if hasFocus {
             if selection {
                 painter.attribute = colorScheme!.hotNormal

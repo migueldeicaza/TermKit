@@ -111,13 +111,13 @@ open class Button: View {
         setNeedsDisplay()
     }
     
-    public override func redraw(region: Rect, painter: Painter) {
+    open override func redraw(region: Rect, painter: Painter) {
         painter.attribute = hasFocus ? colorScheme!.focus : colorScheme!.normal
         painter.goto(col: 0, row: 0)
         painter.drawHotString(text: shownText, focused: hasFocus, scheme: colorScheme!)
     }
     
-    public override func positionCursor() {
+    open override func positionCursor() {
         moveTo (col: hotPos, row: 0)
     }
     
@@ -132,7 +132,7 @@ open class Button: View {
     //
     // This makes is so that Alt-hotletter behaves as activating the button
     //
-    public override func processHotKey(event: KeyEvent) -> Bool {
+    open override func processHotKey(event: KeyEvent) -> Bool {
         if View.eventTriggersHotKey(event: event, hotKey: hotKey) {
             superview?.setFocus(self)
             raiseClicked ()
@@ -146,7 +146,7 @@ open class Button: View {
     // have processed their events, so we only handle return if this is the
     // default button.
     //
-    public override func processColdKey(event: KeyEvent) -> Bool {
+    open override func processColdKey(event: KeyEvent) -> Bool {
         if isDefault {
             switch event.key {
             case .controlJ:
@@ -162,7 +162,7 @@ open class Button: View {
     //
     // Space or return while the button is focused activates the button
     //
-    public override func processKey(event: KeyEvent) -> Bool {
+    open override func processKey(event: KeyEvent) -> Bool {
         switch event.key {
         case .controlJ, .letter(" "):
             raiseClicked()
@@ -173,7 +173,7 @@ open class Button: View {
         return super.processKey (event: event)
     }
     
-    public override func mouseEvent(event: MouseEvent) -> Bool {
+    open override func mouseEvent(event: MouseEvent) -> Bool {
         if event.flags == .button1Clicked {
             if canFocus {
                 if !hasFocus {

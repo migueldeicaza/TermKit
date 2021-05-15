@@ -156,20 +156,20 @@ open class TextField: View {
         wantMousePositionReports = true
     }
     
-    public override func resignFirstResponder() -> Bool {
+    open override func resignFirstResponder() -> Bool {
         if Application.mouseGrabView == self {
             Application.ungrabMouse()
         }
         return super.resignFirstResponder ()
     }
     
-    public override var frame: Rect {
+    open override var frame: Rect {
         didSet {
             adjust()
         }
     }
     
-    public override func redraw(region: Rect, painter p: Painter) {
+    open override func redraw(region: Rect, painter p: Painter) {
         p.attribute = colorScheme!.focus
         p.goto(col:0, row: 0)
         
@@ -203,7 +203,7 @@ open class TextField: View {
         Clipboard.contents = text
     }
     
-    public override func processKey(event: KeyEvent) -> Bool {
+    open override func processKey(event: KeyEvent) -> Bool {
         switch event.key {
         case .deleteChar, .controlD:
             if readOnly || textBuffer.count == 0 || textBuffer.count == point {
@@ -432,7 +432,7 @@ open class TextField: View {
         return nil
     }
     
-    public override func positionCursor() {
+    open override func positionCursor() {
         var col = 0
         for idx in first..<textBuffer.count {
             if idx == point {
@@ -443,7 +443,7 @@ open class TextField: View {
         moveTo (col: col, row: 0)
     }
     
-    public override func mouseEvent(event: MouseEvent) -> Bool {
+    open override func mouseEvent(event: MouseEvent) -> Bool {
         if !event.flags.contains(MouseFlags.button1Clicked) {
             return false
         }

@@ -13,7 +13,7 @@ open class StatusBar: View {
         super.init ()
     }
     
-    public override func redraw(region: Rect, painter: Painter) {
+    open override func redraw(region: Rect, painter: Painter) {
         painter.attribute = Colors.menu.normal
         painter.clear(region)
         painter.goto(col: 0, row: 0)

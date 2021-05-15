@@ -66,7 +66,7 @@ open class ProgressBar: View {
         setNeedsDisplay()
     }
     
-    public override func redraw(region: Rect, painter: Painter) {
+    open override func redraw(region: Rect, painter: Painter) {
         painter.attribute = colorScheme!.normal
         
         let top = frame.width

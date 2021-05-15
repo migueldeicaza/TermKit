@@ -80,7 +80,7 @@ open class ScrollBarView: View {
         }
     }
     
-    public override func redraw(region: Rect, painter paint: Painter) {
+    open override func redraw(region: Rect, painter paint: Painter) {
         paint.attribute = colorScheme!.normal
         if isVertical {
             if region.right < bounds.width - 1 {
@@ -186,7 +186,7 @@ open class ScrollBarView: View {
         }
     }
     
-    public override func mouseEvent(event: MouseEvent) -> Bool {
+    open override func mouseEvent(event: MouseEvent) -> Bool {
         if event.flags != .button1Clicked {
             return false
         }
@@ -231,12 +231,12 @@ class _ContentView: View {
         super.init()
     }
     
-    public override func redraw(region: Rect, painter: Painter) {
+    open override func redraw(region: Rect, painter: Painter) {
         // TODO: the region should be shifted, so the receiver knows what to not render
         super.redraw(region: region, painter: painter)
     }
 
-    public override func positionCursor() {
+    open override func positionCursor() {
         let pos = scrollView.viewToScreen(Point (x: 0, y: 0))
         driver.moveTo(col: pos.x, row: pos.y)
     }
@@ -281,7 +281,7 @@ open class ScrollView : View {
         canFocus = true
     }
     
-    public override func redraw(region: Rect, painter: Painter) {
+    open override func redraw(region: Rect, painter: Painter) {
         //let oldClip = clipToBounds()
         super.redraw(region: region, painter: painter)
         //driver.clip = oldClip
@@ -343,7 +343,7 @@ open class ScrollView : View {
         super.setNeedsDisplay (region.intersection (bounds))
     }
     /// Adds the view to the scrollview.
-    public override func addSubview(_ view: View) {
+    open override func addSubview(_ view: View) {
         contentView.addSubview(view)
     }
     
@@ -385,14 +385,15 @@ open class ScrollView : View {
         }
     }
     
-    public override func positionCursor() {
+    open override func positionCursor() {
         if subviews.count == 0 {
             driver.moveTo(col: 0, row: 0)
         } else {
             super.positionCursor()
         }
     }
-    public override func removeAllSubviews() {
+    
+    open override func removeAllSubviews() {
         contentView.removeAllSubviews()
     }
     
@@ -463,7 +464,7 @@ open class ScrollView : View {
     /// direction of the moevemnt
     public var autoNavigateToNextViewOnBoundary = false
     
-    public override func processKey(event: KeyEvent) -> Bool {
+    open override func processKey(event: KeyEvent) -> Bool {
         if super.processKey(event: event) {
             return true
         }

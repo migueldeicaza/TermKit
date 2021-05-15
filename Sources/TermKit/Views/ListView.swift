@@ -239,7 +239,7 @@ open class ListView: View {
             painter.colorNormal()
         }
     }
-    public override func redraw(region: Rect, painter: Painter) {
+    open override func redraw(region: Rect, painter: Painter) {
         let n = dataSource.getCount (listView: self)
         let b = bounds
         let lines = bounds.height
@@ -262,7 +262,7 @@ open class ListView: View {
         }
     }
     
-    public override func processKey(event: KeyEvent) -> Bool {
+    open override func processKey(event: KeyEvent) -> Bool {
         switch event.key {
         case .cursorUp, .controlP:
             return moveSelectionUp () || !autoNavigateToNextViewOnBoundary
@@ -446,11 +446,11 @@ open class ListView: View {
         top = 0
         setNeedsDisplay()
     }
-    public override func positionCursor() {
+    open override func positionCursor() {
         moveTo (col: allowMarking ? 0 : bounds.width-1, row: selected-top)
     }
     
-    public override func mouseEvent(event: MouseEvent) -> Bool {
+    open override func mouseEvent(event: MouseEvent) -> Bool {
         if !hasFocus && canFocus {
             superview?.setFocus(self)
         }

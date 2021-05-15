@@ -166,7 +166,7 @@ public class Menu: View {
         canFocus = true
     }
     
-    public override func redraw(region: Rect, painter: Painter) {
+    open override func redraw(region: Rect, painter: Painter) {
         driver.setAttribute(colorScheme!.normal)
         painter.clear(needDisplay)
         painter.drawFrame(region, padding: 0, fill: false)
@@ -199,7 +199,7 @@ public class Menu: View {
         }
     }
     
-    public override func positionCursor() {
+    open override func positionCursor() {
         moveTo (col: 2, row: 1+current)
     }
     
@@ -211,7 +211,7 @@ public class Menu: View {
         }
     }
     
-    public override func processKey(event: KeyEvent) -> Bool {
+    open override func processKey(event: KeyEvent) -> Bool {
         switch event.key {
         case .cursorUp, .controlP:
             if current == -1 {
@@ -268,7 +268,7 @@ public class Menu: View {
         return true
     }
      
-    public override func mouseEvent(event: MouseEvent) -> Bool {
+    open override func mouseEvent(event: MouseEvent) -> Bool {
         guard event.pos.y >= 1 else { return true }
         let idx = event.pos.y - 1
         guard idx <= barItems.children.count else { return true }
@@ -310,7 +310,7 @@ open class MenuBar: View {
         colorScheme = Colors.menu
     }
     
-    public override func redraw(region: Rect, painter p: Painter) {
+    open override func redraw(region: Rect, painter p: Painter) {
         p.goto(col: 0, row: 0)
         p.attribute = Colors.base.focus
         
@@ -333,7 +333,7 @@ open class MenuBar: View {
         }
     }
     
-    public override func positionCursor() {
+    open override func positionCursor() {
         var pos = 0
         for i in 0..<menus.count {
             if i == selected {
@@ -426,7 +426,7 @@ open class MenuBar: View {
         openMenu (index: selected!)
     }
     
-    public override func processHotKey(event: KeyEvent) -> Bool {
+    open override func processHotKey(event: KeyEvent) -> Bool {
         switch event.key {
         case .f9:
             startMenu ()
@@ -436,7 +436,7 @@ open class MenuBar: View {
         }
     }
     
-    public override func processKey(event: KeyEvent) -> Bool {
+    open override func processKey(event: KeyEvent) -> Bool {
         switch event.key {
         case .cursorLeft, .controlB:
             selected = selected! - 1
@@ -475,7 +475,7 @@ open class MenuBar: View {
         return true
     }
     
-    public override func mouseEvent(event: MouseEvent) -> Bool {
+    open override func mouseEvent(event: MouseEvent) -> Bool {
         if event.flags == .button1Clicked {
             var pos = 1
             let cx = event.pos.x

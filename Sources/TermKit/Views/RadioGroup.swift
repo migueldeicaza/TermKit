@@ -98,7 +98,7 @@ open class RadioGroup: View {
         canFocus = true
     }
     
-    public override func redraw(region: Rect, painter: Painter) {
+    open override func redraw(region: Rect, painter: Painter) {
         painter.attribute = colorScheme!.normal
         painter.clear()
         
@@ -121,7 +121,7 @@ open class RadioGroup: View {
         }
     }
     
-    public override func positionCursor() {
+    open override func positionCursor() {
         switch orientation {
         case .vertical:
             moveTo(col: 1, row: cursor)
@@ -131,7 +131,7 @@ open class RadioGroup: View {
         }
     }
 
-    public override func processColdKey(event: KeyEvent) -> Bool {
+    open override func processColdKey(event: KeyEvent) -> Bool {
         switch event.key {
         case let .letter(char) where char.isLetter || char.isNumber:
             let upperChar = char.uppercased()
@@ -157,7 +157,7 @@ open class RadioGroup: View {
         }
     }
     
-    public override func processKey(event: KeyEvent) -> Bool {
+    open override func processKey(event: KeyEvent) -> Bool {
         switch event.key {
         case .cursorUp:
             if cursor > 0 {
@@ -180,7 +180,7 @@ open class RadioGroup: View {
         return super.processKey(event: event)
     }
     
-    public override func mouseEvent(event: MouseEvent) -> Bool {
+    open override func mouseEvent(event: MouseEvent) -> Bool {
         if event.flags == .button1Clicked {
             if canFocus {
                 if !hasFocus {

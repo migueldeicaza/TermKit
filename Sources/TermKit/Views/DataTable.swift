@@ -446,7 +446,7 @@ open class DataTable: View {
         return representation.getVisibleString(availableHorizontalSpace)
     }
     
-    public override func redraw(region: Rect, painter: Painter) {
+    open override func redraw(region: Rect, painter: Painter) {
         painter.goto(col: 0, row: 0)
         let f = frame
         let width = f.width
@@ -521,7 +521,7 @@ open class DataTable: View {
         return colStyle?.getRepresentation(str) ?? str
     }
     
-    public override func processKey(event: KeyEvent) -> Bool {
+    open override func processKey(event: KeyEvent) -> Bool {
         switch event.key {
         case .controlJ:
             cellActivated (source, selectedColumn, selectedRow)
@@ -747,7 +747,7 @@ open class DataTable: View {
         return Point (x: colHit.x, y: tableRow + headerHeight - rowOffset)
     }
     
-    public override func positionCursor() {
+    open override func positionCursor() {
         if let screenPoint = cellToScreen (tableColumn: selectedColumn, tableRow: selectedRow) {
             moveTo(col: screenPoint.x, row: screenPoint.y)
         }

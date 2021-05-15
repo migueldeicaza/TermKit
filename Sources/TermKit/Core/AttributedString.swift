@@ -19,7 +19,7 @@ public class MarkupView: View {
         s = AttributedString(markup: txt)
         super.init ()
     }
-    public override func redraw(region: Rect, painter p: Painter) {
+    open override func redraw(region: Rect, painter p: Painter) {
         
         s.draw(on: p)
     }

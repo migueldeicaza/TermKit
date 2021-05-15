@@ -251,7 +251,7 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
      * view as well as the redrawing of the affected regions in the superview and will
      * also set the `layoutStyle` to be `.fixed`
      */
-    public var frame: Rect {
+    open var frame: Rect {
         get {
             return _frame
         }
@@ -276,7 +276,7 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
      * Updates to the Bounds update the Frame, and has the same side effects as updating
      * the frame.
      */
-    public var bounds: Rect {
+    open var bounds: Rect {
         get {
             return Rect (origin: Point.zero, size: frame.size)
         }
@@ -374,7 +374,7 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
     /**
      * Adds the provided view as a subview of this view
      */
-    public func addSubview (_ view: View)
+    open func addSubview (_ view: View)
     {
         if view.superview != nil {
             print ("This view is already attached elsewhere")
@@ -421,7 +421,7 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
     }
     
     /// Removes the specified view from the container
-    public func remove (_ view: View)
+    open func remove (_ view: View)
     {
         let touched = view.frame
         if let idx = subviews.firstIndex(of: view) {
@@ -448,7 +448,7 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
     }
     
     /// Removes all views from this container
-    public func removeAllSubviews ()
+    open func removeAllSubviews ()
     {
         while subviews.count > 0 {
             remove (subviews [0])
@@ -569,7 +569,7 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
     /**
      * Positions the cursor in the right position based on the currently focused view in the chain.
      */
-    public func positionCursor ()
+    open func positionCursor ()
     {
         if let f = focused {
             f.positionCursor()
@@ -628,7 +628,7 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
     /**
      * The colorscheme used by this view
      */
-    public var colorScheme: ColorScheme! {
+    open var colorScheme: ColorScheme! {
         get {
             if _colorScheme == nil {
                 if let s = superview {
@@ -732,7 +732,7 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
      * dispatched to other views.
      *
      */
-    public func processHotKey(event: KeyEvent) -> Bool
+    open func processHotKey(event: KeyEvent) -> Bool
     {
         for view in subviews {
             if view.processHotKey(event: event) {
@@ -757,7 +757,7 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
      * not necessary to call base.ProcessKey if you derive directly from
      * View, but you should if you derive other View subclasses.
      */
-    public func processKey(event: KeyEvent) -> Bool
+    open func processKey(event: KeyEvent) -> Bool
     {
         if let f = focused {
             return f.processKey(event: event)
@@ -779,7 +779,7 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
      * non-default buttons from consuming the enter keypress when they
      * have the focus.
      */
-    public func processColdKey(event: KeyEvent) -> Bool
+    open func processColdKey(event: KeyEvent) -> Bool
     {
         for view in subviews {
             if view.processColdKey(event: event) {
@@ -792,7 +792,7 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
     /**
      * Method invoked when a mouse event is generated
      */
-    public func mouseEvent(event: MouseEvent) -> Bool
+    open func mouseEvent(event: MouseEvent) -> Bool
     {
         return false
     }
@@ -1200,7 +1200,7 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
         childNeedsLayout = false
     }
     
-    public func mouseEnter(event: MouseEvent) -> Bool {
+    open func mouseEnter(event: MouseEvent) -> Bool {
         // TODO OnMouseEnter
         return true
     }
@@ -1212,7 +1212,7 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
     }
     
     var oldFocused: View? = nil
-    public func becomeFirstResponder() -> Bool {
+    open func becomeFirstResponder() -> Bool {
         if let old = oldFocused {
             setFocus(old)
             if focused == old {
@@ -1230,7 +1230,7 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
         return true
     }
     
-    public func resignFirstResponder() -> Bool {
+    open func resignFirstResponder() -> Bool {
         oldFocused = focused
         setHasFocus(other: nil, value: false)
         setNeedsDisplay()
@@ -1238,7 +1238,7 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
     }
     
 
-    public var debugDescription: String {
+    open var debugDescription: String {
         var subtext: String = ""
         
         for x in _subviews {

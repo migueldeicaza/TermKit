@@ -103,7 +103,7 @@ open class Checkbox: View {
         updateHotkeySettings()
     }
     
-    public override func redraw(region: Rect, painter: Painter) {
+    open override func redraw(region: Rect, painter: Painter) {
         painter.attribute = hasFocus ? colorScheme!.focus : colorScheme!.normal
         painter.goto(col: 0, row: 0)
         painter.add(str: checked ? "[x]" : "[ ]")
@@ -117,7 +117,7 @@ open class Checkbox: View {
         }
     }
 
-    public override func positionCursor() {
+    open override func positionCursor() {
         moveTo (col: 1, row: 0)
     }
     
@@ -131,7 +131,7 @@ open class Checkbox: View {
         setNeedsDisplay()
     }
     
-    public override func processHotKey(event: KeyEvent) -> Bool {
+    open override func processHotKey(event: KeyEvent) -> Bool {
         if View.eventTriggersHotKey(event: event, hotKey: hotKey) {
             superview?.setFocus(self)
             toggle ()
@@ -140,7 +140,7 @@ open class Checkbox: View {
         return false
     }
     
-    public override func processKey(event: KeyEvent) -> Bool {
+    open override func processKey(event: KeyEvent) -> Bool {
         switch event.key {
         case .letter(" "):
             toggle ()
@@ -150,7 +150,7 @@ open class Checkbox: View {
         }
     }
     
-    public override func mouseEvent(event: MouseEvent) -> Bool {
+    open override func mouseEvent(event: MouseEvent) -> Bool {
         if !event.flags.contains(.button1Clicked) {
             return false
         }

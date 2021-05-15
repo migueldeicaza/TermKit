@@ -107,7 +107,7 @@ open class TerminalView: View, TerminalDelegate {
         terminal = Terminal (delegate: self, options: terminalOptions)
     }
     
-    public override var frame: Rect {
+    open override var frame: Rect {
         get {
             return super.frame
         }
@@ -162,7 +162,7 @@ open class TerminalView: View, TerminalDelegate {
         terminalDelegate?.send(source: self, data: data)
     }
     
-    public override func redraw(region: Rect, painter: Painter) {
+    open override func redraw(region: Rect, painter: Painter) {
         let driver = Application.driver
     
         // Maps from a SwiftTerm attribute to the attribute we can use on the display
@@ -218,7 +218,7 @@ open class TerminalView: View, TerminalDelegate {
     }
     
     var quoteChar = false
-    public override func processKey(event: KeyEvent) -> Bool {
+    open override func processKey(event: KeyEvent) -> Bool {
         if quoteChar == false, case .controlQ = event.key  {
             quoteChar = true
             return true
@@ -349,7 +349,7 @@ open class TerminalView: View, TerminalDelegate {
         return true
     }
     
-    public override func positionCursor() {
+    open override func positionCursor() {
         let (x,y) = terminal.getCursorLocation()
         
         moveTo(col: x, row: y)
@@ -411,7 +411,7 @@ public class LocalProcessTerminalView: TerminalView, LocalProcessDelegate, Termi
         Application.postProcessEvent()
     }
     
-    public override var frame: Rect {
+    open override var frame: Rect {
         get {
             return super.frame
         }

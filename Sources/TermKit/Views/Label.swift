@@ -107,7 +107,7 @@ open class Label: View {
         setNeedsLayout()
     }
     
-    public override func redraw(region: Rect, painter: Painter) {
+    open override func redraw(region: Rect, painter: Painter) {
         painter.clear ()
         
         switch lineBreak {
@@ -253,7 +253,7 @@ public class Label3 : View {
         Label3.recalc (text, lineResult: &lines, width: frame.width, align: textAlignment)
     }
     
-    public override func redraw(region: Rect, painter: Painter) {
+    open override func redraw(region: Rect, painter: Painter) {
         if recalcPending {
             recalc ()
         }
