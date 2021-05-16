@@ -115,6 +115,10 @@ public enum Key {
     case cursorDown
     /// Cursor left key pressed
     case cursorLeft
+    /// Shift+Cursor left key pressed
+    case shiftCursorLeft
+    /// Shift+Cursor right key pressed
+    case shiftCursorRight
     /// Cursor right key pressed
     case cursorRight
     /// Page up key pressed

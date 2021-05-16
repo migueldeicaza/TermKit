@@ -1142,9 +1142,6 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
             return
         }
         
-        if self is Desktop {
-            var a = String ("a")
-        }
         // Sort out the dependencies of the X, Y, Width, Height properties
         var nodes = Set<View>()
         var edges = Set<Edge>()

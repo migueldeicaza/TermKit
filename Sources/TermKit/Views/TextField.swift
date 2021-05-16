@@ -227,7 +227,10 @@ open class TextField: View {
         case .controlA, .home:
             point = 0
             adjust ()
-            
+
+        case .shiftCursorLeft:
+            mark = point
+            fallthrough
         case .cursorLeft, .controlB:
             if point > 0 {
                 point -= 1
@@ -238,6 +241,9 @@ open class TextField: View {
             point = textBuffer.count
             adjust ()
             
+        case .shiftCursorRight:
+            mark = point
+            fallthrough
         case .cursorRight, .controlF:
             if point == textBuffer.count {
                 break

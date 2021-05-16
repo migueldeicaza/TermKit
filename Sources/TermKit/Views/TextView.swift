@@ -164,12 +164,12 @@ open class TextView: View {
     }
     
     open override func positionCursor() {
-        if selecting {
-            let minRow = min (max (min (selectionStartRow, currentRow)-topRow, 0), frame.height)
-            let maxRow = min (max (max (selectionStartRow, currentRow)-topRow, 0), frame.height)
-            
-            //setNeedsDisplay(Rect(x: 0, y: Int(minRow), width: frame.width, height: Int(maxRow)))
-        }
+//        if selecting {
+//            let minRow = min (max (min (selectionStartRow, currentRow)-topRow, 0), frame.height)
+//            let maxRow = min (max (max (selectionStartRow, currentRow)-topRow, 0), frame.height)
+//
+//            //setNeedsDisplay(Rect(x: 0, y: Int(minRow), width: frame.width, height: Int(maxRow)))
+//        }
         moveTo (col: Int(currentColumn-leftColumn), row: Int(currentRow-topRow))
     }
     
@@ -787,10 +787,18 @@ open class TextView: View {
             
         case .controlF, .cursorRight:
             forwardCharacter ()
-            
+
+        case .shiftCursorRight:
+            setMark()
+            forwardCharacter()
+
         case .controlB, .cursorLeft:
             backwardCharacter ();
-            
+        
+        case .shiftCursorLeft:
+            setMark()
+            backwardCharacter()
+
         case .controlI:
             insert (character: "\t")
         case .delete:

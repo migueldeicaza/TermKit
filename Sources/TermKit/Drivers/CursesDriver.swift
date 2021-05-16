@@ -183,6 +183,8 @@ class CursesDriver: ConsoleDriver {
         case KEY_IC: return Key.insertChar
         case KEY_BTAB: return Key.backtab
         case KEY_BACKSPACE: return Key.backspace
+        case KEY_SLEFT: return Key.shiftCursorLeft
+        case KEY_SRIGHT: return Key.shiftCursorRight
         default:
             if let us = Unicode.Scalar (UInt32 (ck)) {
                 return Key.letter(Character.init(us))

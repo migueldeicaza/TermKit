@@ -10,7 +10,7 @@
 import Foundation
 import SwiftTerm
 
-public protocol TerminalViewDelegate: class {
+public protocol TerminalViewDelegate: AnyObject {
     /**
      * The client code sending commands to the terminal has requested a new size for the terminal
      * Applications that support this should call the `TerminalView.getOptimalFrameSize`
@@ -304,8 +304,12 @@ open class TerminalView: View, TerminalDelegate {
             send(terminal.applicationCursor ? [ 0x1b, 0x4f, 0x42 ] : [ 0x1b, 0x5b, 0x42 ])
         case .cursorLeft:
             send(terminal.applicationCursor ? [ 0x1b, 0x4f, 0x44 ] : [ 0x1b, 0x5b, 0x44 ])
+        case .shiftCursorLeft:
+            send([ 0x1b, 0x5b, 0x31, 0x3b, 0x32, 0x44 ])
         case .cursorRight:
             send(terminal.applicationCursor ? [ 0x1b, 0x4f, 0x43 ] : [ 0x1b, 0x5b, 0x43 ])
+        case .shiftCursorRight:
+            send([ 0x1b, 0x5b, 0x31, 0x3b, 0x32, 0x43 ])
         case .pageUp:
             send([ 0x1b, 0x5b, 0x35, 0x7e ])
         case .pageDown:
