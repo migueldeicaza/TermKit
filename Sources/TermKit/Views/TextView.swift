@@ -210,7 +210,7 @@ open class TextView: View {
     {
         let (start, end) = getRegionBoundIndexes()
         storage.delete(offset: start, count: end-start)
-        
+        textEditNotification (makeRange(start: start, end: end), "")
         setNeedsDisplay()
     }
     
@@ -323,6 +323,10 @@ open class TextView: View {
         return storage.getOffsetAt(lineNumber: row+1, column: col+1)
     }
     
+    func makeTextBufferOffset (position: TextBufferKit.Position) -> Int {
+        return storage.getOffsetAt(lineNumber: position.line, column: position.column)
+    }
+    
     func cursorOffset () -> Int {
         return makeTextBufferOffset(col: currentColumn, row: currentRow)
     }
@@ -352,6 +356,12 @@ open class TextView: View {
             setNeedsDisplay()
         }
     }
+
+    /// Sets the cursor position to the specified location, this can be obtained from a call to `advance`
+    public func setCursorPosition (position: TextBufferKit.Position) {
+        let bufferOffset = makeTextBufferOffset(position: position)
+        adjustCursor(offset: bufferOffset)
+    }
     
     /// A range in a text document expressed as (zero-based) start and end positions.
     public struct TextRange {
@@ -359,15 +369,26 @@ open class TextView: View {
         public var start: TextBufferKit.Position
         /// End position
         public var end: TextBufferKit.Position
+        
+        public init (start: TextBufferKit.Position, end: TextBufferKit.Position) {
+            self.start = start
+            self.end = end
+        }
+    }
+    
+    public func applyTextEdit (range: TextRange, text: String) {
+        let startOffset = makeTextBufferOffset(col: range.start.column, row: range.start.line)
+        let endOffset = makeTextBufferOffset(col: range.end.column, row: range.end.line)
+        guard startOffset < endOffset else {
+            return
+        }
+        storage.delete(offset: startOffset, count: endOffset-startOffset)
+        storage.insert(offset: startOffset, value: [UInt8](text.utf8))
+        textEditNotification (range, text)
     }
     
     /// This callback is invoked when a change is made to the text buffer, and it inclues the range being changed and the text that is changed, an empty text is used to delete text
-    public var textEdit: (_ range: TextRange, _ text: String) -> () = { range, text in }
-    
-    /// Inserts the provided character at the current cursor location
-    func insertChar (_ char: Character)
-    {
-    }
+    public var textEditNotification: (_ range: TextRange, _ text: String) -> () = { range, text in }
     
     /// Inserts the provided string at the current cursor location
     public func insert(text: String)
@@ -380,7 +401,7 @@ open class TextView: View {
         
         insert (utf8: [UInt8](text.utf8))
         let end = storage.getPositionAt(offset: cursorOffset ())
-        textEdit (TextRange (start: start, end: end), String (text))
+        textEditNotification (TextRange (start: start, end: end), String (text))
         if row != currentRow {
             needDisplayToEnd(row: currentRow)
         } else {
@@ -562,6 +583,16 @@ open class TextView: View {
         }
     }
     
+    /// This function computers a new TextBufferKit.position by advancing the `count` number of characters
+    /// - Parameters:
+    ///  - position: the initial position
+    ///  - count: number of characters
+    /// - Returns: a new position
+    public func advance (position: TextBufferKit.Position, count: Int) -> TextBufferKit.Position {
+        let start = makeTextBufferOffset(col: position.column, row: position.line) + count
+        return storage.getPositionAt(offset: start)
+    }
+    
     /// moves the cursor one character backwards
     public func backwardCharacter () {
         if currentColumn > 0 {
@@ -599,6 +630,12 @@ open class TextView: View {
         }
     }
     
+    // Turns a start and end text offsets into a TextRange
+    func makeRange (start: Int, end: Int) -> TextRange {
+        TextRange (start: storage.getPositionAt(offset: start),
+                   end: storage.getPositionAt(offset: end))
+    }
+    
     /// Deletes the character before the cursor position
     public func deleteBackwardCharacter () {
         if isReadOnly {
@@ -610,8 +647,10 @@ open class TextView: View {
         }
         isDirty = true
         storage.delete (offset: p-1, count: 1)
+        textEditNotification (makeRange (start: p-1, end: p), "")
         adjustCursor(offset: p-1)
         setNeedsDisplay()
+        
         // TODO: attempt to reduce region to display
     }
     
@@ -622,6 +661,7 @@ open class TextView: View {
         }
         let p = cursorOffset()
         storage.delete (offset: p, count: 1)
+        textEditNotification (makeRange(start: p, end: p+1), "")
         isDirty = true
         // TODO optimize, depending on how much needs to be redrawn
         setNeedsDisplay()
@@ -636,7 +676,7 @@ open class TextView: View {
         
         if storage.getValueAt(index: p) == 10 {
             storage.delete(offset: p, count: 1)
-            
+            textEditNotification (makeRange(start: p, end: p+1), "")
             if (lastWasKill) {
                 appendClipboard(text: "\n")
             } else {
@@ -655,7 +695,7 @@ open class TextView: View {
             if p != nextLineOffset {
                 let deletedText = storage.getValueInRange(range: Range.from (start: p, end: newLineOffset, on: storage))
                 storage.delete(offset: p, count: newLineOffset-p)
-                
+                textEditNotification (makeRange(start: p, end: newLineOffset), "")
                 if let rest = String(bytes: deletedText, encoding: .utf8) {
                     if (lastWasKill) {
                         appendClipboard (text: rest)
@@ -710,7 +750,7 @@ open class TextView: View {
         let start = storage.getPositionAt(offset: cursorOffset ())
         insert(utf8: [UInt8](character.utf8))
         let end = storage.getPositionAt(offset: cursorOffset ())
-        textEdit (TextRange (start: start, end: end), String (character))
+        textEditNotification (TextRange (start: start, end: end), String (character))
 
         if currentColumn >= leftColumn + frame.width {
             leftColumn += 1
@@ -961,7 +1001,7 @@ open class TextView: View {
         var row = andRow
         let scanner = Scanner(host: self)
         var ch: Character = " "
-        scanner.movePrev(&col, &row, &ch)
+        _ = scanner.movePrev(&col, &row, &ch)
         
         if ch.isPunctuation || ch.isSymbol || ch.isWhitespace {
             while scanner.movePrev (&col, &row, &ch){
