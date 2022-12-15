@@ -210,6 +210,7 @@ open class TextView: View {
     {
         let (start, end) = getRegionBoundIndexes()
         storage.delete(offset: start, count: end-start)
+        adjustCursor(offset: start)
         textEditNotification (makeRange(start: start, end: end), "")
         setNeedsDisplay()
     }
@@ -365,9 +366,9 @@ open class TextView: View {
     
     /// A range in a text document expressed as (zero-based) start and end positions.
     public struct TextRange {
-        /// Start position
+        /// Start position 1-based
         public var start: TextBufferKit.Position
-        /// End position
+        /// End position 1-based
         public var end: TextBufferKit.Position
         
         public init (start: TextBufferKit.Position, end: TextBufferKit.Position) {
@@ -749,8 +750,8 @@ open class TextView: View {
 
         let start = storage.getPositionAt(offset: cursorOffset ())
         insert(utf8: [UInt8](character.utf8))
-        let end = storage.getPositionAt(offset: cursorOffset ())
-        textEditNotification (TextRange (start: start, end: end), String (character))
+        //let end = storage.getPositionAt(offset: cursorOffset ())
+        textEditNotification (TextRange (start: start, end: start), String (character))
 
         if currentColumn >= leftColumn + frame.width {
             leftColumn += 1
@@ -829,14 +830,14 @@ open class TextView: View {
             forwardCharacter ()
 
         case .shiftCursorRight:
-            setMark()
+            if !selecting { setMark() }
             forwardCharacter()
 
         case .controlB, .cursorLeft:
             backwardCharacter ();
         
         case .shiftCursorLeft:
-            setMark()
+            if !selecting { setMark() }
             backwardCharacter()
 
         case .controlI:
