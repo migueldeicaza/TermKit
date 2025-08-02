@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import OpenCombine
 
 /**
  * Determines the LayoutStyle for a view, if Absolute, during LayoutSubviews, the
@@ -100,19 +99,19 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
     var _layoutStyle: LayoutStyle = .computed
     
     /// Event fired when a subview is being added to this view.
-    public var subviewAdded = PassthroughSubject<View,Never> ()
+    // TODO public var subviewAdded = PassthroughSubject<View,Never> ()
 
     /// Event fired when a subview was removed from this view.
-    public var subviewRemoved = PassthroughSubject<View,Never> ()
+    // TODO: public var subviewRemoved = PassthroughSubject<View,Never> ()
 
     /// Event fired when the view receives the mouse event for the first time.
-    public var mouseEntered = PassthroughSubject<MouseEvent,Never> ()
+    // TODO: public var mouseEntered = PassthroughSubject<MouseEvent,Never> ()
     
     /// Event fired when the view receives a mouse event because the mouse is outside its boundary
-    public var mouseLeft = PassthroughSubject<MouseEvent,Never> ()
+    // TODO: public var mouseLeft = PassthroughSubject<MouseEvent,Never> ()
     
     /// Event fired when a mouse event is generated.
-    public var mouseClicked = PassthroughSubject<MouseEvent,Never> ()
+    // TODO: public var mouseClicked = PassthroughSubject<MouseEvent,Never> ()
     
     /// This is a payload that can be set by user code to any value it desires
     public var data: AnyObject? = nil
@@ -387,8 +386,11 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
         }
         setNeedsLayout()
         setNeedsDisplay()
-        subviewAdded.send (view)
+        subviewAdded(view)
     }
+    
+    /// The subview was added to the tree
+    open func subviewAdded(_ view: View) {}
     
     /**
      * Sets the x, y, width and height to fill the container
@@ -440,12 +442,15 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
                     v.setNeedsDisplay()
                 }
             }
-            subviewRemoved.send (view)
+            subviewRemoved(view, from: self)
             if focused == view {
                 focused = nil
             }
         }
     }
+    
+    /// The specified view was removed from the superview
+    open func subviewRemoved(_ view: View, from: View) {}
     
     /// Removes all views from this container
     open func removeAllSubviews ()

@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import OpenCombine
 
 /**
  * Single-line text entry `View`
@@ -29,11 +28,6 @@ open class TextField: View {
     /// If set to true its not allow any changes in the text.
     public var readOnly: Bool = false
     /// The contents of the text field
-    
-    /// Changed event, raised when the text has changed as a Combine Subject
-    /// The parameter contains the source that is raising the event, along with the old value that was on the TextField,
-    /// for a simple event, use textChanged
-    public var textChangedSubject = PassthroughSubject<(source: TextField, oldText: String),Never> ()
     
     /// Changed event that is triggered when the text changes, and provides the old text,
     /// for a Combine version of this event, use `textChangedSubject`
@@ -192,7 +186,6 @@ open class TextField: View {
     
     func raiseTextChanged (old: String)
     {
-        textChangedSubject.send((self, old))
         if let cb = textChanged {
             cb (self, old)
         }

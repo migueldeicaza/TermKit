@@ -17,7 +17,7 @@ var sync: Bool = false
 class LameHack {
     static func doRefresh ()
     {
-        refresh ();
+        refresh ()
     }
 }
 

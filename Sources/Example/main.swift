@@ -9,7 +9,7 @@
 import Foundation
 import Darwin.ncurses
 import TermKit
-import OpenCombine
+
 // So the debugger can attach
 sleep (1)
 

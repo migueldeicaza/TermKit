@@ -9,6 +9,7 @@
 #ifndef Curses_Bridging_Header_h
 #define Curses_Bridging_Header_h
 #include <wchar.h>
+#include <curses.h>
 
 typedef struct
 {

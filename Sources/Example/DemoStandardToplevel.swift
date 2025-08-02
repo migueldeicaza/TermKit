@@ -29,7 +29,7 @@ func DemoDesktop2 () -> Toplevel {
 
 // Convenient place to track the open files - we have a 1:1 mapping, an open window is an open file
 class FileWindow: Window {
-    static var untitledCount = 0
+    nonisolated(unsafe) static var untitledCount = 0
     var filename: String?
     var textView: TextView
     

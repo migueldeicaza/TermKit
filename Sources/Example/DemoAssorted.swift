@@ -7,10 +7,8 @@
 
 import Foundation
 import TermKit
-import OpenCombine
 
-var e: AnyCancellable? = nil
-var maybe = false
+let maybe = false
 func Assorted () -> Window {
     let win = Window ()
 
@@ -91,7 +89,7 @@ func Assorted () -> Window {
     }
 
     // Shows the use of the API using OpemCombine instead
-    e = b2.clickedSubject.sink { v in
+    b2.clicked = { v in
         rememberCount.text = "Default button was activated"
         MessageBox.query (
             "Default",

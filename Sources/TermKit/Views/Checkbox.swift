@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import OpenCombine
 
 /**
  * The Checkbox View shows an on/off toggle that the user can set
@@ -33,10 +32,6 @@ open class Checkbox: View {
             setNeedsDisplay()
         }
     }
-    
-    /// Subject that is raised when the checkbox has been toggled, a more comprehensive
-    /// version of the "toggled' callback
-    public var toggledSubject = PassthroughSubject<Checkbox,Never> ()
     
     /// Callback to invoke when the checkbox has been toggled, this allows a single
     /// callback to be registered.   For more complex scenarios, use `toggledSubject`
@@ -127,7 +122,6 @@ open class Checkbox: View {
         if let t = toggled {
             t (self)
         }
-        toggledSubject.send (self)
         setNeedsDisplay()
     }
     

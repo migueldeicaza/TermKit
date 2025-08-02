@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import OpenCombine
 
 /**
  * Button is a view that provides an item that invokes a callback when activated.
@@ -58,10 +57,6 @@ open class Button: View {
      */
     public var clicked: ((_ source: Button) -> ())? = nil
     
-    /// Subject that is raised when the button has been activated, a more comprehensive
-    /// version of the "clicked' callback
-    public var clickedSubject = PassthroughSubject<View,Never> ()
-
     public override init ()
     {
         super.init ()
@@ -126,7 +121,6 @@ open class Button: View {
         if let c = clicked {
             c (self)
         }
-        clickedSubject.send (self)
     }
 
     //

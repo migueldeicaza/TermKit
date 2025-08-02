@@ -33,7 +33,7 @@ public struct MenuItem {
     public var help: String = ""
     
     /// Gets or sets the action to be invoked when the menu is triggered, can be nil
-    public var action: (() -> Void)? = nil
+    public var action: (@MainActor () -> Void)? = nil
     
     /// This is the global setting that can be used as a global shortcut to invoke the action on the menu.
     public var shortcut: Key? = nil
@@ -80,7 +80,7 @@ public struct MenuItem {
      *  - shortcut: Global shortcut that can be used to invoke this menu
      *  - hotkey: Key used to activate the menu, when the menu is active
      */
-    public init (title: String, help: String = "", action: (()->Void)? = nil, shortcut: Key? = nil, hotkey: Character? = nil, style: MenuItemStyle = .plain)
+    public init (title: String, help: String = "", action: (@MainActor ()->Void)? = nil, shortcut: Key? = nil, hotkey: Character? = nil, style: MenuItemStyle = .plain)
     {
         self.title = title
         self.help = help
