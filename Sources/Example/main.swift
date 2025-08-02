@@ -41,7 +41,7 @@ func showEditor() {
     let text = TextView()
     text.fill ()
     do {
-        try text.text = String(contentsOfFile: fname)
+        try text.text = String(contentsOfFile: fname, encoding: .utf8)
     } catch {}
     
     win.addSubview (text)

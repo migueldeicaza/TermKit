@@ -57,9 +57,9 @@ open class RadioGroup: View {
     
 
     /// The labels displayed for this radio group
-    public private (set) var radioLabels: [String]
+    public private(set) var radioLabels: [String]
     /// The orientation in which this radio group is shown
-    public private (set) var orientation: Orientation
+    public private(set) var orientation: Orientation
 
     /// Callback invoked when the selection has changed, it passes the previous
     /// selection value, and the new selection value

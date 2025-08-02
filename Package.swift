@@ -34,7 +34,7 @@ let package = Package(
         ),
         .systemLibrary(
             name: "Curses"), // , pkgConfig: "/tmp/ncursesw.pc"),
-        .target(
+        .executableTarget(
             name: "Example",
             dependencies: ["TermKit", "SwiftTerm"]),
             .testTarget(

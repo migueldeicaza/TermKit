@@ -129,7 +129,7 @@ class SimpleEditor: StandardToplevel {
         open.allowsMultipleSelection = false
         open.present { d in
             if let file = d.filePaths?.first {
-                if let contents = try? String(contentsOfFile: file) {
+                if let contents = try? String(contentsOfFile: file, encoding: .utf8) {
                     let file = FileWindow (filename: file, contents: contents)
                     self.place (window: file)
                 } else {

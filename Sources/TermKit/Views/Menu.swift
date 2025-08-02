@@ -204,7 +204,7 @@ public class Menu: View {
     }
     
     // runs the aciton in the main queue
-    func run (action: (()->Void)?)
+    func run (action: (@MainActor ()->Void)?)
     {
         if let callback = action {
             DispatchQueue.main.async(execute: callback)
@@ -291,7 +291,7 @@ public class Menu: View {
 open class MenuBar: View {
     public var menus: [MenuBarItem]
     var selected: Int? = nil
-    var action: (() -> Void)? = nil
+    var action: (@MainActor() -> Void)? = nil
 
     /**
      * Constructs the menubar with the specified array of MenuBarItems, which can contain nil values

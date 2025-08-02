@@ -23,10 +23,10 @@ open class StandardToplevel: Toplevel {
     public var statusbar: View? // StatusBar?
     
     /// The view representing the desktop
-    public private (set) var desk: View
+    public private(set) var desk: View
     
     /// Windows currently managed by this toplevel
-    public private (set) var windows: [Window] = []
+    public private(set) var windows: [Window] = []
     
     public override init ()
     {
