@@ -98,6 +98,50 @@ class FileWindow: Window {
     }
 }
 
+// Convenient place to track the open files - we have a 1:1 mapping, an open window is an open file
+class HexWindow: Window {
+    nonisolated(unsafe) static var untitledCount = 0
+    var filename: String?
+    var hexView: HexView
+    
+    init (filename: String?, contents: Data)
+    {
+        self.filename = filename
+        self.hexView = HexView(source: contents)
+        super.init(filename ?? HexWindow.getUntitled(), padding: 0)
+        
+        allowMove = true
+        allowClose = true
+        allowResize = true
+        
+        addSubview(hexView)
+        _ = hexView.becomeFirstResponder()
+    }
+    
+    static func getUntitled () -> String {
+        if FileWindow.untitledCount == 0 { return "Untitled" }
+        FileWindow.untitledCount += 1
+        return "Hex-\(FileWindow.untitledCount)"
+    }
+    
+    open override var debugDescription: String {
+        get {
+            return "HexWindow (\(filename ?? "Untitled"))"
+        }
+    }
+    
+    // expects filename to be set
+    func saveFile (_ target: String) {
+        //
+    }
+
+    func saveAs (_ initial: String?) {
+    }
+    
+    func save() {
+    }
+}
+
 class SimpleEditor: StandardToplevel {
     
     func place (window: FileWindow) {
@@ -105,7 +149,13 @@ class SimpleEditor: StandardToplevel {
         manage (window: window)
         window.closeClicked = handleClose
     }
-    
+
+    func place (window: HexWindow) {
+        window.frame = Rect (origin: Point.zero, size: desk.bounds.size)
+        manage (window: window)
+        window.closeClicked = handleClose
+    }
+
     func handleClose (w: Window)  {
         guard let filewin = w as? FileWindow else {
             return
@@ -131,6 +181,23 @@ class SimpleEditor: StandardToplevel {
             if let file = d.filePaths?.first {
                 if let contents = try? String(contentsOfFile: file, encoding: .utf8) {
                     let file = FileWindow (filename: file, contents: contents)
+                    self.place (window: file)
+                } else {
+                    MessageBox.error("Error", message: "Could not read contents of file", buttons: ["Ok"]) { _ in }
+                }
+            }
+        }
+    }
+    
+    func openHex () {
+        let open = OpenDialog.init(title: "Open File in Hex Editor", message: "Select a file to open")
+        open.canChooseDirectories = false
+        open.canChooseFiles = true
+        open.allowsMultipleSelection = false
+        open.present { d in
+            if let file = d.filePaths?.first {
+                if let contents = try? Data(contentsOf: URL(filePath: file)) {
+                    let file = HexWindow (filename: file, contents: contents)
                     self.place (window: file)
                 } else {
                     MessageBox.error("Error", message: "Could not read contents of file", buttons: ["Ok"]) { _ in }
@@ -173,6 +240,7 @@ class SimpleEditor: StandardToplevel {
                 MenuBarItem (title: "_File", children: [
                     MenuItem (title: "_New", action: newFile),
                     MenuItem (title: "_Open", action: openFile),
+                    MenuItem (title: "_Hex", action: openHex),
                     MenuItem (title: "_Save", action: saveFile),
                     MenuItem (title: "S_ave as", action: saveAsFile),
                     nil,

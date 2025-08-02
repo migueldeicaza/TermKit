@@ -19,7 +19,7 @@ import Foundation
  *
  * UnicodeScalars are also stored here, the letter 'A" for example is encoded as a value 65 (not surfaced in the enum).
  */
-public enum Key {
+public enum Key: Equatable {
     /// The key code for the user pressing Control-spacebar
     case controlSpace
     /// The key code for the user pressing Control-A
@@ -46,6 +46,9 @@ public enum Key {
 
     /// The key code for the user pressing Control-I
     case controlI
+    static var tab: Key {
+        controlI
+    }
     /// The key code for the user pressing Control-J
     case controlJ
     
