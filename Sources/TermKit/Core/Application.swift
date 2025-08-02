@@ -16,16 +16,18 @@ var logger: Logger = Logger(subsystem: "termkit", category: "TermKit")
 
 func log (_ s: String)
 {
-    if #available(macOS 11.0, *) {
-        logger.log("log: \(s, privacy: .public)")
-        return
-    }
-    if fd == -1 {
-        fd = open ("/tmp/log", O_CREAT | O_RDWR, S_IRWXU)
-    }
-    let data = (s + "\n").data(using: String.Encoding.utf8)!
-    let _ = data.withUnsafeBytes { (dataBytes: UnsafeRawBufferPointer) -> Int in
-        return write(fd, dataBytes.baseAddress, data.count)
+    if false {
+        if #available(macOS 11.0, *) {
+            logger.log("log: \(s, privacy: .public)")
+            return
+        }
+        if fd == -1 {
+            fd = open ("/tmp/log", O_CREAT | O_RDWR, S_IRWXU)
+        }
+        let data = (s + "\n").data(using: String.Encoding.utf8)!
+        let _ = data.withUnsafeBytes { (dataBytes: UnsafeRawBufferPointer) -> Int in
+            return write(fd, dataBytes.baseAddress, data.count)
+        }
     }
 }
 
@@ -504,8 +506,22 @@ public class Application {
     // redraw next, driver.refresh last.
     //
     // So this hack is here just temporarily
+    static var updateQueued = false
     static func postProcessEvent ()
     {
+        flushPendingDisplay()
+        //log("Entering at \(Date().timeIntervalSince1970*1000)")
+        if updateQueued { return }
+        updateQueued = true
+        //log("Queuing at \(Date().timeIntervalSince1970*1000)")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1/60.0) {
+            flushPendingDisplay()
+        }
+    }
+    
+    static func flushPendingDisplay() {
+        //log("Flushing at \(Date().timeIntervalSince1970*1000)")
+        updateQueued = false
         if let c = current {
             c.layout ()
             if !c.needDisplay.isEmpty {

@@ -411,7 +411,7 @@ public class AttributedString: CustomDebugStringConvertible {
                 }
             }
             if let f = fore, let b = back {
-                return painter.driver.makeAttribute(fore: f, back: b, flags: flags)
+                return painter.makeAttribute(fore: f, back: b, flags: flags)
             }
             // Only needed in the path where fore and back are nil, meaning that we are using the B&W colors
             if let f = fore {

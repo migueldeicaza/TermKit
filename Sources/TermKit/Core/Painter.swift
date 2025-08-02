@@ -15,7 +15,7 @@ import Foundation
  * paint
  */
 public class Painter {
-    var driver: ConsoleDriver
+    private var driver: ConsoleDriver
     var view: View
     
     /// The current drawing column
@@ -34,9 +34,9 @@ public class Painter {
         }
     }
     
-    var posSet = false
-    var attrSet = false
-    var isTop = false
+    private var posSet = false
+    private var attrSet = false
+    private var isTop = false
     
     private init (from view: View, isTop: Bool = false)
     {
@@ -53,6 +53,13 @@ public class Painter {
     public static func createTopPainter (from top: Toplevel) -> Painter {
         top.ensureLayer()
         return Painter (from: top, isTop: true)
+    }
+    
+    /**
+     * This method takes the platform-agnostic Color enumeration for foreground and background and produces an attribute
+     */
+    public func makeAttribute (fore: Color, back: Color, flags: CellFlags = []) -> Attribute {
+        driver.makeAttribute(fore: fore, back: back, flags: flags)
     }
     
     /// Creates a new painter for the specified view, use this method when you want to create a painter to pass to
@@ -122,7 +129,7 @@ public class Painter {
         }
     }
     
-    func add (rune: UnicodeScalar, maxWidth: Int)
+    func add(rune: UnicodeScalar, maxWidth: Int)
     {
         if rune.value == 10 {
             pos.x = 0
@@ -364,8 +371,8 @@ public class Painter {
 class TopDriver: ConsoleDriver {
     var top: Toplevel
     var backing: ConsoleDriver
-    var col: Int = 0
-    var row: Int = 0
+    private var col: Int = 0
+    private var row: Int = 0
     var topSize: Size
     var attribute: Attribute
     var nullCell: Cell
