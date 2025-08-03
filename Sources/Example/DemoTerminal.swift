@@ -13,8 +13,7 @@ import SwiftTerm
 func openTerminal (_ on: View) {
     let w = makeTerminalWindow()
     w.closeClicked = { term in
-        
-        term.superview?.remove (term)
+        term.superview?.removeSubview(term)
     }
     
     on.addSubview(w)

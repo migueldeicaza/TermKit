@@ -72,6 +72,12 @@ open class Frame: View {
         clearNeedsDisplay()
     }
     
+    open override var frame: Rect {
+        didSet {
+            try? layoutSubviews()
+        }
+    }
+    
     open override var debugDescription: String {
         return "Frame (\(super.debugDescription))"
     }

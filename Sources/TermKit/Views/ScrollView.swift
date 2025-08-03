@@ -361,7 +361,7 @@ open class ScrollView : View {
             if value {
                 super.addSubview(horizontal)
             } else {
-                remove (horizontal)
+                removeSubview(horizontal)
             }
         }
     }
@@ -380,7 +380,7 @@ open class ScrollView : View {
             if value {
                 super.addSubview(vertical)
             } else {
-                remove (vertical)
+                removeSubview(vertical)
             }
         }
     }

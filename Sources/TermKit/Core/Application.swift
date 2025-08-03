@@ -16,7 +16,7 @@ var logger: Logger = Logger(subsystem: "termkit", category: "TermKit")
 
 func log (_ s: String)
 {
-    if false {
+    if true {
         if #available(macOS 11.0, *) {
             logger.log("log: \(s, privacy: .public)")
             return

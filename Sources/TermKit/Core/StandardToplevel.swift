@@ -68,13 +68,13 @@ open class StandardToplevel: Toplevel {
         if let idx = windows.firstIndex(of: window) {
             windows.remove(at: idx)
         }
-        desk.remove(window)
+        desk.removeSubview(window)
     }
     
     open override func addSubview(_ view: View) {
         if view is MenuBar {
             if let existing = menubar {
-                remove (existing)
+                removeSubview(existing)
             }
             view.x = Pos.at(0)
             view.y = Pos.at(0)
@@ -85,7 +85,7 @@ open class StandardToplevel: Toplevel {
         }
         if view is StatusBar {
             if let existing = statusbar {
-                remove (existing)
+                removeSubview(existing)
             }
             view.x = Pos.at(0)
             view.y = Pos.anchorEnd()-1
@@ -95,14 +95,14 @@ open class StandardToplevel: Toplevel {
         super.addSubview(view)
     }
     
-    open override func remove(_ view: View) {
+    open override func removeSubview(_ view: View) {
         if view == self.menubar {
             self.menubar = nil
         }
         if view == self.statusbar {
             self.statusbar = nil
         }
-        super.remove (view)
+        super.removeSubview(view)
     }
 
 }

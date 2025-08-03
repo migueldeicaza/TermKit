@@ -358,7 +358,7 @@ open class MenuBar: View {
     func openMenu (index: Int)
     {
         if let x = openedMenu {
-            superview?.remove (x)
+            superview?.removeSubview(x)
         }
         var pos = 0
         for i in 0..<index {
@@ -400,7 +400,9 @@ open class MenuBar: View {
     {
         selected = nil
         setNeedsDisplay()
-        superview?.remove(openedMenu!)
+        if let openedMenu {
+            superview?.removeSubview(openedMenu)
+        }
         previousFocused?.superview?.setFocus(previousFocused)
         openedMenu = nil
     }

@@ -182,14 +182,14 @@ open class ListView: View {
         }
     }
     
-    public var dataSource: ListViewDataSource {
+    public var dataSource: ListViewDataSource? {
         didSet {
             setNeedsDisplay()
         }
     }
     
     /// Specifies the delegate instance that will receive important notifications from the ListView
-    public var delegate: ListViewDelegate {
+    public var delegate: ListViewDelegate? {
         didSet {
             setNeedsDisplay()
         }
@@ -236,21 +236,42 @@ open class ListView: View {
     /// - Parameter items: Array of strings to render
     public init (items: [String])
     {
-        self.dataSource = StringWrapperDataSource (items)
-        self.delegate = RenderDelegate { row, width in
-            let value = row < items.count ? items [row] : ""
-                return value.padding (toLength: width, withPad: " ", startingAt: 0)
-        }
         super.init ()
+        self.items = items
         canFocus = true
     }
-    
+
+    /// If the list view is configured to render a string array, it returns it, otherwise it returns nil,
+    /// if you set it, then this sets the 'dataSource' and 'delegate' properties
+    public var items: [String]? {
+        get {
+            if let s = dataSource as? StringWrapperDataSource {
+                return s.src
+            }
+            return nil
+        }
+        set {
+            guard let newValue else {
+                self.dataSource = StringWrapperDataSource ([])
+                self.delegate = nil
+                return
+            }
+            self.dataSource = StringWrapperDataSource (newValue)
+            self.delegate = RenderDelegate { row, width in
+                let value = row < newValue.count ? newValue [row] : ""
+                    return value.padding (toLength: width, withPad: " ", startingAt: 0)
+            }
+        }
+    }
     /// The index of the item to display at the top of the list
     public var topItem: Int {
         get {
             return top
         }
         set {
+            guard let dataSource else {
+                return
+            }
             if newValue < 0 || newValue >= dataSource.getCount (listView: self) {
                 return
             }
@@ -265,11 +286,14 @@ open class ListView: View {
             return selected
         }
         set {
+            guard let dataSource else {
+                return
+            }
             if newValue < 0 || newValue >= dataSource.getCount (listView: self) {
                 return
             }
             selected = newValue
-            delegate.selectionChanged(listView: self)
+            delegate?.selectionChanged(listView: self)
             setNeedsDisplay()
         }
     }
@@ -288,7 +312,6 @@ open class ListView: View {
         }
     }
     open override func redraw(region: Rect, painter: Painter) {
-        //let n = dataSource.getCount (listView: self)
         let b = bounds
         let lines = bounds.height
         
@@ -299,11 +322,11 @@ open class ListView: View {
             painter.goto(col: 0, row: row)
             redrawColor(painter, selection: item == selected)
             var space = b.width
-            if allowMarking {
+            if allowMarking, let dataSource {
                 painter.add(str: dataSource.isMarked(listView: self, item: item) ? markerStrings [1]: markerStrings [0])
                 space -= 1
             }
-            delegate.render(listView: self, painter: painter,
+            delegate?.render(listView: self, painter: painter,
                             selected: selected == item,
                             item: item, col: allowMarking ? 1 : 0,
                             line: row, width: space)
@@ -338,13 +361,14 @@ open class ListView: View {
     
     // Triggers the activation action for this item
     func triggerActivate () -> Bool {
+        guard let dataSource else { return false }
         let count = dataSource.getCount (listView: self)
         if count == 0 {
             return false
             
         }
         
-        if delegate.activate(listView: self, item: selected) {
+        if delegate?.activate(listView: self, item: selected) ?? false {
             return true
         }
         if let cb = activate {
@@ -355,6 +379,7 @@ open class ListView: View {
     
     func clearMarks ()
     {
+        guard let dataSource else { return }
         // Need to clear anything that might have been selected
         let count = dataSource.getCount (listView: self)
         for idx in 0..<count {
@@ -367,6 +392,7 @@ open class ListView: View {
     func toggleMarkOnRow () -> Bool {
         guard allowMarking else { return false }
         guard allowsMultipleSelection else { return false }
+        guard let dataSource else { return false }
         if dataSource.isMarked(listView: self, item: selected) {
             dataSource.setMark(listView: self, item: selected, state: false)
         } else {
@@ -383,6 +409,8 @@ open class ListView: View {
     /// - Returns: True if the selection was moved, false otherwise
     public func moveSelectionUp () -> Bool
     {
+        guard let dataSource else { return false }
+
         let count = dataSource.getCount(listView: self)
         if count == 0 {
             return false
@@ -405,6 +433,8 @@ open class ListView: View {
     /// - Returns: True if the selection was moved, false otherwise
     public func moveSelectionDown () -> Bool
     {
+        guard let dataSource else { return false }
+        
         let count = dataSource.getCount(listView: self)
         if count == 0 {
             return false
@@ -426,6 +456,8 @@ open class ListView: View {
     /// Moves the selection one page up
     /// - Returns: true if this change the selected position, false otherwise
     public func movePageUp () -> Bool {
+        guard let dataSource else { return false }
+
         let count = dataSource.getCount(listView: self)
         if count == 0 {
             return false
@@ -450,6 +482,8 @@ open class ListView: View {
     /// Moves the selection one page up
     /// - Returns: true if this change the selected position, false otherwise
     public func movePageDown () -> Bool {
+        guard let dataSource else { return false }
+
         let count = dataSource.getCount(listView: self)
         if count == 0 {
             return false
@@ -481,6 +515,8 @@ open class ListView: View {
     /// Moves the selection cursor to the last element
     public func moveEnd ()
     {
+        guard let dataSource else { return }
+
         let count = dataSource.getCount(listView: self)
         if selected != count - 1 {
             selectedItem = count - 1
@@ -502,6 +538,8 @@ open class ListView: View {
         if !hasFocus && canFocus {
             superview?.setFocus(self)
         }
+        guard let dataSource else { return false }
+
         let c = dataSource.getCount(listView: self)
         if event.pos.y + top >= c {
             return true

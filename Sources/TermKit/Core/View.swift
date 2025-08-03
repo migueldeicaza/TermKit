@@ -423,7 +423,7 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
     }
     
     /// Removes the specified view from the container
-    open func remove (_ view: View)
+    open func removeSubview(_ view: View)
     {
         let touched = view.frame
         if let idx = subviews.firstIndex(of: view) {
@@ -453,10 +453,10 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
     open func subviewRemoved(_ view: View, from: View) {}
     
     /// Removes all views from this container
-    open func removeAllSubviews ()
+    open func removeAllSubviews()
     {
         while subviews.count > 0 {
-            remove (subviews [0])
+            removeSubview(subviews [0])
         }
     }
     

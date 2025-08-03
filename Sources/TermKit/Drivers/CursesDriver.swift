@@ -218,7 +218,7 @@ class CursesDriver: ConsoleDriver {
                 var mouseEvent: MEVENT = MEVENT(id: 0, x: 0, y: 0, z: 0, bstate: 0)
                 getmouse(&mouseEvent);
                 if mouseEvent.bstate == MouseFlags.button1Pressed.rawValue {
-                    print ("here")
+                    //print ("here")
                 }
                 let me = toAppMouseEvent (mouseEvent)
                 DispatchQueue.main.async {
