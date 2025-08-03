@@ -14,9 +14,9 @@ public class HexView: View {
     
     private var _firstNibble = true
     private var _leftSideHasFocus = true
-    private static let spaceCharRune = Character(" ")
-    private static let periodCharRune = Character("·")
-    private static let columnSeparatorRune = Character("│")
+    private static let spaceChar = Character(" ")
+    private static let periodChar = Character("·")
+    private static let columnSeparator = Character("│")
     
     private var _source: Data?
     private var _address: Int64 = 0
@@ -240,10 +240,10 @@ public class HexView: View {
                     }
                     
                     p.attribute = editingAttribute
-                    p.add(ch: HexView.spaceCharRune)
+                    p.add(ch: HexView.spaceChar)
                 }
                 
-                p.add(str: block + 1 == nBlocks ? " " : "\(HexView.columnSeparatorRune) ")
+                p.add(str: block + 1 == nBlocks ? " " : "\(HexView.columnSeparator) ")
             }
             
             for byteIndex in 0..<bytesPerLine {
@@ -252,9 +252,9 @@ public class HexView: View {
                 
                 let ch: Character
                 if globalOffset >= Int64(source.count) && !edited {
-                    ch = HexView.spaceCharRune
+                    ch = HexView.spaceChar
                 } else {
-                    ch = (value >= 32 && value < 127) ? Character(UnicodeScalar(value)) : HexView.periodCharRune
+                    ch = (value >= 32 && value < 127) ? Character(UnicodeScalar(value)) : HexView.periodChar
                 }
                 
                 if globalOffset == address {
