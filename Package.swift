@@ -6,8 +6,6 @@ import PackageDescription
 let package = Package(
     name: "TermKit",
     platforms: [
-        // Modified for Peekaboo compatibility - originally .v15 due to ncurses SDK warnings
-        // Upstream changed to .v10_15 for UnixDriver support on older macOS versions
         .macOS(.v14)
     ],
     products: [
