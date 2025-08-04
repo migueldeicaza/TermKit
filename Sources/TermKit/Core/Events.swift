@@ -205,35 +205,35 @@ public struct MouseFlags: OptionSet, CustomDebugStringConvertible {
         self.rawValue = rawValue
     }
     
-    static let button1Pressed        = MouseFlags(rawValue: 0x2)
-    static let button1Released       = MouseFlags(rawValue: 0x1)
-    static let button1Clicked        = MouseFlags(rawValue: 0x4)
-    static let button1DoubleClicked  = MouseFlags(rawValue: 0x8)
-    static let button1TripleClicked  = MouseFlags(rawValue: 0x10)
-    static let button2Pressed        = MouseFlags(rawValue: 0x80)
-    static let button2Released       = MouseFlags(rawValue: 0x40)
-    static let button2Clicked        = MouseFlags(rawValue: 0x100)
-    static let button2DoubleClicked  = MouseFlags(rawValue: 0x200)
-    static let button2TrippleClicked = MouseFlags(rawValue: 0x400)
-    static let button3Pressed        = MouseFlags(rawValue: 0x2000)
-    static let button3Released       = MouseFlags(rawValue: 0x1000)
-    static let button3Clicked        = MouseFlags(rawValue: 0x4000)
-    static let button3DoubleClicked  = MouseFlags(rawValue: 0x8000)
-    static let button3TripleClicked  = MouseFlags(rawValue: 0x10000)
-    static let button4Pressed        = MouseFlags(rawValue: 0x80000)
-    static let button4Released       = MouseFlags(rawValue: 0x40000)
-    static let button4Clicked        = MouseFlags(rawValue: 0x100000)
-    static let button4DoubleClicked  = MouseFlags(rawValue: 0x200000)
-    static let button4TripleClicked = MouseFlags(rawValue:  0x400000)
+    public static let button1Pressed        = MouseFlags(rawValue: 0x2)
+    public static let button1Released       = MouseFlags(rawValue: 0x1)
+    public static let button1Clicked        = MouseFlags(rawValue: 0x4)
+    public static let button1DoubleClicked  = MouseFlags(rawValue: 0x8)
+    public static let button1TripleClicked  = MouseFlags(rawValue: 0x10)
+    public static let button2Pressed        = MouseFlags(rawValue: 0x80)
+    public static let button2Released       = MouseFlags(rawValue: 0x40)
+    public static let button2Clicked        = MouseFlags(rawValue: 0x100)
+    public static let button2DoubleClicked  = MouseFlags(rawValue: 0x200)
+    public static let button2TrippleClicked = MouseFlags(rawValue: 0x400)
+    public static let button3Pressed        = MouseFlags(rawValue: 0x2000)
+    public static let button3Released       = MouseFlags(rawValue: 0x1000)
+    public static let button3Clicked        = MouseFlags(rawValue: 0x4000)
+    public static let button3DoubleClicked  = MouseFlags(rawValue: 0x8000)
+    public static let button3TripleClicked  = MouseFlags(rawValue: 0x10000)
+    public static let button4Pressed        = MouseFlags(rawValue: 0x80000)
+    public static let button4Released       = MouseFlags(rawValue: 0x40000)
+    public static let button4Clicked        = MouseFlags(rawValue: 0x100000)
+    public static let button4DoubleClicked  = MouseFlags(rawValue: 0x200000)
+    public static let button4TripleClicked = MouseFlags(rawValue:  0x400000)
     
     /// The shift key was pressed when the mouse event was produced
-    static let buttonShift = MouseFlags(rawValue: 0x2000000)
+    public static let buttonShift = MouseFlags(rawValue: 0x2000000)
     /// The control key was pressed when the mouse event was produced
-    static let buttonCtrl  = MouseFlags(rawValue: 0x1000000)
+    public static let buttonCtrl  = MouseFlags(rawValue: 0x1000000)
     /// The alt key was pressed when the mouse event was produced
-    static let buttonAlt   = MouseFlags(rawValue: 0x4000000)
+    public static let buttonAlt   = MouseFlags(rawValue: 0x4000000)
     
-    static let mousePosition = MouseFlags (rawValue: 0x8000000)
+    public static let mousePosition = MouseFlags (rawValue: 0x8000000)
 
     static var debugDescriptions: [(Self, String)] = [
         (.button1Pressed, "button1Pressed"),
@@ -281,10 +281,10 @@ public struct MouseFlags: OptionSet, CustomDebugStringConvertible {
  * The `view` property, if set, indicates on which view the event took place.
  */
 public struct MouseEvent: CustomDebugStringConvertible {
-    /// The X (column) location for the mouse event
+    /// The location for the mouse event
     public var pos: Point
     
-    /// The X position for the event in global coordinates
+    /// The location for the event in global coordinates
     public var absPos: Point
     
     /// The event flags

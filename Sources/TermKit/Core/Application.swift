@@ -115,8 +115,11 @@ public class Application {
     }
 
     /// The current Console Driver in use.
-    static var driver: ConsoleDriver = ConsoleDriver()
+    public static var driver: ConsoleDriver = ConsoleDriver()
     
+    public static func makeAttribute(fore: Color, back: Color, flags: CellFlags = []) -> Attribute {
+        driver.makeAttribute(fore: fore, back: back, flags: flags)
+    }
     /**
      * Driver type selection for the application
      */

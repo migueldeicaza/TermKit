@@ -141,7 +141,6 @@ public class SplitView: View {
         try super.layoutSubviews()
         
         let splitPos = calculateSplitPosition()
-        
         switch orientation {
         case .horizontal:
             layoutHorizontal(splitPos: splitPos)
@@ -188,58 +187,49 @@ public class SplitView: View {
     }
     
     private func drawVerticalSeparator(at x: Int, painter p: Painter) {
-        // Draw the drag handle if draggable
-        if isDraggable && frame.height > 0 {
-            p.goto(col: x - 1, row: 0)
-            p.add(str: "[o]")
-        }
-        
         // Draw the separator line
-        for y in (isDraggable ? 1 : 0)..<frame.height {
+        for y in 0..<frame.height {
             p.goto(col: x, row: y)
-            p.add(ch: "│")
+            p.add(rune: _isResizing ? driver.doubleVLine : driver.vLine)
         }
     }
     
     private func drawHorizontalSeparator(at y: Int, painter p: Painter) {
-        // Draw the drag handle if draggable
-        if isDraggable && frame.width > 2 {
-            p.goto(col: 0, row: y)
-            p.add(str: _isResizing ? "[x]" : "[o]")
-            
-            // Draw the rest of the separator line
-            for _ in 3..<frame.width {
-                p.add(ch: "─")
-            }
-        } else {
-            // Draw full separator line if not draggable
-            p.goto(col: 0, row: y)
-            for _ in 0..<frame.width {
-                p.add(ch: "─")
-            }
+        // Draw full separator line if not draggable
+        p.goto(col: 0, row: y)
+        for _ in 0..<frame.width {
+            p.add(rune: _isResizing ? driver.doubleHLine : driver.hLine)
         }
     }
     
     public override func mouseEvent(event: MouseEvent) -> Bool {
-        log("In MouseEvent \(isDraggable)")
         if !isDraggable {
             return super.mouseEvent(event: event)
         }
         
         let splitPos = calculateSplitPosition()
         let onSeparator = isPointOnSeparator(point: event.pos, splitPos: splitPos)
-        log("Split: \(splitPos) onSep: \(onSeparator) flags: \(event.flags)")
         switch event.flags {
-        case .button1Pressed:
+        case .button1Clicked:
+            if _isResizing {
+                Application.ungrabMouse()
+                _isResizing = false
+                setNeedsLayout()
+                setNeedsDisplay()
+                return true
+            }
             if onSeparator {
                 _isResizing = true
+                setNeedsDisplay()
                 _dragStartPosition = event.pos
                 _dragStartSplitPosition = splitPos
+                Application.grabMouse(from: self)
                 return true
             }
             
         case .button1Released:
             if _isResizing {
+                Application.ungrabMouse()
                 _isResizing = false
                 _dragStartPosition = nil
                 splitPositionChanged?()

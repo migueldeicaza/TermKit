@@ -12,6 +12,7 @@ import TermKit
 func DemoSplitView() -> Toplevel {
     let top = Toplevel()
     top.fill()
+    var splitViewToggle: SplitView? = nil
     
     // Menu bar
     let menu = MenuBar(menus: [
@@ -22,8 +23,8 @@ func DemoSplitView() -> Toplevel {
         ]),
         MenuBarItem(title: "_View", children: [
             MenuItem(title: "_Toggle Orientation", action: {
-                if let splitView = top.subviews.first(where: { $0 is SplitView }) as? SplitView {
-                    splitView.orientation = splitView.orientation == .horizontal ? .vertical : .horizontal
+                if let splitViewToggle {
+                    splitViewToggle.orientation = splitViewToggle.orientation == .horizontal ? .vertical : .horizontal
                 }
             })
         ])
@@ -69,9 +70,10 @@ func DemoSplitView() -> Toplevel {
     // Create the split view
     let splitView = SplitView(first: principalFrame, second: detailFrame, orientation: .horizontal)
     splitView.splitPosition = .percentage(0.4)
-    splitView.minimumPaneSize = 20
+    splitView.minimumPaneSize = 5
     splitView.isDraggable = true
     splitView.fill()
+    splitViewToggle = splitView
     
     // Add status bar with instructions
     let statusBar = Label("Tab: Switch panes | Mouse: Drag separator | Ctrl+C: Exit")

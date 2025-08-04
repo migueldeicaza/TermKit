@@ -102,6 +102,7 @@ var options: [(text: String, func: () -> Toplevel)] = [
     ("Terminal",     { TerminalDemo () }),
     ("DataTable",    { DataTableDialogs () }),
     ("SplitView",    { DemoSplitView () }),
+    ("Drawing",      { DemoDrawing () }),
     ("Editor",       { DemoDesktop () }),
     ("Quit",         { Application.shutdown(); return Window () })
 ]
