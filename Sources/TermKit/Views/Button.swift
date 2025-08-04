@@ -171,7 +171,7 @@ open class Button: View {
         if event.flags == .button1Clicked {
             if canFocus {
                 if !hasFocus {
-                    superview!.setFocus (self)
+                    superview?.setFocus (self)
                     setNeedsDisplay()
                 }
             }

@@ -225,19 +225,22 @@ open class ScrollBarView: View {
 }
 
 class _ContentView: View {
-    var scrollView: ScrollView!
+    var scrollView: ScrollView?
     override init ()
     {
         super.init()
     }
     
+    // swiftlint:disable superfluous_disable_command
+    // swiftlint:disable unneeded_override
     open override func redraw(region: Rect, painter: Painter) {
         // TODO: the region should be shifted, so the receiver knows what to not render
         super.redraw(region: region, painter: painter)
     }
+    // swiftlint:enable unneeded_override
 
     open override func positionCursor() {
-        let pos = scrollView.viewToScreen(Point (x: 0, y: 0))
+        let pos = scrollView?.viewToScreen(Point (x: 0, y: 0)) ?? Point(x: 0, y: 0)
         driver.moveTo(col: pos.x, row: pos.y)
     }
     open override var debugDescription: String {
@@ -255,7 +258,7 @@ class _ContentView: View {
 /// space represented by the `contentSize`
 
 open class ScrollView : View {
-    var contentView: _ContentView!
+    var contentView: _ContentView
     var vertical, horizontal: ScrollBarView
     var _showsHorizontalScrollIndicator = false
     var _showsVerticalScrollIndicator = false
@@ -281,12 +284,14 @@ open class ScrollView : View {
         canFocus = true
     }
     
+    // swiftlint:disable unneeded_override
     open override func redraw(region: Rect, painter: Painter) {
         //let oldClip = clipToBounds()
         super.redraw(region: region, painter: painter)
         //driver.clip = oldClip
     }
-    
+    // swiftlint:enable unneeded_override
+
     public override func layoutSubviews () {
         let f = bounds
         

@@ -211,7 +211,7 @@ open class TextField: View {
             if point == 0 || readOnly {
                 return true
             }
-            point = point - 1
+            point -= 1
             let old = text
             textBuffer.remove (at: point)
             raiseTextChanged(old: old)
@@ -264,7 +264,7 @@ open class TextField: View {
             let clip = TextField.toTextBuffer(Clipboard.contents)
             let old = text
             if point == textBuffer.count {
-                textBuffer = textBuffer + clip
+                textBuffer += clip
             } else {
                 textBuffer = textBuffer [0..<point] + clip + textBuffer [point...]
             }
@@ -297,7 +297,6 @@ open class TextField: View {
                 setClipboard(TextField.fromTextBuffer(Array (textBuffer [start..<end])))
             }
 
-            
         // Windows/Linux: Control-X
         // Emacs: Control-X
         case .controlX, .controlW:
@@ -324,7 +323,7 @@ open class TextField: View {
             let old = text
             if used {
                 if point == textBuffer.count {
-                    textBuffer = textBuffer + kbstr
+                    textBuffer += kbstr
                 } else {
                     textBuffer = textBuffer [0..<point] + kbstr + textBuffer [point...]
                 }

@@ -521,7 +521,7 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
         var r = pos + frame.origin
         var ccontainer = superview
         while ccontainer != nil {
-            r = r + ccontainer!.frame.origin
+            r += (ccontainer?.frame.origin ?? Point.zero)
             ccontainer = ccontainer?.superview
         }
         
@@ -585,7 +585,6 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
     
     var _hasFocus: Bool = false
     
-    
     /// True if this view currently has the focus (events go to this view)
     public var hasFocus: Bool {
         get {
@@ -612,7 +611,6 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
             }
         }
     }
-    
     
     /**
      * Returns the most focused view in the chain of subviews (the leaf view that has the focus).
@@ -693,17 +691,17 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
             return
         }
         
-        if focused != nil && focused! === theView {
+        if let focused, focused === theView {
             return
         }
         
         // Make sure that this view is a subview
         var c = theView.superview
         while c != nil {
-            if c! === self {
+            if let c, c === self {
                 break
             }
-            c = c!.superview
+            c = c?.superview
         }
         if c == nil {
             // TODO raise error
@@ -818,7 +816,7 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
     /// Focuses the first focusable subview if one exists.
     public func focusFirst ()
     {
-        if subviews == [] {
+        if subviews.isEmpty {
             superview?.setFocus (self)
             return
         }
@@ -834,7 +832,7 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
     /// Focuses the last focusable subview if one exists.
     public func focusLast ()
     {
-        if subviews == [] {
+        if subviews.isEmpty {
             superview?.setFocus (self)
             return
         }
@@ -876,7 +874,7 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
                 continue
             }
             if w.canFocus && focusedIdx != -1 && w.tabStop {
-                focused!.setHasFocus(other: w, value: false)
+                focused?.setHasFocus(other: w, value: false)
                 if w.canFocus && w.tabStop {
                     w.focusLast()
                 }
@@ -919,7 +917,7 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
                 continue
             }
             if w.canFocus && focusedIdx != -1 && w.tabStop {
-                focused!.setHasFocus(other: w, value: false)
+                focused?.setHasFocus(other: w, value: false)
                 if w.canFocus && w.tabStop {
                     w.focusFirst ()
                 }
@@ -953,7 +951,7 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
                 _x = 0;
             }
             if let rwidth = width {
-                if rwidth is Dim.DimFactor && !(rwidth as! Dim.DimFactor).remaining {
+                if let rdim = rwidth as? Dim.DimFactor, !rdim.remaining {
                     w = rwidth.anchor (hostFrame.width)
                 } else {
                     w = max (rwidth.anchor (hostFrame.width - _x), 0)
@@ -977,7 +975,7 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
                 _y = 0
             }
             if let rheight = height {
-                if rheight is Dim.DimFactor && !(rheight as! Dim.DimFactor).remaining {
+                if let rdim = rheight as? Dim.DimFactor, !rdim.remaining {
                     h = rheight.anchor (hostFrame.height)
                 } else {
                     h = max (rheight.anchor (hostFrame.height - _y), 0)
@@ -1052,20 +1050,20 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
     {
         var ww, hh, xx, yy: Int
         
-        if _x != nil && x is Pos.PosCenter {
-            ww = _width == nil ? hostFrame.width : _width!.anchor(hostFrame.width)
-            xx = _x!.anchor(hostFrame.width - ww)
+        if let _x, _x is Pos.PosCenter {
+            ww = _width?.anchor(hostFrame.width) ?? hostFrame.width
+            xx = _x.anchor(hostFrame.width - ww)
         } else {
-            xx = _x == nil ? 0 : x!.anchor(hostFrame.width)
-            ww = _width == nil ? hostFrame.width : _width!.anchor(hostFrame.width-xx)
+            xx = x?.anchor(hostFrame.width) ?? 0
+            ww = _width?.anchor(hostFrame.width-xx) ?? hostFrame.width
         }
         
-        if _y != nil && y is Pos.PosCenter {
-            hh = _height == nil ? hostFrame.height : _height!.anchor(hostFrame.height)
-            yy = _y!.anchor(hostFrame.height-hh)
+        if let _y, _y is Pos.PosCenter {
+            hh = _height?.anchor(hostFrame.height) ?? hostFrame.height
+            yy = _y.anchor(hostFrame.height-hh)
         } else {
-            yy = _y == nil ? 0 : y!.anchor(hostFrame.height)
-            hh = _height == nil ? hostFrame.height : _height!.anchor(hostFrame.height-yy)
+            yy = y?.anchor(hostFrame.height) ?? 0
+            hh = _height?.anchor(hostFrame.height-yy) ?? hostFrame.height
         }
         _frame = Rect (x: xx, y: yy, width: ww, height: hh)
     }
@@ -1092,9 +1090,8 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
             return edges.allSatisfy({$0.to !== n})
         }))
         
-        while s.count > 0 {
+        while let n = s.first {
             // remove a node n from S
-            let n = s.first!
             s.remove(n)
             
             // add n to to tail of L
@@ -1240,7 +1237,6 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
         return true
     }
     
-
     open var debugDescription: String {
         var subtext: String = ""
         

@@ -12,7 +12,6 @@ let maybe = false
 func Assorted () -> Window {
     let win = Window ()
 
-
     // Test the filling
     if maybe {
         let another=TextField ("Another")
@@ -60,7 +59,7 @@ func Assorted () -> Window {
     remember.y = Pos.top(of: passField) + 1
     let rememberCount = Label ("Remember has not been toggled")
     rememberCount.y = Pos.top (of: passField) + 2
-    rememberCount.x = remember.x!
+    rememberCount.x = remember.x ?? Pos.at(0)
     var count = 0
     remember.toggled = { view in
         count += 1

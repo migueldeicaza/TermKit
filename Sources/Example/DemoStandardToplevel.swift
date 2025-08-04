@@ -1,4 +1,3 @@
-
 //
 //  File.swift
 //
@@ -22,7 +21,6 @@ func DemoDesktop2 () -> Toplevel {
     w2.set(x: 40, y: 1, width: 25, height: 12)
     w2.allowResize = true
     top.addSubview(w2)
-
 
     return top
 }

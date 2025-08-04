@@ -181,28 +181,28 @@ public class Colors {
     /// The base color scheme is used for the main UI elements in the application
     public static var base: ColorScheme {
         get {
-            return _base!
+            return _base ?? ColorScheme.fallback
         }
     }
     
     // The color scheme to display pop up dialogs
     public static var dialog: ColorScheme {
         get {
-            return _dialog!
+            return _dialog ?? ColorScheme.fallback
         }
     }
     
     /// The color scheme to display the top application menu bar.
     public static var menu : ColorScheme {
         get {
-            return _menu!
+            return _menu ?? ColorScheme.fallback
         }
     }
     
     /// The color scheme used to display error messages
     public static var error: ColorScheme {
         get {
-            return _error!
+            return _error ?? ColorScheme.fallback
         }
     }
 }
@@ -220,29 +220,31 @@ open class ConsoleDriver {
     }
     
     var size: Size
-    var ulCorner = Unicode.Scalar (0x250c)!
-    var llCorner = Unicode.Scalar (0x2514)!
-    var hLine = Unicode.Scalar (0x2500)!
-    var vLine = Unicode.Scalar (0x2502)!
-    var urCorner = Unicode.Scalar (0x2510)!
-    var lrCorner = Unicode.Scalar (0x2518)!
-    var doubleUlCorner = Unicode.Scalar (0x2554)!   // ╔
-    var doubleLlCorner = Unicode.Scalar (0x255a)!   // ╚
-    var doubleHLine = Unicode.Scalar (0x2550)!      // ═
-    var doubleVLine = Unicode.Scalar (0x2551)!      // ║
-    var doubleUrCorner = Unicode.Scalar (0x2557)!   // ╗
-    var doubleLrCorner = Unicode.Scalar (0x255d)!   // ╝
+    // swiftlint:disable force_unwrapping
+    let ulCorner = Unicode.Scalar (0x250c)!
+    let llCorner = Unicode.Scalar (0x2514)!
+    let hLine = Unicode.Scalar (0x2500)!
+    let vLine = Unicode.Scalar (0x2502)!
+    let urCorner = Unicode.Scalar (0x2510)!
+    let lrCorner = Unicode.Scalar (0x2518)!
+    let doubleUlCorner = Unicode.Scalar (0x2554)!   // ╔
+    let doubleLlCorner = Unicode.Scalar (0x255a)!   // ╚
+    let doubleHLine = Unicode.Scalar (0x2550)!      // ═
+    let doubleVLine = Unicode.Scalar (0x2551)!      // ║
+    let doubleUrCorner = Unicode.Scalar (0x2557)!   // ╗
+    let doubleLrCorner = Unicode.Scalar (0x255d)!   // ╝
 
     let space = Unicode.Scalar (32)!
-    var stipple = Unicode.Scalar (0x2591)!
-    var diamond = Unicode.Scalar (0x25c6)!
-    var leftTee = Unicode.Scalar (0x251c)!
-    var rightTee = Unicode.Scalar (0x2524)!
-    var bottomTee = Unicode.Scalar (0x22a5)!
-    var topTee = Unicode.Scalar (0x22a4)!
+    let stipple = Unicode.Scalar (0x2591)!
+    let diamond = Unicode.Scalar (0x25c6)!
+    let leftTee = Unicode.Scalar (0x251c)!
+    let rightTee = Unicode.Scalar (0x2524)!
+    let bottomTee = Unicode.Scalar (0x22a5)!
+    let topTee = Unicode.Scalar (0x22a4)!
     
-    var filledCircle = Unicode.Scalar (0x25CF)!   // "●"
-    var emptyCircle = Unicode.Scalar (0x25CB)!    // "○"
+    let filledCircle = Unicode.Scalar (0x25CF)!   // "●"
+    let emptyCircle = Unicode.Scalar (0x25CB)!    // "○"
+    // swiftlint:enable force_unwrapping
     
     // Use these or [x] [ ]
     var radioOn = "●"
@@ -269,7 +271,6 @@ open class ConsoleDriver {
         }
     }
 
-    
     /**
      * Moves the cursor to the screen to the specified column and row
      * - Parameters:

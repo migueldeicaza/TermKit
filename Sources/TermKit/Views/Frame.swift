@@ -59,10 +59,10 @@ open class Frame: View {
                 painter.attribute = colorScheme.focus
             }
             let w = frame.width
-            if title != nil && w > 4 {
+            if let title, w > 4 {
                 painter.goto(col: 1, row: 0)
                 painter.add(str: " ")
-                let t = title!
+                let t = title
                 painter.add(str: t.getVisibleString(w - 4))
                 painter.add(str: " ")
             }

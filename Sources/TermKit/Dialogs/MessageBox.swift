@@ -96,12 +96,14 @@ public class MessageBox {
         
         let border = 4
         
-        if width == nil {
-            realWidth = max (Label3.maxWidth(text: title) + 2 + border, Label3.maxWidth (text: message ?? "") + border + 2)
+        if let width {
+            realWidth = width
         } else {
-            realWidth = width!
+            realWidth = max (Label3.maxWidth(text: title) + 2 + border, Label3.maxWidth (text: message ?? "") + border + 2)
         }
-        if height == nil {
+        if let height {
+            realHeight = height
+        } else {
             var lines = 1
             for c in message ?? "" {
                 if c == "\n" {
@@ -109,8 +111,6 @@ public class MessageBox {
                 }
             }
             realHeight = border + lines + 3
-        } else {
-            realHeight = height!
         }
         let d = Dialog(title: title, width: realWidth, height: realHeight, buttons: [])
         d.closedCallback = {
@@ -133,8 +133,8 @@ public class MessageBox {
         if useErrorColors {
             d.colorScheme = Colors.error
         }
-        if message != nil {
-            let l = Label (message!)
+        if let message {
+            let l = Label (message)
             l.x = Pos.center () - Pos.at (textWidth/2)
             l.y = Pos.at (0)
             

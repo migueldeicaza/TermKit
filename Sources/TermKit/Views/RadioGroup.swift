@@ -55,7 +55,6 @@ open class RadioGroup: View {
         }
     }
     
-
     /// The labels displayed for this radio group
     public private(set) var radioLabels: [String]
     /// The orientation in which this radio group is shown
@@ -184,7 +183,7 @@ open class RadioGroup: View {
         if event.flags == .button1Clicked {
             if canFocus {
                 if !hasFocus {
-                    superview!.setFocus (self)
+                    superview?.setFocus (self)
                     setNeedsDisplay()
                 }
             }

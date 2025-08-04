@@ -96,15 +96,22 @@ open class TerminalView: View, TerminalDelegate {
         terminalDelegate?.send (source: self, data: data)
     }
     
-    var terminal: Terminal!
-    public var terminalDelegate: TerminalViewDelegate?
+    var terminal: Terminal
+    public weak var terminalDelegate: TerminalViewDelegate?
+    
+    class DummyDelegate: TerminalDelegate {
+        func send(source: SwiftTerm.Terminal, data: ArraySlice<UInt8>) {
+            //
+        }
+    }
     
     public override init ()
     {
+        let terminalOptions = TerminalOptions(cols: 80, rows: 24)
+        terminal = Terminal (delegate: DummyDelegate(), options: terminalOptions)
         super.init ()
         canFocus = true
-        let terminalOptions = TerminalOptions(cols: 80, rows: 24)
-        terminal = Terminal (delegate: self, options: terminalOptions)
+        terminal = Terminal(delegate: self, options: terminalOptions)
     }
     
     open override var frame: Rect {
@@ -189,7 +196,6 @@ open class TerminalView: View, TerminalDelegate {
         let dim = frame.size
         let maxCol = dim.width
         let maxRow = dim.height
-    
     
         var lastAttr: SwiftTerm.Attribute? = nil
         for row in 0..<maxRow {
@@ -373,11 +379,24 @@ public class LocalProcessTerminalView: TerminalView, LocalProcessDelegate, Termi
         //
     }
     
-    var process: LocalProcess!
+    var process: LocalProcess
     var processDelegate: LocalProcessTerminalViewDelegate?
+
+    class DummyProcessDelegate: LocalProcessDelegate {
+        func processTerminated(_ source: SwiftTerm.LocalProcess, exitCode: Int32?) {
+        }
+        
+        func dataReceived(slice: ArraySlice<UInt8>) {
+        }
+        
+        func getWindowSize() -> winsize {
+            return winsize(ws_row: 0, ws_col: 0, ws_xpixel: 0, ws_ypixel: 0)
+        }
+    }
     
     public init (delegate: LocalProcessTerminalViewDelegate? = nil)
     {
+        process = LocalProcess(delegate: DummyProcessDelegate())
         super.init ()
         process = LocalProcess (delegate: self)
         self.processDelegate = delegate
@@ -457,6 +476,4 @@ public class LocalProcessTerminalView: TerminalView, LocalProcessDelegate, Termi
     public func requestOpenLink(source: TerminalView, link: String, params: [String : String]) {
         // TODO
     }
-    
-
 }

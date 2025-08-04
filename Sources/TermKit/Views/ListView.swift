@@ -138,8 +138,15 @@ open class ListView: View {
             self.render = render
         }
         
-        func render (listView: ListView, painter: Painter, selected: Bool,
-                     item: Int, col: Int, line: Int, width: Int)
+        func render (
+            listView: ListView,
+            painter: Painter,
+            selected: Bool,
+            item: Int,
+            col: Int,
+            line: Int,
+            width: Int
+        )
         {
             let txt = render (item, width-listView.selectedMarkerCount)
             let count = txt.cellCount()

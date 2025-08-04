@@ -34,22 +34,22 @@ public class InputBox {
         var realWidth, realHeight: Int
         
         let border = 4
-        
-        if width == nil {
-            realWidth = min (Application.top.bounds.width-1, max (60, max (Label3.maxWidth(text: title) + 2 + border, Label3.maxWidth (text: message ?? "") + border + 2)))
+
+        if let width {
+            realWidth = width
         } else {
-            realWidth = width!
+            realWidth = min (Application.top.bounds.width-1, max (60, max (Label3.maxWidth(text: title) + 2 + border, Label3.maxWidth (text: message ?? "") + border + 2)))
         }
         var lines = 1
-        if height == nil {
+        if let height {
+            realHeight = height
+        } else {
             for c in message ?? "" {
                 if c == "\n" {
                     lines += 1
                 }
             }
             realHeight = border + lines + 3
-        } else {
-            realHeight = height!
         }
         realHeight += 1
         let input = TextField (text)
@@ -80,8 +80,8 @@ public class InputBox {
         d.addButton(ok)
         d.addButton(cancel)
 
-        if message != nil {
-            let l = Label (message!)
+        if let message {
+            let l = Label (message)
             l.x = Pos.center () - Pos.at (textWidth/2)
             l.y = Pos.at (0)
             

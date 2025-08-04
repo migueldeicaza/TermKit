@@ -2,7 +2,7 @@
 //  DemoSplitView.swift
 //  Example
 //
-//  Demonstrates the SplitView with a master-detail interface
+//  Demonstrates the SplitView with a principal-detail interface
 //
 
 import Foundation
@@ -31,17 +31,17 @@ func DemoSplitView() -> Toplevel {
     top.addSubview(menu)
     
     // Main window
-    let win = Window("SplitView Demo - Master/Detail")
+    let win = Window("SplitView Demo - principal/Detail")
     win.x = Pos.at(0)
     win.y = Pos.at(1)
     win.width = Dim.fill()
     win.height = Dim.fill()
     
-    // Master list (categories)
-    let masterFrame = Frame("Categories")
+    // principal list (categories)
+    let principalFrame = Frame("Categories")
     let categories = ["Animals", "Plants", "Vehicles"]
-    let masterList = ListView(items: categories)
-    masterFrame.addSubview(masterList)
+    let principalList = ListView(items: categories)
+    principalFrame.addSubview(principalList)
     
     // Detail list (items)
     let detailFrame = Frame("Items")
@@ -55,8 +55,8 @@ func DemoSplitView() -> Toplevel {
         "Vehicles": ["Car", "Truck", "Bicycle", "Motorcycle", "Bus", "Train", "Airplane", "Boat", "Helicopter", "Scooter"]
     ]
     
-    // Handle selection in master list
-    masterList.activate = { item in
+    // Handle selection in principal list
+    principalList.activate = { item in
         let category = categories[item]
         if let items = categoryData[category] {
             detailFrame.title = "Items - \(category)"
@@ -67,7 +67,7 @@ func DemoSplitView() -> Toplevel {
     }
     
     // Create the split view
-    let splitView = SplitView(first: masterFrame, second: detailFrame, orientation: .horizontal)
+    let splitView = SplitView(first: principalFrame, second: detailFrame, orientation: .horizontal)
     splitView.splitPosition = .percentage(0.4)
     splitView.minimumPaneSize = 20
     splitView.isDraggable = true
@@ -84,8 +84,8 @@ func DemoSplitView() -> Toplevel {
     win.addSubview(statusBar)
     
     // Select first category by default
-    masterList.selectedItem = 0
-    _ = masterList.activate?(0)
+    principalList.selectedItem = 0
+    _ = principalList.activate?(0)
     
     top.addSubview(win)
     return top

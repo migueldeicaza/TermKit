@@ -35,7 +35,6 @@ func FileDialogs () -> Window {
     let quit = Button ("Quit") { Application.requestStop() }
     quit.set (x: 1, y: 3)
     
-    
     w.addSubviews([open, save, quit, resFrame])
     return w
 }

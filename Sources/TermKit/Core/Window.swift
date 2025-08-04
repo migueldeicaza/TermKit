@@ -20,7 +20,6 @@ class ContentView: View {
     }
 }
 
-
 /**
  * A toplevel view that draws a frame around its region and has a "ContentView" subview where the contents are added.
  * with an optional title that is displayed at the top
@@ -167,7 +166,7 @@ open class Window: Toplevel {
         var contentRegion = contentFrame.intersection(region)
         
         // Now turn it into their local coordinates
-        contentRegion.origin = contentRegion.origin - contentFrame.origin
+        contentRegion.origin -= contentFrame.origin
         contentView.redraw(region: contentRegion, painter: Painter (from: contentView, parent: p))
         clearNeedsDisplay()
     }

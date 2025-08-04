@@ -117,7 +117,13 @@ open class TextView: View {
         }
         set {
             resetPosition()
-            storage = TextView.createEmptyPieceTree(initialBlocks: newValue == nil ? [] : [newValue!])
+            let blocks: [String]
+            if let newValue {
+                blocks = [newValue]
+            } else {
+                blocks = []
+            }
+            storage = TextView.createEmptyPieceTree(initialBlocks: blocks)
             setNeedsDisplay()
         }
     }

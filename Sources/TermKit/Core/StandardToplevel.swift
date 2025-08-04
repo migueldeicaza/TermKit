@@ -72,7 +72,7 @@ open class StandardToplevel: Toplevel {
     }
     
     open override func addSubview(_ view: View) {
-        if view is MenuBar {
+        if let menuBarView = view as? MenuBar {
             if let existing = menubar {
                 removeSubview(existing)
             }
@@ -81,16 +81,16 @@ open class StandardToplevel: Toplevel {
             view.height = Dim.sized(1)
             view.width = Dim.fill()
             
-            self.menubar = (view as! MenuBar)
+            self.menubar = menuBarView
         }
-        if view is StatusBar {
+        if let statusBarView = view as? StatusBar {
             if let existing = statusbar {
                 removeSubview(existing)
             }
             view.x = Pos.at(0)
             view.y = Pos.anchorEnd()-1
             view.width = Dim.fill()
-            self.statusbar = (view as! StatusBar)
+            self.statusbar = statusBarView
         }
         super.addSubview(view)
     }

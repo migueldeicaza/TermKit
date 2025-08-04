@@ -30,22 +30,22 @@ public struct Size: CustomDebugStringConvertible, Codable, Equatable {
         self.height = point.y
     }
 
-    public static func +(lhs: Size, rhs: Size) -> Size
+    public static func + (lhs: Size, rhs: Size) -> Size
     {
         return Size (width: lhs.width + rhs.width, height: lhs.width + rhs.width)
     }
 
-    public static func -(lhs: Size, rhs: Size) -> Size
+    public static func - (lhs: Size, rhs: Size) -> Size
     {
         return Size (width: lhs.width - rhs.width, height: lhs.width - rhs.width)
     }
 
-    public static func ==(lhs: Size, rhs: Size) -> Bool
+    public static func == (lhs: Size, rhs: Size) -> Bool
     {
         return lhs.height == rhs.height && lhs.width == rhs.width
     }
 
-    public static func !=(lhs: Size, rhs: Size) -> Bool
+    public static func != (lhs: Size, rhs: Size) -> Bool
     {
         return lhs.height != rhs.height || lhs.width != rhs.width
     }

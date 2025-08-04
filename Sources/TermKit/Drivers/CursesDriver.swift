@@ -12,7 +12,6 @@ import Curses
 /// Turn this on to debug rendering problems, makes screen updates sync
 var sync: Bool = false
 
-
 // This is a lame hack to call into a global that has a name that clashes with a class member name
 class LameHack {
     static func doRefresh ()
@@ -26,8 +25,7 @@ class CursesDriver: ConsoleDriver {
     var crow: Int32 = 0
     var needMove: Bool = false
     
-    var cursesWindow: OpaquePointer!
-    
+    var cursesWindow: OpaquePointer?
     
     // Swift ncurses does not bind these
     let A_NORMAL    : Int32 = 0x0
@@ -69,12 +67,10 @@ class CursesDriver: ConsoleDriver {
     var oldMouseEvents: mmask_t
     var mouseEvents: mmask_t
 
-    
     typealias get_wch_def = @convention(c) (UnsafeMutablePointer<Int32>) -> Int
     
     // Dynamically loaded definitions, because Darwin.ncurses does not bring these
     var get_wch_fn: get_wch_def? = nil
-    
 
     override init ()
     {
@@ -453,7 +449,7 @@ class CursesDriver: ConsoleDriver {
     }
     
     func cellFlagsToCurses (flags: CellFlags) -> Int32 {
-        if flags == [] { return 0 }
+        if flags.isEmpty { return 0 }
         var res: Int32 = 0
         if flags.contains(.blink) {
             res |= A_BLINK

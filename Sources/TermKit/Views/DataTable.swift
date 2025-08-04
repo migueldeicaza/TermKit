@@ -195,7 +195,6 @@ open class DataTable: View {
                 break
             }
             
-            
             columnsToRender.append(ColumnToRender (col: col, x: startingIdxForCurrentHeader))
             first = false
         }
@@ -594,9 +593,10 @@ open class DataTable: View {
                 multiSelectedRegions.append (rect)
             } else {
                 // Extend the current head selection to include the new cell
-                let head = multiSelectedRegions.last!
-                let newRect = createTableSelection (head.minX, head.minY, col, row)
-                multiSelectedRegions.append (newRect)
+                if let head = multiSelectedRegions.last {
+                    let newRect = createTableSelection (head.minX, head.minY, col, row)
+                    multiSelectedRegions.append (newRect)
+                }
             }
         }
 

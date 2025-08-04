@@ -385,7 +385,6 @@ public class Application {
                 continue
             }
             
-            
             // the source location to copy from (clamped)
             let sourceStart = Point (x: vframe.minX < 0 ? -vframe.minX : 0, y: vframe.minY < 0 ? -vframe.minY : 0)
             for row in 0..<intersection.height {
@@ -472,7 +471,6 @@ public class Application {
         
         let content = compose()
         updateDisplay(content)
-        
         
         toplevel.positionCursor()
         driver.refresh()
@@ -599,7 +597,6 @@ public class Application {
     public static func shutdown(statusCode: Int = 0)
     {
         initialized = false
-        
         
         close (pipePostProcessEvent[0])
         close (pipePostProcessEvent[1])

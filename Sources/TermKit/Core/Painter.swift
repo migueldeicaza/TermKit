@@ -38,27 +38,31 @@ public class Painter {
     private var attrSet = false
     private var isTop = false
     
-    private init (from view: View, isTop: Bool = false)
+    private init(from view: View, isTop: Bool = false)
     {
         self.view = view
         attribute = view.colorScheme.normal
         origin = view.frame.origin
         visible = view.frame
-        driver = isTop ? TopDriver (Application.driver,  top: view as! Toplevel) : Application.driver
+        if isTop, let viewTop = view as? Toplevel {
+            driver = TopDriver(Application.driver, top: viewTop)
+        } else {
+            driver = Application.driver
+        }
         pos = Point.zero
         self.isTop = isTop
     }
     
     /// This creates a painter, that renders into the Toplevel backing buffer
-    public static func createTopPainter (from top: Toplevel) -> Painter {
+    public static func createTopPainter(from top: Toplevel) -> Painter {
         top.ensureLayer()
-        return Painter (from: top, isTop: true)
+        return Painter(from: top, isTop: true)
     }
     
     /**
      * This method takes the platform-agnostic Color enumeration for foreground and background and produces an attribute
      */
-    public func makeAttribute (fore: Color, back: Color, flags: CellFlags = []) -> Attribute {
+    public func makeAttribute(fore: Color, back: Color, flags: CellFlags = []) -> Attribute {
         driver.makeAttribute(fore: fore, back: back, flags: flags)
     }
     
@@ -74,19 +78,19 @@ public class Painter {
         driver = parent.driver
         
         origin = parent.origin + view.frame.origin
-        visible = parent.visible.intersection(Rect (origin: origin, size: view.bounds.size))
+        visible = parent.visible.intersection(Rect(origin: origin, size: view.bounds.size))
     }
     
     deinit {
         applyContext()
     }
     
-    public func colorNormal ()
+    public func colorNormal()
     {
         attribute = view.colorScheme.normal
     }
     
-    public func colorSelection ()
+    public func colorSelection()
     {
         attribute = view.hasFocus ? view.colorScheme.focus : view.colorScheme.normal
     }
@@ -99,7 +103,7 @@ public class Painter {
      * - Parameter col: the new column where the cursor will be.
      * - Parameter row: the new row where the cursor will be.
      */
-    public func goto (col: Int, row: Int)
+    public func goto(col: Int, row: Int)
     {
         self.pos = Point(x: col, y: row)
         posSet = false
@@ -112,14 +116,14 @@ public class Painter {
      *
      * - Parameter to: the point that contains the new cursor position
      */
-    public func go (to: Point)
+    public func go(to: Point)
     {
         self.pos = to
         posSet = false
     }
-
+    
     // if necessary, sets the current attribute
-    func applyContext ()
+    func applyContext()
     {
         if !attrSet {
             if isTop == false {
@@ -138,9 +142,9 @@ public class Painter {
         }
         // TODO: optimize, we can handle the visibility for rows before and later just do
         // columns rather than testing both.
-        let len = Int32 (wcwidth(wchar_t (bitPattern: rune.value)))
-        let npos = pos.x + Int (len)
-
+        let len = Int32(wcwidth(wchar_t(bitPattern: rune.value)))
+        let npos = pos.x + Int(len)
+        
         if npos > maxWidth {
             // We are out of bounds, but the width might be larger than 1 cell
             // so we should draw a space
@@ -155,73 +159,72 @@ public class Painter {
                     driver.moveTo(col: cursor.x, row: cursor.y)
                     posSet = true
                 }
-
-                driver.addRune (rune)
+                
+                driver.addRune(rune)
             }
-            pos.x += Int (len)
+            pos.x += Int(len)
         }
     }
     
-    public func add (str: String)
+    public func add(str: String)
     {
         let strScalars = str.unicodeScalars
         let maxWidth = view.bounds.width
         
-        applyContext ()
+        applyContext()
         for uscalar in strScalars {
-            add (rune: uscalar, maxWidth: maxWidth)
+            add(rune: uscalar, maxWidth: maxWidth)
         }
     }
-
-    public func add (ch: Character)
+    
+    public func add(ch: Character)
     {
         let strScalars = ch.unicodeScalars
         let maxWidth = view.bounds.width
         
-        applyContext ()
+        applyContext()
         for uscalar in strScalars {
-            add (rune: uscalar, maxWidth: maxWidth)
+            add(rune: uscalar, maxWidth: maxWidth)
         }
     }
-
-    public func add (rune: UnicodeScalar)
+    
+    public func add(rune: UnicodeScalar)
     {
-        add (str: String (rune))
+        add(str: String(rune))
     }
     
     /**
      * Clears the view region with the current color.
      */
-    public func clear (with: Character = " ")
+    public func clear(with: Character = " ")
     {
         applyContext()
-        clear (view.bounds, with: with)
+        clear(view.bounds, with: with)
     }
-
+    
     /// Clears the specified region in painter coordinates
     /// - Parameter rect: the region to clear, the coordinates are relative to the view
-    public func clear (_ rect: Rect, with: Character = " ")
+    public func clear(_ rect: Rect, with: Character = " ")
     {
         let scalars = with.unicodeScalars
         applyContext()
-        if scalars.count == 1 {
-            let s = scalars.first!
+        if scalars.count == 1, let s = scalars.first {
             let w = rect.width
             
             for line in rect.minY..<rect.maxY {
-                goto (col: rect.minX, row: line)
-
+                goto(col: rect.minX, row: line)
+                
                 for _ in 0..<w {
-                    add (rune: s, maxWidth: w)
+                    add(rune: s, maxWidth: w)
                 }
             }
         } else {
             let w = rect.width
             for line in rect.minY..<rect.maxY {
-                goto (col: rect.minX, row: line)
-
+                goto(col: rect.minX, row: line)
+                
                 for _ in 0..<w {
-                    add (ch: with)
+                    add(ch: with)
                 }
             }
         }
@@ -233,89 +236,89 @@ public class Painter {
     ///   - top: Top row
     ///   - right: Right column
     ///   - bottom: Bottom row
-    func clearRegion (left: Int, top: Int, right: Int, bottom: Int)
+    func clearRegion(left: Int, top: Int, right: Int, bottom: Int)
     {
         applyContext()
-        let lstr = String (repeating: " ", count: right-left)
+        let lstr = String(repeating: " ", count: right-left)
         for row in top..<bottom {
             goto(col: left, row: row)
-            add (str: lstr)
+            add(str: lstr)
         }
     }
-
+    
     /**
      * Draws a frame on the specified region with the specified padding around the frame.
      * - Parameter region: Region where the frame will be drawn.
      * - Parameter padding: Padding to add on the sides
      * - Parameter fill: If set to `true` it will clear the contents with the current color, otherwise the contents will be left untouched.
      */
-    public func drawFrame (_ region: Rect, padding: Int, fill: Bool, double: Bool = false)
+    public func drawFrame(_ region: Rect, padding: Int, fill: Bool, double: Bool = false)
     {
         let width = region.width;
         let height = region.height;
-
+        
         let fwidth = width - padding * 2;
         let fheight = height - 1 - padding;
         
         goto(col: region.minX, row: region.minY)
         
-        if (padding > 0) {
+        if padding > 0 {
             for _ in 0..<padding {
                 for _ in 0..<width {
-                    add (ch: " ")
+                    add(ch: " ")
                 }
             }
         }
-        goto (col: region.minX, row: region.minY + padding);
+        goto(col: region.minX, row: region.minY + padding);
         for _ in 0..<padding {
-            add (ch: " ")
+            add(ch: " ")
         }
-        add (rune: double ? driver.doubleUlCorner : driver.ulCorner)
+        add(rune: double ? driver.doubleUlCorner : driver.ulCorner)
         for _ in 0..<(fwidth-2) {
-            add (rune: double ? driver.doubleHLine : driver.hLine);
+            add(rune: double ? driver.doubleHLine : driver.hLine);
         }
-        add (rune: double ? driver.doubleUrCorner : driver.urCorner);
+        add(rune: double ? driver.doubleUrCorner : driver.urCorner);
         for _ in 0..<padding {
-            add (ch: " ")
+            add(ch: " ")
         }
         
         if fheight > 1+padding {
             for b in (1+padding)..<fheight {
-                goto (col: region.minX, row: region.minY + b);
+                goto(col: region.minX, row: region.minY + b);
                 for _ in 0..<padding {
-                    add (ch: " ")
+                    add(ch: " ")
                 }
-                add (rune: double ? driver.doubleVLine : driver.vLine);
+                add(rune: double ? driver.doubleVLine : driver.vLine);
                 if fill {
                     for _ in 1..<(fwidth-1){
-                        add (ch: " ")
+                        add(ch: " ")
                     }
                 } else {
-                    goto (col: region.minX + padding + fwidth - 1, row: region.minY + b)
+                    goto(col: region.minX + padding + fwidth - 1, row: region.minY + b)
                 }
-                add (rune: double ? driver.doubleVLine : driver.vLine);
+                add(rune: double ? driver.doubleVLine : driver.vLine);
                 for _ in 0..<padding {
-                    add (ch: " ")
+                    add(ch: " ")
                 }
             }
         }
-        goto (col: region.minX, row: region.minY + fheight)
+        goto(col: region.minX, row: region.minY + fheight)
         for _ in 0..<padding {
-            add (ch: " ")
+            add(ch: " ")
         }
-        add (rune: double ? driver.doubleLlCorner : driver.llCorner);
+        add(rune: double ? driver.doubleLlCorner : driver.llCorner);
         for _ in 0..<(fwidth - 2) {
-            add (rune: double ? driver.doubleHLine : driver.hLine);
+            add(rune: double ? driver.doubleHLine : driver.hLine);
         }
-        add (rune: double ? driver.doubleLrCorner : driver.lrCorner);
+        add(rune: double ? driver.doubleLrCorner : driver.lrCorner);
         for _ in 0..<padding {
-            add (ch: " ")
+            add(ch: " ")
         }
         if padding > 0 {
-            goto (col: region.minX, row: region.minY + height - padding);
+            goto(col: region.minX, row: region.minY + height - padding);
             for _ in 0..<padding {
                 for _ in 0..<width {
-                    add (ch: " ")
+                    add(ch: " ")
                 }
             }
         }
@@ -327,27 +330,27 @@ public class Painter {
      * - Parameter hotColor: the color to use for the hotkey
      * - Parameter normalColor: the color to use for the normal color
      */
-    public func drawHotString (text: String, hotColor: Attribute, normalColor: Attribute)
+    public func drawHotString(text: String, hotColor: Attribute, normalColor: Attribute)
     {
         attribute = normalColor
-
+        
         for ch in text {
             if ch == "_" {
                 attribute = hotColor
             } else {
-                add (str: String (ch))
+                add(str: String(ch))
                 attribute = normalColor
             }
         }
     }
- 
+    
     /**
      * Utility function to draw strings that contains a hotkey using a colorscheme and the "focused" state.
      * - Parameter text: String to display, the underscoore before a letter flags the next letter as the hotkey.
      * - Parameter focused: If set to `true` this uses the focused colors from the color scheme, otherwise the regular ones.
      * - Parameter scheme: The color scheme to use
      */
-    public func drawHotString (text: String, focused: Bool, scheme: ColorScheme)
+    public func drawHotString(text: String, focused: Bool, scheme: ColorScheme)
     {
         if focused {
             drawHotString(text: text, hotColor: scheme.hotFocus, normalColor: scheme.focus)
@@ -355,11 +358,10 @@ public class Painter {
             drawHotString(text: text, hotColor: scheme.hotNormal, normalColor: scheme.normal)
         }
     }
- 
-    public func debug ()
-    {
+    
+    public func debug() {
         if let topDriver = driver as? TopDriver {
-            Application.updateDisplay (topDriver.top.layer)
+            Application.updateDisplay(topDriver.top.layer)
         }
     }
 }
@@ -377,15 +379,15 @@ class TopDriver: ConsoleDriver {
     var attribute: Attribute
     var nullCell: Cell
     
-    init (_ backing: ConsoleDriver, top: Toplevel) {
+    init(_ backing: ConsoleDriver, top: Toplevel) {
         self.backing = backing
         self.top = top
         self.topSize = top.frame.size
         self.attribute = top.colorScheme.normal
-        self.nullCell = Cell (ch: "\u{0}", attr: top.colorScheme.normal)
+        self.nullCell = Cell(ch: "\u{0}", attr: top.colorScheme.normal)
     }
 
-    public override func moveTo (col: Int, row: Int) {
+    public override func moveTo(col: Int, row: Int) {
         let origin = top.frame.origin
         self.col = col-origin.x
         self.row = row-origin.y
@@ -394,11 +396,11 @@ class TopDriver: ConsoleDriver {
     public override func addRune(_ rune: rune) {
         let n = wcwidth(Int32(rune.value))
         if n == 0 { return }
-        let cell = Cell (ch: Character(rune), attr: attribute)
-        top.layer.add (cell: cell, col: col, row: row)
+        let cell = Cell(ch: Character(rune), attr: attribute)
+        top.layer.add(cell: cell, col: col, row: row)
         col += 1
         if n == 2 && col < topSize.width {
-            top.layer.add (cell: nullCell, col: col, row: row)
+            top.layer.add(cell: nullCell, col: col, row: row)
             col += 1
         }
     }
@@ -409,10 +411,10 @@ class TopDriver: ConsoleDriver {
         if n == 0 { return }
         
         if col < s.width {
-            top.layer.add (cell: Cell (ch: char, attr: attribute), col: col, row: row)
+            top.layer.add(cell: Cell(ch: char, attr: attribute), col: col, row: row)
             col += 1
             if n == 2 && col < s.width {
-                top.layer.add (cell: nullCell, col: col, row: row)
+                top.layer.add(cell: nullCell, col: col, row: row)
                 col += 1
             }
         }
@@ -444,7 +446,7 @@ class TopDriver: ConsoleDriver {
     
     public override func cookMouse() {
         // this not necessary during painting ops
-        abort ()
+        abort()
     }
     
     public override func uncookMouse() {

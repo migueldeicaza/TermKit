@@ -330,11 +330,11 @@ public class SplitView: View {
         // Handle focus navigation between panes
         if event.key == .tab {
             if let focused = Application.current?.focused {
-                if focused.isSubview(of: firstView) && secondView?.canFocus == true {
-                    secondView!.setFocus(secondView!)
+                if focused.isSubview(of: firstView), let secondView, secondView.canFocus == true {
+                    secondView.setFocus(secondView)
                     return true
-                } else if focused.isSubview(of: secondView) && firstView?.canFocus == true {
-                    firstView!.setFocus(firstView!)
+                } else if focused.isSubview(of: secondView), let firstView, firstView.canFocus == true {
+                    firstView.setFocus(firstView)
                     return true
                 }
             }

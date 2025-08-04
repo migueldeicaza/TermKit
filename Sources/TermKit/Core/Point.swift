@@ -35,22 +35,32 @@ public struct Point: CustomDebugStringConvertible, Codable, Equatable {
         self.y = point.height
     }
     
-    public static func +(lhs: Point, rhs: Point) -> Point
+    public static func + (lhs: Point, rhs: Point) -> Point
     {
         return Point (x: lhs.x + rhs.x, y: lhs.y + rhs.y)
     }
     
-    public static func -(lhs: Point, rhs: Point) -> Point
+    public static func += (lhs: inout Point, rhs: Point) {
+        lhs.x += rhs.x
+        lhs.y += rhs.y
+    }
+    
+    public static func - (lhs: Point, rhs: Point) -> Point
     {
         return Point (x: lhs.x - rhs.x, y: lhs.y - rhs.y)
     }
     
-    public static func ==(lhs: Point, rhs: Point) -> Bool
+    public static func -= (lhs: inout Point, rhs: Point) {
+        lhs.x -= rhs.x
+        lhs.y -= rhs.y
+    }
+
+    public static func == (lhs: Point, rhs: Point) -> Bool
     {
         return lhs.x == rhs.x && lhs.y == rhs.y
     }
     
-    public static func !=(lhs: Point, rhs: Point) -> Bool
+    public static func != (lhs: Point, rhs: Point) -> Bool
     {
         return lhs.x != rhs.x || lhs.y != rhs.y
     }

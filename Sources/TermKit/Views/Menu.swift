@@ -139,10 +139,10 @@ public class Menu: View {
     {
         var maxW = 0
         for item in items {
-            if item == nil {
+            guard let item else {
                 continue
             }
-            let l = item!.width
+            let l = item.width
             maxW = max(l, maxW)
         }
         return Rect (x: x, y: y, width: maxW + 2, height: items.count + 2)
@@ -181,21 +181,21 @@ public class Menu: View {
             for _ in 0..<frame.width-2 {
                 painter.add (rune: item == nil ? driver.hLine : driver.space)
             }
-            if item == nil {
+            guard let item else {
                 continue
             }
             
             // Draw the menu title.
             painter.goto (col: 2, row: i+1)
             
-            painter.drawHotString(text: item!.title,
+            painter.drawHotString(text: item.title,
                           hotColor: i == current ? colorScheme.hotFocus : colorScheme.hotNormal,
                           normalColor: i == current ? colorScheme.focus : colorScheme.normal)
             
             // Draw the help string
-            let l = item!.help.cellCount ()
+            let l = item.help.cellCount ()
             painter.goto(col: frame.width-l-2, row: i+1)
-            painter.add(str: item!.help)
+            painter.add(str: item.help)
         }
     }
     
@@ -249,7 +249,9 @@ public class Menu: View {
             
         case .controlJ: // Return
             host.closeMenu()
-            run (action: barItems.children [current]!.action)
+            if let child = barItems.children[current] {
+                run (action: child.action)
+            }
             
         case let .letter(x) where x.isLetter || x.isNumber:
             let upper = x.uppercased()
@@ -347,7 +349,7 @@ open class MenuBar: View {
         moveTo (col: 0, row: 0)
     }
     
-    func selected (item: MenuItem)
+    func setSelected(item: MenuItem)
     {
         action = item.action
     }
@@ -380,7 +382,7 @@ open class MenuBar: View {
         selected = 0
         setNeedsDisplay()
         previousFocused = superview?.focused
-        openMenu (index: selected!)
+        openMenu (index: 0)
     }
     
     // Activates the menu, handles either first focus, or activating an entry when it was already active
@@ -413,19 +415,22 @@ open class MenuBar: View {
         guard let sel = selected else {
             return
         }
-        selected = sel <= 0 ? menus.count - 1 : sel - 1
-        openMenu (index: selected!)
+        let open = sel <= 0 ? menus.count - 1 : sel - 1
+        selected = open
+        openMenu (index: open)
     }
 
     // Invoked by the Menu class, when the menu is activated
     func nextMenu ()
     {
+        let openIdx: Int
         if let sel = selected {
-            selected = sel + 1 == menus.count ? 0 : sel+1
+            openIdx = sel + 1 == menus.count ? 0 : sel+1
         } else {
-            selected = 0
+            openIdx = 0
         }
-        openMenu (index: selected!)
+        selected = openIdx
+        openMenu (index: openIdx)
     }
     
     open override func processHotKey(event: KeyEvent) -> Bool {
@@ -441,13 +446,21 @@ open class MenuBar: View {
     open override func processKey(event: KeyEvent) -> Bool {
         switch event.key {
         case .cursorLeft, .controlB:
-            selected = selected! - 1
-            if selected! < 0 {
-                selected = menus.count - 1
+            if let selected {
+                self.selected = selected - 1
+                if selected < 0 {
+                    self.selected = menus.count - 1
+                }
+            } else {
+                selected = 0
             }
         
         case .cursorRight, .controlF:
-            selected = (selected! + 1) % menus.count
+            if let selected {
+                self.selected = (selected + 1) % menus.count
+            } else {
+                self.selected = 0
+            }
             
         case .esc, .controlC:
             Application.requestStop()
@@ -455,15 +468,17 @@ open class MenuBar: View {
             
         case let .letter (x):
             let target = x.uppercased()
-            if menus [selected!].children.count == 0 {
+            if let selected, menus [selected].children.count == 0 {
                 return false
             }
-            for cmi in menus [selected!].children {
-                if let mi = cmi {
-                    if let p = mi.title.firstIndex(of: "_") {
-                        if target == mi.title [mi.title.index(after: p)].uppercased() {
-                            selected(item: mi)
-                            return true
+            if let selected {
+                for cmi in menus [selected].children {
+                    if let mi = cmi {
+                        if let p = mi.title.firstIndex(of: "_") {
+                            if target == mi.title [mi.title.index(after: p)].uppercased() {
+                                setSelected(item: mi)
+                                return true
+                            }
                         }
                     }
                 }

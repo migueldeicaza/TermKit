@@ -268,7 +268,7 @@ public class HexView: View {
             
             p.attribute = editingAttribute
             
-            for x in (getLeftSideStartColumn() + nBlocks * HexView.hexColumnWidth + bytesPerLine)..<frame.width {
+            for _ in (getLeftSideStartColumn() + nBlocks * HexView.hexColumnWidth + bytesPerLine)..<frame.width {
                 p.add(ch: " ")
             }
         }
@@ -326,12 +326,16 @@ public class HexView: View {
         guard case let Key.letter(ch) = event.key else { return false }
         
         let value: Int
-        if ch >= "0" && ch <= "9" {
-            value = Int(ch.asciiValue! - Character("0").asciiValue!)
-        } else if ch >= "A" && ch <= "F" {
-            value = Int(ch.asciiValue! - Character("A").asciiValue! + 10)
-        } else if ch >= "a" && ch <= "f" {
-            value = Int(ch.asciiValue! - Character("a").asciiValue! + 10)
+        if let ascii = ch.asciiValue {
+            if ch >= "0" && ch <= "9" {
+                value = Int(ascii - (Character("0").asciiValue ?? 48))
+            } else if ch >= "A" && ch <= "F" {
+                value = Int(ascii - (Character("A").asciiValue ?? 65) + 10)
+            } else if ch >= "a" && ch <= "f" {
+                value = Int(ascii - (Character("a").asciiValue ?? 97) + 10)
+            } else {
+                return false
+            }
         } else {
             return false
         }
@@ -347,7 +351,7 @@ public class HexView: View {
             b = UInt8((Int(b) & 0xF0) | value)
             _edits[address] = b
             edited?(address, b)
-            moveRight()
+            _ = moveRight()
         }
         
         setNeedsDisplay()
@@ -361,7 +365,7 @@ public class HexView: View {
         
         _edits[address] = UInt8(scalar.value)
         edited?(address, UInt8(scalar.value))
-        moveRight()
+        _ = moveRight()
         setNeedsDisplay()
         return true
     }

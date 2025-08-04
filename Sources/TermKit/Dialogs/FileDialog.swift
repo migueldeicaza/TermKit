@@ -27,12 +27,15 @@ class DirListView: ListView, ListViewDataSource, ListViewDelegate {
     var fileData: [FileData] = []
     var dformatter = DateFormatter ()
     var tformatter = DateFormatter ()
-    var attrSel, attrSelMarked, attrMarked: Attribute!
+    var attrSel, attrSelMarked, attrMarked: Attribute
     
-    init (_ parent: FileDialog) {
+    init (_ parent: FileDialog?) {
         self.parent = parent
         _directory = "."
         
+        attrSel = Attribute(0)
+        attrSelMarked = Attribute(0)
+        attrMarked = Attribute(0)
         super.init()
         dataSource = self
         delegate = self
@@ -278,7 +281,7 @@ open class FileDialog: Dialog {
     var prompt, cancel: Button
     var nameFieldLabel, message, dirLabel: Label
     var dirEntry, nameEntry: TextField
-    var dirListView: DirListView!
+    var dirListView: DirListView
     
     /// If true, this means that the dialog was canceled, otherwise, you can pick the various
     /// properties to pick the selection.
@@ -320,9 +323,9 @@ open class FileDialog: Dialog {
         self.prompt = Button (prompt)
         self.prompt.isDefault = true
         
+        dirListView = DirListView (nil)
         super.init(title: title, width: 80, height: 20, buttons: [])
-
-        dirListView = DirListView (self)
+        dirListView.parent = self
         dirListView.set(x: 1, y: 3+msgLines+2)
         //dirListView.set(width: 60, height: 20)
         dirListView.width = Dim.fill () - 1
