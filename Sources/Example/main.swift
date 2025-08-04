@@ -13,6 +13,24 @@ import TermKit
 // So the debugger can attach
 sleep (1)
 
+var driver: Application.DriverType = .curses
+
+for arg in CommandLine.arguments.dropFirst() {
+    switch arg {
+    case "--driver=unix":
+        driver = .unix
+    case "--driver=curses":
+        driver = .curses
+    default:
+        print("Unknown argument: \(arg), usage is:")
+        print("Example [--driver=[unix|curses]")
+        exit(1)
+    }
+}
+
+// Use the Unix driver (new direct terminal control)
+Application.prepare(driverType: driver)
+
 Application.prepare()
 let win = Window()
 win.x = Pos.at (0)

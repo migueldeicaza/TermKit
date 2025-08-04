@@ -13,6 +13,7 @@ import Curses
 var sync: Bool = false
 
 // This is a lame hack to call into a global that has a name that clashes with a class member name
+@available(macOS 15.0, *)
 class LameHack {
     static func doRefresh ()
     {
@@ -20,6 +21,7 @@ class LameHack {
     }
 }
 
+@available(macOS 15.0, *)
 class CursesDriver: ConsoleDriver {
     var ccol: Int32 = 0
     var crow: Int32 = 0
@@ -112,6 +114,10 @@ class CursesDriver: ConsoleDriver {
         selectColors()
     }
     
+    open override var driverName: String {
+        "CursesDriver"
+    }
+
     // Converts an NCurses MEVENT to TermKit.MouseEvent
     func toAppMouseEvent (_ me: MEVENT) -> MouseEvent
     {

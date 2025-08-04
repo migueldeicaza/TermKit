@@ -115,16 +115,48 @@ public class Application {
     }
 
     /// The current Console Driver in use.
-    static var driver: ConsoleDriver = CursesDriver()
+    static var driver: ConsoleDriver = ConsoleDriver()
+    
+    /**
+     * Driver type selection for the application
+     */
+    public enum DriverType {
+        /// Picks a driver
+        case auto
+        /// Forces ncurses
+        case curses
+        /// Baked-in driver
+        case unix
+    }
     
     /**
      * Prepares the application, must be called before anything else.
+     * - Parameter driverType: The type of console driver to use (defaults to .curses)
      */
-    public static func prepare ()
+    public static func prepare (driverType: DriverType = .curses)
     {
         if initialized {
             return
         }
+        
+        // Initialize the appropriate driver
+        switch driverType {
+        case .curses:
+            if #available(macOS 15.0, *) {
+                driver = CursesDriver()
+            } else {
+                driver = UnixDriver()
+            }
+        case .unix:
+            driver = UnixDriver()
+        case .auto:
+            if #available(macOS 15.0, *) {
+                driver = CursesDriver()
+            } else {
+                driver = UnixDriver()
+            }
+        }
+        
         let _ = driver
         toplevels = []
         _current = nil
@@ -417,16 +449,16 @@ public class Application {
         
         driver.moveTo (col: 0, row: 0)
         for cell in layer.store {
-            idx += 1
-            attr = -1
             if cell.attr.value != attr {
                 attr = cell.attr.value
                 driver.setAttribute(cell.attr)
             }
             driver.addCharacter(cell.ch)
-
+            idx += 1
             if (idx % cols) == 0 {
-                driver.moveTo(col: 0, row: idx / cols)
+                if idx / cols < driver.size.height {
+                    driver.moveTo(col: 0, row: idx / cols)
+                }
             }
         }
         driver.refresh()

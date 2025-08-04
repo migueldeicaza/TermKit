@@ -547,6 +547,7 @@ open class ListView: View {
         }
         guard let dataSource else { return false }
 
+        log("\(event)")
         let c = dataSource.getCount(listView: self)
         if event.pos.y + top >= c {
             return true

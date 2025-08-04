@@ -19,7 +19,13 @@ public class Painter {
     var view: View
     
     /// The current drawing column
-    public private(set) var pos: Point
+    public private(set) var pos: Point {
+        didSet {
+            if pos.x < 0 {
+                fatalError()
+            }
+        }
+    }
     
     // The origin for this painter, describes the offset in global coordinates
     public var origin: Point
@@ -142,7 +148,8 @@ public class Painter {
         }
         // TODO: optimize, we can handle the visibility for rows before and later just do
         // columns rather than testing both.
-        let len = Int32(wcwidth(wchar_t(bitPattern: rune.value)))
+        let wcw = wcwidth(wchar_t(bitPattern: rune.value))
+        let len = wcw >= 0 ? Int32(wcw) : 1
         let npos = pos.x + Int(len)
         
         if npos > maxWidth {
@@ -159,8 +166,11 @@ public class Painter {
                     driver.moveTo(col: cursor.x, row: cursor.y)
                     posSet = true
                 }
-                
-                driver.addRune(rune)
+                if wcw == -1 {
+                    driver.addRune("*")
+                } else {
+                    driver.addRune(rune)
+                }
             }
             pos.x += Int(len)
         }
@@ -190,7 +200,8 @@ public class Painter {
     
     public func add(rune: UnicodeScalar)
     {
-        add(str: String(rune))
+        applyContext()
+        add(rune: rune, maxWidth: view.bounds.width)
     }
     
     /**

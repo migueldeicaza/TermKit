@@ -100,7 +100,7 @@ public struct CellFlags: OptionSet, Hashable {
  * Attributes are used in the ColorScheme class to define color schemes that can be used in your application,
  * and they are also used by views directly when they defined their own attributes.
  */
-public struct Attribute {
+public struct Attribute: Equatable {
     var fore, back: Color?
     var flags: CellFlags
     var value: Int32
@@ -253,18 +253,18 @@ open class ConsoleDriver {
     /**
      * Adds a rune at the current cursor position, not expected to work with graphemes, use when you know that the value being added will not compose
      */
-    public func addRune (_ rune: rune) {}
+    public func addRune(_ rune: rune) {}
 
     /**
      * Adds a specified character at the current cursor position
      */
-    public func addCharacter (_ char: Character) {}
+    public func addCharacter(_ char: Character) {}
     
     /**
      * Adds the specified string at the current cursor position
      * - Parameter str: the string to add to print at the current position
      */
-    public func addStr (_ str: String)
+    public func addStr(_ str: String)
     {
         for c in str {
             addCharacter(c)
@@ -277,28 +277,32 @@ open class ConsoleDriver {
      *  - col: the 0-indexed column
      *  - row: the 0-indexed row
      */
-    public func moveTo (col: Int, row: Int) {}
+    public func moveTo(col: Int, row: Int) {}
     
     /**
      * This method takes the platform-agnostic Color enumeration for foreground and background and produces an attribute
      */
-    public func makeAttribute (fore: Color, back: Color, flags: CellFlags = []) -> Attribute
+    public func makeAttribute(fore: Color, back: Color, flags: CellFlags = []) -> Attribute
     {
         return Attribute(0, foreground: fore, background: back, flags: flags)
     }
     
-    func change (_ attribute: Attribute, foreground: Color) -> Attribute {
+    func change(_ attribute: Attribute, foreground: Color) -> Attribute {
         return attribute
     }
 
-    func change (_ attribute: Attribute, background: Color) -> Attribute {
+    func change(_ attribute: Attribute, background: Color) -> Attribute {
         return attribute
     }
 
-    func change (_ attribute: Attribute, flags: CellFlags) -> Attribute {
+    func change(_ attribute: Attribute, flags: CellFlags) -> Attribute {
         return attribute
     }
 
+    /// The name of this ConsoleDriver
+    open var driverName: String {
+        "Base"
+    }
     /**
      * Enumeration describing the kind of colors available to the application that range from black and white to a complete user-settable palette of colors
      */
@@ -317,7 +321,7 @@ open class ConsoleDriver {
      * On some Unix terminals, there is only black and white available, others support 16 colors, others can
      * support a larger range by setting the colors using an RGB set of properties.
      */
-    public func colorSupport () -> ColorSupport
+    public func colorSupport() -> ColorSupport
     {
         return .blackAndWhite
     }
@@ -325,7 +329,7 @@ open class ConsoleDriver {
     /**
      * Sets the current attribute used to draw, any subsequence text output will use the specified attribute
      */
-    public func setAttribute (_ attr: Attribute)
+    public func setAttribute(_ attr: Attribute)
     {
     }
     
@@ -335,7 +339,7 @@ open class ConsoleDriver {
      * - Returns: True if the application did suspend
      */
     @discardableResult
-    public func suspend () -> Bool
+    public func suspend() -> Bool
     {
         return true
     }
@@ -343,32 +347,32 @@ open class ConsoleDriver {
     /**
      * Redraws the physical screen with the contents that have been queued up via any of the printing commands.
      */
-    public func updateScreen ()
+    public func updateScreen()
     {
         
     }
     
     /// Updates the screen to reflect all the changes that have been done to the display buffer
-    public func refresh ()
+    public func refresh()
     {
     
     }
     
     /// Updates the location of the cursor position
-    public func updateCursor ()
+    public func updateCursor()
     {
     }
     
     /// Ends the execution of the console driver.
-    public func end ()
+    public func end()
     {
     }
     
-    public func cookMouse ()
+    public func cookMouse()
     {
     }
     
-    public func uncookMouse ()
+    public func uncookMouse()
     {
 
     }

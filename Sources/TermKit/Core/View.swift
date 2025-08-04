@@ -331,8 +331,8 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
             }
             needDisplay = newRegion
         }
-        log ("view: \(type (of: self)) adding region: \(region)")
-        log ("    total: \(needDisplay)")
+//        log ("view: \(type (of: self)) adding region: \(region)")
+//        log ("    total: \(needDisplay)")
         if let container = superview {
             let containerRegion = Rect (origin: frame.origin+region.origin, size: newRegion.size)
             container.setNeedsDisplay(containerRegion.intersection (container.bounds))

@@ -7,17 +7,16 @@ let package = Package(
     name: "TermKit",
     platforms: [
         // Not really, but newer SDKs from Apple claim ncruses is too new
-        .macOS(.v15)
+        .macOS(.v10_15)
     ],
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
         .library(
             name: "TermKit",
             targets: ["TermKit"]),
-
         .executable(
             name: "Example",
-            targets: ["Example"])
+            targets: ["Example"]),
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -34,7 +33,8 @@ let package = Package(
             swiftSettings: [.swiftLanguageMode(.v5)]
         ),
         .systemLibrary(
-            name: "Curses"), // , pkgConfig: "/tmp/ncursesw.pc"),
+            name: "Curses"),
+        // , pkgConfig: "/tmp/ncursesw.pc"),
         .executableTarget(
             name: "Example",
             dependencies: ["TermKit", "SwiftTerm"]),
