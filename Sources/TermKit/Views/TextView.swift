@@ -804,6 +804,27 @@ open class TextView: View {
         adjust()
     }
     
+    /// Moves the cursor to the end of the buffer (alias for endOfBuffer)
+    public func moveEnd() {
+        endOfBuffer()
+    }
+    
+    /// Scrolls the view to show the bottom of the text
+    public func scrollToBottom() {
+        // Move cursor to end
+        endOfBuffer()
+        
+        // Adjust view to show the cursor
+        if currentRow >= topRow + frame.height {
+            topRow = currentRow - frame.height + 1
+            if topRow < 0 {
+                topRow = 0
+            }
+        }
+        
+        setNeedsDisplay()
+    }
+    
     open override func processKey(event: KeyEvent) -> Bool {
         // Handle some state here - whether the last command was a kill
         // operation and the column tracking (up/down)
