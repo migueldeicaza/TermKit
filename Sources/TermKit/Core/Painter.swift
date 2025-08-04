@@ -41,7 +41,7 @@ public class Painter {
     private init (from view: View, isTop: Bool = false)
     {
         self.view = view
-        attribute = view.colorScheme!.normal
+        attribute = view.colorScheme.normal
         origin = view.frame.origin
         visible = view.frame
         driver = isTop ? TopDriver (Application.driver,  top: view as! Toplevel) : Application.driver
@@ -69,7 +69,7 @@ public class Painter {
     public init (from view: View, parent: Painter)
     {
         self.view = view
-        attribute = view.colorScheme!.normal
+        attribute = view.colorScheme.normal
         pos = Point.zero
         driver = parent.driver
         
@@ -83,12 +83,12 @@ public class Painter {
     
     public func colorNormal ()
     {
-        attribute = view.colorScheme!.normal
+        attribute = view.colorScheme.normal
     }
     
     public func colorSelection ()
     {
-        attribute = view.hasFocus ? view.colorScheme!.focus : view.colorScheme!.normal
+        attribute = view.hasFocus ? view.colorScheme.focus : view.colorScheme.normal
     }
     
     /**

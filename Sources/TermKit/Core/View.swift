@@ -633,15 +633,16 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
     /**
      * The colorscheme used by this view
      */
-    open var colorScheme: ColorScheme! {
+    open var colorScheme: ColorScheme {
         get {
-            if _colorScheme == nil {
+            if let _colorScheme {
+                return _colorScheme
+            } else {
                 if let s = superview {
                     return s.colorScheme
                 }
-                return nil
+                return ColorScheme.fallback
             }
-            return _colorScheme
         }
         set(value) {
             _colorScheme = value

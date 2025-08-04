@@ -30,8 +30,8 @@ class CursesDriver: ConsoleDriver {
     
     
     // Swift ncurses does not bind these
-    let A_NORMAL    : Int32 = 0x0;
-    let A_STANDOUT  : Int32 = 0x10000;
+    let A_NORMAL    : Int32 = 0x0
+    let A_STANDOUT  : Int32 = 0x10000
     let A_UNDERLINE : Int32 = 0x20000
     let A_REVERSE   : Int32 = 0x40000
     let A_BLINK     : Int32 = 0x80000

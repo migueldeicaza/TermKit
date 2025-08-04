@@ -24,9 +24,10 @@ func log (_ s: String)
         if fd == -1 {
             fd = open ("/tmp/log", O_CREAT | O_RDWR, S_IRWXU)
         }
-        let data = (s + "\n").data(using: String.Encoding.utf8)!
-        let _ = data.withUnsafeBytes { (dataBytes: UnsafeRawBufferPointer) -> Int in
-            return write(fd, dataBytes.baseAddress, data.count)
+        if let data = (s + "\n").data(using: String.Encoding.utf8) {
+            let _ = data.withUnsafeBytes { (dataBytes: UnsafeRawBufferPointer) -> Int in
+                return write(fd, dataBytes.baseAddress, data.count)
+            }
         }
     }
 }

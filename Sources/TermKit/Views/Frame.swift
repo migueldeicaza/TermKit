@@ -52,11 +52,11 @@ open class Frame: View {
     
     open override func redraw(region: Rect, painter: Painter) {
         if !needDisplay.isEmpty {
-            painter.attribute = colorScheme!.normal
+            painter.attribute = colorScheme.normal
             painter.clear (needDisplay)
             painter.drawFrame (bounds, padding: 0, fill: false)
             if hasFocus {
-                painter.attribute = colorScheme!.focus
+                painter.attribute = colorScheme.focus
             }
             let w = frame.width
             if title != nil && w > 4 {
@@ -66,7 +66,7 @@ open class Frame: View {
                 painter.add(str: t.getVisibleString(w - 4))
                 painter.add(str: " ")
             }
-            painter.attribute = colorScheme!.normal
+            painter.attribute = colorScheme.normal
         }
         contentView.redraw(region: contentView.bounds, painter: Painter (from: contentView, parent: painter))
         clearNeedsDisplay()

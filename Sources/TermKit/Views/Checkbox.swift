@@ -99,15 +99,15 @@ open class Checkbox: View {
     }
     
     open override func redraw(region: Rect, painter: Painter) {
-        painter.attribute = hasFocus ? colorScheme!.focus : colorScheme!.normal
+        painter.attribute = hasFocus ? colorScheme.focus : colorScheme.normal
         painter.goto(col: 0, row: 0)
         painter.add(str: checked ? "[x]" : "[ ]")
         painter.goto (col: 4, row: 0)
-        painter.attribute = colorScheme!.normal
+        painter.attribute = colorScheme.normal
         painter.add (str: text)
         if let c = hotKey, hotPos != -1 {
             painter.goto (col: hotPos+4, row: 0)
-            painter.attribute = colorScheme!.hotNormal
+            painter.attribute = colorScheme.hotNormal
             painter.add(str: String(c))
         }
     }

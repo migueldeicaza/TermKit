@@ -164,7 +164,7 @@ class DirListView: ListView, ListViewDataSource, ListViewDelegate {
     open override func redrawColor (_ painter: Painter, selection: Bool) {
         if hasFocus {
             if selection {
-                painter.attribute = colorScheme!.hotNormal
+                painter.attribute = colorScheme.hotNormal
             } else {
                 painter.attribute = colorScheme.focus
             }
@@ -186,11 +186,11 @@ class DirListView: ListView, ListViewDataSource, ListViewDelegate {
                     painter.attribute = attrSel
                 }
             } else {
-                let attrMarked = colorScheme!.focus.change(foreground: .brightYellow)
+                let attrMarked = colorScheme.focus.change(foreground: .brightYellow)
                 if d.isMarked {
                     painter.attribute = attrMarked
                 } else {
-                    painter.attribute = colorScheme!.focus
+                    painter.attribute = colorScheme.focus
                 }
             }
 

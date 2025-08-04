@@ -107,9 +107,9 @@ open class Button: View {
     }
     
     open override func redraw(region: Rect, painter: Painter) {
-        painter.attribute = hasFocus ? colorScheme!.focus : colorScheme!.normal
+        painter.attribute = hasFocus ? colorScheme.focus : colorScheme.normal
         painter.goto(col: 0, row: 0)
-        painter.drawHotString(text: shownText, focused: hasFocus, scheme: colorScheme!)
+        painter.drawHotString(text: shownText, focused: hasFocus, scheme: colorScheme)
     }
     
     open override func positionCursor() {

@@ -85,10 +85,10 @@ class FileWindow: Window {
     }
     
     func save() {
-        if filename == nil {
-            saveAs (nil)
+        if let filename {
+            saveFile (filename)
         } else {
-            saveFile (filename!)
+            saveAs(nil)
         }
     }
     

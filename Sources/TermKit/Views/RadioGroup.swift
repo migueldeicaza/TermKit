@@ -99,7 +99,7 @@ open class RadioGroup: View {
     }
     
     open override func redraw(region: Rect, painter: Painter) {
-        painter.attribute = colorScheme!.normal
+        painter.attribute = colorScheme.normal
         painter.clear()
         
         switch  orientation {
@@ -116,7 +116,7 @@ open class RadioGroup: View {
                 painter.drawHotString(
                     text: radioLabels[line],
                     focused: hasFocus && line == cursor,
-                    scheme: colorScheme!)
+                    scheme: colorScheme)
             }
         }
     }

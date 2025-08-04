@@ -160,6 +160,12 @@ public class ColorScheme {
         self.hotFocus = hotFocus
         self.hotNormal = hotNormal
     }
+    
+    public static let fallback = ColorScheme(normal: Attribute (Int32(A_NORMAL)),
+                                             focus: Attribute(Int32(A_NORMAL)),
+                                             hotNormal: Attribute(Int32(A_NORMAL)),
+                                             hotFocus: Attribute (Int32(A_NORMAL)))
+
 }
 
 /**

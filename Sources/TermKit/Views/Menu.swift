@@ -167,7 +167,7 @@ public class Menu: View {
     }
     
     open override func redraw(region: Rect, painter: Painter) {
-        driver.setAttribute(colorScheme!.normal)
+        driver.setAttribute(colorScheme.normal)
         painter.clear(needDisplay)
         painter.drawFrame(region, padding: 0, fill: false)
         
@@ -176,7 +176,7 @@ public class Menu: View {
             
             // fill the background (white space) or draw the separator
             painter.goto (col: 1, row: i+1)
-            painter.attribute = item == nil ? colorScheme!.normal : (i == current ? colorScheme!.focus : colorScheme!.normal)
+            painter.attribute = item == nil ? colorScheme.normal : (i == current ? colorScheme.focus : colorScheme.normal)
             
             for _ in 0..<frame.width-2 {
                 painter.add (rune: item == nil ? driver.hLine : driver.space)
@@ -189,8 +189,8 @@ public class Menu: View {
             painter.goto (col: 2, row: i+1)
             
             painter.drawHotString(text: item!.title,
-                          hotColor: i == current ? colorScheme!.hotFocus : colorScheme!.hotNormal,
-                          normalColor: i == current ? colorScheme!.focus : colorScheme!.normal)
+                          hotColor: i == current ? colorScheme.hotFocus : colorScheme.hotNormal,
+                          normalColor: i == current ? colorScheme.focus : colorScheme.normal)
             
             // Draw the help string
             let l = item!.help.cellCount ()
@@ -322,8 +322,8 @@ open class MenuBar: View {
             p.goto(col: pos, row: 0)
             var hotColor, normalColor: Attribute
             if i == selected {
-                hotColor = colorScheme!.hotFocus
-                normalColor = colorScheme!.focus
+                hotColor = colorScheme.hotFocus
+                normalColor = colorScheme.focus
             } else {
                 hotColor = Colors.base.focus
                 normalColor = Colors.base.focus

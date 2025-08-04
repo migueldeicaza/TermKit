@@ -14,7 +14,7 @@ class ContentView: View {
     }
     
     open override func redraw(region: Rect, painter: Painter) {
-        painter.attribute = superview!.colorScheme.normal
+        painter.attribute = superview?.colorScheme.normal ?? ColorScheme.fallback.normal
         painter.clear (needDisplay)
         super.redraw(region: region, painter: painter)
     }
@@ -118,7 +118,7 @@ open class Window: Toplevel {
         let contentFrame = contentView.frame
         let containedInChild = contentFrame.contains(region)
         if !needDisplay.isEmpty && !containedInChild {
-            p.attribute = colorScheme!.normal
+            p.attribute = colorScheme.normal
             p.drawFrame (bounds, padding: padding, fill: false, double: hasFocus)
             
             if allowResize {
@@ -146,13 +146,13 @@ open class Window: Toplevel {
                     p.attribute = maximizeAttribute
                     p.add(rune: buttonIcon)
                 }
-                p.attribute = colorScheme!.normal
+                p.attribute = colorScheme.normal
                 p.add(rune: Application.driver.leftTee)
                 needButtons += 2
             }
             
             if hasFocus {
-                p.attribute = colorScheme!.normal
+                p.attribute = colorScheme.normal
             }
             let width = frame.width
             if let t = title, width > 4+needButtons {
@@ -162,7 +162,7 @@ open class Window: Toplevel {
                 p.add (str: str)
                 p.add (rune: Unicode.Scalar(32))
             }
-            p.attribute = colorScheme!.normal
+            p.attribute = colorScheme.normal
         }
         var contentRegion = contentFrame.intersection(region)
         

@@ -390,20 +390,20 @@ public class AttributedString: CustomDebugStringConvertible {
                     flags.insert (.invert)
                 case .base:
                     (fore, back) = view.hasFocus
-                        ? (view.colorScheme!.focus.fore, view.colorScheme!.focus.back)
-                        : (view.colorScheme!.normal.fore, view.colorScheme!.normal.back)
+                        ? (view.colorScheme.focus.fore, view.colorScheme.focus.back)
+                        : (view.colorScheme.normal.fore, view.colorScheme.normal.back)
                 case .hotBase:
                     (fore, back) = view.hasFocus
-                        ? (view.colorScheme!.hotFocus.fore, view.colorScheme!.hotFocus.back)
-                        : (view.colorScheme!.hotNormal.fore, view.colorScheme!.hotNormal.back)
+                        ? (view.colorScheme.hotFocus.fore, view.colorScheme.hotFocus.back)
+                        : (view.colorScheme.hotNormal.fore, view.colorScheme.hotNormal.back)
                 case .normal:
-                    (fore, back) = (view.colorScheme!.normal.fore, view.colorScheme!.normal.back)
+                    (fore, back) = (view.colorScheme.normal.fore, view.colorScheme.normal.back)
                 case .focus:
-                    (fore, back) = (view.colorScheme!.focus.fore, view.colorScheme!.focus.back)
+                    (fore, back) = (view.colorScheme.focus.fore, view.colorScheme.focus.back)
                 case .hotNormal:
-                    (fore, back) = (view.colorScheme!.hotNormal.fore, view.colorScheme!.hotNormal.back)
+                    (fore, back) = (view.colorScheme.hotNormal.fore, view.colorScheme.hotNormal.back)
                 case .hotFocus:
-                    (fore, back) = (view.colorScheme!.hotFocus.fore, view.colorScheme!.hotFocus.back)
+                    (fore, back) = (view.colorScheme.hotFocus.fore, view.colorScheme.hotFocus.back)
                 case .foreground(color: let color):
                     fore = color
                 case .background(color: let color):

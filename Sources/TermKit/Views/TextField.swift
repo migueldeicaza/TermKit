@@ -164,7 +164,7 @@ open class TextField: View {
     }
     
     open override func redraw(region: Rect, painter p: Painter) {
-        p.attribute = colorScheme!.focus
+        p.attribute = colorScheme.focus
         p.goto(col:0, row: 0)
         
         var col = 0
