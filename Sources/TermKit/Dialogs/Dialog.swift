@@ -41,7 +41,6 @@ open class Dialog: Window {
             addSubview(button)
         }
         modal = true
-        allowClose = true
         allowMaximize = false
         allowMinimize = false
         closeClicked =  { d in self.close () }

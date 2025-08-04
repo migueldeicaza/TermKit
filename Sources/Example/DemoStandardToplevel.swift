@@ -39,7 +39,6 @@ class FileWindow: Window {
         super.init(filename ?? FileWindow.getUntitled(), padding: 0)
         
         allowMove = true
-        allowClose = true
         allowResize = true
         
         textView.fill ()
@@ -109,7 +108,6 @@ class HexWindow: Window {
         super.init(filename ?? HexWindow.getUntitled(), padding: 0)
         
         allowMove = true
-        allowClose = true
         allowResize = true
         
         addSubview(hexView)

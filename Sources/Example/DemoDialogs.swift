@@ -15,7 +15,6 @@ func FileDialogs () -> Window {
     }
 
     w.fill (percentage: 80)
-    w.allowClose = true
 
     let resFrame = Frame ("Results: ")
     resFrame.set (x: 40, y: 1)

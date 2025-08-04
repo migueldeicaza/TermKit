@@ -31,7 +31,6 @@ class DemoTerminal: Window, TermKit.LocalProcessTerminalViewDelegate {
     // This is added to our window
     init() {
         super.init("Demo")
-        allowClose = true
         allowResize = true
         fill(percentage: 70)
         

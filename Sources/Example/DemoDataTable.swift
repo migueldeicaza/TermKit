@@ -55,7 +55,6 @@ func DataTableDialogs () -> Window {
     }
 
     w.fill (percentage: 80)
-    w.allowClose = true
 
     let mySource = StringWrapper ()
     

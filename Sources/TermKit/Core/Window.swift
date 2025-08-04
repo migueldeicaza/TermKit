@@ -86,12 +86,6 @@ open class Window: Toplevel {
         }
     }
     
-    public var allowClose = true {
-        didSet {
-            setNeedsDisplay()
-        }
-    }
-    
     public var allowResize = false
     
     lazy var closeAttribute = colorScheme.normal.change(foreground: .red)
@@ -127,13 +121,13 @@ open class Window: Toplevel {
                 // Invert the character for resizable ones
                 p.add(rune: hasFocus ? driver.lrCorner : driver.doubleLrCorner)
             }
-            var needButtons = (allowClose ? 1 : 0) + (allowMaximize ? 1 : 0) + (allowMinimize ? 1 : 0)
+            var needButtons = (closeClicked != nil ? 1 : 0) + (allowMaximize ? 1 : 0) + (allowMinimize ? 1 : 0)
             if needButtons > 0 {
                 let buttonIcon = Application.driver.filledCircle
                 
                 p.goto (col: 1+padding, row: padding)
                 p.add(rune: Application.driver.rightTee)
-                if allowClose {
+                if closeClicked != nil {
                     p.attribute = closeAttribute
                     p.add(rune: buttonIcon)
                 }
@@ -171,7 +165,8 @@ open class Window: Toplevel {
         clearNeedsDisplay()
     }
     
-    public var closeClicked: (Window) -> () = { w in }
+    /// If this value is set to not-nil, then a close icon is displayed.
+    public var closeClicked: ((Window) -> ())? = nil
     
     var moveGrab: Point? = nil
     var resizeGrab: Point? = nil
@@ -214,7 +209,7 @@ open class Window: Toplevel {
         if event.flags == [.button1Clicked] && event.pos.y == padding {
             let x = event.pos.x
             var expect = 2+padding
-            if allowClose {
+            if let closeClicked {
                 if x == expect {
                     closeClicked (self)
                     return true

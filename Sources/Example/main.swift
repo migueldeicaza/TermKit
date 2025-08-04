@@ -126,14 +126,16 @@ list.activate = { item in
 
     return true
 }
-
 win.addSubview(frame)
 
 // Create a floating window
 let subwin = Window()
+subwin.addSubview(Label("Close me"))
 subwin.allowResize = true
 subwin.set (x: 2, y: 2, width: 10, height: 3)
-subwin.closeClicked = { win in win.superview?.removeSubview (win) }
+subwin.closeClicked = { win in
+    win.superview?.removeSubview (win)
+}
 
 Application.top.addSubview(win)
 Application.top.addSubview(subwin)
