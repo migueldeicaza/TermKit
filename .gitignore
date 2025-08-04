@@ -2,3 +2,5 @@ Build
 Index
 .DS_Store
 *~
+/.build
+/Package.resolved
