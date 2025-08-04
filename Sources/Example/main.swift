@@ -79,17 +79,16 @@ func makeMenu () -> MenuBar {
         MenuBarItem(title: "_File", children: [
             MenuItem(title: "Text _Editor Demo", action: showEditor),
             MenuItem(title: "Open _Terminal", action: { openTerminal (win) } ),
-            MenuItem(title: "_New", help: "Creates new file", action: newFile),
-            MenuItem(title: "_Open", action: openFile),
-            MenuItem(title: "_Hex", action: showHex),
+            MenuItem(title: "_New", help: "[help: no-op]", action: newFile),
+            MenuItem(title: "_Open", help: "[help: no-op]", action: openFile),
             MenuItem(title: "_Close", action: closeTop),
             nil,
             MenuItem(title: "_Quit", action: { Application.shutdown() }),
         ]),
         MenuBarItem(title: "_Edit", children: [
-            MenuItem(title: "_Copy"),
-            MenuItem(title: "C_ut"),
-            MenuItem(title: "_Paste"),
+            MenuItem(title: "_Copy (no-op)"),
+            MenuItem(title: "C_ut (no-op)"),
+            MenuItem(title: "_Paste (no-op)"),
         ])
     ])
 }
