@@ -200,8 +200,11 @@ class CursesDriver: ConsoleDriver {
     
     func inputReadCallback (input: FileHandle)
     {
+        guard let get_wch_fn else {
+            return
+        }
         var result: Int32 = 0
-        let status = get_wch_fn! (&result)
+        let status = get_wch_fn (&result)
         if status == ERR {
             return
         }
@@ -238,7 +241,7 @@ class CursesDriver: ConsoleDriver {
         // Special handling for ESC, we want to try to catch ESC+letter to simulate alt-letter, as well as alt-FKey
         if result == 27 {
             timeout (200)
-            let status2 = get_wch_fn! (&result)
+            let status2 = get_wch_fn (&result)
             timeout (-1)
             
             let isControl = result >= 0 && result < 32

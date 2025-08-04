@@ -76,8 +76,6 @@ func makeMenu () -> MenuBar {
     ])
 }
 
-print ("starting")
-
 var frame = Frame ("Samples")
 frame.set (x: 10, y: 10, width: 60, height: 20)
 
