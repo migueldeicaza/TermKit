@@ -109,7 +109,12 @@ class CursesDriver: ConsoleDriver {
 
         // Fetch the pointers to get_wch and add_wch as the NCurses binding in Swift is missing them
         let get_wch_ptr = dlsym (rtld_default, "get_wch")
-        get_wch_fn = unsafeBitCast(get_wch_ptr, to: get_wch_def.self)
+        if get_wch_ptr != nil {
+            get_wch_fn = unsafeBitCast(get_wch_ptr, to: get_wch_def.self)
+        } else {
+            // Fallback if get_wch is not available
+            print("Warning: get_wch not available in ncurses, some functionality may be limited")
+        }
         
         selectColors()
     }
@@ -202,7 +207,17 @@ class CursesDriver: ConsoleDriver {
     
     func inputReadCallback (input: FileHandle)
     {
-        guard let get_wch_fn else {
+        guard let get_wch_fn = get_wch_fn else {
+            // Fallback to regular getch if get_wch is not available
+            let ch = getch()
+            if ch == ERR {
+                return
+            }
+            // Since we don't have processInputChar, we'll create a basic key event
+            let ke = KeyEvent(key: toAppKeyEvent(Int32(ch)))
+            DispatchQueue.main.async {
+                Application.processKeyEvent(event: ke)
+            }
             return
         }
         var result: Int32 = 0
