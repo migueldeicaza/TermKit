@@ -519,16 +519,6 @@ class UnixDriver: ConsoleDriver {
         return true
     }
     
-    public override func cookMouse() {
-        print(capabilities.disableMouseMotionTracking, terminator: "")
-        fflush(stdout)
-    }
-    
-    public override func uncookMouse() {
-        print(capabilities.enableMouseMotionTracking, terminator: "")
-        fflush(stdout)
-    }
-    
     public override func end() {
         // Restore terminal settings
         print(capabilities.disableMouseMotionTracking, terminator: "")

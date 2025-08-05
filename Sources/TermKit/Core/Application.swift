@@ -290,14 +290,12 @@ public class Application {
     public static func grabMouse (from view: View)
     {
         mouseGrabView = view
-        driver.uncookMouse ()
     }
 
     /// Ungrabs the mouse, allowing mouse events that were previously captured by one view to flow to other views
     public static func ungrabMouse ()
     {
         mouseGrabView = nil
-        driver.cookMouse ()
     }
     
     static var wantContinuousButtonPressedView: View? = nil
@@ -339,7 +337,7 @@ public class Application {
     
     static func processMouseEvent (mouseEvent: MouseEvent)
     {
-        log ("Application Event: \(mouseEvent)")
+        log ("Application Event: \(mouseEvent) grab: \(mouseGrabView != nil)")
         for h in rootMouseHandlers.values {
             h (mouseEvent)
         }

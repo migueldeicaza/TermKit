@@ -370,13 +370,4 @@ open class ConsoleDriver {
     public func end()
     {
     }
-    
-    public func cookMouse()
-    {
-    }
-    
-    public func uncookMouse()
-    {
-
-    }
 }

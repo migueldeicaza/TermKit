@@ -454,13 +454,4 @@ class TopDriver: ConsoleDriver {
     public override func setAttribute(_ attr: Attribute) {
         attribute = attr
     }
-    
-    public override func cookMouse() {
-        // this not necessary during painting ops
-        abort()
-    }
-    
-    public override func uncookMouse() {
-        // this not necessary during painting ops
-    }
 }
