@@ -31,7 +31,7 @@ func DemoDrawing() -> Toplevel {
     // Main window
     let win = Window("Drawing Demo - Click to Draw X")
     win.x = Pos.at(0)
-    win.y = Pos.at(1)
+    win.y = Pos.at(3)
     win.width = Dim.fill()
     win.height = Dim.fill()
     
@@ -41,11 +41,17 @@ func DemoDrawing() -> Toplevel {
     paletteFrame.addSubview(palette)
     
     // Drawing canvas view
+    let eventDbg = Label("")
+    eventDbg.x = Pos.at(0)
+    eventDbg.y = Pos.at(1)
+    eventDbg.width = Dim.fill()
     let canvasFrame = Frame("Canvas")
     let canvas = DrawingCanvasView()
+    canvas.cb = { event in
+        eventDbg.text = "Event is \(event)"
+    }
     canvas.selectedColor = palette.selectedColor
     canvasFrame.addSubview(canvas)
-    
     // Connect palette to canvas
     palette.onColorChanged = { color in
         canvas.selectedColor = color
@@ -67,7 +73,8 @@ func DemoDrawing() -> Toplevel {
     
     win.addSubview(splitView)
     win.addSubview(statusBar)
-    
+    top.addSubview(eventDbg)
+
     top.addSubview(win)
     return top
 }
@@ -198,30 +205,14 @@ class DrawingCanvasView: View {
     }
     
     var drawing = false
+    var cb: (MouseEvent) -> Void = { _ in }
     override func mouseEvent(event: MouseEvent) -> Bool {
-        print("Got \(event)")
-        if event.flags.contains(.button1Clicked) {
-            if drawing {
-                drawing = false
-                return true
-            }
-            drawing = true
+        cb(event)
+        if event.flags.contains(.button1Pressed) {
             let clickPoint = Point(x: event.pos.x, y: event.pos.y)
             marks.append((clickPoint, selectedColor))
             setNeedsDisplay()
             return true
-        }
-        if drawing {
-            if event.flags.contains(.mousePosition) {
-                let clickPoint = Point(x: event.pos.x, y: event.pos.y)
-                marks.append((clickPoint, selectedColor))
-                setNeedsDisplay()
-                return true
-            }
-            if event.flags.contains(.button1Released) {
-                drawing = false
-                return true
-            }
         }
         return super.mouseEvent(event: event)
     }

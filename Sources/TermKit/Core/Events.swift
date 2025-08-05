@@ -205,6 +205,7 @@ public struct MouseFlags: OptionSet, CustomDebugStringConvertible {
         self.rawValue = rawValue
     }
     
+    /// This event is not always 
     public static let button1Pressed        = MouseFlags(rawValue: 0x2)
     public static let button1Released       = MouseFlags(rawValue: 0x1)
     public static let button1Clicked        = MouseFlags(rawValue: 0x4)

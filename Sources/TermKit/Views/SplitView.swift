@@ -209,13 +209,9 @@ public class SplitView: View {
         
         let splitPos = calculateSplitPosition()
         let onSeparator = isPointOnSeparator(point: event.pos, splitPos: splitPos)
-        switch event.flags {
-        case .button1Clicked:
+        if event.flags.contains(.button1Pressed) {
             if _isResizing {
-                Application.ungrabMouse()
-                _isResizing = false
-                setNeedsLayout()
-                setNeedsDisplay()
+                handleDrag(to: event.pos)
                 return true
             }
             if onSeparator {
@@ -226,8 +222,9 @@ public class SplitView: View {
                 Application.grabMouse(from: self)
                 return true
             }
-            
-        case .button1Released:
+        }
+        
+        if event.flags.contains(.button1Released), _isResizing {
             if _isResizing {
                 Application.ungrabMouse()
                 _isResizing = false
@@ -235,20 +232,7 @@ public class SplitView: View {
                 splitPositionChanged?()
                 return true
             }
-            
-        case .mousePosition:
-            if _isResizing {
-                handleDrag(to: event.pos)
-                return true
-            } else if onSeparator {
-                // TODO: Change cursor to resize cursor when hovering
-                return true
-            }
-            
-        default:
-            break
         }
-        
         return super.mouseEvent(event: event)
     }
     
