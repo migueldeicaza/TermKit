@@ -74,11 +74,15 @@ class CursesDriver: ConsoleDriver {
     // Dynamically loaded definitions, because Darwin.ncurses does not bring these
     var get_wch_fn: get_wch_def? = nil
 
+    var operational: Bool {
+        get_wch_fn != nil
+    }
+    
     override init ()
     {
         oldMouseEvents = 0
         mouseEvents = 0
-        super.init ()
+        super.init()
         
         ccol = 0
         crow = 0
@@ -111,11 +115,7 @@ class CursesDriver: ConsoleDriver {
         let get_wch_ptr = dlsym (rtld_default, "get_wch")
         if get_wch_ptr != nil {
             get_wch_fn = unsafeBitCast(get_wch_ptr, to: get_wch_def.self)
-        } else {
-            // Fallback if get_wch is not available
-            print("Warning: get_wch not available in ncurses, some functionality may be limited")
         }
-        
         selectColors()
     }
     

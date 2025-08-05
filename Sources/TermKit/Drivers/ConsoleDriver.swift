@@ -217,7 +217,7 @@ public class Colors {
  * that purely uses Terminfo would be desirable, as well as a Windows console one
  */
 open class ConsoleDriver {
-    init ()
+    init()
     {
         size = Size.empty
     }

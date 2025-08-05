@@ -146,7 +146,8 @@ public class Application {
         switch driverType {
         case .curses:
             if #available(macOS 15.0, *) {
-                driver = CursesDriver()
+                let cursesDriver = CursesDriver()
+                driver = cursesDriver.operational ? cursesDriver : UnixDriver()
             } else {
                 driver = UnixDriver()
             }
@@ -154,7 +155,8 @@ public class Application {
             driver = UnixDriver()
         case .auto:
             if #available(macOS 15.0, *) {
-                driver = CursesDriver()
+                let cursesDriver = CursesDriver()
+                driver = cursesDriver.operational ? cursesDriver : UnixDriver()
             } else {
                 driver = UnixDriver()
             }
