@@ -116,7 +116,12 @@ public class Application {
 
     /// The current Console Driver in use.
     public static var driver: ConsoleDriver = ConsoleDriver()
-    
+
+    /// The size of the terminal in columns and rows
+    public static var terminalSize: Size {
+        driver.size
+    }
+
     public static func makeAttribute(fore: Color, back: Color, flags: CellFlags = []) -> Attribute {
         driver.makeAttribute(fore: fore, back: back, flags: flags)
     }
@@ -519,7 +524,7 @@ public class Application {
     {
         begin (toplevel: top);
     }
-    
+
     /**
      * Starts the application mainloop - does not return, but can exit to the OS.
      */

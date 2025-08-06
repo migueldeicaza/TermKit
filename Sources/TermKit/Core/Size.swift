@@ -9,8 +9,8 @@
 import Foundation
 
 public struct Size: CustomDebugStringConvertible, Codable, Equatable {
-    var width = 0
-    var height = 0
+    public var width = 0
+    public var height = 0
     static public var empty: Size = Size (width: 0, height: 0)
     public var IsEmpty: Bool {
         get {
