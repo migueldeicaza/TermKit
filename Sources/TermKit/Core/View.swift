@@ -93,26 +93,12 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
     var _frame: Rect = Rect.zero
     var viewId: Int
     var id: String = ""
+    var _enabled: Bool = true
     var needDisplay: Rect = Rect.zero
     var _canFocus: Bool = false
     static var globalId: Int = 0
     var _layoutStyle: LayoutStyle = .computed
-    
-    /// Event fired when a subview is being added to this view.
-    // TODO public var subviewAdded = PassthroughSubject<View,Never> ()
 
-    /// Event fired when a subview was removed from this view.
-    // TODO: public var subviewRemoved = PassthroughSubject<View,Never> ()
-
-    /// Event fired when the view receives the mouse event for the first time.
-    // TODO: public var mouseEntered = PassthroughSubject<MouseEvent,Never> ()
-    
-    /// Event fired when the view receives a mouse event because the mouse is outside its boundary
-    // TODO: public var mouseLeft = PassthroughSubject<MouseEvent,Never> ()
-    
-    /// Event fired when a mouse event is generated.
-    // TODO: public var mouseClicked = PassthroughSubject<MouseEvent,Never> ()
-    
     /// This is a payload that can be set by user code to any value it desires
     public var data: AnyObject? = nil
     
@@ -167,10 +153,24 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
             }
         }
     }
-    
+
+    /// Controls whether this view is enabled or not
+    public var enabled: Bool {
+        get {
+            _enabled
+        }
+        set {
+            if _enabled != newValue {
+                _enabled = newValue
+                self.setNeedsDisplay()
+            }
+        }
+    }
+    /// Controls whether this view can be focused or not, returns false if the view
+    /// is not able to focus, or if it is not enabled
     public var canFocus: Bool {
         get {
-            return _canFocus
+            return _canFocus && _enabled
         }
         set {
             if _canFocus != newValue {

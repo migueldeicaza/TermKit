@@ -32,6 +32,10 @@ open class TextField: View {
     /// Changed event that is triggered when the text changes, and provides the old text,
     /// for a Combine version of this event, use `textChangedSubject`
     public var textChanged: ((_ source: TextField, _ oldText: String) -> ())? = nil
+
+    /// If set, this raises the event when the return key is pressed
+    public var onSubmit: ((_ source: TextField) -> ())? = nil
+
     typealias TextBuffer = [(ch:Character,size:Int8)]
     
     // Store the string as an array of characters and the size in cells of each character
@@ -336,7 +340,11 @@ open class TextField: View {
             raiseTextChanged(old: old)
             adjust ()
             break
-            
+
+        case .controlM where onSubmit != nil:
+            onSubmit?(self)
+            return true
+
         // MISSING:
         // Alt-D, Alt-backspace
         // Alt-Y

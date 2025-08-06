@@ -124,7 +124,13 @@ open class Checkbox: View {
         }
         setNeedsDisplay()
     }
-    
+
+    /// Sets the state of the checkbox,
+    public func setState(to: Bool) {
+        if to == checked { return }
+        toggle()
+    }
+
     open override func processHotKey(event: KeyEvent) -> Bool {
         if View.eventTriggersHotKey(event: event, hotKey: hotKey) {
             superview?.setFocus(self)
