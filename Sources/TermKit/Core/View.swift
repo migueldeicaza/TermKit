@@ -1247,7 +1247,7 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
                 subtext += "    \(t)\n"
             }
         }
-        return "view \(type(of:self))-\(viewId) frame: \(frame)\n\n\(subtext)"
+        return "view \(type(of:self))-\(viewId) frame: \(frame) x=\(x) y=\(y) w=(\(width) h=\(height)\n\n\(subtext)"
     }
     
     /// Helper utility that can be used to determine if the event contains a hotkey invocation, which is Alt+letter
