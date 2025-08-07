@@ -9,7 +9,7 @@ final class TermKitTests: XCTestCase {
         //XCTAssertEqual(TermKit().text, "Hello, World!")
     }
 
-    static var allTests = [
+    static let allTests = [
         ("testExample", testExample),
     ]
 }

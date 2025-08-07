@@ -92,12 +92,31 @@ class UnixDriver: ConsoleDriver {
                 colorSupport = .rgbColors
             }
         } else {
-            // Until we load the data from terminfo
-            if let term = ProcessInfo.processInfo.environment["TERM"] {
-                if term.range(of: "-256") != nil {
-                    colorSupport = .ansi256
-                } else if term.hasPrefix("xterm") {
+            // Use terminfo to detect color capabilities
+            if let colorCount = TerminfoParser.getColorCount() {
+                switch colorCount {
+                case 0...1:
+                    colorSupport = .blackAndWhite
+                case 2...16:
                     colorSupport = .ansi16
+                case 17...256:
+                    colorSupport = .ansi256
+                default:
+                    // For terminals claiming more than 256 colors, assume RGB support
+                    colorSupport = .rgbColors
+                }
+            } else {
+                // Fallback to TERM environment variable parsing
+                if let term = ProcessInfo.processInfo.environment["TERM"] {
+                    if term.range(of: "-256") != nil {
+                        colorSupport = .ansi256
+                    } else if term.hasPrefix("xterm") {
+                        colorSupport = .ansi16
+                    } else {
+                        colorSupport = .blackAndWhite
+                    }
+                } else {
+                    colorSupport = .blackAndWhite
                 }
             }
         }
