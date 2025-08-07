@@ -483,6 +483,17 @@ class UnixDriver: ConsoleDriver {
     }
     
     private func colorToForegroundSequence(_ color: Color) -> String {
+        // Check if we can use terminfo parametrized sequences for better color support
+        if let terminfoCapability = capabilities as? TerminfoCapability, colorSupport != .rgbColors {
+            if let colorIndex = mapColorToIndex(color) {
+                let sequence = terminfoCapability.setForegroundColor(colorIndex)
+                if !sequence.isEmpty {
+                    return sequence
+                }
+            }
+        }
+        
+        // Fallback to hardcoded sequences
         switch color {
         case .black: return capabilities.foregroundBlack
         case .red: return capabilities.foregroundRed
@@ -505,6 +516,17 @@ class UnixDriver: ConsoleDriver {
     }
     
     private func colorToBackgroundSequence(_ color: Color) -> String {
+        // Check if we can use terminfo parametrized sequences for better color support
+        if let terminfoCapability = capabilities as? TerminfoCapability, colorSupport != .rgbColors {
+            if let colorIndex = mapColorToIndex(color) {
+                let sequence = terminfoCapability.setBackgroundColor(colorIndex)
+                if !sequence.isEmpty {
+                    return sequence
+                }
+            }
+        }
+        
+        // Fallback to hardcoded sequences
         switch color {
         case .black: return capabilities.backgroundBlack
         case .red: return capabilities.backgroundRed
@@ -524,6 +546,71 @@ class UnixDriver: ConsoleDriver {
         case .white: return capabilities.backgroundBrightWhite
         case .rgb(let r, let g, let b): return capabilities.backgroundRGB(r, g, b)
         }
+    }
+    
+    /**
+     * Maps Color enum values to ANSI color indices for terminfo sequences.
+     * This handles both 16-color and 256-color terminals.
+     */
+    private func mapColorToIndex(_ color: Color) -> Int? {
+        switch color {
+        // Standard ANSI colors (0-7)
+        case .black: return 0
+        case .red: return 1
+        case .green: return 2
+        case .brown: return 3  // Yellow
+        case .blue: return 4
+        case .magenta: return 5
+        case .cyan: return 6
+        case .gray: return 7   // White
+        
+        // Bright colors (8-15) for 16+ color terminals
+        case .darkGray: return colorSupport == .blackAndWhite ? nil : 8
+        case .brightRed: return colorSupport == .blackAndWhite ? nil : 9
+        case .brightGreen: return colorSupport == .blackAndWhite ? nil : 10
+        case .brightYellow: return colorSupport == .blackAndWhite ? nil : 11
+        case .brightBlue: return colorSupport == .blackAndWhite ? nil : 12
+        case .brightMagenta: return colorSupport == .blackAndWhite ? nil : 13
+        case .brightCyan: return colorSupport == .blackAndWhite ? nil : 14
+        case .white: return colorSupport == .blackAndWhite ? nil : 15
+        
+        // RGB colors - convert to 256-color index if supported
+        case .rgb(let r, let g, let b):
+            if colorSupport == .ansi256 {
+                return rgbTo256ColorIndex(r: r, g: g, b: b)
+            }
+            return nil
+        }
+    }
+    
+    /**
+     * Converts RGB values to the nearest 256-color palette index.
+     * Uses the standard 256-color palette structure.
+     */
+    private func rgbTo256ColorIndex(r: Int, g: Int, b: Int) -> Int {
+        // Clamp values to 0-255
+        let r = max(0, min(255, r))
+        let g = max(0, min(255, g))
+        let b = max(0, min(255, b))
+        
+        // Check if it's a grayscale color
+        if r == g && g == b {
+            // Grayscale ramp (colors 232-255, 24 levels)
+            if r < 8 {
+                return 16  // Black from color cube
+            } else if r > 247 {
+                return 231 // White from color cube
+            } else {
+                return 232 + ((r - 8) * 23) / 239
+            }
+        }
+        
+        // Map to 6x6x6 color cube (colors 16-231)
+        let rIndex = (r * 5) / 255
+        let gIndex = (g * 5) / 255
+        let bIndex = (b * 5) / 255
+        
+        return 16 + (36 * rIndex) + (6 * gIndex) + bIndex
     }
     
     public override func updateCursor() {

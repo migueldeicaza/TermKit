@@ -232,6 +232,241 @@ public class TerminfoParser {
         
         return nil
     }
+    
+    /**
+     * Processes a parametrized terminfo string by substituting parameters.
+     * This implements terminfo's parameter processing language for color sequences.
+     */
+    public static func processParametrizedString(_ template: String, parameters: [Int]) -> String {
+        return TerminfoParameterProcessor.process(template, parameters: parameters)
+    }
+}
+
+/**
+ * Processes terminfo parametrized strings using a stack-based approach.
+ * Handles the subset needed for color sequences (setaf/setab).
+ */
+class TerminfoParameterProcessor {
+    private var stack: [Int] = []
+    private var result: String = ""
+    private var chars: [Character] = []
+    private var index: Int = 0
+    
+    static func process(_ template: String, parameters: [Int]) -> String {
+        let processor = TerminfoParameterProcessor()
+        return processor.processString(template, parameters: parameters)
+    }
+    
+    private func processString(_ template: String, parameters: [Int]) -> String {
+        result = ""
+        stack = []
+        chars = Array(template)
+        index = 0
+        
+        while index < chars.count {
+            let char = chars[index]
+            
+            if char == "%" && index + 1 < chars.count {
+                processPercentSequence(parameters: parameters)
+            } else {
+                result.append(char)
+                index += 1
+            }
+        }
+        
+        return result
+    }
+    
+    private func processPercentSequence(parameters: [Int]) {
+        index += 1 // Skip %
+        guard index < chars.count else { return }
+        
+        let cmd = chars[index]
+        
+        switch cmd {
+        case "%":
+            result.append("%")
+            index += 1
+            
+        case "p":
+            // %p1, %p2, etc. - push parameter onto stack
+            index += 1
+            if index < chars.count, let paramNum = Int(String(chars[index])) {
+                if paramNum > 0 && paramNum <= parameters.count {
+                    stack.append(parameters[paramNum - 1])
+                }
+            }
+            index += 1
+            
+        case "d":
+            // %d - pop integer from stack and output as decimal
+            if !stack.isEmpty {
+                result.append(String(stack.removeLast()))
+            }
+            index += 1
+            
+        case "c":
+            // %c - pop integer from stack and output as character
+            if !stack.isEmpty {
+                let value = stack.removeLast()
+                if value >= 0 && value <= 255 {
+                    result.append(Character(UnicodeScalar(value)!))
+                }
+            }
+            index += 1
+            
+        case "+", "-", "*", "/", "m":
+            // Arithmetic operations
+            if stack.count >= 2 {
+                let b = stack.removeLast()
+                let a = stack.removeLast()
+                switch cmd {
+                case "+": stack.append(a + b)
+                case "-": stack.append(a - b)
+                case "*": stack.append(a * b)
+                case "/": stack.append(b != 0 ? a / b : 0)
+                case "m": stack.append(b != 0 ? a % b : 0)
+                default: break
+                }
+            }
+            index += 1
+            
+        case "{":
+            // %{number} - push constant onto stack
+            index += 1
+            var numberStr = ""
+            while index < chars.count && chars[index] != "}" {
+                numberStr.append(chars[index])
+                index += 1
+            }
+            if index < chars.count, let number = Int(numberStr) {
+                stack.append(number)
+            }
+            index += 1
+            
+        case "<", ">", "=":
+            // Comparison operations
+            if stack.count >= 2 {
+                let b = stack.removeLast()
+                let a = stack.removeLast()
+                let comparison: Bool
+                switch cmd {
+                case "<": comparison = a < b
+                case ">": comparison = a > b
+                case "=": comparison = a == b
+                default: comparison = false
+                }
+                stack.append(comparison ? 1 : 0)
+            }
+            index += 1
+            
+        case "?":
+            // Start conditional
+            index += 1
+            processConditional(parameters: parameters)
+            
+        default:
+            result.append("%")
+            result.append(cmd)
+            index += 1
+        }
+    }
+    
+    private func processConditional(parameters: [Int]) {
+        // Process the conditional expression %?condition%tTHEN%eELSE%;
+        let condition = stack.isEmpty ? 0 : stack.removeLast()
+        
+        // Parse the conditional structure manually
+        var depth = 0
+        var thenStart = -1
+        var thenEnd = -1
+        var elseStart = -1
+        var elseEnd = -1
+        var i = index
+        
+        // Find the structure: %?...%t...%e...%;
+        while i < chars.count - 1 {
+            if chars[i] == "%" {
+                let cmd = chars[i + 1]
+                switch cmd {
+                case "?":
+                    depth += 1
+                case "t":
+                    if depth == 0 && thenStart == -1 {
+                        thenStart = i + 2
+                    }
+                case "e":
+                    if depth == 0 && thenEnd == -1 {
+                        thenEnd = i
+                        elseStart = i + 2
+                    }
+                case ";":
+                    if depth == 0 {
+                        if elseStart != -1 && elseEnd == -1 {
+                            elseEnd = i
+                        } else if thenEnd == -1 {
+                            thenEnd = i
+                        }
+                        break
+                    } else {
+                        depth -= 1
+                    }
+                default:
+                    break
+                }
+                i += 2
+            } else {
+                i += 1
+            }
+        }
+        
+        // Execute the appropriate branch
+        if condition != 0 {
+            // Execute then part
+            if thenStart != -1 && thenEnd != -1 && thenEnd > thenStart {
+                let thenPart = String(chars[thenStart..<thenEnd])
+                let processor = TerminfoParameterProcessor()
+                processor.stack = stack
+                let thenResult = processor.processString(thenPart, parameters: parameters)
+                result.append(thenResult)
+                stack = processor.stack
+            }
+        } else if elseStart != -1 && elseEnd != -1 && elseEnd > elseStart {
+            // Execute else part
+            let elsePart = String(chars[elseStart..<elseEnd])
+            let processor = TerminfoParameterProcessor()
+            processor.stack = stack
+            let elseResult = processor.processString(elsePart, parameters: parameters)
+            result.append(elseResult)
+            stack = processor.stack
+        }
+        
+        // Skip to after the closing ;
+        index = i + 1
+    }
+    
+    private func findMatchingToken(_ token: String, from start: Int) -> Int {
+        var i = start
+        var depth = 0
+        
+        while i < chars.count - 1 {
+            if chars[i] == "%" {
+                let next = chars[i + 1]
+                if String(next) == token && depth == 0 {
+                    return i + 2
+                } else if next == "?" {
+                    depth += 1
+                } else if next == ";" {
+                    depth -= 1
+                }
+                i += 2
+            } else {
+                i += 1
+            }
+        }
+        
+        return chars.count
+    }
 }
 
 /**
@@ -247,7 +482,7 @@ public class TerminfoCapability: TerminalCapability {
     }
     
     // Standard terminfo string capability indices
-    private enum StringCap: Int {
+    public enum StringCap: Int {
         case bell = 1
         case cr = 5
         case csr = 6
@@ -602,8 +837,8 @@ public class TerminfoCapability: TerminalCapability {
         case minfo = 355
         case reqmp = 356
         case getm = 357
-        case setaf = 358
-        case setab = 359
+        case setaf = 358  // Set ANSI foreground color
+        case setab = 359  // Set ANSI background color
         case pfxl = 360
         case devt = 361
         case csin = 362
@@ -639,7 +874,7 @@ public class TerminfoCapability: TerminalCapability {
         case smgtp2 = 392
     }
     
-    private func getString(_ cap: StringCap) -> String {
+    public func getString(_ cap: StringCap) -> String {
         let index = cap.rawValue
         if index < entry.strings.count, let value = entry.strings[index] {
             return processEscapeSequences(value)
@@ -776,4 +1011,21 @@ public class TerminfoCapability: TerminalCapability {
     
     public var queryTerminalSize: String { "\u{1b}[18t" }
     public var queryCursorPosition: String { "\u{1b}[6n" }
+    
+    // Color support methods
+    public func setForegroundColor(_ colorIndex: Int) -> String {
+        let setafTemplate = getString(.setaf)
+        if !setafTemplate.isEmpty {
+            return TerminfoParser.processParametrizedString(setafTemplate, parameters: [colorIndex])
+        }
+        return ""
+    }
+    
+    public func setBackgroundColor(_ colorIndex: Int) -> String {
+        let setabTemplate = getString(.setab)
+        if !setabTemplate.isEmpty {
+            return TerminfoParser.processParametrizedString(setabTemplate, parameters: [colorIndex])
+        }
+        return ""
+    }
 }
