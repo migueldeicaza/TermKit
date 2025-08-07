@@ -442,11 +442,7 @@ class TopDriver: ConsoleDriver {
     public override func change(_ attribute: Attribute, flags: CellFlags) -> Attribute {
         backing.change(attribute, flags: flags)
     }
-    
-    public override func colorSupport() -> ConsoleDriver.ColorSupport {
-        backing.colorSupport()
-    }
-    
+
     public override func makeAttribute(fore: Color, back: Color, flags: CellFlags = []) -> Attribute {
         backing.makeAttribute(fore: fore, back: back, flags: flags)
     }

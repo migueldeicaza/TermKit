@@ -79,6 +79,16 @@ public class XtermCapability: TerminalCapability {
     public var foregroundBrightCyan = "\u{1b}[96m"
     public var foregroundBrightWhite = "\u{1b}[97m"
     
+    // RGB color support
+    /// Returns ANSI escape for true‑color foreground (24‑bit).
+    public func foregroundRGB(_ r: Int, _ g: Int, _ b: Int) -> String {
+        return "\u{1b}[38;2;\(r);\(g);\(b)m"
+    }
+    /// Returns ANSI escape for true‑color background (24‑bit).
+    public func backgroundRGB(_ r: Int, _ g: Int, _ b: Int) -> String {
+        return "\u{1b}[48;2;\(r);\(g);\(b)m"
+    }
+
     public var backgroundBrightBlack = "\u{1b}[100m"
     public var backgroundBrightRed = "\u{1b}[101m"
     public var backgroundBrightGreen = "\u{1b}[102m"

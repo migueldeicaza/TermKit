@@ -87,6 +87,21 @@ class UnixDriver: ConsoleDriver {
         // Setup signal handling for terminal resize
         setupSignalHandlers()
         
+        if let value = ProcessInfo.processInfo.environment["COLORTERM"] {
+            if value == "truecolor" || value == "24bit" {
+                colorSupport = .rgbColors
+            }
+        } else {
+            // Until we load the data from terminfo
+            if let term = ProcessInfo.processInfo.environment["TERM"] {
+                if term.range(of: "-256") != nil {
+                    colorSupport = .ansi256
+                } else if term.hasPrefix("xterm") {
+                    colorSupport = .ansi16
+                }
+            }
+        }
+        
         // Initialize color schemes
         selectColors()
     }
@@ -382,12 +397,7 @@ class UnixDriver: ConsoleDriver {
     override func change(_ attribute: Attribute, flags: CellFlags) -> Attribute {
         return makeAttribute(fore: attribute.fore ?? .white, back: attribute.back ?? .black, flags: flags)
     }
-    
-    public override func colorSupport() -> ColorSupport {
-        // Most modern Unix terminals support at least 16 colors
-        return .sixteenColors
-    }
-    
+
     public override func updateScreen() {
         refresh()
     }
@@ -471,7 +481,7 @@ class UnixDriver: ConsoleDriver {
         case .brightMagenta: return capabilities.foregroundBrightMagenta
         case .brightYellow: return capabilities.foregroundBrightYellow
         case .white: return capabilities.foregroundBrightWhite
-        case .rgb(_, _, _): return capabilities.foregroundDefault
+        case .rgb(let r, let g, let b): return capabilities.foregroundRGB(r, g, b)
         }
     }
     
@@ -493,7 +503,7 @@ class UnixDriver: ConsoleDriver {
         case .brightMagenta: return capabilities.backgroundBrightMagenta
         case .brightYellow: return capabilities.backgroundBrightYellow
         case .white: return capabilities.backgroundBrightWhite
-        case .rgb(_, _, _): return capabilities.backgroundDefault
+        case .rgb(let r, let g, let b): return capabilities.backgroundRGB(r, g, b)
         }
     }
     

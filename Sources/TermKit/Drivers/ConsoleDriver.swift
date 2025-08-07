@@ -313,7 +313,9 @@ open class ConsoleDriver {
         /// The terminal only supports black and white - generally, they are expected to at least have the VT100 capabilities: bold, italics, inverse, blink
         case blackAndWhite
         /// The terminal supports 16 colors, usually the top 8 are bright colors
-        case sixteenColors
+        case ansi16
+        /// The terminal supports the ANSI 256 color palette
+        case ansi256
         /// The terminal can configure colors based on R, G, B values
         case rgbColors
     }
@@ -324,10 +326,7 @@ open class ConsoleDriver {
      * On some Unix terminals, there is only black and white available, others support 16 colors, others can
      * support a larger range by setting the colors using an RGB set of properties.
      */
-    public func colorSupport() -> ColorSupport
-    {
-        return .blackAndWhite
-    }
+    public var colorSupport: ColorSupport = .blackAndWhite
     
     /**
      * Sets the current attribute used to draw, any subsequence text output will use the specified attribute

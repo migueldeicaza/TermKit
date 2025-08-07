@@ -107,7 +107,7 @@ class CursesDriver: ConsoleDriver {
         
         size = Size (width: Int (getmaxx (stdscr)), height: Int (getmaxy (stdscr)))
         
-        clear ();
+        clear ()
 
         let rtld_default = UnsafeMutableRawPointer(bitPattern: -2)
 
@@ -116,6 +116,16 @@ class CursesDriver: ConsoleDriver {
         if get_wch_ptr != nil {
             get_wch_fn = unsafeBitCast(get_wch_ptr, to: get_wch_def.self)
         }
+        if has_colors() {
+            if can_change_color() {
+                colorSupport = .rgbColors
+            } else {
+                colorSupport = .ansi16
+            }
+        } else {
+            colorSupport = .blackAndWhite
+        }
+
         selectColors()
     }
     
@@ -376,17 +386,6 @@ class CursesDriver: ConsoleDriver {
         Colors._menu = menu
         Colors._dialog = dialog
         Colors._error = error
-    }
-    
-    public override func colorSupport () -> ColorSupport
-    {
-        if (!has_colors()) {
-            return .blackAndWhite
-        }
-        if can_change_color() {
-            return .rgbColors
-        }
-        return .sixteenColors
     }
     
     static var lastColorPair: Int16 = 16

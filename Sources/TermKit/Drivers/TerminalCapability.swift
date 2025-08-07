@@ -90,6 +90,9 @@ public protocol TerminalCapability {
     var backgroundBrightCyan: String { get }
     var backgroundBrightWhite: String { get }
     
+    func backgroundRGB(_ r: Int, _ g: Int, _ b: Int) -> String
+    func foregroundRGB(_ r: Int, _ g: Int, _ b: Int) -> String
+    
     // Terminal modes
     var alternateScreenBuffer: String { get }
     var normalScreenBuffer: String { get }
