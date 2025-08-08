@@ -1,0 +1,83 @@
+name: Build, test, and docs
+
+on:
+  push:
+    branches-ignore:
+      - 'gh-pages'
+  pull_request:
+    branches-ignore:
+      - 'gh-pages'
+  workflow_dispatch:
+
+jobs:
+  macos:
+    runs-on: macos-14
+    steps:
+    - name: Force Xcode 15.4
+      run: sudo xcode-select -switch /Applications/Xcode_15.4.app
+
+    - name: Swift version
+      run: swift --version
+
+    - uses: actions/checkout@v3
+
+    - name: Build TermKit
+      run: swift build
+
+    - name: Run tests
+      run: swift test
+
+  windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+
+    steps:
+    - name: Setup VS Dev Environment
+      uses: seanmiddleditch/gha-setup-vsdevenv@v5
+
+    - name: Setup Swift
+      uses: compnerd/gha-setup-swift@v0.3.0
+      with:
+        branch: swift-6.1-release
+        tag: 6.1-RELEASE
+
+    - name: Swift version
+      run: swift --version
+
+    - uses: actions/checkout@v3
+
+    - name: Build TermKit
+      run: swift build
+
+    - name: Run tests
+      run: swift test
+
+  linux:
+    strategy:
+      matrix:
+        os: [ubuntu-22.04, ubuntu-24.04]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - name: Install Swift
+      uses: SwiftyLab/setup-swift@latest
+      with:
+        swift-version: "6.1.0"
+
+    - name: Swift version
+      run: swift --version
+
+    - uses: actions/checkout@v3
+
+    - name: Install ncurses
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libncurses5-dev libncursesw5-dev
+
+    - name: Build TermKit
+      run: swift build
+
+    - name: Run tests
+      run: swift test
