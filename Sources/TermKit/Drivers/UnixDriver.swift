@@ -147,9 +147,40 @@ class UnixDriver: ConsoleDriver {
         }
     }
     
-    private func setupSignalHandlers() {
+    static var pipeSignal: [Int32] = [0, 0]
+    static var pipeReader: DispatchSourceRead?
+    static let bufferSize = 128
+    static var buffer = UnsafeMutableRawPointer.allocate(byteCount: bufferSize, alignment: 8)
+
+    static func setupSigwinch(_ handler: @escaping () -> Void) {
+        guard pipeSignal[0] == 0 else { return }
+        
+        pipe(&pipeSignal)
+        _ = fcntl(pipeSignal[0], F_SETFL, O_NONBLOCK)
+        let reader = DispatchSource.makeReadSource(fileDescriptor: pipeSignal[0], queue: .main)
+        pipeReader = reader
+        reader.setEventHandler {
+            // Read all pending requests in one go
+            var count = 0
+            count = read(pipeSignal[0], buffer, bufferSize)
+            if count > 0 {
+                handler()
+            }
+        }
+        reader.activate()
         signal(SIGWINCH) { _ in
+            write(UnixDriver.pipeSignal [1], &UnixDriver.pipeSignal, 1)
+        }
+    }
+    
+    private func setupSignalHandlers() {
+        UnixDriver.setupSigwinch {
             DispatchQueue.main.async {
+                var ws = winsize()
+                if ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == 0 {
+                    self.size = Size(width: Int(ws.ws_col), height: Int(ws.ws_row))
+                }
+                self.initializeScreenBuffer()
                 Application.terminalResized()
             }
         }

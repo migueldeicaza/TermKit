@@ -221,7 +221,7 @@ open class ConsoleDriver {
     {
         size = Size.empty
     }
-    
+
     var size: Size
     // swiftlint:disable force_unwrapping
     let ulCorner = Unicode.Scalar (0x250c)!

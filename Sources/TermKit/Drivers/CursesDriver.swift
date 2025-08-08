@@ -127,6 +127,9 @@ class CursesDriver: ConsoleDriver {
         }
 
         selectColors()
+        UnixDriver.setupSigwinch {
+            self.inputReadCallback(input: FileHandle.standardInput)
+        }
     }
     
     open override var driverName: String {
@@ -214,7 +217,7 @@ class CursesDriver: ConsoleDriver {
     //
     // Invoked when there is data available on standard input, takes the ncurses input
     // and creates a mouse or keyboard event and feeds it to the Application
-    
+    var count = 0
     func inputReadCallback (input: FileHandle)
     {
         guard let get_wch_fn = get_wch_fn else {
@@ -232,12 +235,21 @@ class CursesDriver: ConsoleDriver {
         }
         var result: Int32 = 0
         let status = get_wch_fn (&result)
+//        log("Key \(status) with result=\(result) at \(Date()) y=\(KEY_CODE_YES)")
         if status == ERR {
             return
         }
         if status == KEY_CODE_YES {
+            if result == KEY_MAX {
+                guard get_wch_fn(&result) == KEY_CODE_YES else { return }
+            }
             if result == KEY_RESIZE {
-                if LINES != size.height || COLS != size.width {
+                count += 1
+                let newx = Int(getmaxx (stdscr))
+                let newy = Int(getmaxy (stdscr))
+//                log("Resize at \(count) git \(newx) and \(newy)")
+                if newy != size.height || newx != size.width {
+                    size = Size (width: newx, height: newy)
                     DispatchQueue.main.async {
                         Application.terminalResized()
                     }
