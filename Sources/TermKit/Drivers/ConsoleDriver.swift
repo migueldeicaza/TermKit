@@ -179,7 +179,7 @@ public class ColorScheme {
  * `error` is intended to have a set of attributes suitable to display error messages.
  */
 public class Colors {
-    static var _base, _dialog, _menu, _error: ColorScheme?
+    static var _base, _dialog, _menu, _error, _disabled: ColorScheme?
     
     /// The base color scheme is used for the main UI elements in the application
     public static var base: ColorScheme {
@@ -206,6 +206,13 @@ public class Colors {
     public static var error: ColorScheme {
         get {
             return _error ?? ColorScheme.fallback
+        }
+    }
+    
+    /// The color scheme used for disabled UI elements
+    public static var disabled: ColorScheme {
+        get {
+            return _disabled ?? ColorScheme.fallback
         }
     }
 }
@@ -242,7 +249,7 @@ open class ConsoleDriver {
     let diamond = Unicode.Scalar (0x25c6)!
     let leftTee = Unicode.Scalar (0x251c)!
     let rightTee = Unicode.Scalar (0x2524)!
-    let bottomTee = Unicode.Scalar (0x22a5)!        // ┴
+    let bottomTee = Unicode.Scalar (0x2534)!        // ┴
     let topTee = Unicode.Scalar (0x22a4)!
     
     let filledCircle = Unicode.Scalar (0x25CF)!   // "●"

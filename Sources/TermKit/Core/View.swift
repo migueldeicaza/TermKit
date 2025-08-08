@@ -433,10 +433,6 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
             _subviews.remove(at: idx)
             view.superview = nil
             
-            if subviews.count < 1 {
-                canFocus = false
-            }
-            
             for v in subviews {
                 if v.frame.intersects(touched) {
                     v.setNeedsDisplay()

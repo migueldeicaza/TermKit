@@ -40,6 +40,8 @@ class TTYDriver: ConsoleDriver {
     
     override init() {
         super.init()
+        setlocale(LC_ALL, "")
+
         self.colorSupport = .blackAndWhite
         
         // Set a default size for debugging

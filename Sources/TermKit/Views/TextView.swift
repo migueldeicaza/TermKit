@@ -547,7 +547,9 @@ open class TextView: View {
                 topRow += 1
                 setNeedsDisplay ()
             }
-            trackColumn ();
+            trackColumn ()
+        } else {
+            gotoEndOfLine ()
         }
     }
     
@@ -563,6 +565,8 @@ open class TextView: View {
                 setNeedsDisplay ()
             }
             trackColumn ();
+        } else {
+            moveBeginningOfLine()
         }
     }
     
@@ -848,11 +852,21 @@ open class TextView: View {
             pageUp ()
             
         case .controlN, .cursorDown:
+            let prevCol = currentColumn
+            let prevRow = currentRow
             nextLine ()
+            if prevCol == currentColumn, prevRow == currentRow {
+                return false
+            }
             
         case .controlP, .cursorUp:
+            let prevCol = currentColumn
+            let prevRow = currentRow
             previousLine ()
-            
+            if prevCol == currentColumn, prevRow == currentRow {
+                return false
+            }
+
         case .controlF, .cursorRight:
             forwardCharacter ()
 

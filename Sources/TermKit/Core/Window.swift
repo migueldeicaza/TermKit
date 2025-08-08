@@ -35,6 +35,9 @@ open class Window: Toplevel {
         }
     }
     
+    /// If set to true, the control-c auto-closes this window
+    public var closeOnControlC = false
+    
     public override convenience init ()
     {
         self.init (nil, padding: 0)
@@ -107,6 +110,13 @@ open class Window: Toplevel {
         return super.becomeFirstResponder()
     }
     
+    open override func processHotKey(event: KeyEvent) -> Bool {
+        if closeOnControlC && event.key == .controlC {
+            Application.requestStop()
+            return true
+        }
+        return false
+    }
     open override func redraw(region: Rect, painter p: Painter) {
         //log ("Window.redraw: \(frame) and region to redraw is: \(region)")
         let contentFrame = contentView.frame

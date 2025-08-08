@@ -43,7 +43,7 @@ open class TabView: View {
     private var firstVisibleTabIndex: Int = 0
     
     /// The style used to render tabs
-    public var tabStyle: TabStyle = .plain {
+    public var tabStyle: TabStyle = .bordered {
         didSet {
             tabHeaderHeight = (tabStyle == .bordered) ? 3 : 1
             layoutTabs()
@@ -228,11 +228,12 @@ open class TabView: View {
         let contentFrame: Rect
         if tabStyle == .bordered {
             // Account for border padding in bordered mode
+            // Content starts after tab area (tabHeaderHeight = 3) + 1 more row for proper spacing
             contentFrame = Rect(
                 x: 1,
-                y: tabHeaderHeight,
+                y: tabHeaderHeight + 1,
                 width: frame.width - 2,
-                height: frame.height - tabHeaderHeight - 1
+                height: frame.height - tabHeaderHeight - 2
             )
         } else {
             contentFrame = Rect(
@@ -258,33 +259,129 @@ open class TabView: View {
         setNeedsDisplay()
         
         // Focus the content if we're not navigating tabs
+        log("DEBUG selectTab: isNavigatingTabs = \(isNavigatingTabs), hasFocus = \(hasFocus)")
         if !isNavigatingTabs && hasFocus {
+            log("DEBUG selectTab: Calling focusTabContent()")
             focusTabContent()
+        } else {
+            log("DEBUG selectTab: NOT calling focusTabContent()")
         }
     }
     
     private func ensureSelectedTabVisible() {
-        guard tabs.count > 0 else { return }
+        guard tabs.count > 0 && selectedTabIndex >= 0 else { return }
         
-        // Calculate visible tabs range
-        let visibleRange = calculateVisibleTabsRange()
+        // Calculate what tabs are currently visible with the current firstVisibleTabIndex
+        let currentVisibleRange = calculateVisibleTabsRange()
+        let lastVisibleIndex = firstVisibleTabIndex + currentVisibleRange.count - 1
         
-        // If selected tab is before visible range, scroll left
+        // If the selected tab is already fully visible, don't scroll at all
+        if selectedTabIndex >= firstVisibleTabIndex && selectedTabIndex <= lastVisibleIndex {
+            return
+        }
+        
+        // Only scroll if the selected tab is actually outside the visible range
+        
         if selectedTabIndex < firstVisibleTabIndex {
+            // Selected tab is to the left of visible range - scroll left
             firstVisibleTabIndex = selectedTabIndex
-        }
-        // If selected tab is after visible range, scroll right
-        else if selectedTabIndex >= firstVisibleTabIndex + visibleRange.count {
-            firstVisibleTabIndex = max(0, selectedTabIndex - visibleRange.count + 1)
+        } else if selectedTabIndex > lastVisibleIndex {
+            // Selected tab is to the right of visible range - scroll right
+            // Try to make it the last visible tab
+            firstVisibleTabIndex = selectedTabIndex
+            
+            // Adjust backwards until we can fit the selected tab and as many others as possible
+            while firstVisibleTabIndex > 0 {
+                let testRange = calculateVisibleTabsRangeFrom(firstVisibleTabIndex - 1)
+                if selectedTabIndex < firstVisibleTabIndex - 1 + testRange.count {
+                    firstVisibleTabIndex = firstVisibleTabIndex - 1
+                } else {
+                    break
+                }
+            }
         }
         
-        // Ensure we don't scroll past the beginning
+        // Ensure we don't scroll past boundaries
         firstVisibleTabIndex = max(0, firstVisibleTabIndex)
+    }
+    
+    private func calculateVisibleTabsRangeFrom(_ startIndex: Int) -> (count: Int, lastIndex: Int) {
+        guard startIndex >= 0 && startIndex < tabs.count else { return (0, 0) }
         
-        // Ensure we don't scroll past the end unnecessarily
-        if firstVisibleTabIndex + visibleRange.count >= tabs.count {
-            firstVisibleTabIndex = max(0, tabs.count - visibleRange.count)
+        let availableWidth = frame.width
+        var currentWidth = 0
+        var visibleCount = 0
+        
+        // Account for potential scroll indicators
+        let needsLeftScroll = startIndex > 0
+        let leftScrollWidth = needsLeftScroll ? 1 : 0
+        
+        // First pass: calculate how many tabs we can fit
+        var tempWidth = leftScrollWidth
+        var tempCount = 0
+        
+        for i in startIndex..<tabs.count {
+            let tab = tabs[i]
+            let tabText = " \(tab.title) "
+            let tabWidth = (tabStyle == .bordered) ? tabText.count + 2 : tabText.count
+            
+            if tempWidth + tabWidth > availableWidth {
+                break
+            }
+            
+            tempWidth += tabWidth
+            tempCount += 1
         }
+        
+        // Check if we need right scroll indicator
+        let needsRightScroll = (startIndex + tempCount < tabs.count)
+        let rightScrollWidth = needsRightScroll ? 1 : 0
+        let usableWidth = availableWidth - leftScrollWidth - rightScrollWidth
+        
+        // Second pass: recalculate with right scroll indicator accounted for
+        currentWidth = 0
+        visibleCount = 0
+        
+        for i in startIndex..<tabs.count {
+            let tab = tabs[i]
+            let tabText = " \(tab.title) "
+            let tabWidth = (tabStyle == .bordered) ? tabText.count + 2 : tabText.count
+            
+            if currentWidth + tabWidth > usableWidth {
+                break
+            }
+            
+            currentWidth += tabWidth
+            visibleCount += 1
+        }
+        
+        return (visibleCount, startIndex + visibleCount - 1)
+    }
+    
+    private func calculateMaxVisibleTabs() -> Int {
+        let availableWidth = frame.width
+        var currentWidth = 0
+        var count = 0
+        
+        // Account for potential scroll indicators (2 characters total)
+        let scrollIndicatorWidth = 2
+        let usableWidth = max(0, availableWidth - scrollIndicatorWidth)
+        
+        // Calculate based on average tab width starting from selected tab
+        let startIndex = max(0, selectedTabIndex)
+        for i in startIndex..<tabs.count {
+            let tabText = " \(tabs[i].title) "
+            let tabWidth = (tabStyle == .bordered) ? tabText.count + 2 : tabText.count
+            
+            if currentWidth + tabWidth > usableWidth && count > 0 {
+                break
+            }
+            
+            currentWidth += tabWidth
+            count += 1
+        }
+        
+        return max(1, count) // Always show at least one tab
     }
     
     private func calculateVisibleTabsRange() -> (count: Int, lastIndex: Int) {
@@ -347,11 +444,12 @@ open class TabView: View {
         let contentFrame: Rect
         if tabStyle == .bordered {
             // Account for border padding in bordered mode
+            // Content starts after tab area (tabHeaderHeight = 3) + 1 more row for proper spacing
             contentFrame = Rect(
                 x: 1,
-                y: tabHeaderHeight,
+                y: tabHeaderHeight + 1,
                 width: frame.width - 2,
-                height: frame.height - tabHeaderHeight - 1
+                height: frame.height - tabHeaderHeight - 2
             )
         } else {
             contentFrame = Rect(
@@ -381,16 +479,19 @@ open class TabView: View {
     }
     
     private func focusTabContent() {
+//        print("DEBUG focusTabContent: Called")
         guard selectedTabIndex >= 0 && selectedTabIndex < tabs.count else { return }
         let content = tabs[selectedTabIndex].content
         
         // Try to find the first focusable view in the content
         if let focusable = findFirstFocusable(in: content) {
+//            print("DEBUG focusTabContent: Found focusable view, setting focus")
             // Set focus on the content view, which will pass focus to the focusable child
             content.setFocus(focusable)
         } else {
             // If no focusable child found, try to focus the content view itself
             if content.canFocus {
+//                print("DEBUG focusTabContent: Content view can focus, setting focus on it")
                 setFocus(content)
             }
         }
@@ -428,7 +529,6 @@ open class TabView: View {
     
     public override func redraw(region: Rect, painter: Painter) {
         painter.attribute = colorScheme.normal
-        painter.clear()
         
         // Draw content area border for bordered style FIRST
         if tabStyle == .bordered {
@@ -436,7 +536,7 @@ open class TabView: View {
         }
         
         drawTabHeaders(painter: painter)
-        
+        setNeedsDisplay(region)
         // Now let the parent class handle subview rendering
         super.redraw(region: region, painter: painter)
     }
@@ -471,6 +571,11 @@ open class TabView: View {
             let tab = tabs[i]
             let isSelected = (i == selectedTabIndex)
             let isTabNavigating = isNavigatingTabs && isSelected && hasFocus
+            
+            // DEBUG: Check focus state
+            if isSelected {
+                log("DEBUG drawPlain: tab \(i) selected, isNavigatingTabs=\(isNavigatingTabs), hasFocus=\(hasFocus), isTabNavigating=\(isTabNavigating)")
+            }
             
             // Set appropriate colors
             if isTabNavigating {
@@ -533,14 +638,8 @@ open class TabView: View {
             
             tabPositions.append((tab, col, tabWidth, actualIndex))
             
-            // Set appropriate colors - only highlight when navigating tabs, not when selected
-            if isTabNavigating {
-                painter.attribute = colorScheme.focus
-            } else {
-                painter.attribute = colorScheme.normal
-            }
-            
-            // Draw top border
+            // Draw top border with normal color
+            painter.attribute = colorScheme.normal
             painter.goto(col: col, row: 0)
             painter.add(rune: driver.ulCorner)
             for _ in 0..<(tabWidth - 2) {
@@ -548,10 +647,23 @@ open class TabView: View {
             }
             painter.add(rune: driver.urCorner)
             
-            // Draw tab content
+            // Draw tab sides with normal color
+            painter.attribute = colorScheme.normal
             painter.goto(col: col, row: 1)
             painter.add(rune: driver.vLine)
+            
+            // Draw tab text with appropriate focus color
+            if isTabNavigating {
+                painter.attribute = colorScheme.focus
+            } else if isSelected, hasFocus {
+                painter.attribute = colorScheme.hotNormal  
+            } else {
+                painter.attribute = colorScheme.normal
+            }
             painter.add(str: tabText)
+            
+            // Draw right side with normal color
+            painter.attribute = colorScheme.normal
             painter.add(rune: driver.vLine)
             
             col += tabWidth
@@ -566,73 +678,58 @@ open class TabView: View {
             painter.add(str: " ")
         }
         
-        // Third pass: draw continuous horizontal line on row 2, then tab connections
+        // Third pass: draw tab-specific connections on row 2 FIRST
         painter.attribute = colorScheme.normal
         
-        // Draw continuous horizontal line on row 2, but leave edges for content border connections
-        painter.goto(col: 1, row: 2)
-        for _ in 1..<(frame.width - 1) {
+        // Start with a baseline horizontal line
+        painter.goto(col: 0, row: 2)
+        for _ in 0..<frame.width {
             painter.add(rune: driver.hLine)
         }
         
-        // Draw the content border connections at the edges
-        painter.goto(col: 0, row: 2)
-        painter.add(rune: driver.vLine)
-        painter.goto(col: frame.width - 1, row: 2)
-        painter.add(rune: driver.vLine)
-        
-        // Fourth pass: draw tab-specific connections on row 2
+        // Then overlay tab-specific connections
         for (_, startCol, tabWidth, actualIndex) in tabPositions {
             let isSelected = (actualIndex == selectedTabIndex)
             
             if !isSelected {
-                // For non-selected tabs, use appropriate connections
+                // For non-selected tabs, draw bottomTee connections
                 painter.goto(col: startCol, row: 2)
-                if startCol == 0 {
-                    // Left edge: connects to content border - use rightTee
-                    painter.add(rune: driver.rightTee)  // ├
-                } else {
-                    // Not left edge: connects to horizontal line - use bottomTee
-                    painter.add(rune: driver.bottomTee)  // ┴
-                }
+                painter.add(rune: driver.bottomTee)  // ┴
                 
                 painter.goto(col: startCol + tabWidth - 1, row: 2)
-                if startCol + tabWidth - 1 == frame.width - 1 {
-                    // Right edge: connects to content border - use leftTee
-                    painter.add(rune: driver.leftTee)  // ┤
-                } else {
-                    // Not right edge: connects to horizontal line - use bottomTee
-                    painter.add(rune: driver.bottomTee)  // ┴
-                }
+                painter.add(rune: driver.bottomTee)  // ┴
                 
             } else {
-                // For selected tab, draw connecting border on row 2 to link to content area
-                painter.goto(col: startCol, row: 2)
-                
-                // Left connection
-                if startCol == 0 {
-                    // First tab: connect straight down to content border
-                    painter.add(rune: driver.vLine)
-                } else {
-                    // Not first tab: draw corner to connect from tab to content area
-                    painter.add(rune: driver.lrCorner)
-                }
-                
-                // Middle spaces (the opening)
-                for _ in 0..<(tabWidth - 2) {
-                    painter.add(str: " ")
-                }
-                
-                // Right connection  
-                if startCol + tabWidth >= frame.width {
-                    // Last tab: connect straight down to content border
-                    painter.add(rune: driver.vLine)
-                } else {
-                    // Not last tab: draw corner to connect from tab to content area
-                    painter.add(rune: driver.llCorner)
+                // For selected tab, create opening in the horizontal line
+                for col in startCol..<(startCol + tabWidth) {
+                    painter.goto(col: col, row: 2)
+                    if col == startCol {
+                        // Left connection
+                        if startCol == 0 {
+                            painter.add(rune: driver.vLine)
+                        } else {
+                            painter.add(rune: driver.lrCorner)
+                        }
+                    } else if col == startCol + tabWidth - 1 {
+                        // Right connection  
+                        if startCol + tabWidth >= frame.width {
+                            painter.add(rune: driver.vLine)
+                        } else {
+                            painter.add(rune: driver.llCorner)
+                        }
+                    } else {
+                        // Opening space
+                        painter.add(str: " ")
+                    }
                 }
             }
         }
+        
+        // Finally, ensure content border connections at the edges
+        painter.goto(col: 0, row: 2)
+        painter.add(rune: driver.vLine)
+        painter.goto(col: frame.width - 1, row: 2)
+        painter.add(rune: driver.vLine)
     }
     
     private func drawContentBorder(painter: Painter) {
@@ -644,7 +741,7 @@ open class TabView: View {
         // Row 2: Bottom of tabs (└─┘ for non-selected, spaces for selected)
         // Row 3+: Content area borders
         
-        // Draw left and right borders of content area starting from connection row (row 2)
+        // Draw left and right borders of content area starting from connection row (row 2) to connect with tabs
         for row in 2..<frame.height {
             // Left border
             painter.goto(col: 0, row: row)
@@ -666,6 +763,26 @@ open class TabView: View {
     }
     
     // MARK: - Input Handling
+    
+    public override func processHotKey(event: KeyEvent) -> Bool {
+        guard tabs.count > 0 else { return false }
+        
+        if isNavigatingTabs {
+            // TODO: add support for hot-labels in the tabs
+            return false
+        }
+        return tabs[selectedTabIndex].content.processHotKey(event: event)
+    }
+    
+    public override func processColdKey(event: KeyEvent) -> Bool {
+        guard tabs.count > 0 else { return false }
+        
+        if isNavigatingTabs {
+            // TODO: add support for hot-labels in the tabs
+            return false
+        }
+        return tabs[selectedTabIndex].content.processColdKey(event: event)
+    }
     
     public override func processKey(event: KeyEvent) -> Bool {
         guard tabs.count > 0 else { return false }
@@ -712,16 +829,8 @@ open class TabView: View {
     }
     
     private func handleContentNavigationKey(event: KeyEvent) -> Bool {
-        // Check if we should switch to tab navigation
-        if event.key == .cursorUp {
-            // Always go to tab navigation mode when pressing up
-            isNavigatingTabs = true
-            setNeedsDisplay()
-            return true
-        }
-        
         // Let the content handle the key
-        return false
+        return tabs[selectedTabIndex].content.processKey(event: event)
     }
     
     private func getCurrentFocused() -> View? {
@@ -790,12 +899,27 @@ open class TabView: View {
     // MARK: - Focus Management
     
     public override func becomeFirstResponder() -> Bool {
-        let result = super.becomeFirstResponder()
-        if result {
+        log("DEBUG TabView.becomeFirstResponder: Setting isNavigatingTabs = true, hasFocus was: \(hasFocus)")
+        
+        // Set tab navigation mode FIRST and make sure it stays that way
+        if focused == nil {
             isNavigatingTabs = true
-            setNeedsDisplay()
         }
-        return result
+        
+        // Handle focus state manually to avoid parent class complications
+        _hasFocus = true
+        
+        // Notify superview manually 
+        if let sup = superview {
+            if sup.focused != self {
+                sup.setFocus(self)
+            }
+        }
+        
+        log("DEBUG TabView.becomeFirstResponder: Manually set focus, isNavigatingTabs = \(isNavigatingTabs), hasFocus now: \(hasFocus)")
+        setNeedsDisplay()
+        
+        return true
     }
     
     public override func resignFirstResponder() -> Bool {
@@ -805,6 +929,57 @@ open class TabView: View {
             setNeedsDisplay()
         }
         return result
+    }
+    
+    public override func positionCursor() {
+        if isNavigatingTabs && selectedTabIndex >= 0 && selectedTabIndex < tabs.count {
+            // Position cursor on the first letter of the selected tab's title
+            let cursorPosition = calculateSelectedTabCursorPosition()
+            moveTo(col: cursorPosition.x, row: cursorPosition.y)
+        } else {
+            // When not navigating tabs, use default behavior or delegate to content
+            if let focused = focused {
+                focused.positionCursor()
+            } else {
+                super.positionCursor()
+            }
+        }
+    }
+    
+    private func calculateSelectedTabCursorPosition() -> Point {
+        var col = 0
+        let visibleRange = calculateVisibleTabsRange()
+        let needsLeftScroll = firstVisibleTabIndex > 0
+        
+        // Account for left scroll indicator
+        if needsLeftScroll {
+            col += 1
+        }
+        
+        // Find the selected tab's position
+        for i in firstVisibleTabIndex..<min(tabs.count, firstVisibleTabIndex + visibleRange.count) {
+            if i == selectedTabIndex {
+                // Found the selected tab, calculate cursor position within it
+                if tabStyle == .bordered {
+                    // For bordered tabs: cursor goes on first letter inside the border
+                    // Tab structure: |ulCorner hLine* urCorner|
+                    //                |vLine SPACE title SPACE vLine| <- cursor on first letter of title
+                    return Point(x: col + 2, y: 1) // +1 for vLine, +1 for space
+                } else {
+                    // For plain tabs: cursor goes on first letter of title 
+                    // Tab structure: SPACE title SPACE <- cursor on first letter of title
+                    return Point(x: col + 1, y: 0) // +1 for the leading space
+                }
+            }
+            
+            // Move past this tab
+            let tabText = " \(tabs[i].title) "
+            let tabWidth = (tabStyle == .bordered) ? tabText.count + 2 : tabText.count
+            col += tabWidth
+        }
+        
+        // Fallback: position at start of tab area
+        return Point(x: col, y: tabStyle == .bordered ? 1 : 0)
     }
     
     // MARK: - Focus Handling
@@ -824,17 +999,8 @@ open class TabView: View {
                 return true
             }
             
-            // If we can't advance within current tab, try next tab
-            if selectedTabIndex < tabs.count - 1 {
-                selectTab(selectedTabIndex + 1)
-                // Only focus content if we're not in tab navigation mode
-                if !isNavigatingTabs {
-                    focusTabContent()
-                }
-                return true
-            }
-            
-            // No more tabs, give up focus
+            // If we can't advance within current tab, continue with normal hierarchy focus
+            // instead of switching tabs - let the parent handle focus navigation
             return false
         }
     }
@@ -852,21 +1018,9 @@ open class TabView: View {
                 return true
             }
             
-            // If we can't go backward within current tab, try previous tab
-            if selectedTabIndex > 0 {
-                selectTab(selectedTabIndex - 1)
-                // Only focus content if we're not in tab navigation mode
-                if !isNavigatingTabs {
-                    if let lastFocusable = findLastFocusable(in: tabs[selectedTabIndex].content) {
-                        lastFocusable.superview?.setFocus(lastFocusable)
-                    }
-                }
-                return true
-            }
-            
-            // No previous tabs, navigate to tab headers
+            // If we can't go backward within current tab, continue with normal hierarchy focus
+            // instead of switching tabs - let the parent handle focus navigation
             isNavigatingTabs = true
-            setNeedsDisplay()
             return true
         }
     }

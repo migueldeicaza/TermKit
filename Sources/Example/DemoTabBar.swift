@@ -10,6 +10,7 @@ import TermKit
 
 func DemoTabBar() -> Window {
     let win = Window("TabView Demo")
+    win.closeOnControlC = true
     win.fill()
     
     // Create main container
@@ -82,7 +83,7 @@ func DemoTabBar() -> Window {
     textView.y = Pos.at(8)
     textView.width = Dim.fill(2)
     textView.height = Dim.sized(6)
-    textView.text = "This is a multiline text area.\\nYou can type multiple lines here.\\nTry navigating with arrow keys!"
+    textView.text = "This is a multiline text area.\nYou can type multiple lines here.\nTry navigating with arrow keys!"
     textTab.addSubview(textView)
     
     // Tab 2: Buttons and Checkboxes
