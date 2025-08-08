@@ -127,9 +127,6 @@ class CursesDriver: ConsoleDriver {
         }
 
         selectColors()
-        UnixDriver.setupSigwinch {
-            self.inputReadCallback(input: FileHandle.standardInput)
-        }
     }
     
     open override var driverName: String {
@@ -247,7 +244,7 @@ class CursesDriver: ConsoleDriver {
                 count += 1
                 let newx = Int(getmaxx (stdscr))
                 let newy = Int(getmaxy (stdscr))
-//                log("Resize at \(count) git \(newx) and \(newy)")
+                log("Resize at \(count) git \(newx) and \(newy)")
                 if newy != size.height || newx != size.width {
                     size = Size (width: newx, height: newy)
                     DispatchQueue.main.async {
@@ -329,17 +326,15 @@ class CursesDriver: ConsoleDriver {
         }
     }
     
-    func setupInput ()
-    {
-        timeout (-1)
+    func setupInput () {
+        timeout(-1)
         FileHandle.standardInput.readabilityHandler = inputReadCallback(input:)
     }
     
-    public override func moveTo (col :Int, row: Int)
-    {
-        ccol = Int32 (col)
-        crow = Int32 (row)
-        move (Int32 (row), Int32 (col))
+    public override func moveTo (col :Int, row: Int) {
+        ccol = Int32(col)
+        crow = Int32(row)
+        move(Int32(row), Int32(col))
         needMove = false
     }
     

@@ -266,7 +266,7 @@ public class Application {
                 postProcessEvent()
             }
         }
-        log ("processKeyEvent: \(event)")
+        //log ("processKeyEvent: \(event)")
         let toplevelCopy = toplevels.reversed()
         for top in toplevelCopy {
             if top.processHotKey(event: event) {
@@ -653,6 +653,7 @@ public class Application {
         for top in toplevels {
             top.relativeLayout(hostFrame: full)
             do {
+                top.setNeedsLayout()
                 try top.layoutSubviews()
             } catch {}
         }

@@ -151,7 +151,16 @@ class UnixDriver: ConsoleDriver {
     static var pipeReader: DispatchSourceRead?
     static let bufferSize = 128
     static var buffer = UnsafeMutableRawPointer.allocate(byteCount: bufferSize, alignment: 8)
-
+    static var previousSigaction = sigaction()
+    
+    static let signalHandler: @convention(c) (Int32) -> Void = { signal in
+        if let handler = previousSigaction.__sigaction_u.__sa_handler {
+            handler(signal)
+        }
+        
+        write(UnixDriver.pipeSignal [1], &UnixDriver.pipeSignal, 1)
+    }
+    
     static func setupSigwinch(_ handler: @escaping () -> Void) {
         guard pipeSignal[0] == 0 else { return }
         
@@ -167,10 +176,14 @@ class UnixDriver: ConsoleDriver {
                 handler()
             }
         }
+        var action = sigaction()
+        action.__sigaction_u.__sa_handler = signalHandler
+        action.sa_flags = 0
+        sigemptyset(&action.sa_mask)
+
+        let v = sigaction(SIGWINCH, &action, &previousSigaction)
+        if v != 0 { fatalError() }
         reader.activate()
-        signal(SIGWINCH) { _ in
-            write(UnixDriver.pipeSignal [1], &UnixDriver.pipeSignal, 1)
-        }
     }
     
     private func setupSignalHandlers() {

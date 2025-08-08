@@ -242,7 +242,7 @@ open class ConsoleDriver {
     let diamond = Unicode.Scalar (0x25c6)!
     let leftTee = Unicode.Scalar (0x251c)!
     let rightTee = Unicode.Scalar (0x2524)!
-    let bottomTee = Unicode.Scalar (0x22a5)!
+    let bottomTee = Unicode.Scalar (0x22a5)!        // ┴
     let topTee = Unicode.Scalar (0x22a4)!
     
     let filledCircle = Unicode.Scalar (0x25CF)!   // "●"

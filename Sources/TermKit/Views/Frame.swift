@@ -28,6 +28,7 @@ open class Frame: View {
     public init (_ title: String? = nil)
     {
         contentView = ContentView()
+        contentView.canFocus = true
         self.title = title
         
         super.init ()

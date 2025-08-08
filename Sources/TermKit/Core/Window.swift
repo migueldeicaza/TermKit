@@ -49,6 +49,7 @@ open class Window: Toplevel {
         contentView.y = Pos.at (padding + 1)
         contentView.width = Dim.fill(padding+1)
         contentView.height = Dim.fill(padding+1)
+        contentView.canFocus = true
         super.init ()
         super.addSubview(contentView)
         
@@ -185,7 +186,6 @@ open class Window: Toplevel {
             }
         }
         if let g = moveGrab {
-            log ("---- MOVE GRAB ----")
             let delta = event.absPos - g
 
             self.x = Pos.at (frame.minX + delta.x)
