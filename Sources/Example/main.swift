@@ -16,7 +16,7 @@ sleep (1)
 // Use the Unix driver (new direct terminal control)
 Application.prepare()
 let win = Window()
-win.closeOnControlC = true
+//win.closeOnControlC = true
 win.x = Pos.at (0)
 win.y = Pos.at (1)
 
@@ -88,6 +88,7 @@ var options: [(text: String, func: () -> Toplevel)] = [
     ("SplitView",    { DemoSplitView () }),
     ("Drawing",      { DemoDrawing () }),
     ("TabView",      { DemoTabBar () }),
+    ("Spinner",      { createSpinnerDemo () }),
     ("Editor",       { DemoDesktop () }),
     ("Quit",         { Application.shutdown(); return Window () })
 ]

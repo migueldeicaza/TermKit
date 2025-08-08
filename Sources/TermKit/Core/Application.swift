@@ -480,7 +480,7 @@ public class Application {
             view.layer.clearDirty ()
             //updateDisplay(screen, Application.driver.cols, Application.driver.rows)
         }
-        log ("Lines copied \(linesCopied)")
+        //log ("Lines copied \(linesCopied)")
         return screen
     }
     
