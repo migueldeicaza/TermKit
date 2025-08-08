@@ -726,20 +726,40 @@ class UnixDriver: ConsoleDriver {
     }
     
     public override func suspend() -> Bool {
-        // Restore terminal before suspending
+        // Disable mouse tracking and restore original terminal settings
         print(capabilities.disableMouseMotionTracking, terminator: "")
         print(capabilities.disableSGRMouse, terminator: "")
+        print(capabilities.normalScreenBuffer, terminator: "")
+        print(capabilities.showCursor, terminator: "")
         fflush(stdout)
+        
+        // Restore original terminal mode
+        tcsetattr(STDIN_FILENO, TCSANOW, &originalTermios)
         
         // Send SIGTSTP to suspend
         kill(getpid(), SIGTSTP)
         
-        // Re-enable mouse tracking after resume
+        handleResume()
+
+        return true
+    }
+    
+    private func handleResume() {
+        // Re-apply raw terminal mode
+        tcsetattr(STDIN_FILENO, TCSANOW, &rawTermios)
+        
+        // Re-enable alternate screen buffer and other terminal features
+        print(capabilities.alternateScreenBuffer, terminator: "")
+        print(capabilities.clearScreen, terminator: "")
+        print(capabilities.cursorHome, terminator: "")
         print(capabilities.enableSGRMouse, terminator: "")
         print(capabilities.enableMouseMotionTracking, terminator: "")
         fflush(stdout)
         
-        return true
+        // Force a complete screen refresh
+        previousScreenBuffer = nil
+        modifiedRows = Array(repeating: true, count: size.height)
+        refresh()
     }
     
     public override func end() {
