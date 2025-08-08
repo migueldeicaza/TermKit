@@ -26,6 +26,8 @@ class UnixDriver: ConsoleDriver {
     
     // Screen buffer for optimized updates
     private var screenBuffer: [[Cell]] = []
+    private var previousScreenBuffer: [[Cell]]? = nil
+    private var modifiedRows: [Bool] = []
     private var cursorRow: Int = 0
     private var cursorCol: Int = 0
     
@@ -131,6 +133,7 @@ class UnixDriver: ConsoleDriver {
 
     private func initializeScreenBuffer() {
         screenBuffer = Array(repeating: Array(repeating: Cell(), count: size.width), count: size.height)
+        modifiedRows = Array(repeating: false, count: size.height)
     }
     
     private func setupInput() {
@@ -378,6 +381,7 @@ class UnixDriver: ConsoleDriver {
     public override func addRune(_ rune: rune) {
         if cursorCol < size.width && cursorRow < size.height {
             screenBuffer[cursorRow][cursorCol] = Cell(ch: rune == hLine ? "*" : Character(rune), attr: currentAttribute)
+            modifiedRows[cursorRow] = true
             cursorCol += 1
         }
     }
@@ -385,6 +389,7 @@ class UnixDriver: ConsoleDriver {
     public override func addCharacter(_ char: Character) {
         if cursorCol < size.width && cursorRow < size.height {
             screenBuffer[cursorRow][cursorCol] = Cell(ch: char, attr: currentAttribute)
+            modifiedRows[cursorRow] = true
             cursorCol += 1
         }
     }
@@ -422,28 +427,86 @@ class UnixDriver: ConsoleDriver {
     }
     
     public override func refresh() {
+        refreshOptimized()
+    }
+    
+    private func refreshOptimized() {
+        defer {
+            // Update previous screen buffer for next refresh
+            previousScreenBuffer = screenBuffer.map { $0 }
+        }
         var output = ""
         
         // Hide cursor during update
         output += capabilities.hideCursor
         
-        var lastAttr: Attribute?
+        // Check if dimensions changed or no previous buffer provided
+        let dimensionsChanged = previousScreenBuffer == nil || 
+                               previousScreenBuffer!.count != size.height ||
+                               (previousScreenBuffer!.count > 0 && previousScreenBuffer![0].count != size.width)
         
-        for row in 0..<size.height {
-            output += String(format: capabilities.cursorPosition, row + 1, 1)
+        if dimensionsChanged {
+            // Clear screen and redraw everything
+            output += capabilities.clearScreen
+            output += capabilities.cursorHome
             
-            for col in 0..<size.width {
-                let cell = screenBuffer[row][col]
+            var lastAttr: Attribute?
+            
+            for row in 0..<size.height {
+                output += String(format: capabilities.cursorPosition, row + 1, 1)
                 
-                // Only update attributes if they changed
-                if lastAttr == nil || lastAttr!.value != cell.attr.value {
-                    output += attributeToEscapeSequence(cell.attr)
-                    lastAttr = cell.attr
+                for col in 0..<size.width {
+                    let cell = screenBuffer[row][col]
+                    
+                    // Only update attributes if they changed
+                    if lastAttr == nil || lastAttr!.value != cell.attr.value {
+                        output += attributeToEscapeSequence(cell.attr)
+                        lastAttr = cell.attr
+                    }
+                    
+                    output += String(cell.ch)
+                }
+            }
+        } else {
+            // Differential update - only update changed rows
+            let previousBuffer = previousScreenBuffer!
+            var lastAttr: Attribute?
+            
+            for row in 0..<size.height {
+                // Only process rows that have been modified
+                if !modifiedRows[row] {
+                    continue
                 }
                 
-                output += String(cell.ch)
+                // Check if the entire row is different
+                var rowChanged = false
+                for col in 0..<size.width {
+                    if screenBuffer[row][col] != previousBuffer[row][col] {
+                        rowChanged = true
+                        break
+                    }
+                }
+                
+                if rowChanged {
+                    output += String(format: capabilities.cursorPosition, row + 1, 1)
+                    
+                    for col in 0..<size.width {
+                        let cell = screenBuffer[row][col]
+                        
+                        // Only update attributes if they changed
+                        if lastAttr == nil || lastAttr!.value != cell.attr.value {
+                            output += attributeToEscapeSequence(cell.attr)
+                            lastAttr = cell.attr
+                        }
+                        
+                        output += String(cell.ch)
+                    }
+                }
             }
         }
+        
+        // Reset modified rows after processing
+        modifiedRows = Array(repeating: false, count: size.height)
         
         // Restore cursor position
         output += String(format: capabilities.cursorPosition, cursorRow + 1, cursorCol + 1)
