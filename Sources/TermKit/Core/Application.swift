@@ -135,20 +135,42 @@ public class Application {
         case curses
         /// Baked-in driver
         case unix
+        /// Debug driver (plain text output)
+        case tty
+        /// The Windows driver
+        case windows
     }
     
     /**
      * Prepares the application, must be called before anything else.
      * - Parameter driverType: The type of console driver to use (defaults to .curses)
      */
-    public static func prepare (driverType: DriverType = .curses)
+    public static func prepare (driverType: DriverType = .auto)
     {
         if initialized {
             return
         }
         
+        // Check environment variable for driver selection
+        var selectedDriverType = driverType
+        if driverType == .auto, let envDriver = ProcessInfo.processInfo.environment["TERMKIT_DRIVER"] {
+            switch envDriver {
+            case "curses":
+                selectedDriverType = .curses
+            case "unix":
+                selectedDriverType = .unix
+            case "tty":
+                selectedDriverType = .tty
+            case "windows":
+                selectedDriverType = .windows
+            default:
+                // Keep the passed driverType if environment variable is invalid
+                break
+            }
+        }
+        
         // Initialize the appropriate driver
-        switch driverType {
+        switch selectedDriverType {
         case .curses:
             if #available(macOS 15.0, *) {
                 let cursesDriver = CursesDriver()
@@ -158,13 +180,25 @@ public class Application {
             }
         case .unix:
             driver = UnixDriver()
+        case .tty:
+            driver = TTYDriver()
+        case .windows:
+            #if os(Windows)
+            driver = WindowsDriver()
+            #else
+            fatalError("The Windows driver is only available on Windows")
+            #endif
         case .auto:
+            #if os(Windows)
+            driver = WindowsDriver()
+            #else
             if #available(macOS 15.0, *) {
                 let cursesDriver = CursesDriver()
                 driver = cursesDriver.operational ? cursesDriver : UnixDriver()
             } else {
                 driver = UnixDriver()
             }
+            #endif
         }
         
         let _ = driver

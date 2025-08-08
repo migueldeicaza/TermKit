@@ -13,7 +13,7 @@ import TermKit
 // So the debugger can attach
 sleep (1)
 
-var driver: Application.DriverType = .curses
+var driver: Application.DriverType = .auto
 
 for arg in CommandLine.arguments.dropFirst() {
     switch arg {
