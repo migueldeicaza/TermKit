@@ -13,9 +13,6 @@ jobs:
   macos:
     runs-on: macos-14
     steps:
-    - name: Force Xcode 16.3
-      run: sudo xcode-select -switch /Applications/Xcode_16.3.app
-
     - name: Swift version
       run: swift --version
 
@@ -57,7 +54,7 @@ jobs:
   linux:
     strategy:
       matrix:
-        os: [ubuntu-22.04, ubuntu-24.04]
+        os: [ubuntu-24.04]
     runs-on: ${{ matrix.os }}
 
     steps:
