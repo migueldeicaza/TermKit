@@ -13,8 +13,8 @@ jobs:
   macos:
     runs-on: macos-14
     steps:
-    - name: Force Xcode 15.4
-      run: sudo xcode-select -switch /Applications/Xcode_15.4.app
+    - name: Force Xcode 16.4
+      run: sudo xcode-select -switch /Applications/Xcode_16.4.app
 
     - name: Swift version
       run: swift --version
