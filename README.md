@@ -11,7 +11,7 @@ is bringing their work.
 This toolkit contains various controls for build text user interfaces
 using Swift.
 
-You can [checkout the documentation](https://migueldeicaza.github.io/TermKit/index.html)
+You can [checkout the documentation](https://migueldeicaza.github.io/TermKit/index.html) which is automatically generated and published using DocC.
 
 <img width="1222" alt="Screen Shot 2021-03-13 at 12 44 05 PM" src="https://user-images.githubusercontent.com/36863/111039012-d6df8400-83f9-11eb-9215-88549635a33f.png">
 
@@ -57,5 +57,23 @@ a terminal window like this:
 ```
 $ log stream --style compact --predicate 'subsystem == "termkit"'
 ```
+
+# Documentation
+
+This project uses Swift DocC for documentation generation. The documentation is automatically built and published to GitHub Pages via GitHub Actions.
+
+## Building Documentation Locally
+
+To generate and preview documentation locally:
+
+```bash
+# Generate documentation
+swift package generate-documentation --target TermKit
+
+# Preview documentation with a local server
+swift package --disable-sandbox preview-documentation --target TermKit
+```
+
+The documentation source files are located in the `Documentation.docc/` directory.
 
 

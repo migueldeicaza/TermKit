@@ -1,13 +1,45 @@
 # ``TermKit``
 
-<!--@START_MENU_TOKEN@-->Summary<!--@END_MENU_TOKEN@-->
+A console user interface toolkit (TUI) modeled on ideas from UIKit.
 
 ## Overview
 
-<!--@START_MENU_TOKEN@-->Text<!--@END_MENU_TOKEN@-->
+TermKit is a Swift package that provides a comprehensive toolkit for building terminal-based user interfaces. It follows familiar patterns from UIKit, including responder chains, view hierarchies, and event handling.
+
+Key features:
+- View-based architecture with nested subviews
+- Event handling through responder chain
+- Mouse and keyboard input support
+- Focus management
+- Drawing and rendering system
 
 ## Topics
 
-### <!--@START_MENU_TOKEN@-->Group<!--@END_MENU_TOKEN@-->
+### Core Components
 
-- <!--@START_MENU_TOKEN@-->``Symbol``<!--@END_MENU_TOKEN@-->
+- ``View``
+- ``Responder`` 
+- ``Application``
+- ``Painter``
+
+### Views
+
+- ``Button``
+- ``Label``
+- ``TextField``
+- ``ListView``
+- ``ScrollView``
+- ``TabView``
+
+### Dialogs
+
+- ``Dialog``
+- ``MessageBox``
+- ``InputBox``
+- ``FileDialog``
+
+### Geometry
+
+- ``Point``
+- ``Size``
+- ``Rect``
