@@ -1,0 +1,42 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Swift (Linux)
+      if: runner.os == 'Linux'
+      uses: swift-actions/setup-swift@v2
+      with:
+        swift-version: "6.0"
+    
+    - name: Install ncurses (Linux)
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libncurses5-dev libncursesw5-dev
+    
+    - name: Setup Swift (Windows)
+      if: runner.os == 'Windows'
+      uses: swift-actions/setup-swift@v2
+      with:
+        swift-version: "6.0"
+    
+    - name: Build
+      run: swift build
+    
+    - name: Run tests
+      run: swift test
