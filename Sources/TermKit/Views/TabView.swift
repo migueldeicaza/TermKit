@@ -300,7 +300,14 @@ open class TabView: View {
         guard tabs.count > 0 && selectedTabIndex >= 0 else { return }
         
         // Calculate what tabs are currently visible with the current firstVisibleTabIndex
-        let currentVisibleRange = calculateVisibleTabsRange()
+        let currentVisibleRange: (count: Int, lastIndex: Int)
+        switch tabPosition {
+        case .top, .bottom:
+            currentVisibleRange = calculateVisibleTabsRange()
+        case .left, .right:
+            currentVisibleRange = calculateVisibleTabsRangeVertical()
+        }
+        
         let lastVisibleIndex = firstVisibleTabIndex + currentVisibleRange.count - 1
         
         // If the selected tab is already fully visible, don't scroll at all
@@ -311,16 +318,23 @@ open class TabView: View {
         // Only scroll if the selected tab is actually outside the visible range
         
         if selectedTabIndex < firstVisibleTabIndex {
-            // Selected tab is to the left of visible range - scroll left
+            // Selected tab is before visible range - scroll to show it
             firstVisibleTabIndex = selectedTabIndex
         } else if selectedTabIndex > lastVisibleIndex {
-            // Selected tab is to the right of visible range - scroll right
+            // Selected tab is after visible range - scroll to show it
             // Try to make it the last visible tab
             firstVisibleTabIndex = selectedTabIndex
             
             // Adjust backwards until we can fit the selected tab and as many others as possible
             while firstVisibleTabIndex > 0 {
-                let testRange = calculateVisibleTabsRangeFrom(firstVisibleTabIndex - 1)
+                let testRange: (count: Int, lastIndex: Int)
+                switch tabPosition {
+                case .top, .bottom:
+                    testRange = calculateVisibleTabsRangeFrom(firstVisibleTabIndex - 1)
+                case .left, .right:
+                    testRange = calculateVisibleTabsRangeVerticalFrom(firstVisibleTabIndex - 1)
+                }
+                
                 if selectedTabIndex < firstVisibleTabIndex - 1 + testRange.count {
                     firstVisibleTabIndex = firstVisibleTabIndex - 1
                 } else {
@@ -503,16 +517,16 @@ open class TabView: View {
         case .left:
             if tabStyle == .bordered {
                 return Rect(
-                    x: tabHeaderWidth + borderOffset - 1,
+                    x: tabHeaderWidth + borderOffset,
                     y: borderOffset,
-                    width: frame.width - tabHeaderWidth - 2 * borderOffset,
-                    height: frame.height - 2 * borderOffset
+                    width: max(0, frame.width - tabHeaderWidth - 2 * borderOffset),
+                    height: max(0, frame.height - 2 * borderOffset)
                 )
             } else {
                 return Rect(
                     x: tabHeaderWidth,
                     y: 0,
-                    width: frame.width - tabHeaderWidth,
+                    width: max(0, frame.width - tabHeaderWidth),
                     height: frame.height
                 )
             }
@@ -521,14 +535,14 @@ open class TabView: View {
                 return Rect(
                     x: borderOffset,
                     y: borderOffset,
-                    width: frame.width - tabHeaderWidth - 2 * borderOffset,
-                    height: frame.height - 2 * borderOffset
+                    width: max(0, frame.width - tabHeaderWidth - 2 * borderOffset),
+                    height: max(0, frame.height - 2 * borderOffset)
                 )
             } else {
                 return Rect(
                     x: 0,
                     y: 0,
-                    width: frame.width - tabHeaderWidth,
+                    width: max(0, frame.width - tabHeaderWidth),
                     height: frame.height
                 )
             }
@@ -827,7 +841,7 @@ open class TabView: View {
     
     private func drawContentBorder(painter: Painter) {
         painter.attribute = colorScheme.normal
-        if true { return }
+        
         switch tabPosition {
         case .top:
             drawContentBorderTop(painter: painter)
@@ -835,6 +849,7 @@ open class TabView: View {
             drawContentBorderBottom(painter: painter)
         case .left:
             drawContentBorderLeft(painter: painter)
+            break
         case .right:
             drawContentBorderRight(painter: painter)
         }
@@ -911,31 +926,6 @@ open class TabView: View {
             painter.add(rune: driver.vLine)
         }
         
-        // Draw connection lines for selected tab
-        if selectedTabIndex >= 0 && selectedTabIndex < tabs.count {
-            let visibleRange = calculateVisibleTabsRangeVertical()
-            let needsUpScroll = firstVisibleTabIndex > 0
-            var tabRow = needsUpScroll ? 1 : 0
-            let tabHeight = (tabStyle == .bordered) ? 3 : 1
-            
-            for i in firstVisibleTabIndex..<min(tabs.count, firstVisibleTabIndex + visibleRange.count) {
-                if i == selectedTabIndex {
-                    // Draw horizontal connection lines from tab to content border
-                    for row in tabRow..<(tabRow + tabHeight) {
-                        if row > 0 && row < frame.height - 1 {
-                            painter.goto(col: tabHeaderWidth, row: row)
-                            painter.add(str: " ") // Clear the vertical line for opening
-                        }
-                    }
-                    break
-                }
-                tabRow += tabHeight
-                if tabRow >= frame.height - (firstVisibleTabIndex + visibleRange.count < tabs.count ? 1 : 0) {
-                    break
-                }
-            }
-        }
-        
         // Draw bottom border
         let bottomRow = frame.height - 1
         painter.goto(col: tabHeaderWidth, row: bottomRow)
@@ -952,7 +942,7 @@ open class TabView: View {
         // Draw top border
         painter.goto(col: 0, row: 0)
         painter.add(rune: driver.ulCorner)
-        for _ in 1..<contentEndCol - 1 {
+        for _ in 1..<contentEndCol  {
             painter.add(rune: driver.hLine)
         }
         // Connect top border to right connection border
@@ -971,36 +961,11 @@ open class TabView: View {
             painter.add(rune: driver.vLine)
         }
         
-        // Draw connection lines for selected tab
-        if selectedTabIndex >= 0 && selectedTabIndex < tabs.count {
-            let visibleRange = calculateVisibleTabsRangeVertical()
-            let needsUpScroll = firstVisibleTabIndex > 0
-            var tabRow = needsUpScroll ? 1 : 0
-            let tabHeight = (tabStyle == .bordered) ? 3 : 1
-            
-            for i in firstVisibleTabIndex..<min(tabs.count, firstVisibleTabIndex + visibleRange.count) {
-                if i == selectedTabIndex {
-                    // Draw horizontal connection lines from content border to tab
-                    for row in tabRow..<(tabRow + tabHeight) {
-                        if row > 0 && row < frame.height - 1 {
-                            painter.goto(col: contentEndCol, row: row)
-                            painter.add(str: " ") // Clear the vertical line for opening
-                        }
-                    }
-                    break
-                }
-                tabRow += tabHeight
-                if tabRow >= frame.height - (firstVisibleTabIndex + visibleRange.count < tabs.count ? 1 : 0) {
-                    break
-                }
-            }
-        }
-        
         // Draw bottom border
         let bottomRow = frame.height - 1
         painter.goto(col: 0, row: bottomRow)
         painter.add(rune: driver.llCorner)
-        for _ in 1..<contentEndCol - 1 {
+        for _ in 1..<contentEndCol  {
             painter.add(rune: driver.hLine)
         }
         
@@ -1170,7 +1135,6 @@ open class TabView: View {
     }
     
     private func drawPlainTabHeadersLeft(painter: Painter) {
-        if true { return }
         var row = 0
         let visibleRange = calculateVisibleTabsRangeVertical()
         let needsUpScroll = firstVisibleTabIndex > 0
@@ -1469,6 +1433,48 @@ open class TabView: View {
         }
         
         return (max(1, visibleCount), firstVisibleTabIndex + max(1, visibleCount) - 1)
+    }
+    
+    private func calculateVisibleTabsRangeVerticalFrom(_ startIndex: Int) -> (count: Int, lastIndex: Int) {
+        guard startIndex >= 0 && startIndex < tabs.count else { return (0, 0) }
+        
+        let availableHeight = frame.height
+        var currentHeight = 0
+        var visibleCount = 0
+        
+        let needsUpScroll = startIndex > 0
+        let upScrollHeight = needsUpScroll ? 1 : 0
+        
+        // Calculate how many tabs can fit
+        let tabHeight = (tabStyle == .bordered) ? 3 : 1
+        let usableHeight = availableHeight - upScrollHeight
+        
+        for _ in startIndex..<tabs.count {
+            if currentHeight + tabHeight > usableHeight {
+                break
+            }
+            currentHeight += tabHeight
+            visibleCount += 1
+        }
+        
+        // Check if we need down scroll and adjust if necessary
+        let needsDownScroll = (startIndex + visibleCount < tabs.count)
+        if needsDownScroll && visibleCount > 0 {
+            // Reserve space for down scroll indicator
+            let finalUsableHeight = availableHeight - upScrollHeight - 1
+            currentHeight = 0
+            visibleCount = 0
+            
+            for _ in startIndex..<tabs.count {
+                if currentHeight + tabHeight > finalUsableHeight {
+                    break
+                }
+                currentHeight += tabHeight
+                visibleCount += 1
+            }
+        }
+        
+        return (max(1, visibleCount), startIndex + max(1, visibleCount) - 1)
     }
     
     // MARK: - Input Handling
