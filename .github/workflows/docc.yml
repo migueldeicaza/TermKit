@@ -17,8 +17,11 @@ concurrency:
 
 jobs:
   build-docs:
-    runs-on: macos-latest
+    runs-on: macos-15
     steps:
+    - name: Swift version
+      run: swift --version
+
     - name: Checkout
       uses: actions/checkout@v4
       

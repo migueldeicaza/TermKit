@@ -1,10 +1,11 @@
 import XCTest
 
-// Workaround for crash in SwiftLinux
-#if !canImport(ObjectiveC) && !os(Linux)
+#if !canImport(ObjectiveC)
 public func allTests() -> [XCTestCaseEntry] {
     return [
+    #if !os(Linux)
         testCase(TermKitTests.allTests),
-    ]
+#endif
+]
 }
 #endif
