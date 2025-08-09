@@ -12,7 +12,7 @@ import XCTest
 /**
  * Test cases for terminfo parsing functionality.
  */
-class TerminfoTests: XCTestCase {
+class TerminfoTests: XCTestCase, @unchecked Sendable {
     
     /**
      * Tests terminfo parsing for different terminal types.
@@ -133,7 +133,7 @@ class TerminfoTests: XCTestCase {
             print("xterm-256color color 196: '\(color256)'")
             
             // For now, just test that we get some kind of response
-            XCTAssertFalse(setafTemplate.isEmpty || setabTemplate.isEmpty, "Should have setaf/setab templates")
+            XCTAssertFalse(setafTemplate.isEmpty && setabTemplate.isEmpty, "Should have at least one of setaf/setab templates")
         }
         
         // Test with basic xterm
