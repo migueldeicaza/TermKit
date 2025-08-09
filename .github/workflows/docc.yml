@@ -34,7 +34,7 @@ jobs:
           generate-documentation --target TermKit \
           --disable-indexing \
           --transform-for-static-hosting \
-          --hosting-base-path TermKit \
+          --hosting-base-path /TermKit \
           --output-path ./docs
         touch docs/.nojekyll
           
