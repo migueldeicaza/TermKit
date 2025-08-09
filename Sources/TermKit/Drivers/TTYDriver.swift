@@ -6,7 +6,11 @@
 //
 
 import Foundation
+#if canImport(Darwin)
 import Darwin
+#elseif canImport(Glibc)
+import Glibc
+#endif
 
 /**
  * TTY driver for debugging purposes that outputs plain text without any escape sequences.

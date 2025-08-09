@@ -6,6 +6,7 @@
 //  Copyright © 2019 Miguel de Icaza. All rights reserved.
 //
 
+#if os(macOS)
 import Foundation
 import Curses
 
@@ -595,3 +596,4 @@ class CursesDriver: ConsoleDriver {
         return true
     }
 }
+#endif

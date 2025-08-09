@@ -6,7 +6,11 @@
 //
 
 import Foundation
+#if canImport(Darwin)
 import Darwin
+#else
+import Glibc
+#endif
 
 /**
  * Unix terminal driver that directly controls the terminal without using curses.
@@ -51,7 +55,7 @@ class UnixDriver: ConsoleDriver {
         setlocale(LC_CTYPE, "")
         // Get terminal size
         var ws = winsize()
-        if ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == 0 {
+        if ioctl(STDOUT_FILENO, UInt(TIOCGWINSZ), &ws) == 0 {
             size = Size(width: Int(ws.ws_col), height: Int(ws.ws_row))
         } else {
             // Default size if ioctl fails
@@ -69,8 +73,8 @@ class UnixDriver: ConsoleDriver {
         cfmakeraw(&rawTermios)
         
         // Keep some useful flags
-        rawTermios.c_iflag |= UInt(ICRNL) // Convert CR to NL
-        rawTermios.c_oflag |= UInt(OPOST) // Enable output processing
+        rawTermios.c_iflag |= tcflag_t(ICRNL) // Convert CR to NL
+        rawTermios.c_oflag |= tcflag_t(OPOST) // Enable output processing
         
         // Apply raw mode
         tcsetattr(STDIN_FILENO, TCSANOW, &rawTermios)
@@ -154,10 +158,35 @@ class UnixDriver: ConsoleDriver {
     static var previousSigaction = sigaction()
     
     static let signalHandler: @convention(c) (Int32) -> Void = { signal in
+        // First, call the previous signal handler if it exists
+        #if os(macOS)
         if let handler = previousSigaction.__sigaction_u.__sa_handler {
             handler(signal)
         }
+        #else
+        // On Linux, check if there was a previous handler and call it
+        // We need to check the flags to see if the previous action was a real handler
+        if previousSigaction.sa_flags & SA_SIGINFO == 0 {
+            // It's a simple handler, not siginfo
+            let prevHandler = previousSigaction.__sigaction_handler.sa_handler
+            // Check if the handler address is not the default or ignore values
+            let handlerAddr = unsafeBitCast(prevHandler, to: Int.self)
+            let defaultAddr = unsafeBitCast(SIG_DFL, to: Int.self)
+            let ignoreAddr = unsafeBitCast(SIG_IGN, to: Int.self)
+            
+            if handlerAddr != defaultAddr && handlerAddr != ignoreAddr {
+                prevHandler?(signal)
+            }
+        } else {
+            // It's a sigaction handler, call the sigaction version
+            if let sigactionHandler = previousSigaction.__sigaction_handler.sa_sigaction {
+                // We don't have siginfo_t here, so we can't call this properly
+                // For now, just skip calling sigaction handlers to avoid crashes
+            }
+        }
+        #endif
         
+        // Then handle our own signal processing
         write(UnixDriver.pipeSignal [1], &UnixDriver.pipeSignal, 1)
     }
     
@@ -177,7 +206,11 @@ class UnixDriver: ConsoleDriver {
             }
         }
         var action = sigaction()
+        #if os(macOS)
         action.__sigaction_u.__sa_handler = signalHandler
+        #else
+        action.__sigaction_handler.sa_handler = signalHandler
+        #endif
         action.sa_flags = 0
         sigemptyset(&action.sa_mask)
 
@@ -190,7 +223,7 @@ class UnixDriver: ConsoleDriver {
         UnixDriver.setupSigwinch {
             DispatchQueue.main.async {
                 var ws = winsize()
-                if ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == 0 {
+                if ioctl(STDOUT_FILENO, UInt(TIOCGWINSZ), &ws) == 0 {
                     self.size = Size(width: Int(ws.ws_col), height: Int(ws.ws_row))
                 }
                 self.initializeScreenBuffer()

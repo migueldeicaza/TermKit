@@ -76,7 +76,7 @@ extension Character {
         let scalars = self.unicodeScalars
         var max = 0
         for s in scalars {
-            let w = wcwidth(Int32(s.value))
+            let w = termKitWcWidth(s.value)
             if w > max {
                 max = Int (w)
             }

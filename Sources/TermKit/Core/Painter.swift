@@ -148,7 +148,7 @@ public class Painter {
         }
         // TODO: optimize, we can handle the visibility for rows before and later just do
         // columns rather than testing both.
-        let wcw = wcwidth(wchar_t(bitPattern: rune.value))
+        let wcw = termKitWcWidth(rune.value)
         let len = wcw >= 0 ? Int32(wcw) : 1
         let npos = pos.x + Int(len)
         
@@ -405,7 +405,7 @@ class TopDriver: ConsoleDriver {
     }
     
     public override func addRune(_ rune: rune) {
-        let n = wcwidth(Int32(rune.value))
+        let n = termKitWcWidth(rune.value)
         if n == 0 { return }
         let cell = Cell(ch: Character(rune), attr: attribute)
         top.layer.add(cell: cell, col: col, row: row)

@@ -7,20 +7,28 @@
 //
 
 import Foundation
+#if os(macOS)
 import Darwin.ncurses
 import os
+#else
+import Glibc
+#endif
 
 var fd: Int32 = -1
+#if os(macOS)
 @available(OSX 11.0, *)
 var logger: Logger = Logger(subsystem: "termkit", category: "TermKit")
+#endif
 
 func log (_ s: String)
 {
     if true {
+        #if os(macOS)
         if #available(macOS 11.0, *) {
             logger.log("log: \(s, privacy: .public)")
             return
         }
+        #endif
         if fd == -1 {
             fd = open ("/tmp/log", O_CREAT | O_RDWR, S_IRWXU)
         }
@@ -172,12 +180,16 @@ public class Application {
         // Initialize the appropriate driver
         switch selectedDriverType {
         case .curses:
+            #if os(macOS)
             if #available(macOS 15.0, *) {
                 let cursesDriver = CursesDriver()
                 driver = cursesDriver.operational ? cursesDriver : UnixDriver()
             } else {
                 driver = UnixDriver()
             }
+            #else
+            driver = UnixDriver()
+            #endif
         case .unix:
             driver = UnixDriver()
         case .tty:
@@ -192,12 +204,16 @@ public class Application {
             #if os(Windows)
             driver = WindowsDriver()
             #else
+            #if os(macOS)
             if #available(macOS 15.0, *) {
                 let cursesDriver = CursesDriver()
                 driver = cursesDriver.operational ? cursesDriver : UnixDriver()
             } else {
                 driver = UnixDriver()
             }
+            #else
+            driver = UnixDriver()
+            #endif
             #endif
         }
         

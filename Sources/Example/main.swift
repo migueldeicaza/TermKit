@@ -7,7 +7,9 @@
 //
 
 import Foundation
+#if os(macOS)
 import Darwin.ncurses
+#endif
 import TermKit
 
 // So the debugger can attach
