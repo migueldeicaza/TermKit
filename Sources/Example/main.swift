@@ -17,11 +17,6 @@ sleep (1)
 
 // Use the Unix driver (new direct terminal control)
 Application.prepare()
-let win = Window()
-//win.closeOnControlC = true
-win.x = Pos.at (0)
-win.y = Pos.at (1)
-
 // Creates a nested editor
 func showEditor() {
     let ntop = Toplevel()
@@ -79,6 +74,39 @@ func makeMenu () -> MenuBar {
     ])
 }
 
+func show(_ top: Toplevel) {
+    var newTop: Toplevel
+    if let win = top as? Window {
+        win.closeOnControlC = true
+        if win.x == nil || win.y == nil {
+            win.set (x: 1, y: 1)
+        }
+        
+        newTop = Toplevel ()
+        newTop.addSubviews([makeMenu (), win])
+    } else {
+        newTop = top
+    }
+    Application.present(top: newTop)
+}
+
+func showSingleDemo(_ win: Window) {
+    win.closeOnControlC = true
+    win.closeClicked = { _ in Application.shutdown() }
+    win.set(x: 1, y: 1)
+    Application.top.addSubview(win)
+}
+if ProcessInfo.processInfo.arguments.contains("--tabdemo") {
+    showSingleDemo(DemoTabBar(tabPosition: .right))
+    Application.run()
+    exit(0)
+}
+
+let win = Window()
+win.closeOnControlC = true
+win.x = Pos.at (0)
+win.y = Pos.at (1)
+
 var frame = Frame ("Samples")
 frame.set (x: 10, y: 10, width: 60, height: 20)
 
@@ -100,18 +128,7 @@ frame.addSubview(list)
 
 list.activate = { item in
     let win = (options [item].func)()
-    var newTop: Toplevel
-    if win is Window {
-        if win.x == nil || win.y == nil {
-            win.set (x: 1, y: 1)
-        }
-
-        newTop = Toplevel ()
-        newTop.addSubviews([makeMenu (), win])
-    } else {
-        newTop = win
-    }
-    Application.present(top: newTop)
+    show(win)
 
     return true
 }
@@ -128,6 +145,7 @@ subwin.closeClicked = { win in
 
 Application.top.addSubview(win)
 Application.top.addSubview(subwin)
+
 Application.top.addSubview(makeMenu ())
 Application.run()
 print ("ending")

@@ -8,7 +8,7 @@
 import Foundation
 import TermKit
 
-func DemoTabBar() -> Window {
+func DemoTabBar(tabPosition: TabView.TabPosition = .top) -> Window {
     let win = Window("TabView Demo")
     win.closeOnControlC = true
     win.fill()
@@ -34,8 +34,35 @@ func DemoTabBar() -> Window {
     borderedButton.y = Pos.at(1)
     container.addSubview(borderedButton)
     
+    // Create position selection buttons
+    let positionLabel = Label("Tab Position:")
+    positionLabel.x = Pos.right(of: borderedButton) + 4
+    positionLabel.y = Pos.at(1)
+    container.addSubview(positionLabel)
+    
+    let topButton = Button("Top")
+    topButton.x = Pos.right(of: positionLabel) + 2
+    topButton.y = Pos.at(1)
+    container.addSubview(topButton)
+    
+    let bottomButton = Button("Bottom")
+    bottomButton.x = Pos.right(of: topButton) + 2
+    bottomButton.y = Pos.at(1)
+    container.addSubview(bottomButton)
+    
+    let leftButton = Button("Left")
+    leftButton.x = Pos.right(of: bottomButton) + 2
+    leftButton.y = Pos.at(1)
+    container.addSubview(leftButton)
+    
+    let rightButton = Button("Right")
+    rightButton.x = Pos.right(of: leftButton) + 2
+    rightButton.y = Pos.at(1)
+    container.addSubview(rightButton)
+    
     // Create the main TabView
     let tabView = TabView()
+    tabView.tabPosition = tabPosition
     tabView.x = Pos.at(2)
     tabView.y = Pos.at(3)
     tabView.width = Dim.fill(2)
@@ -237,6 +264,23 @@ func DemoTabBar() -> Window {
     
     borderedButton.clicked = { _ in
         tabView.tabStyle = .bordered
+    }
+    
+    // Position button handlers
+    topButton.clicked = { _ in
+        tabView.tabPosition = .top
+    }
+    
+    bottomButton.clicked = { _ in
+        tabView.tabPosition = .bottom
+    }
+    
+    leftButton.clicked = { _ in
+        tabView.tabPosition = .left
+    }
+    
+    rightButton.clicked = { _ in
+        tabView.tabPosition = .right
     }
     
     // Add control buttons at the bottom

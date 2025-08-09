@@ -110,7 +110,7 @@ open class Window: Toplevel {
         return super.becomeFirstResponder()
     }
     
-    open override func processHotKey(event: KeyEvent) -> Bool {
+    open override func processColdKey(event: KeyEvent) -> Bool {
         if closeOnControlC && event.key == .controlC {
             Application.requestStop()
             return true

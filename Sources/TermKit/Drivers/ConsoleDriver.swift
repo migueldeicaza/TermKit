@@ -250,7 +250,7 @@ open class ConsoleDriver {
     let leftTee = Unicode.Scalar (0x251c)!
     let rightTee = Unicode.Scalar (0x2524)!
     let bottomTee = Unicode.Scalar (0x2534)!        // ┴
-    let topTee = Unicode.Scalar (0x22a4)!
+    let topTee = Unicode.Scalar (0x252c)!
     
     let filledCircle = Unicode.Scalar (0x25CF)!   // "●"
     let emptyCircle = Unicode.Scalar (0x25CB)!    // "○"

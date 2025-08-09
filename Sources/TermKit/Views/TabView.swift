@@ -22,6 +22,18 @@ open class TabView: View {
         case bordered
     }
     
+    /// Position options for tab placement
+    public enum TabPosition {
+        /// Tabs shown at the top (default)
+        case top
+        /// Tabs shown at the bottom
+        case bottom
+        /// Tabs shown on the left side
+        case left
+        /// Tabs shown on the right side
+        case right
+    }
+    
     /// Tab data structure
     public struct Tab {
         public let title: String
@@ -39,13 +51,23 @@ open class TabView: View {
     private var selectedTabIndex: Int = -1  // -1 means no tab selected
     private var nextTabId: Int = 0
     private var tabHeaderHeight: Int = 1
+    private var tabHeaderWidth: Int = 1
     private var isNavigatingTabs: Bool = false
     private var firstVisibleTabIndex: Int = 0
     
     /// The style used to render tabs
     public var tabStyle: TabStyle = .bordered {
         didSet {
-            tabHeaderHeight = (tabStyle == .bordered) ? 3 : 1
+            updateTabDimensions()
+            layoutTabs()
+            setNeedsDisplay()
+        }
+    }
+    
+    /// The position where tabs are displayed
+    public var tabPosition: TabPosition = .top {
+        didSet {
+            updateTabDimensions()
             layoutTabs()
             setNeedsDisplay()
         }
@@ -70,12 +92,32 @@ open class TabView: View {
         super.init()
         canFocus = true
         wantContinuousButtonPressed = true
+        updateTabDimensions()
     }
     
     public override init(frame: Rect) {
         super.init(frame: frame)
         canFocus = true
         wantContinuousButtonPressed = true
+        updateTabDimensions()
+    }
+    
+    private func updateTabDimensions() {
+        switch tabPosition {
+        case .top, .bottom:
+            tabHeaderHeight = (tabStyle == .bordered) ? 3 : 1
+            tabHeaderWidth = 0  // Full width
+        case .left, .right:
+            tabHeaderHeight = 0  // Full height
+            tabHeaderWidth = calculateMaxTabWidth()
+        }
+    }
+    
+    private func calculateMaxTabWidth() -> Int {
+        guard !tabs.isEmpty else { return 10 }  // Default width
+        
+        let maxTitleLength = tabs.map { $0.title.count }.max() ?? 8
+        return (tabStyle == .bordered) ? maxTitleLength + 4 : maxTitleLength + 2
     }
     
     // MARK: - Tab Management
@@ -92,6 +134,9 @@ open class TabView: View {
         let tab = Tab(title: title, content: content, id: nextTabId)
         nextTabId += 1
         tabs.append(tab)
+        
+        // Update tab dimensions in case this tab is wider
+        updateTabDimensions()
         
         // Don't add as subview yet - we'll manage this in selectTab
         layoutTabs()
@@ -225,24 +270,7 @@ open class TabView: View {
         addSubview(contentView)
         
         // Set the frame and force a layout update
-        let contentFrame: Rect
-        if tabStyle == .bordered {
-            // Account for border padding in bordered mode
-            // Content starts after tab area (tabHeaderHeight = 3) + 1 more row for proper spacing
-            contentFrame = Rect(
-                x: 1,
-                y: tabHeaderHeight + 1,
-                width: frame.width - 2,
-                height: frame.height - tabHeaderHeight - 2
-            )
-        } else {
-            contentFrame = Rect(
-                x: 0,
-                y: tabHeaderHeight,
-                width: frame.width,
-                height: frame.height - tabHeaderHeight
-            )
-        }
+        let contentFrame = calculateContentFrame()
         contentView.frame = contentFrame
         // Force the content view to use fixed layout since we're managing its frame
         contentView.layoutStyle = .fixed
@@ -437,28 +465,81 @@ open class TabView: View {
         return (visibleCount, firstVisibleTabIndex + visibleCount - 1)
     }
     
+    private func calculateContentFrame() -> Rect {
+        let borderOffset = (tabStyle == .bordered) ? 1 : 0
+        switch tabPosition {
+        case .top:
+            if tabStyle == .bordered {
+                return Rect(
+                    x: borderOffset,
+                    y: tabHeaderHeight + borderOffset,
+                    width: frame.width - 2 * borderOffset,
+                    height: frame.height - tabHeaderHeight - 2 * borderOffset
+                )
+            } else {
+                return Rect(
+                    x: 0,
+                    y: tabHeaderHeight,
+                    width: frame.width,
+                    height: frame.height - tabHeaderHeight
+                )
+            }
+        case .bottom:
+            if tabStyle == .bordered {
+                return Rect(
+                    x: borderOffset,
+                    y: borderOffset,
+                    width: frame.width - 2 * borderOffset,
+                    height: frame.height - tabHeaderHeight - 2 * borderOffset
+                )
+            } else {
+                return Rect(
+                    x: 0,
+                    y: 0,
+                    width: frame.width,
+                    height: frame.height - tabHeaderHeight
+                )
+            }
+        case .left:
+            if tabStyle == .bordered {
+                return Rect(
+                    x: tabHeaderWidth + borderOffset - 1,
+                    y: borderOffset,
+                    width: frame.width - tabHeaderWidth - 2 * borderOffset,
+                    height: frame.height - 2 * borderOffset
+                )
+            } else {
+                return Rect(
+                    x: tabHeaderWidth,
+                    y: 0,
+                    width: frame.width - tabHeaderWidth,
+                    height: frame.height
+                )
+            }
+        case .right:
+            if tabStyle == .bordered {
+                return Rect(
+                    x: borderOffset,
+                    y: borderOffset,
+                    width: frame.width - tabHeaderWidth - 2 * borderOffset,
+                    height: frame.height - 2 * borderOffset
+                )
+            } else {
+                return Rect(
+                    x: 0,
+                    y: 0,
+                    width: frame.width - tabHeaderWidth,
+                    height: frame.height
+                )
+            }
+        }
+    }
+    
     private func layoutTabs() {
         guard tabs.count > 0 && selectedTabIndex >= 0 && selectedTabIndex < tabs.count else { return }
         
         // Only layout the currently selected tab since it's the only one added as subview
-        let contentFrame: Rect
-        if tabStyle == .bordered {
-            // Account for border padding in bordered mode
-            // Content starts after tab area (tabHeaderHeight = 3) + 1 more row for proper spacing
-            contentFrame = Rect(
-                x: 1,
-                y: tabHeaderHeight + 1,
-                width: frame.width - 2,
-                height: frame.height - tabHeaderHeight - 2
-            )
-        } else {
-            contentFrame = Rect(
-                x: 0,
-                y: tabHeaderHeight,
-                width: frame.width,
-                height: frame.height - tabHeaderHeight
-            )
-        }
+        let contentFrame = calculateContentFrame()
         
         let contentView = tabs[selectedTabIndex].content
         contentView.frame = contentFrame
@@ -543,16 +624,28 @@ open class TabView: View {
     
     private func drawTabHeaders(painter: Painter) {
         guard tabs.count > 0 else { return }
-        
-        switch tabStyle {
-        case .plain:
-            drawPlainTabHeaders(painter: painter)
-        case .bordered:
-            drawBorderedTabHeaders(painter: painter)
+
+        switch (tabPosition, tabStyle) {
+        case (.top, .plain):
+            drawPlainTabHeadersTop(painter: painter)
+        case (.top, .bordered):
+            drawBorderedTabHeadersTop(painter: painter)
+        case (.bottom, .plain):
+            drawPlainTabHeadersBottom(painter: painter)
+        case (.bottom, .bordered):
+            drawBorderedTabHeadersBottom(painter: painter)
+        case (.left, .plain):
+            drawPlainTabHeadersLeft(painter: painter)
+        case (.left, .bordered):
+            drawBorderedTabHeadersLeft(painter: painter)
+        case (.right, .plain):
+            drawPlainTabHeadersRight(painter: painter)
+        case (.right, .bordered):
+            drawBorderedTabHeadersRight(painter: painter)
         }
     }
     
-    private func drawPlainTabHeaders(painter: Painter) {
+    private func drawPlainTabHeadersTop(painter: Painter) {
         var col = 0
         let visibleRange = calculateVisibleTabsRange()
         let needsLeftScroll = firstVisibleTabIndex > 0
@@ -605,7 +698,7 @@ open class TabView: View {
         }
     }
     
-    private func drawBorderedTabHeaders(painter: Painter) {
+    private func drawBorderedTabHeadersTop(painter: Painter) {
         var col = 0
         let visibleRange = calculateVisibleTabsRange()
         let needsLeftScroll = firstVisibleTabIndex > 0
@@ -734,7 +827,20 @@ open class TabView: View {
     
     private func drawContentBorder(painter: Painter) {
         painter.attribute = colorScheme.normal
-        
+        if true { return }
+        switch tabPosition {
+        case .top:
+            drawContentBorderTop(painter: painter)
+        case .bottom:
+            drawContentBorderBottom(painter: painter)
+        case .left:
+            drawContentBorderLeft(painter: painter)
+        case .right:
+            drawContentBorderRight(painter: painter)
+        }
+    }
+    
+    private func drawContentBorderTop(painter: Painter) {
         // For bordered style with tabHeaderHeight = 3:
         // Row 0: Top border of tabs (┌─┐)
         // Row 1: Text content of tabs (│text│)  
@@ -760,6 +866,609 @@ open class TabView: View {
             painter.add(rune: driver.hLine)
         }
         painter.add(rune: driver.lrCorner)
+    }
+    
+    private func drawContentBorderBottom(painter: Painter) {
+        // Draw top border
+        painter.goto(col: 0, row: 0)
+        painter.add(rune: driver.ulCorner)
+        for _ in 1..<frame.width - 1 {
+            painter.add(rune: driver.hLine)
+        }
+        painter.add(rune: driver.urCorner)
+        
+        // Draw left and right borders up to tab connection area
+        let endRow = frame.height - 3 // Where bottom tabs connect
+        for row in 1..<endRow {
+            // Left border
+            painter.goto(col: 0, row: row)
+            painter.add(rune: driver.vLine)
+            
+            // Right border
+            painter.goto(col: frame.width - 1, row: row)
+            painter.add(rune: driver.vLine)
+        }
+    }
+    
+    private func drawContentBorderLeft(painter: Painter) {
+        // Draw top border starting after tab width
+        painter.goto(col: tabHeaderWidth, row: 0)
+        painter.add(rune: driver.ulCorner)
+        for _ in (tabHeaderWidth + 1)..<frame.width - 1 {
+            painter.add(rune: driver.hLine)
+        }
+        painter.add(rune: driver.urCorner)
+        
+        // Draw left connection border at tab width
+        for row in 1..<frame.height - 1 {
+            painter.goto(col: tabHeaderWidth, row: row)
+            painter.add(rune: driver.vLine)
+        }
+        
+        // Draw right border
+        for row in 1..<frame.height - 1 {
+            painter.goto(col: frame.width - 1, row: row)
+            painter.add(rune: driver.vLine)
+        }
+        
+        // Draw connection lines for selected tab
+        if selectedTabIndex >= 0 && selectedTabIndex < tabs.count {
+            let visibleRange = calculateVisibleTabsRangeVertical()
+            let needsUpScroll = firstVisibleTabIndex > 0
+            var tabRow = needsUpScroll ? 1 : 0
+            let tabHeight = (tabStyle == .bordered) ? 3 : 1
+            
+            for i in firstVisibleTabIndex..<min(tabs.count, firstVisibleTabIndex + visibleRange.count) {
+                if i == selectedTabIndex {
+                    // Draw horizontal connection lines from tab to content border
+                    for row in tabRow..<(tabRow + tabHeight) {
+                        if row > 0 && row < frame.height - 1 {
+                            painter.goto(col: tabHeaderWidth, row: row)
+                            painter.add(str: " ") // Clear the vertical line for opening
+                        }
+                    }
+                    break
+                }
+                tabRow += tabHeight
+                if tabRow >= frame.height - (firstVisibleTabIndex + visibleRange.count < tabs.count ? 1 : 0) {
+                    break
+                }
+            }
+        }
+        
+        // Draw bottom border
+        let bottomRow = frame.height - 1
+        painter.goto(col: tabHeaderWidth, row: bottomRow)
+        painter.add(rune: driver.llCorner)
+        for _ in (tabHeaderWidth + 1)..<frame.width - 1 {
+            painter.add(rune: driver.hLine)
+        }
+        painter.add(rune: driver.lrCorner)
+    }
+    
+    private func drawContentBorderRight(painter: Painter) {
+        let contentEndCol = frame.width - tabHeaderWidth
+        
+        // Draw top border
+        painter.goto(col: 0, row: 0)
+        painter.add(rune: driver.ulCorner)
+        for _ in 1..<contentEndCol - 1 {
+            painter.add(rune: driver.hLine)
+        }
+        // Connect top border to right connection border
+        painter.goto(col: contentEndCol, row: 0)
+        painter.add(rune: driver.urCorner)
+        
+        // Draw left border
+        for row in 1..<frame.height - 1 {
+            painter.goto(col: 0, row: row)
+            painter.add(rune: driver.vLine)
+        }
+        
+        // Draw right connection border at content end
+        for row in 1..<frame.height - 1 {
+            painter.goto(col: contentEndCol, row: row)
+            painter.add(rune: driver.vLine)
+        }
+        
+        // Draw connection lines for selected tab
+        if selectedTabIndex >= 0 && selectedTabIndex < tabs.count {
+            let visibleRange = calculateVisibleTabsRangeVertical()
+            let needsUpScroll = firstVisibleTabIndex > 0
+            var tabRow = needsUpScroll ? 1 : 0
+            let tabHeight = (tabStyle == .bordered) ? 3 : 1
+            
+            for i in firstVisibleTabIndex..<min(tabs.count, firstVisibleTabIndex + visibleRange.count) {
+                if i == selectedTabIndex {
+                    // Draw horizontal connection lines from content border to tab
+                    for row in tabRow..<(tabRow + tabHeight) {
+                        if row > 0 && row < frame.height - 1 {
+                            painter.goto(col: contentEndCol, row: row)
+                            painter.add(str: " ") // Clear the vertical line for opening
+                        }
+                    }
+                    break
+                }
+                tabRow += tabHeight
+                if tabRow >= frame.height - (firstVisibleTabIndex + visibleRange.count < tabs.count ? 1 : 0) {
+                    break
+                }
+            }
+        }
+        
+        // Draw bottom border
+        let bottomRow = frame.height - 1
+        painter.goto(col: 0, row: bottomRow)
+        painter.add(rune: driver.llCorner)
+        for _ in 1..<contentEndCol - 1 {
+            painter.add(rune: driver.hLine)
+        }
+        
+        // Connect bottom border to right connection border
+        painter.goto(col: contentEndCol, row: bottomRow)
+        painter.add(rune: driver.lrCorner)
+    }
+    
+    // MARK: - Additional Tab Drawing Methods
+    
+    private func drawPlainTabHeadersBottom(painter: Painter) {
+        var col = 0
+        let row = frame.height - 1
+        let visibleRange = calculateVisibleTabsRange()
+        let needsLeftScroll = firstVisibleTabIndex > 0
+        let needsRightScroll = firstVisibleTabIndex + visibleRange.count < tabs.count
+        
+        // Draw left scroll indicator
+        if needsLeftScroll {
+            painter.attribute = colorScheme.normal
+            painter.goto(col: col, row: row)
+            painter.add(str: "<")
+            col += 1
+        }
+        
+        // Draw visible tabs
+        for i in firstVisibleTabIndex..<min(tabs.count, firstVisibleTabIndex + visibleRange.count) {
+            let tab = tabs[i]
+            let isSelected = (i == selectedTabIndex)
+            let isTabNavigating = isNavigatingTabs && isSelected && hasFocus
+            
+            // Set appropriate colors
+            if isTabNavigating {
+                painter.attribute = colorScheme.focus
+            } else if isSelected {
+                painter.attribute = colorScheme.hotNormal
+            } else {
+                painter.attribute = colorScheme.normal
+            }
+            
+            painter.goto(col: col, row: row)
+            let tabText = " \(tab.title) "
+            painter.add(str: tabText)
+            
+            col += tabText.count
+            
+            if col >= frame.width - (needsRightScroll ? 1 : 0) {
+                break
+            }
+        }
+        
+        // Draw right scroll indicator
+        if needsRightScroll && col < frame.width {
+            painter.attribute = colorScheme.normal
+            painter.goto(col: frame.width - 1, row: row)
+            painter.add(str: ">")
+        }
+    }
+    
+    private func drawBorderedTabHeadersBottom(painter: Painter) {
+        var col = 0
+        let startRow = frame.height - 3
+        let visibleRange = calculateVisibleTabsRange()
+        let needsLeftScroll = firstVisibleTabIndex > 0
+        let needsRightScroll = firstVisibleTabIndex + visibleRange.count < tabs.count
+        
+        // Similar to top but at bottom - reverse the drawing order
+        if needsLeftScroll {
+            painter.attribute = colorScheme.normal
+            painter.goto(col: col, row: startRow + 2)
+            painter.add(str: "<")
+            painter.goto(col: col, row: startRow + 1)
+            painter.add(str: " ")
+            col += 1
+        }
+        
+        let visibleTabs = Array(tabs[firstVisibleTabIndex..<min(tabs.count, firstVisibleTabIndex + visibleRange.count)])
+        var tabPositions: [(tab: Tab, col: Int, width: Int, index: Int)] = []
+        
+        for (visibleIndex, tab) in visibleTabs.enumerated() {
+            let actualIndex = firstVisibleTabIndex + visibleIndex
+            let isSelected = (actualIndex == selectedTabIndex)
+            let isTabNavigating = isNavigatingTabs && isSelected && hasFocus
+            let tabText = " \(tab.title) "
+            let tabWidth = tabText.count + 2
+            
+            if col + tabWidth > frame.width - (needsRightScroll ? 1 : 0) {
+                break
+            }
+            
+            tabPositions.append((tab, col, tabWidth, actualIndex))
+            
+            // Draw bottom border
+            painter.attribute = colorScheme.normal
+            painter.goto(col: col, row: startRow + 2)
+            painter.add(rune: driver.llCorner)
+            for _ in 0..<(tabWidth - 2) {
+                painter.add(rune: driver.hLine)
+            }
+            painter.add(rune: driver.lrCorner)
+            
+            // Draw tab text
+            painter.attribute = colorScheme.normal
+            painter.goto(col: col, row: startRow + 1)
+            painter.add(rune: driver.vLine)
+            
+            if isTabNavigating {
+                painter.attribute = colorScheme.focus
+            } else if isSelected, hasFocus {
+                painter.attribute = colorScheme.hotNormal  
+            } else {
+                painter.attribute = colorScheme.normal
+            }
+            painter.add(str: tabText)
+            
+            painter.attribute = colorScheme.normal
+            painter.add(rune: driver.vLine)
+            
+            col += tabWidth
+        }
+        
+        if needsRightScroll && col < frame.width {
+            painter.attribute = colorScheme.normal
+            painter.goto(col: frame.width - 1, row: startRow + 2)
+            painter.add(str: ">")
+            painter.goto(col: frame.width - 1, row: startRow + 1)
+            painter.add(str: " ")
+        }
+        
+        // Draw connection line
+        painter.attribute = colorScheme.normal
+        painter.goto(col: 0, row: startRow)
+        for _ in 0..<frame.width {
+            painter.add(rune: driver.hLine)
+        }
+        
+        // Handle tab connections
+        for (_, startCol, tabWidth, actualIndex) in tabPositions {
+            let isSelected = (actualIndex == selectedTabIndex)
+            
+            if !isSelected {
+                painter.goto(col: startCol, row: startRow)
+                painter.add(rune: driver.topTee)
+                painter.goto(col: startCol + tabWidth - 1, row: startRow)
+                painter.add(rune: driver.topTee)
+            } else {
+                for col in startCol..<(startCol + tabWidth) {
+                    painter.goto(col: col, row: startRow)
+                    if col == startCol {
+                        if startCol == 0 {
+                            painter.add(rune: driver.vLine)
+                        } else {
+                            painter.add(rune: driver.urCorner)
+                        }
+                    } else if col == startCol + tabWidth - 1 {
+                        if startCol + tabWidth >= frame.width {
+                            painter.add(rune: driver.vLine)
+                        } else {
+                            painter.add(rune: driver.ulCorner)
+                        }
+                    } else {
+                        painter.add(str: " ")
+                    }
+                }
+            }
+        }
+    }
+    
+    private func drawPlainTabHeadersLeft(painter: Painter) {
+        if true { return }
+        var row = 0
+        let visibleRange = calculateVisibleTabsRangeVertical()
+        let needsUpScroll = firstVisibleTabIndex > 0
+        let needsDownScroll = firstVisibleTabIndex + visibleRange.count < tabs.count
+        
+        if needsUpScroll {
+            painter.attribute = colorScheme.normal
+            painter.goto(col: 0, row: row)
+            painter.add(str: "^")
+            row += 1
+        }
+        
+        for i in firstVisibleTabIndex..<min(tabs.count, firstVisibleTabIndex + visibleRange.count) {
+            let tab = tabs[i]
+            let isSelected = (i == selectedTabIndex)
+            let isTabNavigating = isNavigatingTabs && isSelected && hasFocus
+            
+            if isTabNavigating {
+                painter.attribute = colorScheme.focus
+            } else if isSelected {
+                painter.attribute = colorScheme.hotNormal
+            } else {
+                painter.attribute = colorScheme.normal
+            }
+            
+            painter.goto(col: 0, row: row)
+            let tabText = " \(tab.title.padding(toLength: tabHeaderWidth - 2, withPad: " ", startingAt: 0)) "
+            painter.add(str: String(tabText.prefix(tabHeaderWidth)))
+            
+            row += 1
+            if row >= frame.height - (needsDownScroll ? 1 : 0) {
+                break
+            }
+        }
+        
+        if needsDownScroll && row < frame.height {
+            painter.attribute = colorScheme.normal
+            painter.goto(col: 0, row: frame.height - 1)
+            painter.add(str: "v")
+        }
+    }
+    
+    private func drawBorderedTabHeadersLeft(painter: Painter) {
+        var row = 0
+        let visibleRange = calculateVisibleTabsRangeVertical()
+        let needsUpScroll = firstVisibleTabIndex > 0
+        let needsDownScroll = firstVisibleTabIndex + visibleRange.count < tabs.count
+        
+        if needsUpScroll {
+            painter.attribute = colorScheme.normal
+            painter.goto(col: 0, row: row)
+            painter.add(str: "^")
+            row += 1
+        }
+        
+        for i in firstVisibleTabIndex..<min(tabs.count, firstVisibleTabIndex + visibleRange.count) {
+            let tab = tabs[i]
+            let isSelected = (i == selectedTabIndex)
+            let isTabNavigating = isNavigatingTabs && isSelected && hasFocus
+            let tabText = " \(tab.title) "
+            let paddedText = tabText.padding(toLength: tabHeaderWidth - 2, withPad: " ", startingAt: 0)
+            
+            // Draw top border
+            painter.attribute = colorScheme.normal
+            painter.goto(col: 0, row: row)
+            painter.add(rune: driver.ulCorner)
+            for _ in 1..<tabHeaderWidth  {
+                painter.add(rune: driver.hLine)
+            }
+    
+            if !isSelected {
+                painter.add(rune: i == firstVisibleTabIndex ? driver.topTee : driver.rightTee)
+            } else {
+                painter.add(rune: i == firstVisibleTabIndex ? driver.hLine : driver.lrCorner)
+            }
+            row += 1
+            
+            // Draw text with borders
+            painter.attribute = colorScheme.normal
+            painter.goto(col: 0, row: row)
+            painter.add(rune: driver.vLine)
+            
+            if isTabNavigating {
+                painter.attribute = colorScheme.focus
+            } else if isSelected {
+                painter.attribute = colorScheme.hotNormal
+            } else {
+                painter.attribute = colorScheme.normal
+            }
+            painter.add(str: String(paddedText.prefix(tabHeaderWidth - 2)))
+            painter.goto(col: tabHeaderWidth, row: row)
+            if isSelected {
+                painter.add(ch: " ")
+            } else {
+                painter.add(rune: driver.vLine)
+            }
+
+            painter.attribute = colorScheme.normal
+            // For selected left tab, don't draw right border (opening to content)
+            painter.add(str: " ") // Opening for selected tab
+            row += 1
+            
+            // Draw bottom border
+            painter.attribute = colorScheme.normal
+            painter.goto(col: 0, row: row)
+            painter.add(rune: driver.llCorner)
+            for _ in 1..<tabHeaderWidth {
+                painter.add(rune: driver.hLine)
+            }
+            if !isSelected {
+                painter.add(rune: driver.rightTee)
+            } else {
+                painter.add(rune: driver.urCorner)
+            }
+            row += 1
+            
+            if row >= frame.height - (needsDownScroll ? 2 : 0) {
+                break
+            }
+        }
+        
+        if needsDownScroll && row < frame.height {
+            painter.attribute = colorScheme.normal
+            painter.goto(col: 0, row: frame.height - 1)
+            painter.add(str: "v")
+        }
+        
+    }
+    
+    private func drawPlainTabHeadersRight(painter: Painter) {
+        var row = 0
+        let col = frame.width - tabHeaderWidth
+        let visibleRange = calculateVisibleTabsRangeVertical()
+        let needsUpScroll = firstVisibleTabIndex > 0
+        let needsDownScroll = firstVisibleTabIndex + visibleRange.count < tabs.count
+        
+        if needsUpScroll {
+            painter.attribute = colorScheme.normal
+            painter.goto(col: frame.width - 1, row: row)
+            painter.add(str: "^")
+            row += 1
+        }
+        
+        for i in firstVisibleTabIndex..<min(tabs.count, firstVisibleTabIndex + visibleRange.count) {
+            let tab = tabs[i]
+            let isSelected = (i == selectedTabIndex)
+            let isTabNavigating = isNavigatingTabs && isSelected && hasFocus
+            
+            if isTabNavigating {
+                painter.attribute = colorScheme.focus
+            } else if isSelected {
+                painter.attribute = colorScheme.hotNormal
+            } else {
+                painter.attribute = colorScheme.normal
+            }
+            
+            painter.goto(col: col, row: row)
+            let tabText = " \(tab.title.padding(toLength: tabHeaderWidth - 2, withPad: " ", startingAt: 0)) "
+            painter.add(str: String(tabText.prefix(tabHeaderWidth)))
+            
+            row += 1
+            if row >= frame.height - (needsDownScroll ? 1 : 0) {
+                break
+            }
+        }
+        
+        if needsDownScroll && row < frame.height {
+            painter.attribute = colorScheme.normal
+            painter.goto(col: frame.width - 1, row: frame.height - 1)
+            painter.add(str: "v")
+        }
+    }
+    
+    private func drawBorderedTabHeadersRight(painter: Painter) {
+        var row = 0
+        let startCol = frame.width - tabHeaderWidth
+        let visibleRange = calculateVisibleTabsRangeVertical()
+        let needsUpScroll = firstVisibleTabIndex > 0
+        let needsDownScroll = firstVisibleTabIndex + visibleRange.count < tabs.count
+        
+        if needsUpScroll {
+            painter.attribute = colorScheme.normal
+            painter.goto(col: frame.width - 1, row: row)
+            painter.add(str: "^")
+            row += 1
+        }
+        
+        for i in firstVisibleTabIndex..<min(tabs.count, firstVisibleTabIndex + visibleRange.count) {
+            let tab = tabs[i]
+            let isSelected = (i == selectedTabIndex)
+            let isTabNavigating = isNavigatingTabs && isSelected && hasFocus
+            let tabText = " \(tab.title) "
+            let paddedText = tabText.padding(toLength: tabHeaderWidth - 2, withPad: " ", startingAt: 0)
+            
+            // Draw top border
+            painter.attribute = colorScheme.normal
+            painter.goto(col: startCol, row: row)
+            // For selected right tab, don't draw top-left corner (opening to content)
+            if !isSelected {
+                painter.add(rune: i == firstVisibleTabIndex ? driver.topTee : driver.leftTee)
+            } else {
+                painter.add(rune: i == firstVisibleTabIndex ? driver.hLine : driver.llCorner)
+            }
+            for _ in 1..<tabHeaderWidth - 1 {
+                painter.add(rune: driver.hLine)
+            }
+            painter.add(rune: driver.urCorner)
+            row += 1
+            
+            // Draw text with borders
+            painter.attribute = colorScheme.normal
+            painter.goto(col: startCol, row: row)
+            // For selected right tab, don't draw left border (opening to content)
+            if !isSelected {
+                painter.add(rune: driver.vLine)
+            } else {
+                painter.add(ch: " ") // Opening for selected tab
+            }
+            
+            if isTabNavigating {
+                painter.attribute = colorScheme.focus
+            } else if isSelected {
+                painter.attribute = colorScheme.hotNormal
+            } else {
+                painter.attribute = colorScheme.normal
+            }
+            painter.add(str: String(paddedText.prefix(tabHeaderWidth - 2)))
+            
+            painter.attribute = colorScheme.normal
+            painter.add(rune: driver.vLine)
+            row += 1
+            
+            // Draw bottom border
+            painter.attribute = colorScheme.normal
+            painter.goto(col: startCol, row: row)
+            if !isSelected {
+                painter.add(rune: driver.leftTee)
+            } else {
+                painter.add(rune: driver.ulCorner)
+            }
+            for _ in 1..<tabHeaderWidth - 1 {
+                painter.add(rune: driver.hLine)
+            }
+            painter.add(rune: driver.lrCorner)
+            row += 1
+            
+            if row >= frame.height - (needsDownScroll ? 2 : 0) {
+                break
+            }
+        }
+        
+        if needsDownScroll && row < frame.height {
+            painter.attribute = colorScheme.normal
+            painter.goto(col: frame.width - 1, row: frame.height - 1)
+            painter.add(str: "v")
+        }
+    }
+    
+    private func calculateVisibleTabsRangeVertical() -> (count: Int, lastIndex: Int) {
+        guard tabs.count > 0 else { return (0, 0) }
+        
+        let availableHeight = frame.height
+        var currentHeight = 0
+        var visibleCount = 0
+        
+        let needsUpScroll = firstVisibleTabIndex > 0
+        let upScrollHeight = needsUpScroll ? 1 : 0
+        
+        // Calculate how many tabs can fit
+        let tabHeight = (tabStyle == .bordered) ? 3 : 1
+        let usableHeight = availableHeight - upScrollHeight
+        
+        for _ in firstVisibleTabIndex..<tabs.count {
+            if currentHeight + tabHeight > usableHeight {
+                break
+            }
+            currentHeight += tabHeight
+            visibleCount += 1
+        }
+        
+        // Check if we need down scroll and adjust if necessary
+        let needsDownScroll = (firstVisibleTabIndex + visibleCount < tabs.count)
+        if needsDownScroll && visibleCount > 0 {
+            // Reserve space for down scroll indicator
+            let finalUsableHeight = availableHeight - upScrollHeight - 1
+            currentHeight = 0
+            visibleCount = 0
+            
+            for _ in firstVisibleTabIndex..<tabs.count {
+                if currentHeight + tabHeight > finalUsableHeight {
+                    break
+                }
+                currentHeight += tabHeight
+                visibleCount += 1
+            }
+        }
+        
+        return (max(1, visibleCount), firstVisibleTabIndex + max(1, visibleCount) - 1)
     }
     
     // MARK: - Input Handling
@@ -797,28 +1506,36 @@ open class TabView: View {
     }
     
     private func handleTabNavigationKey(event: KeyEvent) -> Bool {
-        switch event.key {
-        case .cursorLeft:
+        switch (tabPosition, event.key) {
+        case (.top, .cursorLeft), (.bottom, .cursorLeft), (.left, .cursorUp), (.right, .cursorUp):
             if selectedTabIndex > 0 {
                 selectTab(selectedTabIndex - 1)
                 setNeedsDisplay()
+                return true
             }
-            return true
+            return false
             
-        case .cursorRight:
+        case (.top, .cursorRight), (.bottom, .cursorRight), (.left, .cursorDown), (.right, .cursorDown):
             if selectedTabIndex < tabs.count - 1 {
                 selectTab(selectedTabIndex + 1)
                 setNeedsDisplay()
+                return true
             }
-            return true
+            return false
             
-        case .cursorDown, .controlM: // Enter key
+        case (.top, .cursorDown), (.bottom, .cursorUp), (.left, .cursorRight), (.right, .cursorLeft):
             isNavigatingTabs = false
             focusTabContent()
             setNeedsDisplay()
             return true
             
-        case .esc:
+        case (_, .controlM): // Enter key
+            isNavigatingTabs = false
+            focusTabContent()
+            setNeedsDisplay()
+            return true
+            
+        case (_, .esc):
             // Give up focus to parent
             isNavigatingTabs = false
             return false
@@ -839,14 +1556,40 @@ open class TabView: View {
     }
     
     public override func mouseEvent(event: MouseEvent) -> Bool {
-        if event.flags.contains(.button1Clicked) && event.pos.y < tabHeaderHeight {
-            return handleTabClick(at: event.pos.x)
+        if event.flags.contains(.button1Clicked) {
+            switch tabPosition {
+            case .top:
+                if event.pos.y < tabHeaderHeight {
+                    return handleTabClick(at: event.pos.x, row: event.pos.y)
+                }
+            case .bottom:
+                if event.pos.y >= frame.height - tabHeaderHeight {
+                    return handleTabClick(at: event.pos.x, row: event.pos.y)
+                }
+            case .left:
+                if event.pos.x < tabHeaderWidth {
+                    return handleTabClick(at: event.pos.x, row: event.pos.y)
+                }
+            case .right:
+                if event.pos.x >= frame.width - tabHeaderWidth {
+                    return handleTabClick(at: event.pos.x, row: event.pos.y)
+                }
+            }
         }
         
         return super.mouseEvent(event: event)
     }
     
-    private func handleTabClick(at x: Int) -> Bool {
+    private func handleTabClick(at x: Int, row y: Int) -> Bool {
+        switch tabPosition {
+        case .top, .bottom:
+            return handleHorizontalTabClick(at: x)
+        case .left, .right:
+            return handleVerticalTabClick(at: y)
+        }
+    }
+    
+    private func handleHorizontalTabClick(at x: Int) -> Bool {
         var col = 0
         let visibleRange = calculateVisibleTabsRange()
         let needsLeftScroll = firstVisibleTabIndex > 0
@@ -887,6 +1630,52 @@ open class TabView: View {
         
         // Handle right scroll indicator click
         if needsRightScroll && x == frame.width - 1 {
+            let maxFirstVisible = max(0, tabs.count - visibleRange.count)
+            firstVisibleTabIndex = min(maxFirstVisible, firstVisibleTabIndex + 1)
+            setNeedsDisplay()
+            return true
+        }
+        
+        return false
+    }
+    
+    private func handleVerticalTabClick(at y: Int) -> Bool {
+        var row = 0
+        let visibleRange = calculateVisibleTabsRangeVertical()
+        let needsUpScroll = firstVisibleTabIndex > 0
+        let needsDownScroll = firstVisibleTabIndex + visibleRange.count < tabs.count
+        let tabHeight = (tabStyle == .bordered) ? 3 : 1
+        
+        // Handle up scroll indicator click
+        if needsUpScroll && y == 0 {
+            firstVisibleTabIndex = max(0, firstVisibleTabIndex - 1)
+            setNeedsDisplay()
+            return true
+        }
+        
+        // Adjust starting row for up scroll indicator
+        if needsUpScroll {
+            row = 1
+        }
+        
+        // Handle visible tab clicks
+        for i in firstVisibleTabIndex..<min(tabs.count, firstVisibleTabIndex + visibleRange.count) {
+            if y >= row && y < row + tabHeight {
+                selectTab(i)
+                isNavigatingTabs = false
+                focusTabContent()
+                setNeedsDisplay()
+                return true
+            }
+            
+            row += tabHeight
+            if row >= frame.height - (needsDownScroll ? 1 : 0) {
+                break
+            }
+        }
+        
+        // Handle down scroll indicator click
+        if needsDownScroll && y == frame.height - 1 {
             let maxFirstVisible = max(0, tabs.count - visibleRange.count)
             firstVisibleTabIndex = min(maxFirstVisible, firstVisibleTabIndex + 1)
             setNeedsDisplay()
@@ -947,9 +1736,19 @@ open class TabView: View {
     }
     
     private func calculateSelectedTabCursorPosition() -> Point {
+        switch tabPosition {
+        case .top, .bottom:
+            return calculateHorizontalTabCursorPosition()
+        case .left, .right:
+            return calculateVerticalTabCursorPosition()
+        }
+    }
+    
+    private func calculateHorizontalTabCursorPosition() -> Point {
         var col = 0
         let visibleRange = calculateVisibleTabsRange()
         let needsLeftScroll = firstVisibleTabIndex > 0
+        let row = tabPosition == .top ? 0 : frame.height - tabHeaderHeight
         
         // Account for left scroll indicator
         if needsLeftScroll {
@@ -964,11 +1763,11 @@ open class TabView: View {
                     // For bordered tabs: cursor goes on first letter inside the border
                     // Tab structure: |ulCorner hLine* urCorner|
                     //                |vLine SPACE title SPACE vLine| <- cursor on first letter of title
-                    return Point(x: col + 2, y: 1) // +1 for vLine, +1 for space
+                    return Point(x: col + 2, y: row + 1) // +1 for vLine, +1 for space
                 } else {
                     // For plain tabs: cursor goes on first letter of title 
                     // Tab structure: SPACE title SPACE <- cursor on first letter of title
-                    return Point(x: col + 1, y: 0) // +1 for the leading space
+                    return Point(x: col + 1, y: row) // +1 for the leading space
                 }
             }
             
@@ -979,7 +1778,42 @@ open class TabView: View {
         }
         
         // Fallback: position at start of tab area
-        return Point(x: col, y: tabStyle == .bordered ? 1 : 0)
+        return Point(x: col, y: tabStyle == .bordered ? row + 1 : row)
+    }
+    
+    private func calculateVerticalTabCursorPosition() -> Point {
+        var row = 0
+        let visibleRange = calculateVisibleTabsRangeVertical()
+        let needsUpScroll = firstVisibleTabIndex > 0
+        let tabHeight = (tabStyle == .bordered) ? 3 : 1
+        let col = tabPosition == .left ? 0 : frame.width - tabHeaderWidth
+        
+        // Account for up scroll indicator
+        if needsUpScroll {
+            row += 1
+        }
+        
+        // Find the selected tab's position
+        for i in firstVisibleTabIndex..<min(tabs.count, firstVisibleTabIndex + visibleRange.count) {
+            if i == selectedTabIndex {
+                // Found the selected tab, calculate cursor position within it
+                if tabStyle == .bordered {
+                    // For bordered tabs: cursor goes on first letter inside the border
+                    return Point(x: col + 1, y: row + 1) // +1 for border
+                } else {
+                    // For plain tabs: cursor goes on first letter of title 
+                    return Point(x: col + 1, y: row) // +1 for the leading space
+                }
+            }
+            
+            row += tabHeight
+            if row >= frame.height - (firstVisibleTabIndex + visibleRange.count < tabs.count ? 1 : 0) {
+                break
+            }
+        }
+        
+        // Fallback: position at start of tab area
+        return Point(x: col + (tabStyle == .bordered ? 1 : 1), y: row)
     }
     
     // MARK: - Focus Handling
