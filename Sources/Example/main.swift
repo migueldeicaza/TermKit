@@ -15,6 +15,19 @@ import TermKit
 // So the debugger can attach
 sleep (1)
 
+var options: [(id: String, text: String, func: () -> Toplevel)] = [
+    (id: "misc", "Assorted",       { Assorted () }),
+    (id: "dialogs", "File Dialogs",{ FileDialogs () }),
+    (id: "terminal", "Terminal",   { TerminalDemo () }),
+    (id: "datatable", "DataTable", { DataTableDialogs () }),
+    (id: "splitview", "SplitView", { DemoSplitView () }),
+    (id: "drawing", "Drawing",     { DemoDrawing () }),
+    (id: "tabview", "TabView",     { DemoTabBar () }),
+    (id: "spinner", "Spinner",     { createSpinnerDemo () }),
+    (id: "statusbar", "StatusBar", { createStatusBarDemo () }),
+    (id: "editor", "Editor",       { DemoDesktop () }),
+]
+
 // Use the Unix driver (new direct terminal control)
 Application.prepare()
 // Creates a nested editor
@@ -90,16 +103,31 @@ func show(_ top: Toplevel) {
     Application.present(top: newTop)
 }
 
-func showSingleDemo(_ win: Window) {
-    win.closeOnControlC = true
-    win.closeClicked = { _ in Application.shutdown() }
-    win.set(x: 1, y: 1)
-    Application.top.addSubview(win)
+func showSingleDemo(_ top: Toplevel) {
+    if let win = top as? Window {
+        win.closeOnControlC = true
+        win.closeClicked = { _ in Application.shutdown() }
+        win.set(x: 1, y: 1)
+        Application.top.addSubview(win)
+    } else {
+        Application.top.addSubview(top)
+    }
 }
-if ProcessInfo.processInfo.arguments.contains("--tabdemo") {
-    showSingleDemo(DemoTabBar(tabPosition: .right))
-    Application.run()
-    exit(0)
+// Check for --demo=value parameter
+for arg in ProcessInfo.processInfo.arguments {
+    if arg.hasPrefix("--demo=") {
+        let demoId = String(arg.dropFirst(7)) // Remove "--demo=" prefix
+        if let demo = options.first(where: { $0.id == demoId }) {
+            let toplevel = demo.func()
+            showSingleDemo(toplevel)
+            Application.run()
+            exit(0)
+        } else {
+            print("Unknown demo: \(demoId)")
+            print("Available demos: \(options.map { $0.id }.joined(separator: ", "))")
+            exit(1)
+        }
+    }
 }
 
 let win = Window()
@@ -110,23 +138,15 @@ win.y = Pos.at (1)
 var frame = Frame ("Samples")
 frame.set (x: 10, y: 10, width: 60, height: 20)
 
-var options: [(text: String, func: () -> Toplevel)] = [
-    ("Assorted",     { Assorted () }),
-    ("File Dialogs", { FileDialogs () }),
-    ("Terminal",     { TerminalDemo () }),
-    ("DataTable",    { DataTableDialogs () }),
-    ("SplitView",    { DemoSplitView () }),
-    ("Drawing",      { DemoDrawing () }),
-    ("TabView",      { DemoTabBar () }),
-    ("Spinner",      { createSpinnerDemo () }),
-    ("Editor",       { DemoDesktop () }),
-    ("Quit",         { Application.shutdown(); return Window () })
-]
-
-var list = ListView (items: options.map { $0.0 })
+var list = ListView (items: options.map { $0.1 } + ["Quit"])
 frame.addSubview(list)
 
 list.activate = { item in
+    if item > options.count {
+        // It is the appended quit option
+        Application.shutdown()
+        return true
+    }
     let win = (options [item].func)()
     show(win)
 

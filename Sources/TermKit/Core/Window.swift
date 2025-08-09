@@ -183,9 +183,9 @@ open class Window: Toplevel {
     var resizeGrab: Point? = nil
     
     open override func mouseEvent(event: MouseEvent) -> Bool {
-        log ("Mouse event on Window \(viewId) -> \(event)")
+        //log ("Mouse event on Window \(viewId) -> \(event)")
         if event.flags == [.button4Released] {
-            log ("FINISHED")
+            //log ("FINISHED")
             if moveGrab != nil {
                 moveGrab = nil
                 return true

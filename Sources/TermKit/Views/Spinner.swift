@@ -43,7 +43,7 @@ open class Spinner: View {
         frames: ["⣾ ", "⣽ ", "⣻ ", "⢿ ", "⡿ ", "⣟ ", "⣯ ", "⣷ "],
         frameRate: 0.1  // 1/10th second
     )
-    
+        
     /// Mini dot spinner with single braille characters
     public static let miniDot = Definition(
         frames: ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"],
@@ -215,3 +215,4 @@ open class Spinner: View {
         stopAnimation()
     }
 }
+

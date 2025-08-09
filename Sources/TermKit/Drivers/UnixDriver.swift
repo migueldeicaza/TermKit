@@ -272,6 +272,10 @@ class UnixDriver: ConsoleDriver {
             return .key(KeyEvent(key: controlCharToKey(firstByte)))
         }
         
+        if firstByte == 127 {
+            inputBuffer.removeFirst()
+            return .key(KeyEvent(key: .delete))
+        }
         // Regular character
         inputBuffer.removeFirst()
         let scalar = Unicode.Scalar(firstByte)

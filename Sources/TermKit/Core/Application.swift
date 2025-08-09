@@ -394,7 +394,7 @@ public class Application {
     
     static func processMouseEvent (mouseEvent: MouseEvent)
     {
-        log ("Application Event: \(mouseEvent) grab: \(mouseGrabView != nil)")
+        //log ("Application Event: \(mouseEvent) grab: \(mouseGrabView != nil)")
         for h in rootMouseHandlers.values {
             h (mouseEvent)
         }
