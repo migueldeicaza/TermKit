@@ -36,6 +36,7 @@ jobs:
           --transform-for-static-hosting \
           --hosting-base-path TermKit \
           --output-path ./docs
+        touch docs/.nojekyll
           
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v3
