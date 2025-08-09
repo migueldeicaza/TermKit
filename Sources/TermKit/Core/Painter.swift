@@ -214,7 +214,9 @@ public class Painter {
     }
     
     /// Clears the specified region in painter coordinates
-    /// - Parameter rect: the region to clear, the coordinates are relative to the view
+    /// - Parameters:
+    ///  - rect: the region to clear, the coordinates are relative to the view.
+    ///  - with: Character to use to fill the cleared region, defaults to a whitespace.
     public func clear(_ rect: Rect, with: Character = " ")
     {
         let scalars = with.unicodeScalars

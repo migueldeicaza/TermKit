@@ -1,4 +1,5 @@
 
+[![Build, test, and docs](https://github.com/migueldeicaza/TermKit/actions/workflows/build.yml/badge.svg)](https://github.com/migueldeicaza/TermKit/actions/workflows/build.yml)
 
 # TermKit - Terminal UI Toolkit for Swift
 
@@ -9,9 +10,49 @@ Charlie Kindel (@tig), @BDisp and various other contributors - this port
 is bringing their work.
 
 This toolkit contains various controls for build text user interfaces
-using Swift.
+using Swift. It works on macOS and Linux.
 
-You can [checkout the documentation](https://migueldeicaza.github.io/TermKit/index.html) which is automatically generated and published using DocC.
+## Controls
+
+The following controls are currently implemented:
+
+- **Button** - Clickable buttons with text
+- **Checkbox** - Checkboxes for boolean input
+- **DataTable** - Tabular data display
+- **Frame** - Container with optional border and title
+- **HexView** - Hexadecimal data viewer
+- **Label** - Text display
+- **ListView** - Lists with selection and scrolling
+- **MarkupView** - Rich text with markup support
+- **Menu/MenuBar** - Menus and menu bars
+- **ProgressBar** - Progress indicators
+- **RadioGroup** - Radio button groups
+- **ScrollView** - Scrollable containers
+- **Spinner** - Loading spinners
+- **SplitView** - Resizable split containers
+- **StatusBar** - Status information display
+- **TabView** - Tabbed interfaces
+- **Terminal/TerminalView** - Terminal emulation
+- **TextField** - Single-line text input
+- **TextView** - Multi-line text editing
+- **Toplevel** - Top-level windows
+
+## Dialogs
+
+- **Dialog** - Base dialog class
+- **FileDialog** - File selection dialog
+- **InputBox** - Text input dialog
+- **MessageBox** - Message display dialog
+
+## Drivers
+
+TermKit supports multiple console drivers:
+
+- **CursesDriver** - NCurses-based driver for Unix systems
+- **UnixDriver** - Raw Unix terminal driver
+- **TTYDriver** - Basic TTY driver for testing
+
+You can [checkout the documentation](https://migueldeicaza.github.io/TermKit/documentation/termkit/) which is automatically generated and published using DocC.
 
 <img width="1222" alt="Screen Shot 2021-03-13 at 12 44 05 PM" src="https://user-images.githubusercontent.com/36863/111039012-d6df8400-83f9-11eb-9215-88549635a33f.png">
 
