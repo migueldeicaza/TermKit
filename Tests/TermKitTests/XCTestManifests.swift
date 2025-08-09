@@ -2,10 +2,12 @@ import XCTest
 
 #if !canImport(ObjectiveC)
 public func allTests() -> [XCTestCaseEntry] {
+#if !os(Linux)
     return [
-    #if !os(Linux)
-        testCase(TermKitTests.allTests),
-#endif
-]
+        testCase(TermKitTests.allTests)
+    ]
+#else 
+    return []
+#endif    
 }
 #endif
