@@ -543,7 +543,7 @@ open class TextView: View {
                 columnTrack = currentColumn
             }
             currentRow += 1
-            if currentRow >= topRow + frame.height {
+            if currentRow+1 > topRow + frame.height {
                 topRow += 1
                 setNeedsDisplay ()
             }
@@ -767,10 +767,15 @@ open class TextView: View {
             leftColumn += 1
             setNeedsDisplay()
         } else {
-            if currentRow != row {
-                needDisplayToEnd(row: row)
+            if currentRow+1 > topRow + frame.height {
+                topRow += 1
+                setNeedsDisplay()
             } else {
-                needDisplay(row: currentRow)
+                if currentRow != row {
+                    needDisplayToEnd(row: row)
+                } else {
+                    needDisplay(row: currentRow)
+                }
             }
         }
     }
@@ -832,6 +837,7 @@ open class TextView: View {
     open override func processKey(event: KeyEvent) -> Bool {
         // Handle some state here - whether the last command was a kill
         // operation and the column tracking (up/down)
+        log("Bounds are \(bounds)")
         switch event.key {
         case .controlN, .cursorDown, .controlP, .cursorUp:
             lastWasKill = false
