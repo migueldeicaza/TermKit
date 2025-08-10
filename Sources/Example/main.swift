@@ -16,16 +16,16 @@ import TermKit
 sleep (1)
 
 var options: [(id: String, text: String, func: () -> Toplevel)] = [
-    (id: "misc", "Assorted",       { Assorted () }),
-    (id: "dialogs", "File Dialogs",{ FileDialogs () }),
-    (id: "terminal", "Terminal",   { TerminalDemo () }),
-    (id: "datatable", "DataTable", { DataTableDialogs () }),
-    (id: "splitview", "SplitView", { DemoSplitView () }),
-    (id: "drawing", "Drawing",     { DemoDrawing () }),
-    (id: "tabview", "TabView",     { DemoTabBar () }),
-    (id: "spinner", "Spinner",     { createSpinnerDemo () }),
-    (id: "statusbar", "StatusBar", { createStatusBarDemo () }),
-    (id: "editor", "Editor",       { DemoDesktop () }),
+    (id: "misc",      "Assorted",     { Assorted () }),
+    (id: "dialogs",   "File Dialogs", { FileDialogs () }),
+    (id: "terminal",  "Terminal",     { TerminalDemo () }),
+    (id: "datatable", "DataTable",    { DataTableDialogs () }),
+    (id: "splitview", "SplitView",    { DemoSplitView () }),
+    (id: "drawing",   "Drawing",      { DemoDrawing () }),
+    (id: "tabview",   "TabView",      { DemoTabBar () }),
+    (id: "spinner",   "Spinner",      { createSpinnerDemo () }),
+    (id: "statusbar", "StatusBar",    { createStatusBarDemo () }),
+    (id: "editor",    "Editor",       { DemoDesktop () }),
 ]
 
 // Use the Unix driver (new direct terminal control)
@@ -136,7 +136,7 @@ win.x = Pos.at (0)
 win.y = Pos.at (1)
 
 var frame = Frame ("Samples")
-frame.set (x: 10, y: 8, width: 60, height: 12)
+frame.set (x: 10, y: 8, width: 60, height: 15)
 
 var list = ListView (items: options.map { $0.1 } + ["Quit"])
 frame.addSubview(list)
@@ -158,7 +158,8 @@ win.addSubview(frame)
 let subwin = Window()
 subwin.addSubview(Label("Close me"))
 subwin.allowResize = true
-subwin.set (x: 2, y: 2, width: 10, height: 3)
+subwin.allowMove = true
+subwin.frame = Rect (x: 2, y: 2, width: 10, height: 3)
 subwin.closeClicked = { win in
     win.superview?.removeSubview (win)
 }

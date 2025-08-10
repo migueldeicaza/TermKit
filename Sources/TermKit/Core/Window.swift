@@ -68,8 +68,12 @@ open class Window: Toplevel {
         }
     }
     
+    /// Controls whether this window can be dragged, defaults to not.  If you set this value it will switch the layoutStyle to `.fixed` and the location will be determined by the `frame`
     public var allowMove = false {
         didSet {
+            if allowMove {
+                layoutStyle = .fixed
+            }
             setNeedsDisplay()
         }
     }
@@ -77,8 +81,12 @@ open class Window: Toplevel {
     // Before we maximize, we store the values here
     var unmaximizedBounds: Rect? = nil
     
-    public var allowMaximize = true {
+    /// Controls whether this window can be maximized, if so, the layoutStyle will be switched to `.fixed`
+    public var allowMaximize = false {
         didSet {
+            if allowMaximize {
+                layoutStyle = .fixed
+            }
             setNeedsDisplay()
         }
     }
@@ -90,7 +98,12 @@ open class Window: Toplevel {
         }
     }
     
-    public var allowResize = false
+    /// If this value is set, then the layoutStyle will be changed to `.fixed`
+    public var allowResize = false {
+        didSet {
+            layoutStyle = .fixed
+        }
+    }
     
     lazy var closeAttribute = colorScheme.normal.change(foreground: .red)
     lazy var minimizeAttribute = colorScheme.normal.change(foreground: .brightYellow)
@@ -181,26 +194,31 @@ open class Window: Toplevel {
     
     var moveGrab: Point? = nil
     var resizeGrab: Point? = nil
-    
+        
     open override func mouseEvent(event: MouseEvent) -> Bool {
-        //log ("Mouse event on Window \(viewId) -> \(event)")
-        if event.flags == [.button4Released] {
-            //log ("FINISHED")
+        log ("Mouse event on Window \(viewId) -> \(event)")
+        if event.flags.contains (.button1Released) || event.flags.contains(.button1Released) {
+            log ("grab finished")
             if moveGrab != nil {
                 moveGrab = nil
+                Application.grabMouse(from: self)
+
                 return true
             }
             if resizeGrab != nil {
                 resizeGrab = nil
+                Application.grabMouse(from: self)
+
                 return true
             }
         }
         if let g = moveGrab {
             let delta = event.absPos - g
 
-            self.x = Pos.at (frame.minX + delta.x)
-            self.y = Pos.at (frame.minY + delta.y)
-            setNeedsLayout()
+            log("Frame was \(frame)")
+            frame = Rect(x: frame.minX + delta.x, y: frame.minY + delta.y, width: frame.width, height: frame.height)
+            log("   NOW \(frame)")
+            superview?.setNeedsDisplay()
             moveGrab = event.absPos
             return true
         } else if let g = resizeGrab {
@@ -255,12 +273,12 @@ open class Window: Toplevel {
             }
             return true
         }
-        if event.flags == [.button4Pressed] || event.flags == [.button1Pressed] {
+        if event.flags == [.button4Pressed] || event.flags == [.button1Pressed], layoutStyle == .fixed, allowMove {
             if event.pos.y == padding {
-                log ("grabbed")
                 Application.grabMouse(from: self)
                 moveGrab = event.absPos
             } else if event.pos.y == frame.height-padding-1 && event.pos.x == frame.width-padding-1 {
+                Application.grabMouse(from: self)
                 resizeGrab = event.absPos
             }
         }
