@@ -34,10 +34,7 @@ open class Window: Toplevel {
             setNeedsDisplay()
         }
     }
-    
-    /// If set to true, the control-c auto-closes this window
-    public var closeOnControlC = false
-    
+
     public override convenience init ()
     {
         self.init (nil, padding: 0)
@@ -123,13 +120,6 @@ open class Window: Toplevel {
         return super.becomeFirstResponder()
     }
     
-//    open override func processColdKey(event: KeyEvent) -> Bool {
-//        if closeOnControlC && event.key == .controlC {
-//            Application.requestStop()
-//            return true
-//        }
-//        return false
-//    }
     open override func redraw(region: Rect, painter p: Painter) {
         //log ("Window.redraw: \(frame) and region to redraw is: \(region)")
         let contentFrame = contentView.frame
@@ -196,19 +186,17 @@ open class Window: Toplevel {
     var resizeGrab: Point? = nil
         
     open override func mouseEvent(event: MouseEvent) -> Bool {
-        log ("Mouse event on Window \(viewId) -> \(event)")
+        log ("Mouse event on Window '\(title ?? "<unnamed>"):#\(viewId)' -> \(event)")
         if event.flags.contains (.button1Released) || event.flags.contains(.button1Released) {
             log ("grab finished")
+            Application.ungrabMouse()
+
             if moveGrab != nil {
                 moveGrab = nil
-                Application.grabMouse(from: self)
-
                 return true
             }
             if resizeGrab != nil {
                 resizeGrab = nil
-                Application.grabMouse(from: self)
-
                 return true
             }
         }
@@ -274,6 +262,11 @@ open class Window: Toplevel {
             return true
         }
         if event.flags == [.button4Pressed] || event.flags == [.button1Pressed], layoutStyle == .fixed, allowMove {
+            if let superview {
+                superview.bringSubviewToFront(self)
+                superview.setFocus(self)
+            }
+    
             if event.pos.y == padding {
                 Application.grabMouse(from: self)
                 moveGrab = event.absPos
