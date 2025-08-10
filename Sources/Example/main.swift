@@ -9,9 +9,23 @@
 import Foundation
 #if os(macOS)
 import Darwin.ncurses
+import os
 #endif
 import TermKit
 
+#if os(macOS)
+@available(OSX 11.0, *)
+private var logger: Logger = Logger(subsystem: "termkit", category: "TermKit")
+#endif
+
+@MainActor func log(_ s: String) {
+#if os(macOS)
+if #available(macOS 11.0, *) {
+    logger.log("log: \(s, privacy: .public)")
+    return
+}
+#endif
+}
 // So the debugger can attach
 sleep (1)
 

@@ -27,22 +27,34 @@ class DemoTerminal: Window, TermKit.LocalProcessTerminalViewDelegate {
     }
     
     var term: TermKit.LocalProcessTerminalView?
-    
+    @MainActor static var count = 0
+    var id = 0
     // This is added to our window
     init() {
         super.init("Running Shell")
+        let c = MainActor.assumeIsolated {
+            DemoTerminal.count += 1
+            return DemoTerminal.count
+        }
+        id = c
+        title = "Terminal #\(c)"
         allowResize = true
         allowMove = true
         
         let term = LocalProcessTerminalView(delegate: self)
         addSubview(term)
         term.fill ()
-        term.frame = Rect (origin: Point (x: 0, y: 0), size: Size(width: 80, height: 25))
+        //term.frame = Rect (origin: Point (x: 0, y: 0), size: Size(width: 80, height: 25))
         let vars = Terminal.getEnvironmentVariables(termName: "xterm-color", trueColor: false)
         term.startProcess(executable: "/bin/zsh", environment: vars,execName: "-zsh")
         term.feed(text: "Welcome to SwiftTerm in TermKit")
         
         self.term = term
+    }
+    
+    override func setFocus(_ view: View?) {
+        superview?.bringSubviewToFront(self)
+        super.setFocus(view)
     }
 }
 

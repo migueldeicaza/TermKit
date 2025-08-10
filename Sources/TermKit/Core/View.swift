@@ -677,7 +677,7 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
     /**
      * Causes the specified view and the entire parent hierarchy to have the focused order updated.
      */
-    public func setFocus (_ view: View?)
+    open func setFocus (_ view: View?)
     {
         guard let theView = view else {
             return

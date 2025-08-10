@@ -123,8 +123,7 @@ open class Window: Toplevel {
     open override func redraw(region: Rect, painter p: Painter) {
         //log ("Window.redraw: \(frame) and region to redraw is: \(region)")
         let contentFrame = contentView.frame
-        let containedInChild = contentFrame.contains(region)
-        if !needDisplay.isEmpty && !containedInChild {
+        if !needDisplay.isEmpty {
             p.attribute = colorScheme.normal
             p.drawFrame (bounds, padding: padding, fill: false, double: hasFocus)
             
