@@ -8,89 +8,91 @@
 import Foundation
 import TermKit
 
-@MainActor
-func DemoDrawing() -> Toplevel {
-    let top = Toplevel()
-    top.fill()
-    
-    // Menu bar
-    let menu = MenuBar(menus: [
-        MenuBarItem(title: "_File", children: [
-            MenuItem(title: "_Clear Canvas", action: {
-                if let canvas = findCanvas(in: top) {
-                    canvas.clearCanvas()
-                }
-            }),
-            MenuItem(title: "_Close", action: {
-                Application.requestStop()
-            })
-        ])
-    ])
-    top.addSubview(menu)
-    
-    // Main window
-    let win = Window("Drawing Demo - Click to Draw X")
-    win.x = Pos.at(0)
-    win.y = Pos.at(3)
-    win.width = Dim.fill()
-    win.height = Dim.fill()
-    
-    // Color palette view
-    let paletteFrame = Frame("Colors")
-    let palette = ColorPaletteView()
-    paletteFrame.addSubview(palette)
-    
-    // Drawing canvas view
-    let eventDbg = Label("")
-    eventDbg.x = Pos.at(0)
-    eventDbg.y = Pos.at(1)
-    eventDbg.width = Dim.fill()
-    let canvasFrame = Frame("Canvas")
-    let canvas = DrawingCanvasView()
-    canvas.cb = { event in
-        eventDbg.text = "Event is \(event)"
-    }
-    canvas.selectedColor = palette.selectedColor
-    canvasFrame.addSubview(canvas)
-    // Connect palette to canvas
-    palette.onColorChanged = { color in
-        canvas.selectedColor = color
+class DemoDrawing: DemoHost {
+    init() {
+        super.init(title: "Drawing Demo")
     }
     
-    // Create the split view
-    let splitView = SplitView(first: paletteFrame, second: canvasFrame, orientation: .horizontal)
-    splitView.splitPosition = .percentage(0.25)
-    splitView.minimumPaneSize = 15
-    splitView.isDraggable = true
-    splitView.fill()
-    
-    // Add status bar with instructions
-    let statusBar = Label("Click on canvas to draw X marks | Select colors from palette | Ctrl+C: Exit")
-    statusBar.x = Pos.at(0)
-    statusBar.y = Pos.anchorEnd()
-    statusBar.width = Dim.fill()
-    statusBar.colorScheme = Colors.menu
-    
-    win.addSubview(splitView)
-    win.addSubview(statusBar)
-    top.addSubview(eventDbg)
-
-    top.addSubview(win)
-    return top
-}
-
-// Helper function to find canvas in view hierarchy
-private func findCanvas(in view: View) -> DrawingCanvasView? {
-    if let canvas = view as? DrawingCanvasView {
-        return canvas
-    }
-    for subview in view.subviews {
-        if let found = findCanvas(in: subview) {
-            return found
+    func clearCanvas() {
+        if let canvas = self.findCanvas(in: topWindow) {
+            canvas.clearCanvas()
         }
     }
-    return nil
+    
+    override func setupDemo() {
+        setMenu(MenuBar(menus: [
+            MenuBarItem(title: "_File", children: [
+                MenuItem(title: "_Clear Canvas", action:clearCanvas)
+                ,
+                MenuItem(title: "_Close", action: {
+                    Application.requestStop()
+                })
+            ])]))
+        
+        
+        // Main window
+        let win = Window("Drawing Demo - Click to Draw X")
+        win.x = Pos.at(0)
+        win.y = Pos.at(3)
+        win.width = Dim.fill()
+        win.height = Dim.fill()
+        
+        // Color palette view
+        let paletteFrame = Frame("Colors")
+        let palette = ColorPaletteView()
+        paletteFrame.addSubview(palette)
+        
+        // Drawing canvas view
+        let eventDbg = Label("")
+        eventDbg.x = Pos.at(0)
+        eventDbg.y = Pos.at(1)
+        eventDbg.width = Dim.fill()
+        let canvasFrame = Frame("Canvas")
+        let canvas = DrawingCanvasView()
+        canvas.cb = { event in
+            eventDbg.text = "Event is \(event)"
+        }
+        canvas.selectedColor = palette.selectedColor
+        canvasFrame.addSubview(canvas)
+        // Connect palette to canvas
+        palette.onColorChanged = { color in
+            canvas.selectedColor = color
+        }
+        
+        // Create the split view
+        let splitView = SplitView(first: paletteFrame, second: canvasFrame, orientation: .horizontal)
+        splitView.splitPosition = .percentage(0.25)
+        splitView.minimumPaneSize = 15
+        splitView.isDraggable = true
+        splitView.fill()
+        
+        // Add status bar with instructions
+        let statusBar = Label("Click on canvas to draw X marks | Select colors from palette | Ctrl+C: Exit")
+        statusBar.x = Pos.at(0)
+        statusBar.y = Pos.anchorEnd()
+        statusBar.width = Dim.fill()
+        statusBar.colorScheme = Colors.menu
+        
+        win.addSubview(splitView)
+        win.addSubview(statusBar)
+        topWindow.addSubview(eventDbg)
+        
+        topWindow.addSubview(win)
+    }
+    // Helper function to find canvas in view hierarchy
+    private func findCanvas(in view: View) -> DrawingCanvasView? {
+        if let canvas = view as? DrawingCanvasView {
+            return canvas
+        }
+        for subview in view.subviews {
+            if let found = findCanvas(in: subview) {
+                return found
+            }
+        }
+        return nil
+    }
 }
+
 
 // Color palette view
 class ColorPaletteView: View {

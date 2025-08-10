@@ -16,21 +16,42 @@ import TermKit
 sleep (1)
 
 var options: [(id: String, text: String, func: () -> Toplevel)] = [
-    (id: "misc",      "Assorted",     { Assorted () }),
-    (id: "dialogs",   "File Dialogs", { FileDialogs () }),
-    (id: "terminal",  "Terminal",     { TerminalDemo () }),
-    (id: "datatable", "DataTable",    { DataTableDialogs () }),
-    (id: "splitview", "SplitView",    { DemoSplitView () }),
-    (id: "drawing",   "Drawing",      { DemoDrawing () }),
-    (id: "tabview",   "TabView",      { DemoTabBar () }),
-    (id: "spinner",   "Spinner",      { createSpinnerDemo () }),
-    (id: "statusbar", "StatusBar",    { createStatusBarDemo () }),
-    (id: "windows",   "Windows",      { DemoWindows () }),
-    (id: "editor",    "Editor",       { DemoDesktop () }),
+    (id: "misc",      "Assorted",     { DemoAssorted() }),
+    (id: "dialogs",   "File Dialogs", { FileDialogs() }),
+    (id: "terminal",  "Terminal",     { TerminalDemo() }),
+    (id: "datatable", "DataTable",    { DataTableDialogs() }),
+    (id: "splitview", "SplitView",    { DemoSplitView() }),
+    (id: "drawing",   "Drawing",      { DemoDrawing() }),
+    (id: "tabview",   "TabView",      { DemoTabBar() }),
+    (id: "spinner",   "Spinner",      { DemoSpinner() }),
+    (id: "statusbar", "StatusBar",    { createStatusBarDemo() }),
+    (id: "windows",   "Windows",      { DemoWindow() }),
+    (id: "editor",    "Editor",       { DemoDesktop() }),
 ]
+var demoToplevel: (() -> Toplevel)? = nil
+
+// Check for --demo=value parameter
+for arg in ProcessInfo.processInfo.arguments {
+    if arg.hasPrefix("--demo=") {
+        let demoId = String(arg.dropFirst(7)) // Remove "--demo=" prefix
+        if let demo = options.first(where: { $0.id == demoId }) {
+            demoToplevel = demo.func
+        } else {
+            print("Unknown demo: \(demoId)")
+            print("Available demos: \(options.map { $0.id }.joined(separator: ", "))")
+            exit(1)
+        }
+    }
+}
 
 // Use the Unix driver (new direct terminal control)
 Application.prepare()
+if let demoToplevel {
+    showSingleDemo(demoToplevel())
+    Application.run()
+    exit(0)
+
+}
 // Creates a nested editor
 func showEditor() {
     let ntop = Toplevel()
@@ -112,22 +133,6 @@ func showSingleDemo(_ top: Toplevel) {
         Application.top.addSubview(top)
     }
 }
-// Check for --demo=value parameter
-for arg in ProcessInfo.processInfo.arguments {
-    if arg.hasPrefix("--demo=") {
-        let demoId = String(arg.dropFirst(7)) // Remove "--demo=" prefix
-        if let demo = options.first(where: { $0.id == demoId }) {
-            let toplevel = demo.func()
-            showSingleDemo(toplevel)
-            Application.run()
-            exit(0)
-        } else {
-            print("Unknown demo: \(demoId)")
-            print("Available demos: \(options.map { $0.id }.joined(separator: ", "))")
-            exit(1)
-        }
-    }
-}
 
 let win = Window()
 win.x = Pos.at (0)
@@ -152,18 +157,7 @@ list.activate = { item in
 }
 win.addSubview(frame)
 
-// Create a floating window
-let subwin = Window()
-subwin.addSubview(Label("Close me"))
-subwin.allowResize = true
-subwin.allowMove = true
-subwin.frame = Rect (x: 2, y: 2, width: 10, height: 3)
-subwin.closeClicked = { win in
-    win.superview?.removeSubview (win)
-}
-
 Application.top.addSubview(win)
-Application.top.addSubview(subwin)
 
 Application.top.addSubview(makeMenu ())
 let status = StatusBar()

@@ -30,9 +30,8 @@ class DemoTerminal: Window, TermKit.LocalProcessTerminalViewDelegate {
     
     // This is added to our window
     init() {
-        super.init("Demo")
+        super.init("Running Shell")
         allowResize = true
-        fill(percentage: 70)
         
         let term = LocalProcessTerminalView(delegate: self)
         addSubview(term)
@@ -56,10 +55,35 @@ func openTerminal (_ on: View) {
 }
 
 // This one will be Application.presented
-func TerminalDemo () -> Window {
-    let w = DemoTerminal()
-    w.closeClicked = { _ in
-        Application.requestStop()
+class TerminalDemo: DemoHost {
+    var newDelta = 0
+    
+    init() {
+        super.init(title: "Demo Terminal")
+        setMenu(MenuBar(menus: [
+            MenuBarItem(title: "File", children: [
+                MenuItem(title: "_New Terminal", action: newTerminal),
+                MenuItem(title: "_Quit", action: { Application.requestStop() })
+            ])
+        ]))
     }
-    return w
+    
+    func newTerminal() {
+        let frame = Rect(
+            x: newDelta,
+            y: newDelta,
+            width: Int(Double(Application.terminalSize.width)*0.7),
+            height: Int(Double(Application.terminalSize.height)*0.7),
+        )
+        newDelta += 2
+        let terminal = DemoTerminal()
+        terminal.frame = frame
+        topWindow.addSubview(terminal)
+        topWindow.bringForward(subview: terminal)
+        topWindow.setFocus(terminal)
+    }
+    
+    override func setupDemo() {
+        newTerminal()
+    }
 }
