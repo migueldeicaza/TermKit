@@ -246,9 +246,8 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
      * The coordinate of the frame is relative to the parent, so
      * position 10,5 will position the view is the column 10, row 5 in the container.
      *
-     * Altering the Frame of a view will trigger the redrawing of the
-     * view as well as the redrawing of the affected regions in the superview and will
-     * also set the `layoutStyle` to be `.fixed`
+     * Setting the value of the frame is only useful if you have set the `layoutStyle` to be `.fixed`
+     * otherwise it will get recomputed based on the x, y, width and height properties.
      */
     open var frame: Rect {
         get {

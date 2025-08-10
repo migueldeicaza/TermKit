@@ -34,19 +34,39 @@ open class StatusBar: View {
     
     // MARK: - Status Message Management
     
+    var stack: [(String)] = []
+    
     /// Sets a temporary status message that disappears after timeout
-    public func setStatus(_ message: String, timeout: TimeInterval = 5.0, priority: Priority = .default) {
-        let statusId = "__temp_status__"
+    public func pushStatus(_ message: String, timeout: TimeInterval? = nil, priority: Priority = .default) {
+        let statusId = "status-stack"
+        if let existing = panels[statusId] {
+            stack.append(existing.content)
+        }
         addPanel(id: statusId, content: message, priority: priority, placement: .leading)
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + timeout) { @MainActor [weak self] in
-            self?.removePanel(id: statusId)
+        if let timeout {
+            DispatchQueue.main.asyncAfter(deadline: .now() + timeout) { @MainActor [weak self] in
+                self?.popStatus()
+            }
+        }
+    }
+    
+    public func popStatus() {
+        if var existing = panels["status-stack"] {
+            if let next = stack.popLast() {
+                existing.content = next
+            } else {
+                clearStatus()
+            }
+        } else {
+            clearStatus()
         }
     }
     
     /// Clears the temporary status message.
     public func clearStatus() {
-        removePanel(id: "__temp_status__")
+        stack = []
+        removePanel(id: "status-stack")
         updateVisiblePanels()
     }
     
@@ -94,6 +114,33 @@ open class StatusBar: View {
         }
         updateVisiblePanels()
         setNeedsDisplay()
+    }
+    
+    /// Adds a panel with hotkey support.
+    /// - Parameters:
+    ///   - id: Unique identifier for the panel
+    ///   - hotkeyText: The text to display for the hotkey (e.g., "F1")
+    ///   - labelText: The text to display after the hotkey (e.g., " Help")
+    ///   - hotkey: The key that triggers the action
+    ///   - action: The action to perform when the hotkey is pressed
+    ///   - priority: Display priority
+    ///   - placement: Whether to show on leading or trailing side
+    public func addHotkeyPanel(id: String, hotkeyText: String, labelText: String, hotkey: Key, action: @escaping () -> Void, priority: Priority = .default, placement: PanelPlacement = .trailing) {
+        let hotkeyView = HotkeyPanelView(hotkeyText: hotkeyText, labelText: labelText)
+        let totalWidth = hotkeyText.count + labelText.count + 1
+        let panel = Panel(
+            id: id,
+            content: hotkeyText + labelText,
+            priority: priority,
+            isTemporary: false,
+            placement: placement,
+            view: hotkeyView,
+            width: totalWidth,
+            hotkey: hotkey,
+            hotkeyAction: action
+        )
+        panels[id] = panel
+        updateVisiblePanels()
     }
     
     // MARK: - Progress Indicators
@@ -238,7 +285,6 @@ open class StatusBar: View {
                 panel.view.height = Dim.sized(1)
 
                 addSubview(panel.view)
-                log("Adding panel \(panel.id) at \(currentLeading)")
                 currentLeading += panelWidth + 1 // Add space between panels
                 var mutablePanel = panel
                 mutablePanel.isVisible = true
@@ -256,7 +302,6 @@ open class StatusBar: View {
                 panel.view.width = Dim.sized(panelWidth)
                 panel.view.height = Dim.sized(1)
 
-                log("Trai panel \(panel.id) at \(currentTrailing)")
                 addSubview(panel.view)
                 currentTrailing -= 1 // Add space between panels
                 var mutablePanel = panel
@@ -269,10 +314,21 @@ open class StatusBar: View {
     open override func redraw(region: Rect, painter: Painter) {
         painter.attribute = Colors.dialog.normal
         painter.clear()
-        for (index, subview) in subviews.enumerated() {
-            log("Subview \(index) is \(subview.frame)")
-        }
+        
         super.redraw(region: region, painter: painter)
+    }
+    
+    open override func processColdKey(event: KeyEvent) -> Bool {
+        // Cycle through all panels (even if not visible) and check for hotkey matches
+        for panel in panels.values {
+            if let panelHotkey = panel.hotkey, panelHotkey == event.key {
+                panel.hotkeyAction?()
+                return true
+            }
+        }
+        
+        // If no hotkey matched, call super to continue normal processing
+        return super.processColdKey(event: event)
     }
     
     open override func positionCursor() {
@@ -287,6 +343,34 @@ public enum PanelPlacement {
     case trailing
 }
 
+/// A custom view for displaying hotkey panels with colored text
+private class HotkeyPanelView: View {
+    let hotkeyText: String
+    let labelText: String
+    
+    init(hotkeyText: String, labelText: String) {
+        self.hotkeyText = hotkeyText
+        self.labelText = labelText
+        super.init()
+        let totalWidth = hotkeyText.count + labelText.count
+        width = Dim.sized(totalWidth)
+        height = Dim.sized(1)
+    }
+    
+    override func redraw(region: Rect, painter: Painter) {
+        painter.goto(col: 0, row: 0)
+        
+        // Draw hotkey text in highlighted color (bright yellow)
+        //let hotkeyAttr = Application.driver.makeAttribute(fore: .brightYellow, back: .black)
+        painter.attribute = Colors.dialog.hotNormal
+        painter.add(str: hotkeyText)
+        
+        // Draw label text in normal color
+        painter.attribute = colorScheme.normal
+        painter.add(str: " \(labelText)")
+    }
+}
+
 private struct Panel {
     let id: String
     var content: String
@@ -296,8 +380,10 @@ private struct Panel {
     var view: View
     let width: Int
     var isVisible: Bool = false
+    let hotkey: Key?
+    let hotkeyAction: (() -> Void)?
     
-    init(id: String, content: String, priority: StatusBar.Priority, isTemporary: Bool, placement: PanelPlacement, view: View, width: Int) {
+    init(id: String, content: String, priority: StatusBar.Priority, isTemporary: Bool, placement: PanelPlacement, view: View, width: Int, hotkey: Key? = nil, hotkeyAction: (() -> Void)? = nil) {
         self.id = id
         self.content = content
         self.priority = priority
@@ -305,5 +391,7 @@ private struct Panel {
         self.placement = placement
         self.view = view
         self.width = width
+        self.hotkey = hotkey
+        self.hotkeyAction = hotkeyAction
     }
 }

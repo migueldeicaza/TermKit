@@ -136,7 +136,7 @@ win.x = Pos.at (0)
 win.y = Pos.at (1)
 
 var frame = Frame ("Samples")
-frame.set (x: 10, y: 10, width: 60, height: 20)
+frame.set (x: 10, y: 8, width: 60, height: 12)
 
 var list = ListView (items: options.map { $0.1 } + ["Quit"])
 frame.addSubview(list)
@@ -167,5 +167,10 @@ Application.top.addSubview(win)
 Application.top.addSubview(subwin)
 
 Application.top.addSubview(makeMenu ())
+let status = StatusBar()
+Application.top.addSubview(status)
+status.addHotkeyPanel(id: "quit", hotkeyText: "Control-C", labelText: "Quit", hotkey: .controlC) {
+    Application.requestStop()
+}
 Application.run()
 print ("ending")

@@ -36,7 +36,7 @@ func createStatusBarDemo() -> Toplevel {
     statusButton.x = Pos.at(2)
     statusButton.y = Pos.at(3)
     statusButton.clicked = { _ in
-        statusBar.setStatus("This is a temporary status message", timeout: 3.0, priority: .default)
+        statusBar.pushStatus("This is a temporary status message", timeout: 3.0, priority: .default)
     }
     window.addSubview(statusButton)
     
@@ -94,7 +94,7 @@ func createStatusBarDemo() -> Toplevel {
                     statusBar.updateProgressBar(id: "download", current: progress, total: 100, message: "Downloading")
                 } else {
                     statusBar.hideIndicator(id: "download")
-                    statusBar.setStatus("Download completed!", timeout: 2.0, priority: .high)
+                    statusBar.pushStatus("Download completed!", timeout: 2.0, priority: .high)
                     break
                 }
             }
@@ -166,6 +166,8 @@ func createStatusBarDemo() -> Toplevel {
     • Panels persist until removed
     • Higher priority items show first when space is limited
     • Progress bars and spinners integrate seamlessly
+    • Try hotkeys: F1 (Help), F5 (Refresh), F10 (Quit)
+    • Hotkeys work even when panels aren't visible
     • Press Ctrl+C to exit
     """
     instructionsLabel.x = Pos.at(2)
@@ -174,8 +176,56 @@ func createStatusBarDemo() -> Toplevel {
     instructionsLabel.height = Dim.sized(8)
     window.addSubview(instructionsLabel)
     
+    // Add some hotkey panels to demonstrate the feature
+    statusBar.addHotkeyPanel(
+        id: "help",
+        hotkeyText: "F1",
+        labelText: " Help",
+        hotkey: .f1,
+        action: {
+            statusBar.pushStatus("Help pressed! F1 hotkey works.", timeout: 3.0, priority: .high)
+        },
+        priority: .veryHigh,
+        placement: .trailing
+    )
+    
+    statusBar.addHotkeyPanel(
+        id: "quit",
+        hotkeyText: "F10",
+        labelText: " Quit",
+        hotkey: .f10,
+        action: {
+            Application.requestStop()
+        },
+        priority: .veryHigh,
+        placement: .trailing
+    )
+    
+    statusBar.addHotkeyPanel(
+        id: "refresh",
+        hotkeyText: "F5",
+        labelText: " Refresh",
+        hotkey: .f5,
+        action: {
+            statusBar.pushStatus("Refreshed! F5 hotkey triggered.", timeout: 2.0, priority: .high)
+        },
+        priority: .high,
+        placement: .trailing
+    )
+    statusBar.addHotkeyPanel(
+        id: "quit",
+        hotkeyText: "Control-C",
+        labelText: " Quit",
+        hotkey: .controlC,
+        action: {
+            Application.requestStop()
+        },
+        priority: .high,
+        placement: .trailing
+    )
+
     // Initialize with a welcome message
-    statusBar.setStatus("Welcome to StatusBar Demo! Try the buttons above.", timeout: 5.0, priority: .default)
+    statusBar.pushStatus("Welcome to StatusBar Demo! Try hotkeys F1, F5, F10 or buttons above.", timeout: 5.0, priority: .default)
 
     return top
 }
