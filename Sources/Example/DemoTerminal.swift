@@ -87,7 +87,7 @@ class TerminalDemo: DemoHost {
             x: newDelta,
             y: newDelta,
             width: Int(Double(Application.terminalSize.width)*0.7),
-            height: Int(Double(Application.terminalSize.height)*0.7),
+            height: Int(Double(Application.terminalSize.height)*0.7)
         )
         newDelta += 2
         let terminal = DemoTerminal()

@@ -32,10 +32,12 @@ open class StandardToplevel: Toplevel {
     {
         desk = Desktop()
         super.init ()
-        let menu = MenuBar (menus: [
-                            MenuBarItem (title: "File", children: [
-                                            MenuItem (title: "Quit", action: { Application.requestStop() })])
-                            ])
+        let menu = MenuBar (
+            menus: [
+                MenuBarItem (title: "File", children: [
+                    MenuItem (title: "Quit", action: { Application.requestStop() })])
+            ]
+        )
         let status = StatusBar ()
         status.colorScheme = Colors.dialog
         
