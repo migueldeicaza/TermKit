@@ -35,8 +35,8 @@ open class Frame: View {
         
         contentView.x = Pos.at(1)
         contentView.y = Pos.at(1)
-        contentView.width = Dim.fill(2)
-        contentView.height = Dim.fill(2)
+        contentView.width = Dim.fill(1)
+        contentView.height = Dim.fill(1)
         
         super.addSubview(contentView)
     }

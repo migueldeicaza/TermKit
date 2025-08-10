@@ -130,7 +130,7 @@ open class MenuBarItem {
  */
 public class Menu: View {
     var barItems: MenuBarItem
-    var host: MenuBar
+    weak var host: MenuBar?
     
     // The current item in the list selected, if -1 it means that the are no selectable entries
     var current: Int
@@ -212,6 +212,7 @@ public class Menu: View {
     }
     
     open override func processKey(event: KeyEvent) -> Bool {
+        guard let host else { return false }
         switch event.key {
         case .cursorUp, .controlP:
             if current == -1 {
@@ -269,21 +270,38 @@ public class Menu: View {
         }
         return true
     }
-     
+    
     open override func mouseEvent(event: MouseEvent) -> Bool {
-        guard event.pos.y >= 1 else { return true }
-        let idx = event.pos.y - 1
-        guard idx <= barItems.children.count else { return true }
-        guard let item = barItems.children [idx] else { return true }
-
-        if event.flags == .button1Clicked {
-            host.closeMenu()
-            run (action: item.action)
-        }
+        guard let host else { return false }
         
-        current = idx
-        setNeedsDisplay()
-        return true
+        if bounds.contains(event.pos) {
+            let idx = event.pos.y - 1
+            guard idx >= 0, idx < barItems.children.count else { return true }
+            guard let item = barItems.children [idx] else { return true }
+            
+            if event.flags == .button1Clicked {
+                host.closeMenu()
+                Application.ungrabMouse()
+                run (action: item.action)
+            }
+            current = idx
+            setNeedsDisplay()
+            return true
+        } else {
+            if event.flags.contains(.button1Clicked) {
+                host.closeMenu()
+                Application.ungrabMouse()
+                return true
+            }
+            if host.frame.contains(event.absPos), let selectedIdx = host.menuUnder(absolutePosition: event.absPos), host.menus[selectedIdx] !== barItems {
+                Application.ungrabMouse()
+                var modified = event
+                modified.pos = host.screenToView(loc: event.absPos)
+                
+                return host.mouseEvent(event: modified)
+            }
+        }
+        return false
     }
 }
 
@@ -370,6 +388,7 @@ open class MenuBar: View {
         let openedMenu = Menu (host: self, x: pos, y: 1, barItems: menus [index])
         superview?.addSubview(openedMenu)
         superview?.setFocus(openedMenu)
+        Application.grabMouse(from: openedMenu)
         self.openedMenu = openedMenu
     }
     
@@ -492,17 +511,41 @@ open class MenuBar: View {
         return true
     }
     
-    open override func mouseEvent(event: MouseEvent) -> Bool {
-        if event.flags == .button1Clicked {
-            var pos = 1
-            let cx = event.pos.x
-            for i in 0..<menus.count {
-                if cx > pos && event.pos.x < pos + 1 + menus [i].titleLen {
-                    activate (index: i)
-                    return true
-                }
-                pos += 2 + menus [i].titleLen + 1
+    func menuUnder(absolutePosition: Point) -> Int? {
+        let localX = absolutePosition.x - frame.minX
+        let localY = absolutePosition.y - frame.minX
+        if localY < 0 || localY > 1 { return nil }
+        
+        var pos = 1
+        for i in 0..<menus.count {
+            if localX > pos && localX < pos + 1 + menus[i].titleLen+2 {
+                return i
             }
+            pos += 2 + menus [i].titleLen + 1
+        }
+        return nil
+    }
+    
+    open override func mouseEvent(event: MouseEvent) -> Bool {
+        func tryOpenMenu() -> Bool {
+            if let match = menuUnder(absolutePosition: event.absPos) {
+                activate(index: match)
+                return true
+            }
+            if openedMenu != nil {
+                closeMenu()
+                return true
+            }
+            return false
+        }
+        
+        if event.flags == .button1Clicked {
+            return tryOpenMenu()
+        } else if event.flags.contains(.mousePosition) {
+            if let openedMenu, let openedMenuIndex = menuUnder(absolutePosition: event.absPos), menus[openedMenuIndex] !== openedMenu.barItems {
+                return tryOpenMenu()
+            }
+            return true
         }
         return false
     }

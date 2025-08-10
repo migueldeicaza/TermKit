@@ -46,11 +46,65 @@ The following controls are currently implemented:
 
 ## Drivers
 
-TermKit supports multiple console drivers:
+TermKit supports multiple console drivers to provide flexibility across different platforms and use cases. The driver can be selected automatically, programmatically, or via environment variable.
 
-- **CursesDriver** - NCurses-based driver for Unix systems
-- **UnixDriver** - Raw Unix terminal driver
-- **TTYDriver** - Basic TTY driver for testing
+### Available Drivers
+
+- **CursesDriver** (`curses`) - NCurses-based driver for Unix systems with full terminal capabilities
+- **UnixDriver** (`unix`) - Raw Unix terminal driver using ANSI escape sequences
+- **TTYDriver** (`tty`) - Basic TTY driver for testing and debugging (plain text output)
+- **WindowsDriver** (`windows`) - Windows console driver (Windows platform only)
+
+### Driver Selection
+
+#### Environment Variable
+
+You can set the `TERMKIT_DRIVER` environment variable to force a specific driver:
+
+```bash
+# Use the TTY driver for testing/debugging
+export TERMKIT_DRIVER=tty
+swift run
+
+# Use the Unix driver
+export TERMKIT_DRIVER=unix
+swift run
+
+# Use the Curses driver (default on supported platforms)
+export TERMKIT_DRIVER=curses
+swift run
+```
+
+#### Programmatic Selection
+
+You can also specify the driver when calling `Application.prepare()`:
+
+```swift
+// Automatic driver selection (default)
+Application.prepare()
+
+// Force a specific driver
+Application.prepare(driverType: .unix)
+Application.prepare(driverType: .tty)
+Application.prepare(driverType: .curses)
+```
+
+#### Driver Selection Logic
+
+1. If `TERMKIT_DRIVER` environment variable is set, use that driver
+2. Otherwise, use automatic selection based on platform capabilities:
+   - macOS 15.0+: CursesDriver (falls back to UnixDriver if not operational)
+   - Other platforms: UnixDriver
+
+### Testing and Debugging
+
+The TTY driver is particularly useful for testing and debugging as it provides plain text output that can be captured and inspected:
+
+```bash
+TERMKIT_DRIVER=tty ./your-app > output.txt
+```
+
+This allows you to see exactly what your application would render without the complexity of terminal escape sequences.
 
 You can [checkout the documentation](https://migueldeicaza.github.io/TermKit/documentation/termkit/) which is automatically generated and published using DocC.
 
