@@ -19,13 +19,7 @@ public class Painter {
     var view: View
     
     /// The current drawing column
-    public private(set) var pos: Point {
-        didSet {
-            if pos.x < 0 {
-                fatalError()
-            }
-        }
-    }
+    public private(set) var pos: Point 
     
     // The origin for this painter, describes the offset in global coordinates
     public var origin: Point

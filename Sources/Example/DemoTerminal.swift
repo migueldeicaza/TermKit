@@ -32,6 +32,7 @@ class DemoTerminal: Window, TermKit.LocalProcessTerminalViewDelegate {
     init() {
         super.init("Running Shell")
         allowResize = true
+        allowMove = true
         
         let term = LocalProcessTerminalView(delegate: self)
         addSubview(term)
@@ -66,6 +67,7 @@ class TerminalDemo: DemoHost {
                 MenuItem(title: "_Quit", action: { Application.requestStop() })
             ])
         ]))
+        statusBar.removePanel(id: "quit")
     }
     
     func newTerminal() {
