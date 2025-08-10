@@ -15,7 +15,6 @@ func createSpinnerDemo() -> Toplevel {
     // Create a window to contain our spinners
     let window = Window("Spinner Demo")
     window.fill()
-    window.closeOnControlC = true
     window.y = Pos.at(1)
     top.addSubview(window)
     

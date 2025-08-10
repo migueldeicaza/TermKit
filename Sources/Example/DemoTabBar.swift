@@ -10,7 +10,6 @@ import TermKit
 
 func DemoTabBar(tabPosition: TabView.TabPosition = .top) -> Window {
     let win = Window("TabView Demo")
-    win.closeOnControlC = true
     win.fill()
     
     // Create main container

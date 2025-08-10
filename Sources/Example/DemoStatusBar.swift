@@ -16,7 +16,6 @@ func createStatusBarDemo() -> Toplevel {
     
     let window = Window("StatusBar Demo")
     window.fill()
-    window.closeOnControlC = true
     window.y = Pos.at(1)
     window.height = Dim.fill(1) // Leave space for status bar at bottom
     top.addSubview(window)

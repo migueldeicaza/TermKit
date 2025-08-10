@@ -25,6 +25,7 @@ var options: [(id: String, text: String, func: () -> Toplevel)] = [
     (id: "tabview",   "TabView",      { DemoTabBar () }),
     (id: "spinner",   "Spinner",      { createSpinnerDemo () }),
     (id: "statusbar", "StatusBar",    { createStatusBarDemo () }),
+    (id: "windows",   "Windows",      { DemoWindows () }),
     (id: "editor",    "Editor",       { DemoDesktop () }),
 ]
 
@@ -90,7 +91,6 @@ func makeMenu () -> MenuBar {
 func show(_ top: Toplevel) {
     var newTop: Toplevel
     if let win = top as? Window {
-        win.closeOnControlC = true
         if win.x == nil || win.y == nil {
             win.set (x: 1, y: 1)
         }
@@ -105,7 +105,6 @@ func show(_ top: Toplevel) {
 
 func showSingleDemo(_ top: Toplevel) {
     if let win = top as? Window {
-        win.closeOnControlC = true
         win.closeClicked = { _ in Application.shutdown() }
         win.set(x: 1, y: 1)
         Application.top.addSubview(win)
@@ -131,7 +130,6 @@ for arg in ProcessInfo.processInfo.arguments {
 }
 
 let win = Window()
-win.closeOnControlC = true
 win.x = Pos.at (0)
 win.y = Pos.at (1)
 
