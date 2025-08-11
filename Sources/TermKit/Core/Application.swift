@@ -167,6 +167,11 @@ public class Application {
                 selectedDriverType = .curses
             case "unix":
                 selectedDriverType = .unix
+            case "stoptty":
+                selectedDriverType = .tty
+                DispatchQueue.main.asyncAfter(deadline: .now()+2) {
+                    Application.requestStop()
+                }
             case "tty":
                 selectedDriverType = .tty
             case "windows":
