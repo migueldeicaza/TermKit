@@ -205,7 +205,7 @@ public class Application {
             driver = WindowsDriver()
             #else
             #if os(macOS)
-            if #available(macOS 15.0, *) {
+            if #available(macOS 15.0, *), ProcessInfo.processInfo.environment["TERM_PROGRAM"] != "ghostty" {
                 let cursesDriver = CursesDriver()
                 driver = cursesDriver.operational ? cursesDriver : UnixDriver()
             } else {
