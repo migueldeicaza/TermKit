@@ -118,7 +118,7 @@ Testing nested list rendering:
 
 **Try scrolling** through this content using the navigation keys listed above. The MarkdownView handles long documents efficiently and provides smooth scrolling through any amount of markdown content.
 
-Press **Escape** or use the menu to return to the main demo selection.
+Press **Control-C** or use the menu to return to the main demo selection.
 """
         
         markdown.setMarkdown(content: sampleMarkdown)
