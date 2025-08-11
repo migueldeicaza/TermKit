@@ -40,6 +40,7 @@ var options: [(id: String, text: String, func: () -> Toplevel)] = [
     (id: "spinner",   "Spinner",      { DemoSpinner() }),
     (id: "statusbar", "StatusBar",    { createStatusBarDemo() }),
     (id: "windows",   "Windows",      { DemoWindow() }),
+    (id: "markdown",  "Markdown",     { DemoMarkdown() }),
     (id: "editor",    "Editor",       { DemoDesktop() }),
 ]
 var demoToplevel: (() -> Toplevel)? = nil

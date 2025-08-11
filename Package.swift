@@ -22,6 +22,7 @@ let package = Package(
         .package(url: "https://github.com/migueldeicaza/TextBufferKit.git", from: "0.3.0"),
         .package(url: "https://github.com/migueldeicaza/SwiftTerm.git", from: "1.5.1"),
         .package(url: "https://github.com/SimplyDanny/SwiftLintPlugins", from: "0.58.2"),
+        .package(url: "https://github.com/apple/swift-markdown", from: "0.5.0"),
         .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0"),
     ],
     targets: [
@@ -29,7 +30,12 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "TermKit",
-            dependencies: ["Curses", "TextBufferKit", "SwiftTerm"],
+            dependencies: [
+                "Curses",
+                "TextBufferKit",
+                "SwiftTerm",
+                .product(name: "Markdown", package: "swift-markdown")
+            ],
             swiftSettings: [.swiftLanguageMode(.v5)]
         ),
         .systemLibrary(

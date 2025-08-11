@@ -35,6 +35,7 @@ The following controls are currently implemented:
 - **Terminal/TerminalView** - Terminal emulation
 - **TextField** - Single-line text input
 - **TextView** - Multi-line text editing
+- **MarkdownView** - Markdown viewer
 - **Toplevel** - Top-level windows
 
 ## Dialogs
