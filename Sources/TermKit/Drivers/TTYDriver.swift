@@ -48,8 +48,13 @@ class TTYDriver: ConsoleDriver {
 
         self.colorSupport = .blackAndWhite
         
-        // Set a default size for debugging
-        size = Size(width: 80, height: 24)
+        var ws = winsize()
+        if ioctl(STDOUT_FILENO, UInt(TIOCGWINSZ), &ws) == 0 {
+            size = Size(width: Int(ws.ws_col), height: Int(ws.ws_row))
+        } else {
+            // Default size if ioctl fails
+            size = Size(width: 80, height: 80)
+        }
         initializeScreenBuffer()
         
         // Setup input handling
