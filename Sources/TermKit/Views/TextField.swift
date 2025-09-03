@@ -27,6 +27,14 @@ open class TextField: View {
     
     /// If set to true its not allow any changes in the text.
     public var readOnly: Bool = false
+    
+    /// Placeholder text to display when the text field is empty
+    public var placeholder: String = "" {
+        didSet {
+            setNeedsDisplay()
+        }
+    }
+    
     /// The contents of the text field
     
     /// Changed event that is triggered when the text changes, and provides the old text,
@@ -94,6 +102,19 @@ open class TextField: View {
             point = cursorPosition
             adjust ()
         }
+    }
+    
+    /// Returns the attribute to use for placeholder text (dimmed version of normal text color)
+    private var placeholderAttribute: Attribute {
+        let scheme = colorScheme
+        let baseAttr = hasFocus ? scheme.focus : scheme.normal
+        
+        // Create a dimmed version of the current attribute
+        return Application.driver.makeAttribute(
+            fore: baseAttr.fore ?? .gray,
+            back: baseAttr.back ?? .black,
+            flags: [.dim]
+        )
     }
     
     func countCols (_ from: Int, to: Int) -> Int
@@ -168,23 +189,36 @@ open class TextField: View {
     }
     
     open override func redraw(region: Rect, painter p: Painter) {
-        p.attribute = colorScheme.focus
-        p.goto(col:0, row: 0)
-        
-        var col = 0
         let width = frame.width
         let tcount = textBuffer.count
-        for idx in first..<tcount {
-            let (ch, size) = secret ? ("*", 1) : textBuffer [idx]
-            if col + Int(size) < width {
-                p.add(str: String (ch))
-            } else {
-                break
+        
+        p.goto(col:0, row: 0)
+        
+        // If text is empty and placeholder is set, show placeholder
+        if tcount == 0 && !placeholder.isEmpty {
+            p.attribute = placeholderAttribute
+            let placeholderToShow = String(placeholder.prefix(width))
+            p.add(str: placeholderToShow)
+            // Fill remaining space with spaces
+            for _ in placeholderToShow.count..<width {
+                p.add(str: " ")
             }
-            col += Int(size)
-        }
-        for _ in col..<width {
-            p.add(str: " ")
+        } else {
+            // Show normal text
+            p.attribute = colorScheme.focus
+            var col = 0
+            for idx in first..<tcount {
+                let (ch, size) = secret ? ("*", 1) : textBuffer [idx]
+                if col + Int(size) < width {
+                    p.add(str: String (ch))
+                } else {
+                    break
+                }
+                col += Int(size)
+            }
+            for _ in col..<width {
+                p.add(str: " ")
+            }
         }
     }
     
