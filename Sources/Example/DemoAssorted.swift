@@ -42,6 +42,7 @@ class DemoAssorted: DemoHost {
         //loginLabel.width = Dim.sized(10)
         
         let loginField = TextField("")
+        loginField.placeholder = "Enter username"
         loginField.x = Pos.right(of: loginLabel) + 2
         loginField.y = Pos.top(of: loginLabel)
         loginField.width = Dim.sized (30)
@@ -55,11 +56,13 @@ class DemoAssorted: DemoHost {
         pass.height = Dim.sized(1)
         
         let passField = TextField ("")
+        passField.placeholder = "Enter password"
         //passField.x = Pos.left(of: loginField)
         passField.x = Pos.right(of: pass) + 2
         //passField.y = Pos.top(of: loginField)
         passField.y = Pos.top(of: pass)
         passField.width = Dim.sized (30)
+        passField.secret = true
         pass.width = Dim.sized(10)
         pass.height = Dim.sized(1)
         
