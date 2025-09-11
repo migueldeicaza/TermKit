@@ -271,8 +271,11 @@ public class Application {
         screen = Layer.empty
         for t in toplevels {
             t.setNeedsDisplay()
-            let painter = Painter.createTopPainter (from: t)
-            t.redraw(region: t.bounds, painter: painter)
+            // Render dirty views into their own layers
+            renderDirtyViews(in: t)
+            // Compose view tree into the toplevel's layer
+            let topPainter = Painter(for: t)
+            t.compose(painter: topPainter)
         }
         updateDisplay(compose ())
         
@@ -534,6 +537,22 @@ public class Application {
         }
     }
 
+    /// New recursive function to render dirty views to their layers.
+    static func renderDirtyViews(in view: View) {
+        if !view.needDisplay.isEmpty {
+            // Ensure the view's layer matches its current size
+            if view.layer.size != view.bounds.size {
+                view.layer = Layer(size: view.bounds.size)
+            }
+            let viewPainter = Painter(for: view)
+            view.redraw(region: view.needDisplay, painter: viewPainter)
+            view.clearNeedsDisplay()
+        }
+        for subview in view.subviews {
+            renderDirtyViews(in: subview)
+        }
+    }
+
     /**
      * Building block API: Prepares the provided toplevel for execution.
      *
@@ -562,8 +581,11 @@ public class Application {
         } catch {}
         toplevel.willPresent()
 
-        toplevel.paintToBackingStore ()
-        
+        // Ensure initial full render
+        toplevel.setNeedsDisplay()
+        renderDirtyViews(in: toplevel)
+        let topPainter = Painter(for: toplevel)
+        toplevel.compose(painter: topPainter)
         let content = compose()
         updateDisplay(content)
         
@@ -619,10 +641,10 @@ public class Application {
         if let c = current {
             c.layout ()
             if !c.needDisplay.isEmpty {
-                c.redraw (region: c.needDisplay, painter: Painter.createTopPainter(from: c))
-//                if debugDrawBounds {
-//                    drawBounds (c)
-//                }
+                // Render dirty views and compose
+                renderDirtyViews(in: c)
+                let topPainter = Painter(for: c)
+                c.compose(painter: topPainter)
                 updateDisplay(compose ())
                 c.positionCursor()
                 driver.refresh()
@@ -703,4 +725,3 @@ public class Application {
         exit (Int32 (statusCode))
     }
 }
-

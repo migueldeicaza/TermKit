@@ -69,7 +69,6 @@ open class Frame: View {
             }
             painter.attribute = colorScheme.normal
         }
-        contentView.redraw(region: contentView.bounds, painter: Painter (from: contentView, parent: painter))
         clearNeedsDisplay()
     }
     

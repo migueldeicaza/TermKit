@@ -269,8 +269,14 @@ open class TabView: View {
         let contentView = tabs[selectedTabIndex].content
         addSubview(contentView)
         
-        // Set the frame and force a layout update
-        let contentFrame = calculateContentFrame()
+        // Set the frame and force a layout update, guarding against negative/invalid sizes
+        var contentFrame = calculateContentFrame()
+        if contentFrame.width < 0 || contentFrame.height < 0 {
+            contentFrame.size = Size(width: max(0, contentFrame.width), height: max(0, contentFrame.height))
+        }
+        if contentFrame.minX < 0 || contentFrame.minY < 0 {
+            contentFrame.origin = Point(x: max(0, contentFrame.minX), y: max(0, contentFrame.minY))
+        }
         contentView.frame = contentFrame
         // Force the content view to use fixed layout since we're managing its frame
         contentView.layoutStyle = .fixed
@@ -481,21 +487,24 @@ open class TabView: View {
     
     private func calculateContentFrame() -> Rect {
         let borderOffset = (tabStyle == .bordered) ? 1 : 0
+        // Safeguard: view might not be laid out yet; avoid negative sizes
+        let fw = max(0, frame.width)
+        let fh = max(0, frame.height)
         switch tabPosition {
         case .top:
             if tabStyle == .bordered {
                 return Rect(
                     x: borderOffset,
-                    y: tabHeaderHeight + borderOffset,
-                    width: frame.width - 2 * borderOffset,
-                    height: frame.height - tabHeaderHeight - 2 * borderOffset
+                    y: max(0, tabHeaderHeight + borderOffset),
+                    width: max(0, fw - 2 * borderOffset),
+                    height: max(0, fh - tabHeaderHeight - 2 * borderOffset)
                 )
             } else {
                 return Rect(
                     x: 0,
-                    y: tabHeaderHeight,
-                    width: frame.width,
-                    height: frame.height - tabHeaderHeight
+                    y: max(0, tabHeaderHeight),
+                    width: fw,
+                    height: max(0, fh - tabHeaderHeight)
                 )
             }
         case .bottom:
@@ -503,31 +512,31 @@ open class TabView: View {
                 return Rect(
                     x: borderOffset,
                     y: borderOffset,
-                    width: frame.width - 2 * borderOffset,
-                    height: frame.height - tabHeaderHeight - 2 * borderOffset
+                    width: max(0, fw - 2 * borderOffset),
+                    height: max(0, fh - tabHeaderHeight - 2 * borderOffset)
                 )
             } else {
                 return Rect(
                     x: 0,
                     y: 0,
-                    width: frame.width,
-                    height: frame.height - tabHeaderHeight
+                    width: fw,
+                    height: max(0, fh - tabHeaderHeight)
                 )
             }
         case .left:
             if tabStyle == .bordered {
                 return Rect(
-                    x: tabHeaderWidth + borderOffset,
+                    x: max(0, tabHeaderWidth + borderOffset),
                     y: borderOffset,
-                    width: max(0, frame.width - tabHeaderWidth - 2 * borderOffset),
-                    height: max(0, frame.height - 2 * borderOffset)
+                    width: max(0, fw - tabHeaderWidth - 2 * borderOffset),
+                    height: max(0, fh - 2 * borderOffset)
                 )
             } else {
                 return Rect(
-                    x: tabHeaderWidth,
+                    x: max(0, tabHeaderWidth),
                     y: 0,
-                    width: max(0, frame.width - tabHeaderWidth),
-                    height: frame.height
+                    width: max(0, fw - tabHeaderWidth),
+                    height: fh
                 )
             }
         case .right:
@@ -535,15 +544,15 @@ open class TabView: View {
                 return Rect(
                     x: borderOffset,
                     y: borderOffset,
-                    width: max(0, frame.width - tabHeaderWidth - 2 * borderOffset),
-                    height: max(0, frame.height - 2 * borderOffset)
+                    width: max(0, fw - tabHeaderWidth - 2 * borderOffset),
+                    height: max(0, fh - 2 * borderOffset)
                 )
             } else {
                 return Rect(
                     x: 0,
                     y: 0,
-                    width: max(0, frame.width - tabHeaderWidth),
-                    height: frame.height
+                    width: max(0, fw - tabHeaderWidth),
+                    height: fh
                 )
             }
         }

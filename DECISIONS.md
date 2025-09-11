@@ -14,6 +14,47 @@ operation, and released at the end.   This is both the foundation for
 clipping as well as nested view rendering - and also ensures that the 
 location of the cursor does not need to be part of the view for example.
 
+## Layer‑Backed Rendering (2025-09)
+
+TermKit migrated from direct-to-driver painting to a layer-backed
+composition model - following the model from UIKit. Each `View` owns a
+`Layer` buffer. Subviews no longer redraw from their parents; instead
+we perform two passes:
+
+- Render: Only dirty views draw their own content into their own
+  `layer` using a `Painter(for: view)`.
+
+- Compose: We blend child layers into the parent target layer,
+  bottom-up. After composition a `finalRenderPass` hook allows a view
+  to draw overlays (cursor/focus) on top of composed content.
+
+The reasons were:
+
+- Decouple drawing from composition: simplifies view implementations,
+  fixes fragile z-order/overdraw issues, and prepares for adding
+  borders, padding and margins - and maybe one day animations.
+
+- `Painter` targets `Layer`: drawing methods write cells into a
+  `Layer` (not the `ConsoleDriver`). We added
+  `Painter.draw(layer:at:)`.
+
+- `View.redraw` base is now a no-op: subclasses draw only themselves;
+  composition handles subviews.
+
+- `Application` pipeline: First we render dirty parts, then the we
+  compose the toplevel layer, then we compose to the screen, then we
+  updated the driver and we only handle dirty regions.
+
+- Removed the `TopDriver` and `createTopPainter`, they are no longer special.
+
+Implications for view authors:
+
+- Implement `redraw(region:painter:)` to draw only the view’s own pixels into its own `layer`.
+
+- Do not call `redraw` on subviews; composition will place child layers correctly.
+
+- Override `finalRenderPass(painter:)` for cursors/focus/overlays that must appear on top.
+
 # Events on the View
 
 Generally the model for Views should be to subclass and override one
@@ -45,7 +86,8 @@ that instead removing/adding controls might be better.
 The one scenario where this breaks is if the view is used for computing the
 layout of other views, yet, it is not desirable to have it on the screen.
 
-Will try not having it for now.
+Will try not having it for now - Update: also when I look into a
+SwiftUI model for this, we will just recreate the render tree anyways.
 
 # TabIndex and TabIndexes
 
@@ -61,5 +103,5 @@ bootstrapping this, I decided to not bring it.
 # ISupportInitialize
 
 This is a convention that is used to handle initialization of controls
-in stages, popular in the Winforms world.  For now, I decied not to
+in stages, popular in the Winforms world.  For now, I decided not to
 bring this code.  Can revisit later.

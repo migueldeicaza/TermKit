@@ -4,13 +4,15 @@
 # TermKit - Terminal UI Toolkit for Swift
 
 This is a simple UI Toolkit for Swift, a port of my [gui.cs library
-for .NET](https://github.com/migueldeicaza/gui.cs).   While I originally
-wrote gui.cs, it has evolved significantly by the contributions of
-Charlie Kindel (@tig), @BDisp and various other contributors - this port 
-is bringing their work.
+for .NET](https://github.com/migueldeicaza/gui.cs).  While I
+originally wrote gui.cs, it has evolved significantly by the
+contributions of Charlie Kindel (@tig), @BDisp and various other
+contributors - this version started as an effort to bring this to
+Swift, but diverted as a result of a more Unix-centric/UIKit-centric
+design view.
 
 This toolkit contains various controls for build text user interfaces
-using Swift. It works on macOS and Linux.
+using Swift. It works on Mac, Linux and Windows.
 
 ## Controls
 
@@ -47,7 +49,9 @@ The following controls are currently implemented:
 
 ## Drivers
 
-TermKit supports multiple console drivers to provide flexibility across different platforms and use cases. The driver can be selected automatically, programmatically, or via environment variable.
+TermKit supports multiple console drivers to provide flexibility
+across different platforms and use cases. The driver can be selected
+automatically, programmatically, or via environment variable.
 
 ### Available Drivers
 

@@ -170,11 +170,6 @@ open class Window: Toplevel {
             }
             p.attribute = colorScheme.normal
         }
-        var contentRegion = contentFrame.intersection(region)
-        
-        // Now turn it into their local coordinates
-        contentRegion.origin -= contentFrame.origin
-        contentView.redraw(region: contentRegion, painter: Painter (from: contentView, parent: p))
         clearNeedsDisplay()
     }
     

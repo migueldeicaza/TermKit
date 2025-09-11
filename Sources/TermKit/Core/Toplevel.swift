@@ -35,7 +35,6 @@ open class Toplevel : View {
     public override init()
     {
         modal = false
-        layer = Layer.empty
         super.init ()
     
         colorScheme = Colors.base
@@ -64,8 +63,7 @@ open class Toplevel : View {
         }
     }
     
-    // Contains the contents where we render on
-    var layer: Layer
+    // Uses View.layer backing store
 
     /**
      * Determines whether the `TopLevel` is modal or not.
@@ -193,16 +191,5 @@ open class Toplevel : View {
         return "Toplevel (\(super.debugDescription))"
     }
     
-    func ensureLayer ()
-    {
-        if layer.size != bounds.size {
-            layer = Layer (size: bounds.size)
-        }
-    }
-    
-    func paintToBackingStore ()
-    {
-        let rootPainter = Painter.createTopPainter(from: self)
-        redraw(region: bounds, painter: rootPainter)
-    }
+    // Composition and rendering handled by Application
 }

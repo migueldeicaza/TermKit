@@ -20,9 +20,12 @@ public class Layer {
     var dirtyRows: [Bool]
     
     public init (size: Size) {
-        self.size = size
-        self.store = Array.init(repeating: Layer.emptyCell, count: size.width*size.height)
-        self.dirtyRows = Array.init (repeating: true, count: size.height)
+        // Clamp to non-negative dimensions to avoid invalid allocations
+        let w = max(0, size.width)
+        let h = max(0, size.height)
+        self.size = Size(width: w, height: h)
+        self.store = Array.init(repeating: Layer.emptyCell, count: w*h)
+        self.dirtyRows = Array.init (repeating: true, count: h)
     }
     
     func add (cell: Cell, col: Int, row: Int) {

@@ -42,6 +42,7 @@ var options: [(id: String, text: String, func: () -> Toplevel)] = [
     (id: "windows",   "Windows",      { DemoWindow() }),
     (id: "markdown",  "Markdown",     { DemoMarkdown() }),
     (id: "editor",    "Editor",       { DemoDesktop() }),
+    (id: "layer",     "Layer/Compose", { DemoLayer() }),
 ]
 var demoToplevel: (() -> Toplevel)? = nil
 
@@ -160,7 +161,7 @@ var list = ListView (items: options.map { $0.1 } + ["Quit"])
 frame.addSubview(list)
 
 list.activate = { item in
-    if item > options.count {
+    if item >= options.count {
         // It is the appended quit option
         Application.shutdown()
         return true

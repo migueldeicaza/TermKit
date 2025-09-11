@@ -15,7 +15,10 @@ import Foundation
  * paint
  */
 public class Painter {
-    private var driver: ConsoleDriver
+    // Target layer to render into
+    private var targetLayer: Layer
+    // Console driver is used only for attribute creation and line-drawing runes
+    private var driver: ConsoleDriver = Application.driver
     var view: View
     
     /// The current drawing column
@@ -36,27 +39,15 @@ public class Painter {
     
     private var posSet = false
     private var attrSet = false
-    private var isTop = false
-    
-    private init(from view: View, isTop: Bool = false)
-    {
+
+    /// Creates a painter that targets the provided view's own layer
+    public init(for view: View) {
         self.view = view
-        attribute = view.colorScheme.normal
-        origin = view.frame.origin
-        visible = view.frame
-        if isTop, let viewTop = view as? Toplevel {
-            driver = TopDriver(Application.driver, top: viewTop)
-        } else {
-            driver = Application.driver
-        }
-        pos = Point.zero
-        self.isTop = isTop
-    }
-    
-    /// This creates a painter, that renders into the Toplevel backing buffer
-    public static func createTopPainter(from top: Toplevel) -> Painter {
-        top.ensureLayer()
-        return Painter(from: top, isTop: true)
+        self.attribute = view.colorScheme.normal
+        self.targetLayer = view.layer
+        self.origin = Point.zero
+        self.visible = Rect(origin: .zero, size: view.bounds.size)
+        self.pos = .zero
     }
     
     /**
@@ -73,12 +64,13 @@ public class Painter {
     public init (from view: View, parent: Painter)
     {
         self.view = view
-        attribute = view.colorScheme.normal
-        pos = Point.zero
-        driver = parent.driver
-        
-        origin = parent.origin + view.frame.origin
-        visible = parent.visible.intersection(Rect(origin: origin, size: view.bounds.size))
+        self.attribute = view.colorScheme.normal
+        self.pos = .zero
+        // Share the same target layer as the parent for composition
+        self.targetLayer = parent.targetLayer
+        // Child painter is offset by the child's frame within the parent's coordinate space
+        self.origin = parent.origin + view.frame.origin
+        self.visible = parent.visible.intersection(Rect(origin: origin, size: view.bounds.size))
     }
     
     deinit {
@@ -125,12 +117,9 @@ public class Painter {
     // if necessary, sets the current attribute
     func applyContext()
     {
-        if !attrSet {
-            if isTop == false {
-                driver.setAttribute(attribute)
-            }
-            attrSet = true
-        }
+        // In the layer-backed model, attributes are applied per-cell during writes
+        // We keep this to minimize changes; currently it is a no-op gate.
+        if !attrSet { attrSet = true }
     }
     
     func add(rune: UnicodeScalar, maxWidth: Int)
@@ -150,21 +139,26 @@ public class Painter {
             // We are out of bounds, but the width might be larger than 1 cell
             // so we should draw a space
             while pos.x < maxWidth {
-                driver.addStr(" ")
+                // advance while filling with spaces within clipping
+                if visible.contains(pos+origin) {
+                    let abs = pos + origin
+                    targetLayer.add(cell: Cell(ch: " ", attr: attribute), col: abs.x, row: abs.y)
+                }
                 pos.x += 1
             }
         } else {
             if visible.contains(pos+origin) {
-                if !posSet {
-                    let cursor = pos + origin
-                    driver.moveTo(col: cursor.x, row: cursor.y)
-                    posSet = true
+                let abs = pos + origin
+                let ch: Character = wcw == -1 ? "*" : Character(rune)
+                targetLayer.add(cell: Cell(ch: ch, attr: attribute), col: abs.x, row: abs.y)
+                // Handle double-width characters by inserting a null cell to the right if in bounds
+                if wcw == 2 {
+                    let nextCol = abs.x + 1
+                    if nextCol < targetLayer.size.width {
+                        targetLayer.add(cell: Cell(ch: "\u{0}", attr: attribute), col: nextCol, row: abs.y)
+                    }
                 }
-                if wcw == -1 {
-                    driver.addRune("*")
-                } else {
-                    driver.addRune(rune)
-                }
+                posSet = true
             }
             pos.x += Int(len)
         }
@@ -367,83 +361,32 @@ public class Painter {
     }
     
     public func debug() {
-        if let topDriver = driver as? TopDriver {
-            Application.updateDisplay(topDriver.top.layer)
-        }
-    }
-}
-
-// This is a ConsoleDriver that is used during the transition period
-// to not touch the painter code too much, it acts as a proxy for
-// attributes, but otherwise stores the data on the backing store
-// in the Toplevel that is provided.
-class TopDriver: ConsoleDriver {
-    var top: Toplevel
-    var backing: ConsoleDriver
-    private var col: Int = 0
-    private var row: Int = 0
-    var topSize: Size
-    var attribute: Attribute
-    var nullCell: Cell
-    
-    init(_ backing: ConsoleDriver, top: Toplevel) {
-        self.backing = backing
-        self.top = top
-        self.topSize = top.frame.size
-        self.attribute = top.colorScheme.normal
-        self.nullCell = Cell(ch: "\u{0}", attr: top.colorScheme.normal)
+        // No-op in layer-backed painter; kept for API compatibility
     }
 
-    public override func moveTo(col: Int, row: Int) {
-        let origin = top.frame.origin
-        self.col = col-origin.x
-        self.row = row-origin.y
-    }
-    
-    public override func addRune(_ rune: rune) {
-        let n = termKitWcWidth(rune.value)
-        if n == 0 { return }
-        let cell = Cell(ch: Character(rune), attr: attribute)
-        top.layer.add(cell: cell, col: col, row: row)
-        col += 1
-        if n == 2 && col < topSize.width {
-            top.layer.add(cell: nullCell, col: col, row: row)
-            col += 1
-        }
-    }
-    
-    public override func addCharacter(_ char: Character) {
-        let s = top.frame
-        let n = char.cellSize()
-        if n == 0 { return }
-        
-        if col < s.width {
-            top.layer.add(cell: Cell(ch: char, attr: attribute), col: col, row: row)
-            col += 1
-            if n == 2 && col < s.width {
-                top.layer.add(cell: nullCell, col: col, row: row)
-                col += 1
+    /// Draws the contents of a source layer onto the painter's target layer at a specific origin.
+    public func draw(layer sourceLayer: Layer, at origin: Point) {
+        // Compute destination rect and clip against visible
+        let srcSize = sourceLayer.size
+        guard srcSize.width > 0 && srcSize.height > 0 else { return }
+        let destRect = Rect(origin: origin, size: srcSize)
+        let clip = visible.intersection(destRect)
+        if clip.isEmpty { return }
+        // Calculate source start offset for each row relative to clip
+        let srcStart = Point(x: clip.minX - destRect.minX, y: clip.minY - destRect.minY)
+        for row in 0..<clip.height {
+            let destY = clip.minY + row
+            let srcY = srcStart.y + row
+            // Mark destination row dirty
+            if destY >= 0 && destY < targetLayer.size.height {
+                targetLayer.dirtyRows[destY] = true
             }
+            let destOffset = destY * targetLayer.size.width + clip.minX
+            let srcOffset = srcY * srcSize.width + srcStart.x
+            let count = clip.width
+            targetLayer.store.replaceSubrange(destOffset..<(destOffset+count), with: sourceLayer.store[srcOffset..<(srcOffset+count)])
         }
     }
-    
-    public override func change(_ attribute: Attribute, background: Color) -> Attribute {
-        backing.change(attribute, background: background)
-    }
-    
-    public override func change(_ attribute: Attribute, foreground: Color) -> Attribute {
-        backing.change(attribute, foreground: foreground)
-    }
-    
-    public override func change(_ attribute: Attribute, flags: CellFlags) -> Attribute {
-        backing.change(attribute, flags: flags)
-    }
-
-    public override func makeAttribute(fore: Color, back: Color, flags: CellFlags = []) -> Attribute {
-        backing.makeAttribute(fore: fore, back: back, flags: flags)
-    }
-    
-    public override func setAttribute(_ attr: Attribute) {
-        attribute = attr
-    }
 }
+
+// TopDriver proxy is no longer needed in the layer-backed rendering model

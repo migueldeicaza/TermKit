@@ -95,6 +95,9 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
     var id: String = ""
     var _enabled: Bool = true
     var needDisplay: Rect = Rect.zero
+    
+    // Each view renders into its own backing layer
+    public var layer: Layer = Layer.empty
     var _canFocus: Bool = false
     static var globalId: Int = 0
     var _layoutStyle: LayoutStyle = .computed
@@ -219,6 +222,8 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
     {
         _frame = Rect(x:0, y: 0, width: 0, height: 0)
         viewId = View.nextGlobalId ()
+        // Initialize with a zero-sized layer
+        self.layer = Layer.empty
     }
     
     /**
@@ -232,6 +237,8 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
         self._frame = frame
         viewId = View.nextGlobalId ()
         layoutStyle = .fixed
+        // Initialize with a correctly sized layer
+        self.layer = Layer(size: frame.size)
     }
     
     /// Gets or sets a value indicating whether this `View` wants mouse position reports.
@@ -255,14 +262,24 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
         }
         
         set (value){
-            if value == _frame {
+            // Normalize to non-negative sizes to prevent invalid layer allocations
+            var normalized = value
+            if normalized.size.width < 0 { normalized.size.width = 0 }
+            if normalized.size.height < 0 { normalized.size.height = 0 }
+            if normalized == _frame {
                 return
             }
             if let parent = superview {
                 parent.setNeedsDisplay (_frame)
-                parent.setNeedsDisplay (value)
+                parent.setNeedsDisplay (normalized)
             }
-            _frame = value
+            let oldSize = _frame.size
+            _frame = normalized
+            if oldSize != normalized.size {
+                // Resize backing layer to match new frame size
+                self.layer = Layer(size: normalized.size)
+                setNeedsDisplay()
+            }
             setNeedsLayout ()
             setNeedsDisplay (bounds)
         }
@@ -661,17 +678,29 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
      */
     open func redraw(region: Rect, painter: Painter)
     {
-        //painter.clear(needDisplay)
-        let clipRect = Rect (origin: Point.zero, size: frame.size)
-        for view in subviews {
-            if view.frame.intersects(clipRect) && view.frame.intersects(region){
-                // TODO: optimize this by computing the intersection of region and view.Bounds
-                let childPainter = Painter (from: view, parent: painter)
-                view.redraw (region: view.needDisplay, painter: childPainter)
-            }
-            view.needDisplay = Rect.zero
+        // Base implementation now draws only the view's own content.
+        // Subclasses should override and render into their own layer via the painter.
+    }
+
+    /// Composites this view's layer and its children's layers onto a parent painter.
+    func compose(painter: Painter) {
+        // 1. Blit this view's layer onto the parent at our absolute origin (already in painter.origin)
+        if self.frame.size != Size.empty {
+            painter.draw(layer: self.layer, at: painter.origin)
         }
-        clearNeedsDisplay()
+        // 2. Recursively compose children on top into the same parent target layer
+        for subview in subviews {
+            let childPainter = Painter(from: subview, parent: painter)
+            subview.compose(painter: childPainter)
+        }
+        // 3. Allow subclasses to draw final pass elements (cursor, focus ring)
+        self.finalRenderPass(painter: painter)
+    }
+
+    /// Called after the view and its children have been composed.
+    /// Override to draw elements like a cursor or focus rectangle that should appear on top.
+    open func finalRenderPass(painter: Painter) {
+        // Base implementation intentionally empty
     }
     
     /**
