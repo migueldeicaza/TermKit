@@ -312,9 +312,6 @@ open class StatusBar: View {
     }
     
     open override func redraw(region: Rect, painter: Painter) {
-        painter.attribute = Colors.dialog.normal
-        painter.clear()
-        
         super.redraw(region: region, painter: painter)
     }
     
@@ -357,15 +354,10 @@ private class HotkeyPanelView: View {
         height = Dim.sized(1)
     }
     
-    override func redraw(region: Rect, painter: Painter) {
+    override func drawContent(in region: Rect, painter: Painter) {
         painter.goto(col: 0, row: 0)
-        
-        // Draw hotkey text in highlighted color (bright yellow)
-        //let hotkeyAttr = Application.driver.makeAttribute(fore: .brightYellow, back: .black)
         painter.attribute = Colors.dialog.hotNormal
         painter.add(str: hotkeyText)
-        
-        // Draw label text in normal color
         painter.attribute = colorScheme.normal
         painter.add(str: " \(labelText)")
     }

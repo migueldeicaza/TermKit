@@ -119,9 +119,12 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
         didSet { if oldValue != margin { setNeedsLayout() } }
     }
 
-    /// Border style for this view. Changing triggers layout (content insets may change).
+    /// Border style for this view. Changing triggers layout and display (chrome changes).
     public var border: BorderStyle = .none {
-        didSet { setNeedsLayout() }
+        didSet {
+            setNeedsLayout()
+            setNeedsDisplay()
+        }
     }
 
     /// Internal padding (inside the border), defaults to zero.
@@ -714,17 +717,52 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
     }
     
     /**
-     * Performs a redraw of this view and its subviews, only redraws the views that have been flagged for a re-display.
+     * Performs a redraw of this view into its own layer.
      *
-     * Views should set the color that they want to use on entry, as otherwise this will inherit
-     * the last color that was set globaly on the driver.
+     * This is the template method responsible for painting the common chrome for all views
+     * (background and border), and then delegating content drawing to `drawContent`.
+     * Subclasses should generally override `drawContent(in:painter:)` instead of this method.
+     * Specialized subclasses that need to decorate the chrome (e.g., titles) may override this
+     * and call `super.redraw(region:painter:)` first.
      *
-     * - Parameter region: The region to redraw, this is relative to the view itself.
+     * - Parameter region: The region to redraw, relative to the view.
+     * - Parameter painter: The painter targeting this view's layer.
      */
     open func redraw(region: Rect, painter: Painter)
     {
-        // Base implementation does nothing by default to remain compatible
-        // with existing subclasses' redraw ordering.
+        // Step 1: Draw background over full bounds
+        painter.attribute = colorScheme.normal
+        painter.clear(self.bounds)
+
+        // Step 2: Draw border, if any
+        if border != .none {
+            painter.attribute = colorScheme.normal
+            painter.drawBorder(self.bounds, style: border)
+        }
+
+        // Step 3: Draw content inside the content frame
+        let contentRect = self.contentFrame
+        if contentRect.width > 0 && contentRect.height > 0 {
+            let intersect = region.intersection(contentRect)
+            if !intersect.isEmpty {
+                let contentPainter = painter.clipped(to: contentRect)
+                // Translate redraw region to content-local coordinates
+                let rel = Rect(
+                    x: intersect.minX - contentRect.minX,
+                    y: intersect.minY - contentRect.minY,
+                    width: intersect.width,
+                    height: intersect.height
+                )
+                drawContent(in: rel, painter: contentPainter)
+            }
+        }
+    }
+
+    /// Subclasses override this to render their own content inside the view's content frame.
+    /// The provided painter is already clipped and offset to the content area, so coordinates
+    /// are relative to (0,0) within that area.
+    open func drawContent(in region: Rect, painter: Painter) {
+        // Default does nothing.
     }
     
     /// Convenience for subclasses: draws background and border, then invokes content drawing

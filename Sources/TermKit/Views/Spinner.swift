@@ -196,11 +196,8 @@ open class Spinner: View {
     
     // MARK: - View Override Methods
     
-    open override func redraw(region: Rect, painter: Painter) {
-        painter.clear()
-        
+    open override func drawContent(in region: Rect, painter: Painter) {
         guard !definition.frames.isEmpty else { return }
-        
         let frameText = definition.frames[currentFrame]
         painter.goto(col: 0, row: 0)
         painter.add(str: frameText)
@@ -215,4 +212,3 @@ open class Spinner: View {
         stopAnimation()
     }
 }
-

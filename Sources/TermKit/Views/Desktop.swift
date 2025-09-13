@@ -9,9 +9,7 @@
 import Foundation
 
 class Desktop: View {
-    
-    open override func redraw(region: Rect, painter: Painter) {
+    open override func drawContent(in region: Rect, painter: Painter) {
         painter.clear(region, with: "░")
-        super.redraw(region: region, painter: painter)
     }
 }

@@ -39,8 +39,6 @@ class DemoAssorted: DemoHost {
         let loginLabel = Label ("Login:")
         loginLabel.x = Pos.at (10)
         loginLabel.y = Pos.at (10)
-        loginLabel.border = .double
-        //loginLabel.width = Dim.sized(10)
         
         let loginField = TextField("")
         loginField.x = Pos.right(of: loginLabel) + 2
@@ -156,8 +154,7 @@ class Filler: View {
     
     public override init () { super.init () }
     
-    open override func redraw(region: Rect, painter p: Painter) {
-        p.clear()
+    open override func drawContent(in region: Rect, painter p: Painter) {
         let f = frame
         for y in 0..<f.height {
             p.goto(col: 0, row: y)

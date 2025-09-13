@@ -238,7 +238,7 @@ open class TextView: View {
             }
         }
     }
-    open override func redraw(region: Rect, painter p: Painter) {
+    open override func drawContent(in region: Rect, painter p: Painter) {
         p.colorNormal()
         let bottom = region.bottom
         let right = region.right
@@ -297,7 +297,6 @@ open class TextView: View {
 //                }
             }
         }
-        super.redraw(region: region, painter: p)
     }
 
     func setClipboard(text: String)

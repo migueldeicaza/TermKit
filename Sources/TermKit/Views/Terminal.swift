@@ -169,7 +169,7 @@ open class TerminalView: View, TerminalDelegate {
         terminalDelegate?.send(source: self, data: data)
     }
     
-    open override func redraw(region: Rect, painter: Painter) {
+    open override func drawContent(in region: Rect, painter: Painter) {
         let driver = Application.driver
     
         // Maps from a SwiftTerm attribute to the attribute we can use on the display
@@ -193,7 +193,7 @@ open class TerminalView: View, TerminalDelegate {
         // TODO: perhaps I need to use a different color?  Look at what the UIView/NSView are using
         painter.attribute = mapAttribute (attr: terminal.currentAttribute)
 
-        let dim = frame.size
+        let dim = contentFrame.size
         let maxCol = dim.width
         let maxRow = dim.height
     

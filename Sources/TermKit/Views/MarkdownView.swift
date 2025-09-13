@@ -118,7 +118,7 @@ open class MarkdownView: View {
             needsReprocessing = false
         }
         
-        painter.clear()
+        super.redraw(region: region, painter: painter)
         painter.attribute = colorScheme.normal
         let visibleLines = min(region.height, renderedLines.count - topRow)
         

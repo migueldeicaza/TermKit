@@ -119,8 +119,7 @@ class ColorPaletteView: View {
         selectedColor = colors[0].attr
     }
     
-    override func redraw(region: Rect, painter: Painter) {
-        painter.clear()
+    override func drawContent(in region: Rect, painter: Painter) {
         
         for (index, color) in colors.enumerated() {
             let y = index
@@ -193,9 +192,7 @@ class DrawingCanvasView: View {
         fill()
     }
     
-    override func redraw(region: Rect, painter: Painter) {
-        painter.clear()
-        
+    override func drawContent(in region: Rect, painter: Painter) {
         // Draw all X marks
         for (point, color) in marks {
             if point.x >= 0 && point.x < bounds.width && point.y >= 0 && point.y < bounds.height {

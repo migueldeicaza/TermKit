@@ -97,10 +97,8 @@ open class RadioGroup: View {
         canFocus = true
     }
     
-    open override func redraw(region: Rect, painter: Painter) {
+    open override func drawContent(in region: Rect, painter: Painter) {
         painter.attribute = colorScheme.normal
-        painter.clear()
-        
         switch  orientation {
         case .horizontal:
             print ("Need to implement redraw for horizontal")

@@ -445,10 +445,9 @@ open class DataTable: View {
         return representation.getVisibleString(availableHorizontalSpace)
     }
     
-    open override func redraw(region: Rect, painter: Painter) {
+    open override func drawContent(in region: Rect, painter: Painter) {
         painter.goto(col: 0, row: 0)
-        let f = frame
-        let width = f.width
+        let width = contentFrame.width
         
         // What columns to render at what X offset in viewport
         let columnsToRender = calculateViewport (bounds: bounds)
@@ -481,7 +480,7 @@ open class DataTable: View {
             }
         }
         let headerLinesConsumed = line
-        let height = frame.height
+        let height = contentFrame.height
         //render the cells
         while line < height {
             defer { line += 1 }

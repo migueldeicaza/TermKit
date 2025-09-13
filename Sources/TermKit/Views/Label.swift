@@ -85,16 +85,35 @@ open class Label: View {
         coreAutoSize()
     }
 
+    func naturalContentSize() -> Size {
+        if lineBreak == .byClipping {
+            let s = attributedText.getBounds()
+            return Size(width: s.width, height: s.height)
+        } else {
+            return Size(width: text.cellCount(), height: 1)
+        }
+    }
+
     func coreAutoSize ()
     {
-        if lineBreak == .byClipping {
-            let size = attributedText.getBounds ()
-            width = Dim.sized (size.width)
-            height = Dim.sized(size.height)
-        } else {
-            width = Dim.sized(text.cellCount())
-            height = Dim.sized(1)
+        let natural = naturalContentSize()
+        let insets = border.edgeInsets + padding
+        width = Dim.sized(natural.width + insets.horizontal)
+        height = Dim.sized(natural.height + insets.vertical)
+    }
+
+    open override func layoutSubviews() throws {
+        // If the current size matches the natural content size (i.e., was auto-sized
+        // without chrome), expand it to include border+padding to ensure non-empty contentFrame.
+        let natural = naturalContentSize()
+        let insets = border.edgeInsets + padding
+        if let absW = _width as? Dim.DimAbsolute, absW.n == natural.width {
+            _width = Dim.sized(natural.width + insets.horizontal)
         }
+        if let absH = _height as? Dim.DimAbsolute, absH.n == natural.height {
+            _height = Dim.sized(natural.height + insets.vertical)
+        }
+        try super.layoutSubviews()
     }
     
     /// This function sets the View's width and height properties based on the
@@ -107,9 +126,7 @@ open class Label: View {
         setNeedsLayout()
     }
     
-    open override func redraw(region: Rect, painter: Painter) {
-        painter.clear ()
-        
+    open override func drawContent(in region: Rect, painter: Painter) {
         switch lineBreak {
         case .byClipping:
             let lines = attributedText.split(separator: "\n")
@@ -117,7 +134,7 @@ open class Label: View {
                 if line < region.top || line > region.bottom {
                     continue
                 }
-                let str = lines [line].align(to: textAlignment, width: bounds.width)
+                let str = lines [line].align(to: textAlignment, width: contentFrame.width)
                 painter.goto(col: 0, row: line)
                 str.draw(on: painter)
             }
@@ -253,13 +270,12 @@ public class Label3 : View {
         Label3.recalc (text, lineResult: &lines, width: frame.width, align: textAlignment)
     }
     
-    open override func redraw(region: Rect, painter: Painter) {
+    open override func drawContent(in region: Rect, painter: Painter) {
         if recalcPending {
             recalc ()
         }
 
         painter.attribute = textAttribute ?? colorScheme.normal
-        painter.clear ()
         painter.goto(col: 0, row: 0)
         for line in 0..<lines.count {
             if line < region.top || line > region.bottom {
@@ -267,13 +283,14 @@ public class Label3 : View {
             }
             let str = lines [line]
             var x = 0
+            let width = contentFrame.width
             switch textAlignment {
             case .centered:
-                x = frame.left + (frame.width - str.cellCount())/2
+                x = max(0, (width - str.cellCount())/2)
             case .justified, .left:
                 x = 0
             case .right:
-                x = frame.right - str.cellCount ()
+                x = max(0, width - str.cellCount())
             }
             painter.goto (col: x, row: line)
             painter.add(str: str)

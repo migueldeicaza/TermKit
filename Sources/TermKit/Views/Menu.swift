@@ -163,38 +163,32 @@ public class Menu: View {
         }
         super.init (frame: Menu.makeFrame (x, y, barItems.children))
         colorScheme = Colors.menu
+        border = .solid
         canFocus = true
     }
     
-    open override func redraw(region: Rect, painter: Painter) {
+    open override func drawContent(in region: Rect, painter: Painter) {
         driver.setAttribute(colorScheme.normal)
-        painter.clear(needDisplay)
-        painter.drawFrame(region, padding: 0, fill: false)
-        
+        let contentW = contentFrame.width
         for i in 0..<barItems.children.count {
-            let item = barItems.children [i]
-            
-            // fill the background (white space) or draw the separator
-            painter.goto (col: 1, row: i+1)
+            let item = barItems.children[i]
+            // fill the line or draw separator
+            painter.goto(col: 0, row: i)
             painter.attribute = item == nil ? colorScheme.normal : (i == current ? colorScheme.focus : colorScheme.normal)
-            
-            for _ in 0..<frame.width-2 {
-                painter.add (rune: item == nil ? driver.hLine : driver.space)
+            for _ in 0..<contentW {
+                painter.add(rune: item == nil ? driver.hLine : driver.space)
             }
-            guard let item else {
-                continue
-            }
-            
-            // Draw the menu title.
-            painter.goto (col: 2, row: i+1)
-            
-            painter.drawHotString(text: item.title,
-                          hotColor: i == current ? colorScheme.hotFocus : colorScheme.hotNormal,
-                          normalColor: i == current ? colorScheme.focus : colorScheme.normal)
-            
-            // Draw the help string
-            let l = item.help.cellCount ()
-            painter.goto(col: frame.width-l-2, row: i+1)
+            guard let item else { continue }
+            // Title
+            painter.goto(col: 1, row: i)
+            painter.drawHotString(
+                text: item.title,
+                hotColor: i == current ? colorScheme.hotFocus : colorScheme.hotNormal,
+                normalColor: i == current ? colorScheme.focus : colorScheme.normal)
+            // Help right-aligned
+            let l = item.help.cellCount()
+            let col = max(0, contentW - l - 1)
+            painter.goto(col: col, row: i)
             painter.add(str: item.help)
         }
     }
@@ -331,11 +325,12 @@ open class MenuBar: View {
     }
     
     open override func redraw(region: Rect, painter p: Painter) {
+        super.redraw(region: region, painter: p)
         p.goto(col: 0, row: 0)
         p.attribute = Colors.base.focus
         
-        p.add(str: " ".padding(toLength: frame.width, withPad: " ", startingAt: 0))
-        p.goto(col: 1, row: 0)
+        p.add(str: " ".padding(toLength: contentFrame.width, withPad: " ", startingAt: 0))
+        p.goto(col: 0, row: 0)
         var pos = 1
         for i in 0..<menus.count {
             let menu = menus [i]

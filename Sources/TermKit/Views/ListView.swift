@@ -318,9 +318,9 @@ open class ListView: View {
             painter.colorNormal()
         }
     }
-    open override func redraw(region: Rect, painter: Painter) {
-        let b = bounds
-        let lines = bounds.height
+    open override func drawContent(in region: Rect, painter: Painter) {
+        let width = contentFrame.width
+        let lines = contentFrame.height
         
         redrawColor(painter, selection: false)
         
@@ -328,7 +328,7 @@ open class ListView: View {
             let item = top + row
             painter.goto(col: 0, row: row)
             redrawColor(painter, selection: item == selected)
-            var space = b.width
+            var space = width
             if allowMarking, let dataSource {
                 painter.add(str: dataSource.isMarked(listView: self, item: item) ? markerStrings [1]: markerStrings [0])
                 space -= 1

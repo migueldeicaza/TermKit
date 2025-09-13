@@ -106,7 +106,7 @@ open class Button: View {
         setNeedsDisplay()
     }
     
-    open override func redraw(region: Rect, painter: Painter) {
+    open override func drawContent(in region: Rect, painter: Painter) {
         painter.attribute = hasFocus ? colorScheme.focus : colorScheme.normal
         painter.goto(col: 0, row: 0)
         painter.drawHotString(text: shownText, focused: hasFocus, scheme: colorScheme)

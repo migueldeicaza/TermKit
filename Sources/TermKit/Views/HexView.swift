@@ -190,7 +190,7 @@ public class HexView: View {
         }
     }
     
-    public override func redraw(region: Rect, painter p: Painter) {
+    public override func drawContent(in region: Rect, painter p: Painter) {
         guard let source = _source else { return }
         
         let addressOfFirstLine = Int64(0) // TODO: Add viewport support
@@ -201,7 +201,8 @@ public class HexView: View {
         let editedAttribute = colorScheme.hotNormal
         let addressAttribute = hasFocus ? colorScheme.hotNormal : colorScheme.normal
         
-        for line in 0..<frame.height {
+        let h = contentFrame.height
+        for line in 0..<h {
             p.goto(col: 0, row: line)
             let addressOfLine = addressOfFirstLine + Int64(line * bytesPerLine)
             

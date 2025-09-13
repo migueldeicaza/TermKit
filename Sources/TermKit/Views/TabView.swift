@@ -632,17 +632,14 @@ open class TabView: View {
     // MARK: - Rendering
     
     public override func redraw(region: Rect, painter: Painter) {
+        // Draw base chrome first, then our headers and content border
+        super.redraw(region: region, painter: painter)
         painter.attribute = colorScheme.normal
-        
-        // Draw content area border for bordered style FIRST
         if tabStyle == .bordered {
             drawContentBorder(painter: painter)
         }
-        
         drawTabHeaders(painter: painter)
         setNeedsDisplay(region)
-        // Now let the parent class handle subview rendering
-        super.redraw(region: region, painter: painter)
     }
     
     private func drawTabHeaders(painter: Painter) {

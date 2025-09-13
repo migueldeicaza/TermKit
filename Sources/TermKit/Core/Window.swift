@@ -14,8 +14,6 @@ class ContentView: View {
     }
     
     open override func redraw(region: Rect, painter: Painter) {
-        painter.attribute = superview?.colorScheme.normal ?? ColorScheme.fallback.normal
-        painter.clear (needDisplay)
         super.redraw(region: region, painter: painter)
     }
 }

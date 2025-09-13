@@ -81,6 +81,7 @@ open class ScrollBarView: View {
     }
     
     open override func redraw(region: Rect, painter paint: Painter) {
+        super.redraw(region: region, painter: paint)
         paint.attribute = colorScheme.normal
         if isVertical {
             if region.right < bounds.width - 1 {

@@ -54,21 +54,19 @@ open class Frame: View {
     // TODO: implement removeAll
     
     open override func redraw(region: Rect, painter: Painter) {
-        if !needDisplay.isEmpty {
-            // Draw border and background via helper
-            drawBox(with: painter) { _ in }
-            // Title overlay on the top border line (between corners)
-            let w = frame.width
-            if let title, w > 4 {
-                painter.attribute = hasFocus ? colorScheme.focus : colorScheme.normal
-                painter.goto(col: 1, row: 0)
-                painter.add(str: " ")
-                painter.add(str: title.getVisibleString(w - 4))
-                painter.add(str: " ")
-                painter.attribute = colorScheme.normal
-            }
-            clearNeedsDisplay()
+        // Draw default chrome (background + border)
+        super.redraw(region: region, painter: painter)
+        // Title overlay on the top border line (between corners)
+        let w = frame.width
+        if let title, w > 4 {
+            painter.attribute = hasFocus ? colorScheme.focus : colorScheme.normal
+            painter.goto(col: 1, row: 0)
+            painter.add(str: " ")
+            painter.add(str: title.getVisibleString(w - 4))
+            painter.add(str: " ")
+            painter.attribute = colorScheme.normal
         }
+        clearNeedsDisplay()
     }
     
     open override var frame: Rect {

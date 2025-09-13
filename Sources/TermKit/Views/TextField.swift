@@ -167,12 +167,12 @@ open class TextField: View {
         }
     }
     
-    open override func redraw(region: Rect, painter p: Painter) {
+    open override func drawContent(in region: Rect, painter p: Painter) {
         p.attribute = colorScheme.focus
         p.goto(col:0, row: 0)
-        
+
         var col = 0
-        let width = frame.width
+        let width = contentFrame.width
         let tcount = textBuffer.count
         for idx in first..<tcount {
             let (ch, size) = secret ? ("*", 1) : textBuffer [idx]
