@@ -26,7 +26,8 @@ class ContentView: View {
  */
 open class Window: Toplevel {
     var contentView: View
-    var padding: Int
+    // Space between the outer view bounds and the drawn border.
+    var internalPadding: Int
     
     /// The title to be displayed for this window.
     public var title: String? {
@@ -37,18 +38,19 @@ open class Window: Toplevel {
 
     public override convenience init ()
     {
-        self.init (nil, padding: 0)
+        self.init (nil, internalPadding: 0)
     }
     
-    public init (_ title: String? = nil, padding: Int = 0)
+    public init (_ title: String? = nil, internalPadding: Int = 0)
     {
-        self.padding = padding
+        self.internalPadding = internalPadding
         self.title = title
         contentView = ContentView()
-        contentView.x = Pos.at (padding + 1)
-        contentView.y = Pos.at (padding + 1)
-        contentView.width = Dim.fill(padding+1)
-        contentView.height = Dim.fill(padding+1)
+        // Place content inside the drawn border, which is inset by internalPadding
+        contentView.x = Pos.at (internalPadding + 1)
+        contentView.y = Pos.at (internalPadding + 1)
+        contentView.width = Dim.fill(internalPadding+1)
+        contentView.height = Dim.fill(internalPadding+1)
         contentView.canFocus = true
         super.init ()
         super.addSubview(contentView)
@@ -124,12 +126,19 @@ open class Window: Toplevel {
         //log ("Window.redraw: \(frame) and region to redraw is: \(region)")
         let contentFrame = contentView.frame
         if !needDisplay.isEmpty {
+            // Background
             p.attribute = colorScheme.normal
-            p.drawFrame (bounds, padding: padding, fill: false, double: hasFocus)
+            p.clear(bounds)
+            // Draw the border inset by internalPadding from the edges
+            let br = Rect(x: internalPadding, y: internalPadding,
+                          width: max(0, bounds.width - internalPadding*2),
+                          height: max(0, bounds.height - internalPadding*2))
+            let borderStyle: BorderStyle = hasFocus ? .double : .solid
+            p.drawBorder(br, style: borderStyle)
             
             if allowResize {
                 let b = bounds
-                p.goto(col: b.width-1-padding, row: b.height-1-padding)
+                p.goto(col: b.width-1-internalPadding, row: b.height-1-internalPadding)
                 
                 // Invert the character for resizable ones
                 p.add(rune: hasFocus ? driver.lrCorner : driver.doubleLrCorner)
@@ -138,7 +147,7 @@ open class Window: Toplevel {
             if needButtons > 0 {
                 let buttonIcon = Application.driver.filledCircle
                 
-                p.goto (col: 1+padding, row: padding)
+                p.goto (col: 1+internalPadding, row: internalPadding)
                 p.add(rune: Application.driver.rightTee)
                 if closeClicked != nil {
                     p.attribute = closeAttribute
@@ -162,7 +171,7 @@ open class Window: Toplevel {
             }
             let width = frame.width
             if let t = title, width > 4+needButtons {
-                p.goto (col: padding+needButtons+1, row: padding)
+                p.goto (col: internalPadding+needButtons+1, row: internalPadding)
                 p.add (rune: Unicode.Scalar(32))
                 let str = t.count > (width+4) ? t : String (t.prefix (width-4))
                 p.add (str: str)
@@ -216,9 +225,9 @@ open class Window: Toplevel {
         if event.flags == [.button1Clicked] {
             log ("oops")
         }
-        if event.flags == [.button1Clicked] && event.pos.y == padding {
+        if event.flags == [.button1Clicked] && event.pos.y == internalPadding {
             let x = event.pos.x
-            var expect = 2+padding
+            var expect = 2+internalPadding
             if let closeClicked {
                 if x == expect {
                     closeClicked (self)
@@ -261,10 +270,10 @@ open class Window: Toplevel {
                 superview.setFocus(self)
             }
     
-            if event.pos.y == padding {
+            if event.pos.y == internalPadding {
                 Application.grabMouse(from: self)
                 moveGrab = event.absPos
-            } else if event.pos.y == frame.height-padding-1 && event.pos.x == frame.width-padding-1 {
+            } else if event.pos.y == frame.height-internalPadding-1 && event.pos.x == frame.width-internalPadding-1 {
                 Application.grabMouse(from: self)
                 resizeGrab = event.absPos
             }

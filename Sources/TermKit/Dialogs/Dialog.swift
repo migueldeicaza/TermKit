@@ -30,7 +30,7 @@ open class Dialog: Window {
     public init (title: String, width: Int, height: Int, buttons: [Button])
     {
         self.buttons = buttons
-        super.init(title, padding: 1)
+        super.init(title)//, padding: 1)
         x = Pos.center ()
         y = Pos.center ()
         self.width = Dim.sized (width)

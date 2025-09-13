@@ -73,7 +73,16 @@ public enum LayoutStyle {
  * changed.   The default processing system will keep the size and dimensions
  * for views that use the LayoutKind.Absolute, and will recompute the
  * frames for the vies that use LayoutKind.Computed.
-
+ *
+ * Spacing-wise, each view has a few properties, the 'margin' property describes the
+ * number of spaces to leave on each side around the view - this is an area that the view
+ * will not draw on, and is only used for layout.   Then there is a border, which can
+ * be `.none` if you do not desire a border around this view, or a border style, these
+ * typically will that one character on each site, and lastly, there is `padding` which is
+ * the internal padding that views should use when rendering.   The padding is not enforced
+ * in the rendering system, it is an honor-system, and you can use the convenience
+ * ``painter.drawBox(with:contentDrawer:)`` method that draws the border and the
+ * content.
  */
 open class View: Responder, Hashable, CustomDebugStringConvertible {
     enum FocusDirection {
@@ -101,6 +110,26 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
     var _canFocus: Bool = false
     static var globalId: Int = 0
     var _layoutStyle: LayoutStyle = .computed
+    
+    // MARK: - Box Model Properties
+    /// External margin (outside the border box).
+    /// Since this uses EdgesInset, you can configure different margins values for each side.
+    /// Changing triggers layout.
+    public var margin: EdgeInsets = .zero {
+        didSet { if oldValue != margin { setNeedsLayout() } }
+    }
+
+    /// Border style for this view. Changing triggers layout (content insets may change).
+    public var border: BorderStyle = .none {
+        didSet { setNeedsLayout() }
+    }
+
+    /// Internal padding (inside the border), defaults to zero.
+    /// Since this uses EdgesInset, you can configure different padding values for each side.
+    /// Changing triggers layout.
+    public var padding: EdgeInsets = .zero {
+        didSet { if oldValue != padding { setNeedsLayout() } }
+    }
 
     /// This is a payload that can be set by user code to any value it desires
     public var data: AnyObject? = nil
@@ -297,6 +326,20 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
         }
     }
     
+    /// The rectangle for the view's content and subviews, relative to the view's own bounds.
+    /// This insets by the border thickness and padding, returning the area available for content.
+    public var contentFrame: Rect {
+        // Border uses a uniform thickness expressed by its edgeInsets helper.
+        let borderInsets = border.edgeInsets
+        let totalInsets = borderInsets + padding
+        return Rect(
+            x: totalInsets.left,
+            y: totalInsets.top,
+            width: max(0, bounds.width - totalInsets.horizontal),
+            height: max(0, bounds.height - totalInsets.vertical)
+        )
+    }
+    
     /// Convenience method to set one or more of x, y, width and height properties to their numeric values
     /// - Parameters:
     ///   - x: Optional value for the x property, equivalent to setting it to Pos.at (x)
@@ -378,6 +421,8 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
         while true {
             if let container = from.superview {
                 container.childNeedsLayout = true
+                // Ensure ancestors recompute child frames (x/y/width/height/margin changes require parent layout)
+                container.layoutNeeded = true
                 from = container
             } else {
                 break
@@ -678,8 +723,24 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
      */
     open func redraw(region: Rect, painter: Painter)
     {
-        // Base implementation now draws only the view's own content.
-        // Subclasses should override and render into their own layer via the painter.
+        // Base implementation does nothing by default to remain compatible
+        // with existing subclasses' redraw ordering.
+    }
+    
+    /// Convenience for subclasses: draws background and border, then invokes content drawing
+    /// with a painter clipped to the contentFrame.
+    public func drawBox(with painter: Painter, contentDrawer: (Painter) -> Void) {
+        // 1. Background fill over full bounds
+        painter.attribute = colorScheme.normal
+        painter.clear(self.bounds)
+        // 2. Border
+        if border != .none {
+            painter.attribute = colorScheme.normal
+            painter.drawBorder(self.bounds, style: border)
+        }
+        // 3. Clipped content painter
+        let contentPainter = painter.clipped(to: self.contentFrame)
+        contentDrawer(contentPainter)
     }
 
     /// Composites this view's layer and its children's layers onto a parent painter.
@@ -956,62 +1017,59 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
         return false
     }
     
-    /// Sets the View's `Frame` to the relative coordinates if its container, given the `Frame` for its container.
-    func setRelativeLayout (hostFrame: Rect)
-    {
+    /// Sets the View's `Frame` to the relative coordinates of its container, given the parent content frame.
+    /// Computes the border-box frame from the parent content frame and our layout constraints,
+    /// honoring margins by first computing an outer (margin) box and then insetting by margins.
+    func computeFrame(hostFrame: Rect) {
         var w, h, _x, _y: Int
 
         if let rx = x as? Pos.PosCenter {
-            if let rwidth = width {
-                w = rwidth.anchor (hostFrame.width)
-            } else {
-                w = hostFrame.width
-            }
-            _x = rx.anchor (hostFrame.width - w)
+            w = width?.anchor(hostFrame.width) ?? hostFrame.width
+            _x = rx.anchor(hostFrame.width - w)
         } else {
-            if let rax = x {
-                _x = rax.anchor (hostFrame.width)
-            } else {
-                _x = 0;
-            }
+            _x = x?.anchor(hostFrame.width) ?? 0
+            // If width is anchored relative to remaining space, cap against available
             if let rwidth = width {
                 if let rdim = rwidth as? Dim.DimFactor, !rdim.remaining {
-                    w = rwidth.anchor (hostFrame.width)
+                    w = rwidth.anchor(hostFrame.width)
                 } else {
-                    w = max (rwidth.anchor (hostFrame.width - _x), 0)
+                    w = max(rwidth.anchor(hostFrame.width - _x), 0)
                 }
             } else {
                 w = hostFrame.width - _x
             }
         }
-        
+
         if let ry = y as? Pos.PosCenter {
-            if let rheight = height {
-                h = rheight.anchor (hostFrame.height)
-            } else {
-                h = hostFrame.height
-            }
-            _y = ry.anchor (hostFrame.height - h)
+            h = height?.anchor(hostFrame.height) ?? hostFrame.height
+            _y = ry.anchor(hostFrame.height - h)
         } else {
-            if let ray = y {
-                _y = ray.anchor (hostFrame.height)
-            } else {
-                _y = 0
-            }
+            _y = y?.anchor(hostFrame.height) ?? 0
             if let rheight = height {
                 if let rdim = rheight as? Dim.DimFactor, !rdim.remaining {
-                    h = rheight.anchor (hostFrame.height)
+                    h = rheight.anchor(hostFrame.height)
                 } else {
-                    h = max (rheight.anchor (hostFrame.height - _y), 0)
+                    h = max(rheight.anchor(hostFrame.height - _y), 0)
                 }
             } else {
                 h = hostFrame.height - _y
             }
         }
-        
-        let r = Rect (x: _x, y: _y, width: w, height: h)
-        if frame != r {
-            frame = r
+
+        // Margin applies outside the border box. Compute margin box then inset.
+        // IMPORTANT: child frames are relative to the parent view's coordinate system,
+        // so we must offset by the parent content frame's origin.
+        // Compute the frame relative to the parent content origin and apply margin as an offset.
+        // We do not shrink the view's width/height by the margin; margin represents external spacing.
+        // This makes the visual effect of margin clearer in absolute layouts.
+        let newFrame = Rect(
+            x: hostFrame.minX + _x + margin.left,
+            y: hostFrame.minY + _y + margin.top,
+            width: max(0, w),
+            height: max(0, h)
+        )
+        if frame != newFrame {
+            frame = newFrame
         }
     }
     
@@ -1210,14 +1268,15 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
         }
         for v in ordered {
             if v.layoutStyle == .computed {
-                v.setRelativeLayout(hostFrame: frame)
+                // Pass the parent's content area for children to respect borders/padding.
+                v.computeFrame(hostFrame: self.contentFrame)
             }
             try v.layoutSubviews()
             v.layoutNeeded = false
         }
         
         if superview == Application.top && layoutNeeded && ordered.count == 0 && layoutStyle == .computed {
-            setRelativeLayout(hostFrame: frame)
+            computeFrame(hostFrame: frame)
         }
         
         layoutNeeded = false

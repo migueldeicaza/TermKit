@@ -574,7 +574,7 @@ public class Application {
         toplevels.append(toplevel)
         _current = toplevel
         if toplevel.layoutStyle == .computed {
-            toplevel.relativeLayout(hostFrame: Rect (origin: Point.zero, size: driver.size))
+            toplevel.computeFrame(hostFrame: Rect (origin: Point.zero, size: driver.size))
         }
         do {
             try toplevel.layoutSubviews()
@@ -694,7 +694,7 @@ public class Application {
     {
         let full = Rect(origin: Point.zero, size: driver.size)
         for top in toplevels {
-            top.relativeLayout(hostFrame: full)
+            top.computeFrame(hostFrame: full)
             do {
                 top.setNeedsLayout()
                 try top.layoutSubviews()

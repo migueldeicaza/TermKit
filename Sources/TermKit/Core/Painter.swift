@@ -230,6 +230,55 @@ public class Painter {
             }
         }
     }
+
+    /// Draws a border around the given rect using the specified border style.
+    /// - Parameters:
+    ///  - rect: the rectangle where we will draw the border
+    ///  - style: the style to use to draw the border
+    public func drawBorder(_ rect: Rect, style: BorderStyle) {
+        if rect.width < 2 || rect.height < 2 { return }
+        if style == .none || style == .blank { return }
+        let runes = style.runes
+        let x0 = rect.minX
+        let y0 = rect.minY
+        let w = rect.width
+        let h = rect.height
+        // Top edge
+        goto(col: x0, row: y0)
+        add(rune: runes.topLeft)
+        if w > 2 {
+            for _ in 0..<(w - 2) { add(rune: runes.top) }
+        }
+        add(rune: runes.topRight)
+        // Sides
+        if h > 2 {
+            for r in 1..<(h - 1) {
+                goto(col: x0, row: y0 + r)
+                add(rune: runes.left)
+                goto(col: x0 + w - 1, row: y0 + r)
+                add(rune: runes.right)
+            }
+        }
+        // Bottom edge
+        goto(col: x0, row: y0 + h - 1)
+        add(rune: runes.bottomLeft)
+        if w > 2 {
+            for _ in 0..<(w - 2) { add(rune: runes.bottom) }
+        }
+        add(rune: runes.bottomRight)
+    }
+
+    // Returns a painter clipped and offset to the provided rectangle (relative to this painter's view).
+    public func clipped(to rect: Rect) -> Painter {
+        let newPainter = Painter(for: self.view)
+        // Share the same target and attribute state
+        newPainter.targetLayer = self.targetLayer
+        newPainter.origin = self.origin + rect.origin
+        let clippedGlobalRect = Rect(origin: newPainter.origin, size: rect.size)
+        newPainter.visible = self.visible.intersection(clippedGlobalRect)
+        newPainter.attribute = self.attribute
+        return newPainter
+    }
     
     /// Clears a region of the view with spaces, the parameter are in view coordinates
     /// - Parameters:

@@ -219,6 +219,15 @@ class DrawingCanvasView: View {
         return super.mouseEvent(event: event)
     }
     
+    // Keep the terminal cursor out of the canvas so it does not
+    // visually cover any drawn characters.
+    override func positionCursor() {
+        if let parent = superview {
+            // Place cursor somewhere neutral (parent origin) away from drawings
+            parent.moveTo(col: 0, row: 0)
+        }
+    }
+    
     func clearCanvas() {
         marks.removeAll()
         setNeedsDisplay()

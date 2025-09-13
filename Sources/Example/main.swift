@@ -31,6 +31,7 @@ sleep (1)
 
 var options: [(id: String, text: String, func: () -> Toplevel)] = [
     (id: "misc",      "Assorted",     { DemoAssorted() }),
+    (id: "boxmodel",  "Box Model",    { DemoBoxModel() }),
     (id: "dialogs",   "File Dialogs", { FileDialogs() }),
     (id: "terminal",  "Terminal",     { TerminalDemo() }),
     (id: "datatable", "DataTable",    { DataTableDialogs() }),
@@ -83,7 +84,7 @@ func showEditor() {
     ntop.addSubview (menu)
     let fname = "/etc/passwd"
     
-    let win = Window ("fname", padding: 0)
+    let win = Window ("fname", internalPadding: 0)
     win.fill ()
     win.y = Pos.at(1)
     ntop.addSubview (win)

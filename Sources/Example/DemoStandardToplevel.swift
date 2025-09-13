@@ -36,7 +36,7 @@ class FileWindow: Window {
         self.filename = filename
         textView = TextView ()
         textView.text = contents
-        super.init(filename ?? FileWindow.getUntitled(), padding: 0)
+        super.init(filename ?? FileWindow.getUntitled())
         
         allowMove = true
         allowResize = true
@@ -105,7 +105,7 @@ class HexWindow: Window {
     {
         self.filename = filename
         self.hexView = HexView(source: contents)
-        super.init(filename ?? HexWindow.getUntitled(), padding: 0)
+        super.init(filename ?? HexWindow.getUntitled())
         
         allowMove = true
         allowResize = true

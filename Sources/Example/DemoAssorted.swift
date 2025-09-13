@@ -39,6 +39,7 @@ class DemoAssorted: DemoHost {
         let loginLabel = Label ("Login:")
         loginLabel.x = Pos.at (10)
         loginLabel.y = Pos.at (10)
+        loginLabel.border = .double
         //loginLabel.width = Dim.sized(10)
         
         let loginField = TextField("")

@@ -32,11 +32,13 @@ open class Frame: View {
         self.title = title
         
         super.init ()
-        
-        contentView.x = Pos.at(1)
-        contentView.y = Pos.at(1)
-        contentView.width = Dim.fill(1)
-        contentView.height = Dim.fill(1)
+        // Use the new box model: contentView fills the contentFrame
+        // Set our default border to a thin solid line.
+        self.border = .solid
+        contentView.x = Pos.at(0)
+        contentView.y = Pos.at(0)
+        contentView.width = Dim.fill()
+        contentView.height = Dim.fill()
         
         super.addSubview(contentView)
     }
@@ -53,23 +55,20 @@ open class Frame: View {
     
     open override func redraw(region: Rect, painter: Painter) {
         if !needDisplay.isEmpty {
-            painter.attribute = colorScheme.normal
-            painter.clear (needDisplay)
-            painter.drawFrame (bounds, padding: 0, fill: false)
-            if hasFocus {
-                painter.attribute = colorScheme.focus
-            }
+            // Draw border and background via helper
+            drawBox(with: painter) { _ in }
+            // Title overlay on the top border line (between corners)
             let w = frame.width
             if let title, w > 4 {
+                painter.attribute = hasFocus ? colorScheme.focus : colorScheme.normal
                 painter.goto(col: 1, row: 0)
                 painter.add(str: " ")
-                let t = title
-                painter.add(str: t.getVisibleString(w - 4))
+                painter.add(str: title.getVisibleString(w - 4))
                 painter.add(str: " ")
+                painter.attribute = colorScheme.normal
             }
-            painter.attribute = colorScheme.normal
+            clearNeedsDisplay()
         }
-        clearNeedsDisplay()
     }
     
     open override var frame: Rect {
