@@ -154,6 +154,7 @@ func showSingleDemo(_ top: Toplevel) {
 let win = Window()
 win.x = Pos.at (0)
 win.y = Pos.at (1)
+win.height = Dim.fill(1)
 
 var frame = Frame ("Samples")
 frame.set (x: 10, y: 8, width: 60, height: 15)
