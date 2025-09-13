@@ -9,35 +9,14 @@
 import Foundation
 #if os(macOS)
 import Darwin.ncurses
-import os
 #else
 import Glibc
 #endif
+import Logging
 
-var fd: Int32 = -1
-#if os(macOS)
-@available(OSX 11.0, *)
-var logger: Logger = Logger(subsystem: "termkit", category: "TermKit")
-#endif
-
-func log (_ s: String)
-{
-    if true {
-        #if os(macOS)
-        if #available(macOS 11.0, *) {
-            logger.log("log: \(s, privacy: .public)")
-            return
-        }
-        #endif
-        if fd == -1 {
-            fd = open ("/tmp/log", O_CREAT | O_RDWR, S_IRWXU)
-        }
-        if let data = (s + "\n").data(using: String.Encoding.utf8) {
-            let _ = data.withUnsafeBytes { (dataBytes: UnsafeRawBufferPointer) -> Int in
-                return write(fd, dataBytes.baseAddress, data.count)
-            }
-        }
-    }
+// Simple wrapper for legacy log() calls to route through SwiftLog
+func log(_ s: String) {
+    TermKitLog.logger.debug(Logger.Message(stringLiteral: s))
 }
 
 class SizeError: Error {
@@ -103,6 +82,8 @@ public class Application {
     static var toplevels: [Toplevel] = []
     static var debugDrawBounds: Bool = false
     static var initialized: Bool = false
+    // Optional row tracing for screen composition
+    static var traceRows: Set<Int> = []
     
     /// The Toplevel object used for the application on startup.
     public static var top: Toplevel {
@@ -158,6 +139,8 @@ public class Application {
         if initialized {
             return
         }
+        // Initialize logging system (file-backed)
+        TermKitLog.bootstrapIfNeeded()
         
         // Check environment variable for driver selection
         var selectedDriverType = driverType
@@ -229,11 +212,29 @@ public class Application {
         wantContinuousButtonPressedView = nil
         lastMouseOwnerView = nil
         initialized = true
+        // Configure tracing rows from environment, e.g., "16" or "14-18" or "12,16,20"
+        if let spec = ProcessInfo.processInfo.environment["TERMKIT_TRACE_ROWS"] {
+            var rows = Set<Int>()
+            for part in spec.split(separator: ",") {
+                if let dash = part.firstIndex(of: "-") {
+                    let a = Int(part[..<dash])
+                    let b = Int(part[part.index(after: dash)...])
+                    if let a, let b {
+                        for r in min(a,b)...max(a,b) { rows.insert(r) }
+                    }
+                } else if let r = Int(part) {
+                    rows.insert(r)
+                }
+            }
+            traceRows = rows
+        } else {
+            traceRows = [16] // defaults near DemoAssorted rememberCount
+        }
         rootMouseHandlers = [:]
         lastMouseToken = 0
         let _ = driver
         setupPostProcessPipes ()
-        log ("Driver.size: \(driver.size)")
+        TermKitLog.logger.info("Driver.size: \(driver.size)")
     }
     
     /// We use this pipe to trigger a call to postProcessEvent
@@ -488,17 +489,22 @@ public class Application {
             for row in 0..<intersection.height {
                 let y = intersection.minY + row
                 let sourceRow = sourceStart.y + row
-                
-                let viewLineIsDirty = view.layer.dirtyRows [sourceRow]
-                dirtyLines [y] = dirtyLines [y] || viewLineIsDirty
-                
-                guard dirtyLines [y] else {
-                    continue
-                }
+                // Merge dirty state from this toplevel into the screen's row dirtiness.
+                // If any lower z toplevel dirtied this row, keep copying for all higher z toplevels
+                // to preserve proper occlusion.
+                let viewLineIsDirty = view.layer.dirtyRows[sourceRow]
+                dirtyLines[y] = dirtyLines[y] || viewLineIsDirty
+                guard dirtyLines[y] else { continue }
                 linesCopied += 1
                 // the offset into the array
                 let targetOffset = y * screenSize.width + intersection.minX
                 let sourceOffset = sourceRow * vframe.width + sourceStart.x
+                // Optional row trace
+                if Application.traceRows.contains(y) {
+                    let slice = view.layer.store[sourceOffset..<(sourceOffset+intersection.width)]
+                    let preview = String(slice.prefix(80).map { $0.ch == "\u{0}" ? "·" : $0.ch })
+                    TermKitLog.logger.debug("compose->screen row=\(y) x=\(intersection.minX)..\(intersection.maxX) preview='\(preview)'")
+                }
                 screen.store.replaceSubrange(targetOffset..<(targetOffset + intersection.width), with: view.layer.store [sourceOffset..<sourceOffset+intersection.width])
             }
             view.layer.clearDirty ()
@@ -538,19 +544,27 @@ public class Application {
     }
 
     /// New recursive function to render dirty views to their layers.
-    static func renderDirtyViews(in view: View) {
+    /// Renders any dirty views in the subtree. Returns true if any view was redrawn.
+    @discardableResult
+    static func renderDirtyViews(in view: View) -> Bool {
+        var didRender = false
         if !view.needDisplay.isEmpty {
             // Ensure the view's layer matches its current size
             if view.layer.size != view.bounds.size {
                 view.layer = Layer(size: view.bounds.size)
             }
             let viewPainter = Painter(for: view)
+            TermKitLog.logger.debug("redraw: view=\(String(describing: type(of: view))) id=\(view.viewId) region=\(view.needDisplay) frame=\(view.frame)")
             view.redraw(region: view.needDisplay, painter: viewPainter)
             view.clearNeedsDisplay()
+            didRender = true
         }
         for subview in view.subviews {
-            renderDirtyViews(in: subview)
+            if renderDirtyViews(in: subview) {
+                didRender = true
+            }
         }
+        return didRender
     }
 
     /**
@@ -639,16 +653,20 @@ public class Application {
         //log("Flushing at \(Date().timeIntervalSince1970*1000)")
         updateQueued = false
         if let c = current {
-            c.layout ()
-            if !c.needDisplay.isEmpty {
-                // Render dirty views and compose
-                renderDirtyViews(in: c)
+            c.layout()
+            // Render dirty views in the subtree (not just the toplevel itself)
+            let didRender = renderDirtyViews(in: c)
+            TermKitLog.logger.debug("flush: didRender=\(didRender) needDisplay=\(!c.needDisplay.isEmpty)")
+            if didRender {
+                // Compose the full scene and update the physical screen
                 let topPainter = Painter(for: c)
+                TermKitLog.logger.debug("flush: composing toplevel id=\(c.viewId)")
                 c.compose(painter: topPainter)
-                updateDisplay(compose ())
+                updateDisplay(compose())
                 c.positionCursor()
                 driver.refresh()
             } else {
+                // Nothing changed visually; just update cursor position
                 c.positionCursor()
                 driver.updateCursor()
             }

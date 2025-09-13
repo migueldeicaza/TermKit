@@ -127,6 +127,7 @@ open class Label: View {
     }
     
     open override func drawContent(in region: Rect, painter: Painter) {
+        TermKitLog.logger.debug("Label.draw id=\(viewId) region=\(region) contentFrame=\(contentFrame) layerSize=\(layer.size)")
         switch lineBreak {
         case .byClipping:
             let lines = attributedText.split(separator: "\n")

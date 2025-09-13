@@ -656,6 +656,7 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
     {
         if hasFocus != value {
             _hasFocus = value
+            TermKitLog.logger.info("focus: view=\(String(describing: type(of: self))) id=\(viewId) hasFocus=\(value)")
             if _hasFocus {
                 _ = becomeFirstResponder ()
             } else {
@@ -730,9 +731,16 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
      */
     open func redraw(region: Rect, painter: Painter)
     {
-        // Step 1: Draw background over full bounds
+        // Normalize region to this view's bounds; if nothing intersects, skip.
+        let bounded = self.bounds
+        let clipAll = region.intersection(bounded)
+        if clipAll.isEmpty {
+            // Nothing to redraw for this view
+            return
+        }
+        // Step 1: Draw background over the region that needs repaint
         painter.attribute = colorScheme.normal
-        painter.clear(self.bounds)
+        painter.clear(clipAll)
 
         // Step 2: Draw border, if any
         if border != .none {
@@ -743,7 +751,7 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
         // Step 3: Draw content inside the content frame
         let contentRect = self.contentFrame
         if contentRect.width > 0 && contentRect.height > 0 {
-            let intersect = region.intersection(contentRect)
+            let intersect = clipAll.intersection(contentRect)
             if !intersect.isEmpty {
                 let contentPainter = painter.clipped(to: contentRect)
                 // Translate redraw region to content-local coordinates
@@ -783,6 +791,15 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
 
     /// Composites this view's layer and its children's layers onto a parent painter.
     func compose(painter: Painter) {
+        // Ensure our layer matches current bounds; fallback render if needed to avoid empty blits
+        if layer.size != bounds.size || layer.size.width == 0 || layer.size.height == 0 {
+            TermKitLog.logger.debug("compose-fix: resizing/redrawing view=\(String(describing: type(of: self))) id=\(viewId) oldLayer=\(layer.size) new=\(bounds.size)")
+            layer = Layer(size: bounds.size)
+            let selfPainter = Painter(for: self)
+            // Render full bounds to populate layer
+            redraw(region: bounds, painter: selfPainter)
+        }
+        TermKitLog.logger.debug("compose view=\(String(describing: type(of: self))) id=\(viewId) origin=\(painter.origin) frame=\(frame) layerSize=\(layer.size)")
         // 1. Blit this view's layer onto the parent at our absolute origin (already in painter.origin)
         if self.frame.size != Size.empty {
             painter.draw(layer: self.layer, at: painter.origin)
