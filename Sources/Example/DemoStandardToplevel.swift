@@ -178,6 +178,7 @@ class SimpleEditor: StandardToplevel {
                 if let contents = try? String(contentsOfFile: file, encoding: .utf8) {
                     let file = FileWindow (filename: file, contents: contents)
                     self.place (window: file)
+                    _ = file.becomeFirstResponder()
                 } else {
                     MessageBox.error("Error", message: "Could not read contents of file", buttons: ["Ok"]) { _ in }
                 }
@@ -201,6 +202,7 @@ class SimpleEditor: StandardToplevel {
                 if let contents = try? Data(contentsOf: url) {
                     let file = HexWindow (filename: file, contents: contents)
                     self.place (window: file)
+                    _ = file.becomeFirstResponder()
                 } else {
                     MessageBox.error("Error", message: "Could not read contents of file", buttons: ["Ok"]) { _ in }
                 }
