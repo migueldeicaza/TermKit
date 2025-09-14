@@ -23,6 +23,7 @@ public class HexView: View {
     private var _addressWidth = defaultAddressWidth
     private var _bytesPerLine = 0
     private var _edits: [Int64: UInt8] = [:]
+    private var _firstLineAddress: Int64 = 0
     
     public var isReadOnly = false
     
@@ -33,10 +34,12 @@ public class HexView: View {
             discardEdits()
             _source = newValue
             setBytesPerLine()
+            _firstLineAddress = 0
             
             if _address > Int64(newValue.count) {
                 _address = 0
             }
+            clampViewportToBounds()
             
             setNeedsLayout()
             setNeedsDisplay()
@@ -105,7 +108,7 @@ public class HexView: View {
     public func getPosition(for address: Int64) -> Point {
         guard _source != nil, bytesPerLine > 0 else { return Point.zero }
         
-        let line = Int(address / Int64(bytesPerLine))
+        let line = Int((address - _firstLineAddress) / Int64(bytesPerLine))
         let item = Int(address % Int64(bytesPerLine))
         
         return Point(x: item, y: line)
@@ -129,7 +132,25 @@ public class HexView: View {
     }
     
     private func scrollToMakeCursorVisible(_ offsetToNewCursor: Point) {
-        // TODO: Implement scrolling when ScrollView support is added
+        let visibleRows = max(0, contentFrame.height)
+        if visibleRows <= 0 || bytesPerLine <= 0 { return }
+
+        // Current line index of the address
+        let lineIndex = Int(_address / Int64(bytesPerLine))
+
+        var targetTopLineIndex: Int? = nil
+        if offsetToNewCursor.y < 0 {
+            targetTopLineIndex = lineIndex
+        } else if offsetToNewCursor.y >= visibleRows {
+            targetTopLineIndex = max(0, lineIndex - (visibleRows - 1))
+        }
+
+        if let top = targetTopLineIndex {
+            let maxTop = maxTopLineIndex()
+            let clampedTop = min(max(0, top), maxTop)
+            _firstLineAddress = Int64(clampedTop * bytesPerLine)
+            setNeedsDisplay()
+        }
     }
     
     public override func positionCursor() {
@@ -193,7 +214,7 @@ public class HexView: View {
     public override func drawContent(in region: Rect, painter p: Painter) {
         guard let source = _source else { return }
         
-        let addressOfFirstLine = Int64(0) // TODO: Add viewport support
+        let addressOfFirstLine = _firstLineAddress
         let nBlocks = bytesPerLine / HexView.numBytesPerHexColumn
         
         let editingAttribute = colorScheme.normal
@@ -302,9 +323,9 @@ public class HexView: View {
         case .cursorUp:
             return moveUp(bytesPerLine)
         case .pageUp:
-            return moveUp(bytesPerLine * frame.height)
+            return moveUp(bytesPerLine * contentFrame.height)
         case .pageDown:
-            return moveDown(bytesPerLine * frame.height)
+            return moveDown(bytesPerLine * contentFrame.height)
         case .home:
             return moveHome()
         case .end:
@@ -435,5 +456,20 @@ public class HexView: View {
     public override func layoutSubviews() throws {
         try super.layoutSubviews()
         setBytesPerLine()
+        clampViewportToBounds()
+    }
+
+    private func maxTopLineIndex() -> Int {
+        let visibleRows = max(1, contentFrame.height)
+        if bytesPerLine <= 0 { return 0 }
+        let totalLines = Int(max(0, (getEditedSize() + Int64(bytesPerLine) - 1) / Int64(bytesPerLine)))
+        return max(0, totalLines - visibleRows)
+    }
+
+    private func clampViewportToBounds() {
+        if bytesPerLine <= 0 { return }
+        let topLineIndex = Int(max(0, _firstLineAddress) / Int64(bytesPerLine))
+        let clampedTop = min(max(0, topLineIndex), maxTopLineIndex())
+        _firstLineAddress = Int64(clampedTop * bytesPerLine)
     }
 }
