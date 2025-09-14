@@ -694,9 +694,10 @@ open class TextView: View {
             }
         } else {
             let nextLineOffset = makeTextBufferOffset(col: 0, row: currentRow+1)
-            var newLineOffset = nextLineOffset-1
+            var newLineOffset = nextLineOffset - 1
             // See if we are the last line, and there is no newline at the end
-            if storage.getPositionAt(offset: nextLineOffset).column != 0 {
+            // storage.getPositionAt returns 1-based columns; column == 1 means start-of-line.
+            if storage.getPositionAt(offset: nextLineOffset).column != 1 {
                 newLineOffset = nextLineOffset
             }
             if p == newLineOffset {
