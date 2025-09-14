@@ -159,23 +159,41 @@ open class TabView: View {
     public func removeTab(at index: Int) -> Bool {
         guard index >= 0 && index < tabs.count else { return false }
         
-        let tab = tabs[index]
-        removeSubview(tab.content)
+        // Remove the content view for the tab if it happens to be attached
+        let removedContent = tabs[index].content
+        removeSubview(removedContent)
+        
+        let wasSelected = (index == selectedTabIndex)
+        
+        // Remove the tab from our model
         tabs.remove(at: index)
         
-        // Adjust selected tab index if necessary
-        if selectedTabIndex >= tabs.count {
-            selectedTabIndex = max(-1, tabs.count - 1)
-        }
-        
-        if tabs.count > 0 && selectedTabIndex >= 0 {
-            selectTab(selectedTabIndex)
-        } else if tabs.count == 0 {
+        // No tabs remain
+        if tabs.isEmpty {
             selectedTabIndex = -1
+            layoutTabs()
+            setNeedsDisplay()
+            return true
         }
         
-        layoutTabs()
-        setNeedsDisplay()
+        if wasSelected {
+            // If the removed tab was selected, choose the next appropriate tab
+            // Prefer the tab that shifted into the same index; otherwise the previous one
+            let newIndex = min(index, tabs.count - 1)
+            // Force selection to re-run by clearing the selected index first
+            selectedTabIndex = -1
+            selectTab(newIndex)
+        } else {
+            // If a tab before the selected one was removed, the selected index shifts left
+            if selectedTabIndex > index {
+                selectedTabIndex -= 1
+            }
+            // Keep showing the same selected tab content; just relayout/redraw
+            ensureSelectedTabVisible()
+            layoutTabs()
+            setNeedsDisplay()
+        }
+        
         return true
     }
     
