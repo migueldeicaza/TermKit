@@ -39,6 +39,44 @@ The following controls are currently implemented:
 - **TextView** - Multi-line text editing
 - **MarkdownView** - Markdown viewer
 - **Toplevel** - Top-level windows
+- **StandardDesktop** - Desktop-style top-level with MenuBar, StatusBar, and managed windows
+
+## Desktop
+
+Use `StandardDesktop` to build a desktop-style TUI with a menu bar at the top, a status bar at the bottom, and a desktop surface for overlapping `Window` instances. The desktop surface uses a simple stippled background via `SolidBackground`.
+
+Quick start:
+
+```swift
+import TermKit
+
+Application.prepare()
+
+let ui = StandardDesktop()
+
+// Optional: replace the default menu
+ui.menubar = MenuBar(menus: [
+    MenuBarItem(title: "_File", children: [
+        MenuItem(title: "_Quit", action: { Application.requestStop() })
+    ]),
+    MenuBarItem(title: "_Help", children: [
+        MenuItem(title: "_About", action: { /* show dialog */ })
+    ])
+])
+
+// Add a couple of windows
+let win1 = Window("Notes")
+win1.frame = Rect(x: 2, y: 2, width: 40, height: 12)
+ui.manage(window: win1)
+
+let win2 = Window("Logs")
+win2.frame = Rect(x: 20, y: 8, width: 50, height: 14)
+ui.manage(window: win2)
+
+Application.run(ui)
+```
+
+Window menu actions (maximize, minimize, tile, dock, next/previous) are provided automatically and enable/disable based on state. Disabled entries render dim to indicate they are inactive.
 
 ## Dialogs
 
@@ -175,5 +213,4 @@ swift package --disable-sandbox preview-documentation --target TermKit
 ```
 
 The documentation source files are located in the `Documentation.docc/` directory.
-
 

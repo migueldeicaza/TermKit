@@ -38,6 +38,7 @@ open class Dialog: Window {
         colorScheme = Colors.dialog
         
         for button in buttons {
+            button.layoutStyle = .fixed
             addSubview(button)
         }
         modal = true
@@ -52,25 +53,34 @@ open class Dialog: Window {
      */
     public func addButton (_ button: Button){
         buttons.append(button)
+        button.layoutStyle = .fixed
         addSubview(button)
         setNeedsLayout()
     }
     
     public override func layoutSubviews() throws {
         try super.layoutSubviews()
+        // Layout buttons relative to the contentView, not the outer window frame
+        let content = contentView.bounds
         var buttonSpace = 0
         var maxHeight = 0
+        // Precompute desired sizes using the button's own width/height Dim anchors when available
+        var sizes: [(w: Int, h: Int)] = []
+        sizes.reserveCapacity(buttons.count)
         for button in buttons {
-            buttonSpace += button.frame.width + 1
-            maxHeight = max(maxHeight, button.frame.height)
+            let bw = button.width?.anchor(content.width) ?? max(1, button.frame.width)
+            let bh = button.height?.anchor(content.height) ?? max(1, button.frame.height)
+            sizes.append((bw, bh))
+            buttonSpace += bw + 1
+            maxHeight = max(maxHeight, bh)
         }
-        let borderWidth = 2
-        var start = (frame.width-borderWidth - buttonSpace)/2
-        let y = frame.height - borderWidth - maxHeight - 1 - 1 /* padding */
-        for button in buttons {
-            let bf = button.frame
-            button.frame = Rect (x: start, y: y, width: bf.width, height: bf.height)
-            start += bf.width + 1
+        var start = max(0, (content.width - buttonSpace) / 2)
+        let y = max(0, content.height - maxHeight - 1)
+        for (idx, button) in buttons.enumerated() {
+            let size = sizes[idx]
+            button.frame = Rect(x: start, y: y, width: size.w, height: size.h)
+            start += size.w + 1
+            button.setNeedsDisplay()
         }
     }
     
@@ -79,7 +89,7 @@ open class Dialog: Window {
     
     open override func processKey(event: KeyEvent) -> Bool {
         switch event.key {
-        case .esc:
+        case .esc, .controlC:
             close ()
             return true
         default:
