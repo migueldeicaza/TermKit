@@ -8,7 +8,7 @@
 
 import Foundation
 
-class Desktop: View {
+class SolidBackground: View {
     open override func drawContent(in region: Rect, painter: Painter) {
         painter.clear(region, with: "░")
     }

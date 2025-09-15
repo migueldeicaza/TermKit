@@ -41,6 +41,9 @@ public struct MenuItem {
     /// The style to use for rendering this menu
     public var style: MenuItemStyle = .plain
     
+    /// Whether the menu item is enabled. Disabled items render dim and are not interactive.
+    public var isEnabled: Bool = true
+    
     /**
      * The hotkey is used when the menu is active, the shortcut can be triggered when the menu is not active.
      *
@@ -80,7 +83,7 @@ public struct MenuItem {
      *  - shortcut: Global shortcut that can be used to invoke this menu
      *  - hotkey: Key used to activate the menu, when the menu is active
      */
-    public init (title: String, help: String = "", action: (@MainActor ()->Void)? = nil, shortcut: Key? = nil, hotkey: Character? = nil, style: MenuItemStyle = .plain)
+    public init (title: String, help: String = "", action: (@MainActor ()->Void)? = nil, shortcut: Key? = nil, hotkey: Character? = nil, style: MenuItemStyle = .plain, isEnabled: Bool = true)
     {
         self.title = title
         self.help = help
@@ -88,6 +91,7 @@ public struct MenuItem {
         self.shortcut = shortcut
         self.hotkey = hotkey
         self.style = style
+        self.isEnabled = isEnabled
         if hotkey == nil {
             getHotKey ()
         }
@@ -153,13 +157,15 @@ public class Menu: View {
         self.barItems = barItems
         self.host = host
         self.current = -1
+        func isSelectable(_ idx: Int) -> Bool {
+            if idx < 0 || idx >= barItems.children.count { return false }
+            guard let it = barItems.children[idx] else { return false }
+            return it.isEnabled
+        }
         
-        // Find the first non-null entry, odd, but possible
+        // Find the first selectable entry (non-nil and enabled)
         for i in 0..<barItems.children.count {
-            if barItems.children [i] != nil {
-                self.current = i
-                break
-            }
+            if isSelectable(i) { self.current = i; break }
         }
         super.init (frame: Menu.makeFrame (x, y, barItems.children))
         colorScheme = Colors.menu
@@ -174,22 +180,45 @@ public class Menu: View {
             let item = barItems.children[i]
             // fill the line or draw separator
             painter.goto(col: 0, row: i)
-            painter.attribute = item == nil ? colorScheme.normal : (i == current ? colorScheme.focus : colorScheme.normal)
+            let isSelected = i == current
+            if item == nil {
+                painter.attribute = colorScheme.normal
+            } else if let mi = item, mi.isEnabled {
+                painter.attribute = isSelected ? colorScheme.focus : colorScheme.normal
+            } else {
+                // Disabled items render dim regardless of selection
+                painter.attribute = colorScheme.normal.change(flags: .dim)
+            }
             for _ in 0..<contentW {
                 painter.add(rune: item == nil ? driver.hLine : driver.space)
             }
             guard let item else { continue }
             // Title
             painter.goto(col: 1, row: i)
-            painter.drawHotString(
-                text: item.title,
-                hotColor: i == current ? colorScheme.hotFocus : colorScheme.hotNormal,
-                normalColor: i == current ? colorScheme.focus : colorScheme.normal)
+            if item.isEnabled {
+                painter.drawHotString(
+                    text: item.title,
+                    hotColor: isSelected ? colorScheme.hotFocus : colorScheme.hotNormal,
+                    normalColor: isSelected ? colorScheme.focus : colorScheme.normal)
+            } else {
+                let disabledAttr = colorScheme.normal.change(flags: .dim)
+                painter.drawHotString(
+                    text: item.title,
+                    hotColor: disabledAttr,
+                    normalColor: disabledAttr)
+            }
             // Help right-aligned
             let l = item.help.cellCount()
             let col = max(0, contentW - l - 1)
             painter.goto(col: col, row: i)
-            painter.add(str: item.help)
+            if item.isEnabled {
+                painter.add(str: item.help)
+            } else {
+                let old = painter.attribute
+                painter.attribute = old.change(flags: .dim)
+                painter.add(str: item.help)
+                painter.attribute = old
+            }
         }
     }
     
@@ -209,28 +238,25 @@ public class Menu: View {
         guard let host else { return false }
         switch event.key {
         case .cursorUp, .controlP:
-            if current == -1 {
-                break
-            }
-            repeat {
+            if current == -1 { break }
+            let start = current
+            while true {
                 current -= 1
-                if current < 0 {
-                    current = barItems.children.count - 1
-                }
-            } while barItems.children [current] == nil
+                if current < 0 { current = barItems.children.count - 1 }
+                if let it = barItems.children[current], it.isEnabled { break }
+                if current == start { break }
+            }
             setNeedsDisplay()
             
         case .cursorDown, .controlN:
-            if current == -1 {
-                break
-            }
-
-            repeat {
+            if current == -1 { break }
+            let start = current
+            while true {
                 current += 1
-                if current == barItems.children.count {
-                    current = 0
-                }
-            } while barItems.children [current] == nil
+                if current == barItems.children.count { current = 0 }
+                if let it = barItems.children[current], it.isEnabled { break }
+                if current == start { break }
+            }
             setNeedsDisplay()
             
         case .cursorLeft, .controlB:
@@ -244,14 +270,14 @@ public class Menu: View {
             
         case .controlJ: // Return
             host.closeMenu()
-            if let child = barItems.children[current] {
+            if let child = barItems.children[current], child.isEnabled {
                 run (action: child.action)
             }
             
         case let .letter(x) where x.isLetter || x.isNumber:
             let upper = x.uppercased()
             for item in barItems.children {
-                if let nnitem = item, let hotKey = nnitem.hotkey {
+                if let nnitem = item, nnitem.isEnabled, let hotKey = nnitem.hotkey {
                     if String(hotKey) == upper {
                         host.closeMenu()
                         run (action: nnitem.action)
@@ -276,7 +302,9 @@ public class Menu: View {
             if event.flags == .button1Clicked {
                 host.closeMenu()
                 Application.ungrabMouse()
-                run (action: item.action)
+                if item.isEnabled {
+                    run (action: item.action)
+                }
             }
             current = idx
             setNeedsDisplay()

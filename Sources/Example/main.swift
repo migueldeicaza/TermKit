@@ -42,7 +42,7 @@ var options: [(id: String, text: String, func: () -> Toplevel)] = [
     (id: "statusbar", "StatusBar",    { createStatusBarDemo() }),
     (id: "windows",   "Windows",      { DemoWindow() }),
     (id: "markdown",  "Markdown",     { DemoMarkdown() }),
-    (id: "editor",    "Editor",       { DemoDesktop() }),
+    (id: "desktop",    "Desktop",     { DemoDesktop() }),
     (id: "layer",     "Layer/Compose", { DemoLayer() }),
 ]
 var demoToplevel: (() -> Toplevel)? = nil

@@ -9,7 +9,7 @@ import Foundation
 import TermKit
 
 func DemoDesktop2 () -> Toplevel {
-    let top = StandardToplevel ()
+    let top = StandardDesktop ()
     
     let w = Window ()
     w.set(x: 1, y: 1, width: 20, height: 10)
@@ -138,7 +138,7 @@ class HexWindow: Window {
     }
 }
 
-class SimpleEditor: StandardToplevel {
+class SimpleEditor: StandardDesktop {
     
     func place (window: FileWindow) {
         window.frame = Rect (origin: Point.zero, size: desk.bounds.size)
