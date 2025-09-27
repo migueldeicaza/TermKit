@@ -43,7 +43,10 @@ The following controls are currently implemented:
 
 ## Desktop
 
-Use `StandardDesktop` to build a desktop-style TUI with a menu bar at the top, a status bar at the bottom, and a desktop surface for overlapping `Window` instances. The desktop surface uses a simple stippled background via `SolidBackground`.
+Use `StandardDesktop` to build a desktop-style TUI with a menu bar at
+the top, a status bar at the bottom, and a desktop surface for
+overlapping `Window` instances. The desktop surface uses a simple
+stippled background via `SolidBackground`.
 
 Quick start:
 
