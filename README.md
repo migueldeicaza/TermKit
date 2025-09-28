@@ -38,6 +38,7 @@ The following controls are currently implemented:
 - **TextField** - Single-line text input
 - **TextView** - Multi-line text editing
 - **MarkdownView** - Markdown viewer
+- **CommandPalette** - Command search and execution interface
 - **Toplevel** - Top-level windows
 - **StandardDesktop** - Desktop-style top-level with MenuBar, StatusBar, and managed windows
 
@@ -80,6 +81,76 @@ Application.run(ui)
 ```
 
 Window menu actions (maximize, minimize, tile, dock, next/previous) are provided automatically and enable/disable based on state. Disabled entries render dim to indicate they are inactive.
+
+## Command Palette
+
+The **CommandPalette** provides a modern command search and execution interface similar to those found in VS Code, Sublime Text, and other editors. It enables users to quickly find and execute commands through fuzzy search.
+
+### Features
+
+- **Fuzzy Search** - Intelligent search with character-level matching and highlighting
+- **Multiple Providers** - Support for different command sources (file operations, editing commands, etc.)
+- **Discoverable Commands** - Shows available commands when no search query is entered
+- **Keyboard Navigation** - Full keyboard control with arrow keys and Enter
+- **Customizable** - Configurable size, position, caption, and placeholder text
+
+### Quick Start
+
+```swift
+// Create command providers
+let fileProvider = SimpleCommandProvider(commands: [
+    ("New File", "Create a new file", { /* action */ }),
+    ("Open File", "Open an existing file", { /* action */ }),
+    ("Save File", "Save the current file", { /* action */ })
+])
+
+// Show the command palette
+Application.showCommandPalette(
+    providers: [fileProvider],
+    caption: "Command:",
+    placeholder: "Type to search commands..."
+)
+```
+
+### Command Providers
+
+Create custom command providers by implementing the `CommandProvider` protocol:
+
+```swift
+class MyCommandProvider: CommandProvider {
+    weak var view: View?
+
+    func startup() async { }
+
+    func search(query: String) async -> [CommandHit] {
+        // Return matching commands for the query
+    }
+
+    func discover() async -> [DiscoveryHit] {
+        // Return commands to show when no query is entered
+    }
+
+    func shutdown() async { }
+}
+```
+
+Or use the built-in `SimpleCommandProvider` for static command lists:
+
+```swift
+let provider = SimpleCommandProvider(commands: [
+    ("Command Name", "Optional help text", { /* action closure */ })
+])
+```
+
+### Variants
+
+- `Application.showCommandPalette()` - Standard size, centered
+- `Application.showCompactCommandPalette()` - Smaller, compact version
+- `Application.showFullCommandPalette()` - Large, full-screen version
+
+### Integration
+
+The command palette is designed to be easily integrated into any TermKit application. See `DemoCommandPalette.swift` for a complete working example.
 
 ## Dialogs
 
