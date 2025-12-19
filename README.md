@@ -56,28 +56,37 @@ import TermKit
 
 Application.prepare()
 
-let ui = StandardDesktop()
+let desktop = StandardDesktop()
+desktop.fill()
 
-// Optional: replace the default menu
-ui.menubar = MenuBar(menus: [
+// Optional: replace the default menu by adding a new MenuBar
+let customMenu = MenuBar(menus: [
     MenuBarItem(title: "_File", children: [
+        MenuItem(title: "_New", action: { /* create new */ }),
         MenuItem(title: "_Quit", action: { Application.requestStop() })
     ]),
+    MenuBarItem(title: "_Window", children: []),
     MenuBarItem(title: "_Help", children: [
         MenuItem(title: "_About", action: { /* show dialog */ })
     ])
 ])
+desktop.addSubview(customMenu)
 
 // Add a couple of windows
 let win1 = Window("Notes")
 win1.frame = Rect(x: 2, y: 2, width: 40, height: 12)
-ui.manage(window: win1)
+win1.allowMove = true
+win1.allowResize = true
+desktop.manage(window: win1)
 
 let win2 = Window("Logs")
 win2.frame = Rect(x: 20, y: 8, width: 50, height: 14)
-ui.manage(window: win2)
+win2.allowMove = true
+win2.allowResize = true
+desktop.manage(window: win2)
 
-Application.run(ui)
+Application.top.addSubview(desktop)
+Application.run()
 ```
 
 Window menu actions (maximize, minimize, tile, dock, next/previous) are provided automatically and enable/disable based on state. Disabled entries render dim to indicate they are inactive.
