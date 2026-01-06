@@ -708,7 +708,22 @@ public class Application {
         }
     }
     
-    static func terminalResized ()
+    /**
+     * Handles terminal resize events by updating all toplevels to match the new terminal size.
+     *
+     * This method can be called from custom SIGWINCH handlers to immediately respond to terminal resize events.
+     * When called, it updates all toplevel frames to match the current driver size, triggers layout, and refreshes the display.
+     *
+     * Example usage with a custom SIGWINCH handler:
+     * ```
+     * let sigwinchSource = DispatchSource.makeSignalSource(signal: SIGWINCH, queue: .main)
+     * sigwinchSource.setEventHandler {
+     *     Application.terminalResized()
+     * }
+     * sigwinchSource.resume()
+     * ```
+     */
+    public static func terminalResized ()
     {
         let full = Rect(origin: Point.zero, size: driver.size)
         for top in toplevels {
