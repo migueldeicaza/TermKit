@@ -234,6 +234,7 @@ public class Application {
         lastMouseToken = 0
         let _ = driver
         setupPostProcessPipes ()
+        setupSigwinchHandler ()
         TermKitLog.logger.info("Driver.size: \(driver.size)")
     }
     
@@ -242,6 +243,9 @@ public class Application {
     static var pipeReader: DispatchSourceRead?
     static let bufferSize = 128
     static var buffer = UnsafeMutableRawPointer.allocate(byteCount: bufferSize, alignment: 8)
+    
+    /// SIGWINCH handler for terminal resize events
+    static var sigwinchSource: DispatchSourceSignal?
     
     static func setupPostProcessPipes () {
         pipe(&pipePostProcessEvent)
@@ -262,6 +266,20 @@ public class Application {
     
     static func requestPostProcess () {
         write(pipePostProcessEvent [1], &pipePostProcessEvent, 1)
+    }
+    
+    static func setupSigwinchHandler () {
+        #if !os(Windows)
+        // Prevent SIGWINCH from interrupting system calls
+        signal(SIGWINCH, SIG_IGN)
+        
+        let source = DispatchSource.makeSignalSource(signal: SIGWINCH, queue: .main)
+        sigwinchSource = source
+        source.setEventHandler {
+            terminalResized()
+        }
+        source.resume()
+        #endif
     }
     
     /**
@@ -708,22 +726,7 @@ public class Application {
         }
     }
     
-    /**
-     * Handles terminal resize events by updating all toplevels to match the new terminal size.
-     *
-     * This method can be called from custom SIGWINCH handlers to immediately respond to terminal resize events.
-     * When called, it updates all toplevel frames to match the current driver size, triggers layout, and refreshes the display.
-     *
-     * Example usage with a custom SIGWINCH handler:
-     * ```
-     * let sigwinchSource = DispatchSource.makeSignalSource(signal: SIGWINCH, queue: .main)
-     * sigwinchSource.setEventHandler {
-     *     Application.terminalResized()
-     * }
-     * sigwinchSource.resume()
-     * ```
-     */
-    public static func terminalResized ()
+    static func terminalResized ()
     {
         let full = Rect(origin: Point.zero, size: driver.size)
         for top in toplevels {
@@ -753,6 +756,9 @@ public class Application {
         close (pipePostProcessEvent[1])
         pipeReader?.cancel()
         pipeReader = nil
+        
+        sigwinchSource?.cancel()
+        sigwinchSource = nil
         
         driver.end ();
         exit (Int32 (statusCode))
