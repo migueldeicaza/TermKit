@@ -503,7 +503,7 @@ public class Application {
                 if Application.traceRows.contains(y) {
                     let slice = view.layer.store[sourceOffset..<(sourceOffset+intersection.width)]
                     let preview = String(slice.prefix(80).map { $0.ch == "\u{0}" ? "·" : $0.ch })
-                    TermKitLog.logger.debug("compose->screen row=\(y) x=\(intersection.minX)..\(intersection.maxX) preview='\(preview)'")
+                    //TermKitLog.logger.debug("compose->screen row=\(y) x=\(intersection.minX)..\(intersection.maxX) preview='\(preview)'")
                 }
                 screen.store.replaceSubrange(targetOffset..<(targetOffset + intersection.width), with: view.layer.store [sourceOffset..<sourceOffset+intersection.width])
             }
@@ -554,7 +554,7 @@ public class Application {
                 view.layer = Layer(size: view.bounds.size)
             }
             let viewPainter = Painter(for: view)
-            TermKitLog.logger.debug("redraw: view=\(String(describing: type(of: view))) id=\(view.viewId) region=\(view.needDisplay) frame=\(view.frame)")
+            //TermKitLog.logger.debug("redraw: view=\(String(describing: type(of: view))) id=\(view.viewId) region=\(view.needDisplay) frame=\(view.frame)")
             view.redraw(region: view.needDisplay, painter: viewPainter)
             view.clearNeedsDisplay()
             didRender = true
@@ -656,11 +656,11 @@ public class Application {
             c.layout()
             // Render dirty views in the subtree (not just the toplevel itself)
             let didRender = renderDirtyViews(in: c)
-            TermKitLog.logger.debug("flush: didRender=\(didRender) needDisplay=\(!c.needDisplay.isEmpty)")
+            //TermKitLog.logger.debug("flush: didRender=\(didRender) needDisplay=\(!c.needDisplay.isEmpty)")
             if didRender {
                 // Compose the full scene and update the physical screen
                 let topPainter = Painter(for: c)
-                TermKitLog.logger.debug("flush: composing toplevel id=\(c.viewId)")
+                //TermKitLog.logger.debug("flush: composing toplevel id=\(c.viewId)")
                 c.compose(painter: topPainter)
                 updateDisplay(compose())
                 c.positionCursor()

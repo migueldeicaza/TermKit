@@ -330,6 +330,49 @@ class CursesDriver: ConsoleDriver {
     func setupInput () {
         timeout(-1)
         FileHandle.standardInput.readabilityHandler = inputReadCallback(input:)
+        setupSignalHandlers()
+    }
+
+    static var sigwinchSource: DispatchSourceSignal?
+
+    private func setupSignalHandlers() {
+        log("CursesDriver.setupSignalHandlers called, sigwinchSource is \(CursesDriver.sigwinchSource == nil ? "nil" : "set")")
+        guard CursesDriver.sigwinchSource == nil else { return }
+
+        // Ignore the default signal handling so DispatchSource can intercept it
+        signal(SIGWINCH, SIG_IGN)
+        log("CursesDriver.setupSignalHandlers: signal ignored, creating dispatch source")
+
+        let source = DispatchSource.makeSignalSource(signal: SIGWINCH, queue: .global())
+        CursesDriver.sigwinchSource = source
+        source.setEventHandler { [weak self] in
+            log("CursesDriver sigwinchSource event handler fired on global queue")
+            DispatchQueue.main.async {
+                log("CursesDriver sigwinchSource on main queue")
+                guard let self else {
+                    log("CursesDriver sigwinchSource: self is nil")
+                    return
+                }
+                // Use ioctl to get actual terminal size since ncurses doesn't know about the resize
+                var ws = winsize()
+                guard ioctl(STDOUT_FILENO, UInt(TIOCGWINSZ), &ws) == 0 else {
+                    log("CursesDriver sigwinchSource: ioctl failed")
+                    return
+                }
+                let newx = Int(ws.ws_col)
+                let newy = Int(ws.ws_row)
+                log("CursesDriver sigwinchSource: new size \(newx)x\(newy), old size \(self.size.width)x\(self.size.height)")
+                if newy != self.size.height || newx != self.size.width {
+                    // Tell ncurses about the new size
+                    resizeterm(Int32(newy), Int32(newx))
+                    self.size = Size(width: newx, height: newy)
+                    Application.terminalResized()
+                    log("CursesDriver sigwinchSource: terminalResized called")
+                }
+            }
+        }
+        source.activate()
+        log("CursesDriver.setupSignalHandlers: dispatch source activated")
     }
     
     public override func moveTo (col :Int, row: Int) {

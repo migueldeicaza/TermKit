@@ -57,13 +57,15 @@ enum TermKitLog {
 
     static func bootstrapIfNeeded() {
         guard !bootstrapped else { return }
-        let path = ProcessInfo.processInfo.environment["TERMKIT_LOG"] ?? "/tmp/termkit.log"
+        bootstrapped = true
+        guard let path = ProcessInfo.processInfo.environment["TERMKIT_LOG"] else {
+	    return
+	}
         let fileURL = URL(fileURLWithPath: path)
         LoggingSystem.bootstrap { label in
             FileLogHandler(label: label, fileURL: fileURL)
         }
         loggerInstance = Logger(label: "TermKit")
-        bootstrapped = true
         loggerInstance.info("Logging bootstrapped -> \(path)")
     }
 

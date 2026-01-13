@@ -151,84 +151,44 @@ class UnixDriver: ConsoleDriver {
         }
     }
     
-    static var pipeSignal: [Int32] = [0, 0]
-    static var pipeReader: DispatchSourceRead?
-    static let bufferSize = 128
-    static var buffer = UnsafeMutableRawPointer.allocate(byteCount: bufferSize, alignment: 8)
-    static var previousSigaction = sigaction()
-    
-    static let signalHandler: @convention(c) (Int32) -> Void = { signal in
-        // First, call the previous signal handler if it exists
-        #if os(macOS)
-        if let handler = previousSigaction.__sigaction_u.__sa_handler {
-            handler(signal)
-        }
-        #else
-        // On Linux, check if there was a previous handler and call it
-        // We need to check the flags to see if the previous action was a real handler
-        if previousSigaction.sa_flags & SA_SIGINFO == 0 {
-            // It's a simple handler, not siginfo
-            let prevHandler = previousSigaction.__sigaction_handler.sa_handler
-            // Check if the handler address is not the default or ignore values
-            let handlerAddr = unsafeBitCast(prevHandler, to: Int.self)
-            let defaultAddr = unsafeBitCast(SIG_DFL, to: Int.self)
-            let ignoreAddr = unsafeBitCast(SIG_IGN, to: Int.self)
-            
-            if handlerAddr != defaultAddr && handlerAddr != ignoreAddr {
-                prevHandler?(signal)
-            }
-        } else {
-            // It's a sigaction handler, call the sigaction version
-            if let sigactionHandler = previousSigaction.__sigaction_handler.sa_sigaction {
-                // We don't have siginfo_t here, so we can't call this properly
-                // For now, just skip calling sigaction handlers to avoid crashes
-            }
-        }
-        #endif
-        
-        // Then handle our own signal processing
-        write(UnixDriver.pipeSignal [1], &UnixDriver.pipeSignal, 1)
-    }
-    
+    static var sigwinchSource: DispatchSourceSignal?
+
     static func setupSigwinch(_ handler: @escaping () -> Void) {
-        guard pipeSignal[0] == 0 else { return }
-        
-        pipe(&pipeSignal)
-        _ = fcntl(pipeSignal[0], F_SETFL, O_NONBLOCK)
-        let reader = DispatchSource.makeReadSource(fileDescriptor: pipeSignal[0], queue: .main)
-        pipeReader = reader
-        reader.setEventHandler {
-            // Read all pending requests in one go
-            var count = 0
-            count = read(pipeSignal[0], buffer, bufferSize)
-            if count > 0 {
+        log("setupSigwinch called, sigwinchSource is \(sigwinchSource == nil ? "nil" : "set")")
+        guard sigwinchSource == nil else { return }
+
+        // Ignore the default signal handling so DispatchSource can intercept it
+        signal(SIGWINCH, SIG_IGN)
+        log("setupSigwinch: signal ignored, creating dispatch source")
+
+        let source = DispatchSource.makeSignalSource(signal: SIGWINCH, queue: .global())
+        sigwinchSource = source
+        source.setEventHandler {
+            log("sigwinchSource event handler fired on global queue")
+            DispatchQueue.main.async {
+                log("sigwinchSource calling handler on main queue")
                 handler()
             }
         }
-        var action = sigaction()
-        #if os(macOS)
-        action.__sigaction_u.__sa_handler = signalHandler
-        #else
-        action.__sigaction_handler.sa_handler = signalHandler
-        #endif
-        action.sa_flags = 0
-        sigemptyset(&action.sa_mask)
-
-        let v = sigaction(SIGWINCH, &action, &previousSigaction)
-        if v != 0 { fatalError() }
-        reader.activate()
+        source.activate()
+        log("setupSigwinch: dispatch source activated")
     }
     
     private func setupSignalHandlers() {
-        UnixDriver.setupSigwinch {
-            DispatchQueue.main.async {
-                var ws = winsize()
-                if ioctl(STDOUT_FILENO, UInt(TIOCGWINSZ), &ws) == 0 {
-                    self.size = Size(width: Int(ws.ws_col), height: Int(ws.ws_row))
-                }
-                self.initializeScreenBuffer()
-                Application.terminalResized()
+        UnixDriver.setupSigwinch { [weak self] in
+            log("setupSignalHandlers closure called")
+            guard let self else {
+                log("setupSignalHandlers: self is nil, returning")
+                return
             }
+            var ws = winsize()
+            if ioctl(STDOUT_FILENO, UInt(TIOCGWINSZ), &ws) == 0 {
+                log("setupSignalHandlers: new size \(ws.ws_col)x\(ws.ws_row)")
+                self.size = Size(width: Int(ws.ws_col), height: Int(ws.ws_row))
+            }
+            self.initializeScreenBuffer()
+            Application.terminalResized()
+            log("setupSignalHandlers: terminalResized called")
         }
     }
     

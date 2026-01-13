@@ -421,7 +421,7 @@ public class Painter {
         let destRect = Rect(origin: origin, size: srcSize)
         let clip = visible.intersection(destRect)
         if Application.traceRows.contains(origin.y) || Application.traceRows.contains(clip.minY) {
-            TermKitLog.logger.debug("draw-layer: origin=\(origin) srcSize=\(srcSize) destRect=\(destRect) visible=\(visible) clip=\(clip)")
+            //TermKitLog.logger.debug("draw-layer: origin=\(origin) srcSize=\(srcSize) destRect=\(destRect) visible=\(visible) clip=\(clip)")
         }
         if clip.isEmpty { return }
         // Calculate source start offset for each row relative to clip

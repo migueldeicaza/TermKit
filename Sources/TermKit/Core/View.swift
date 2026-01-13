@@ -793,13 +793,13 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
     func compose(painter: Painter) {
         // Ensure our layer matches current bounds; fallback render if needed to avoid empty blits
         if layer.size != bounds.size || layer.size.width == 0 || layer.size.height == 0 {
-            TermKitLog.logger.debug("compose-fix: resizing/redrawing view=\(String(describing: type(of: self))) id=\(viewId) oldLayer=\(layer.size) new=\(bounds.size)")
+            //TermKitLog.logger.debug("compose-fix: resizing/redrawing view=\(String(describing: type(of: self))) id=\(viewId) oldLayer=\(layer.size) new=\(bounds.size)")
             layer = Layer(size: bounds.size)
             let selfPainter = Painter(for: self)
             // Render full bounds to populate layer
             redraw(region: bounds, painter: selfPainter)
         }
-        TermKitLog.logger.debug("compose view=\(String(describing: type(of: self))) id=\(viewId) origin=\(painter.origin) frame=\(frame) layerSize=\(layer.size)")
+	//TermKitLog.logger.debug("compose view=\(String(describing: type(of: self))) id=\(viewId) origin=\(painter.origin) frame=\(frame) layerSize=\(layer.size)")
         // 1. Blit this view's layer onto the parent at our absolute origin (already in painter.origin)
         if self.frame.size != Size.empty {
             painter.draw(layer: self.layer, at: painter.origin)
