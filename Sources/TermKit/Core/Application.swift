@@ -270,9 +270,6 @@ public class Application {
     
     static func setupSigwinchHandler () {
         #if !os(Windows)
-        // Prevent SIGWINCH from interrupting system calls
-        signal(SIGWINCH, SIG_IGN)
-        
         let source = DispatchSource.makeSignalSource(signal: SIGWINCH, queue: .main)
         sigwinchSource = source
         source.setEventHandler {
