@@ -352,7 +352,7 @@ public class Application {
     static var mouseGrabView: View? = nil
     
     /// Grabs the mouse, forcing all mouse events to be routed to the specified view until `ungrabMouse` is called.
-    /// - Parameter from: View that will receive all mouse events until UngrabMouse is invoked.
+    /// - Parameter view: View that will receive all mouse events until UngrabMouse is invoked.
     public static func grabMouse (from view: View)
     {
         mouseGrabView = view

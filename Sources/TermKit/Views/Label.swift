@@ -313,7 +313,7 @@ public class Label3 : View {
     /**
      * Computes the the max width of a line or multilines needed to render by the Label control.
      * - Parameter text: text to measure
-     * - Paramter width: optional, the maximum width desired, it will clamp to that value.
+     * - Parameter width: optional, the maximum width desired, it will clamp to that value.
      */
     public static func maxWidth (text: String, width : Int = INTPTR_MAX) -> Int
     {

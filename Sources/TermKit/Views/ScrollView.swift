@@ -38,8 +38,7 @@ open class ScrollBarView: View {
     /**
      * Initializes the ScrollBarView
      *
-     * - Parameter rect: the region where the scrollbar is displayed
-     * - Paramter size: the size that this scrollbar represents
+     * - Parameter size: the size that this scrollbar represents
      * - Parameter position: The position of the scrollbar within the size
      * - Parameter isVertical: whether this is a vertical or horizontal scrollbar
      */
@@ -451,7 +450,7 @@ open class ScrollView : View {
     
     /**
      * Scrolls the view right.
-     * - Parameter lines: the number of columns to scroll right
+     * - Parameter cols: the number of columns to scroll right
      * - Returns: `true` if the it was scrolled
      */
     public func scrollRight (cols: Int) -> Bool

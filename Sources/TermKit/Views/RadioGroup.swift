@@ -69,7 +69,7 @@ open class RadioGroup: View {
     ///   - labels: The radio labels; an array of strings that can contain hotkeys using an underscore before the letter.
     ///   - selected: The index of the item to be selected, the value is clamped to the number of items,
     ///   can be nil if no value should be selected by default
-    ///   - The orientation to use for the view
+    ///   - orientation: The orientation to use for the view
     public init (labels: [String], selected: Int? = 0, orientation: Orientation = .vertical)
     {
         self.radioLabels = labels

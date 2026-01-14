@@ -81,7 +81,7 @@ public enum LayoutStyle {
  * typically will that one character on each site, and lastly, there is `padding` which is
  * the internal padding that views should use when rendering.   The padding is not enforced
  * in the rendering system, it is an honor-system, and you can use the convenience
- * ``painter.drawBox(with:contentDrawer:)`` method that draws the border and the
+ * ``drawBox(with:contentDrawer:)`` method that draws the border and the
  * content.
  */
 open class View: Responder, Hashable, CustomDebugStringConvertible {
@@ -598,9 +598,7 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
     
     /**
      * Converts a point from screen coordinates into the view coordinate space.
-     * - Parameter x: X screen-coordinate point.
-     * - Parameter x: Y screen-coordinate point.
-     *
+     * - Parameter loc: The screen-coordinate point to convert.
      * - Returns: the mapped point
      */
     public func screenToView (loc: Point) -> Point

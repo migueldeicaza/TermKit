@@ -62,8 +62,6 @@ public class Dim {
      *
      * ```
      * - Parameter n: A value between 0 and 100 representing the percentage.
-     * - Parameter remain: If `true` the Percent is computed based on the remaining space after the X/Y anchor positions.
-     * otherwise it is computed on the whole original space.
      */
     public static func percent (n: Float) -> Dim
     {

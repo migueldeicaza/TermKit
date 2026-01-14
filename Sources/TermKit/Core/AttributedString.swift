@@ -215,7 +215,7 @@ public class AttributedString: CustomDebugStringConvertible {
     
     /**
      * Constructs a new AttributedString from a marked-up string.
-     * - Parameter markup: A string containing markup sequences
+     * - Parameter text: A string containing markup sequences
      *
      * The syntax allowed is:
      *  `[color]` - to specify the use of a color.

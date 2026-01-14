@@ -101,7 +101,7 @@ public struct CellFlags: OptionSet, Hashable {
  * and they are also used by views directly when they defined their own attributes.
  *
  * You can not initialize these Attribute directly from the constructor, you need instead to use the
- * ``Application.makeAttribute(fore:back:flags)`` method for it.
+ * ``Application/makeAttribute(fore:back:flags:)`` method for it.
  */
 public struct Attribute: Equatable {
     var fore, back: Color?

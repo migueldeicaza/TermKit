@@ -301,6 +301,7 @@ public class Painter {
      * - Parameter region: Region where the frame will be drawn.
      * - Parameter padding: Padding to add on the sides
      * - Parameter fill: If set to `true` it will clear the contents with the current color, otherwise the contents will be left untouched.
+     * - Parameter double: If set to `true` it will use double-line box drawing characters.
      */
     public func drawFrame(_ region: Rect, padding: Int, fill: Bool, double: Bool = false)
     {

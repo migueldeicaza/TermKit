@@ -33,12 +33,14 @@ public protocol TerminalViewDelegate: AnyObject {
     
     /**
      * Request that date be sent to the application running inside the terminal.
+     * - Parameter source: the terminal view that is sending the data
      * - Parameter data: Slice of data that should be sent
      */
     func send (source: TerminalView, data: ArraySlice<UInt8>)
   
     /**
      * Invoked when the terminal has been scrolled and the new position is provided
+     * - Parameter source: the terminal view that was scrolled
      * - Parameter position: the relative position that the code was scrolled to, a value between 0 and 1
      */
     func scrolled (source: TerminalView, position: Double)
@@ -68,7 +70,7 @@ public protocol LocalProcessTerminalViewDelegate {
      * the user interface code might try to adjut the containing scroll view, or if it is a toplevel window, the window itself
      * - Parameter source: the sending instance
      * - Parameter newCols: the new number of columns that should be shown
-     * - Parameter newRow: the new number of rows that should be shown
+     * - Parameter newRows: the new number of rows that should be shown
      */
     func sizeChanged(source: LocalProcessTerminalView, newCols: Int, newRows: Int)
 
@@ -408,6 +410,7 @@ public class LocalProcessTerminalView: TerminalView, LocalProcessDelegate, Termi
      * - Parameter executable: The executable to launch inside the pseudo terminal, defaults to /bin/bash
      * - Parameter args: an array of strings that is passed as the arguments to the underlying process
      * - Parameter environment: an array of environment variables to pass to the child process, if this is null, this picks a good set of defaults from `Terminal.getEnvironmentVariables`.
+     * - Parameter execName: optional name to use for the executable in argv[0]
      */
     public func startProcess(executable: String = "/bin/bash", args: [String] = [], environment: [String]? = nil, execName: String? = nil)
     {
