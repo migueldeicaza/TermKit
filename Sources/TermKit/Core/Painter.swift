@@ -24,10 +24,16 @@ public class Painter {
     /// The current drawing column
     public private(set) var pos: Point 
     
-    // The origin for this painter, describes the offset in global coordinates
+    /// The origin for this painter in global (screen) coordinates.
+    ///
+    /// This offset is applied to all drawing operations to convert from
+    /// view-local coordinates to absolute screen positions.
     public var origin: Point
-    
-    // The visible region in the screen, in global coordinates
+
+    /// The visible region in global (screen) coordinates.
+    ///
+    /// Drawing operations outside this region are clipped and will not
+    /// be rendered. This enables efficient partial redraws.
     public var visible: Rect
     
     /// The attribute used to draw
@@ -77,11 +83,15 @@ public class Painter {
         applyContext()
     }
     
+    /// Sets the drawing attribute to the view's normal color.
     public func colorNormal()
     {
         attribute = view.colorScheme.normal
     }
-    
+
+    /// Sets the drawing attribute based on the view's focus state.
+    ///
+    /// Uses the focused color when the view has focus, otherwise the normal color.
     public func colorSelection()
     {
         attribute = view.hasFocus ? view.colorScheme.focus : view.colorScheme.normal
@@ -164,28 +174,44 @@ public class Painter {
         }
     }
     
+    /// Draws a string at the current cursor position.
+    ///
+    /// The string is drawn using the current attribute. The cursor position
+    /// advances by the width of each character. Content outside the visible
+    /// region is clipped.
+    /// - Parameter str: The string to draw.
     public func add(str: String)
     {
         let strScalars = str.unicodeScalars
         let maxWidth = view.bounds.width
-        
+
         applyContext()
         for uscalar in strScalars {
             add(rune: uscalar, maxWidth: maxWidth)
         }
     }
-    
+
+    /// Draws a character at the current cursor position.
+    ///
+    /// The character is drawn using the current attribute. The cursor position
+    /// advances by the character's display width.
+    /// - Parameter ch: The character to draw.
     public func add(ch: Character)
     {
         let strScalars = ch.unicodeScalars
         let maxWidth = view.bounds.width
-        
+
         applyContext()
         for uscalar in strScalars {
             add(rune: uscalar, maxWidth: maxWidth)
         }
     }
-    
+
+    /// Draws a unicode scalar at the current cursor position.
+    ///
+    /// The scalar is drawn using the current attribute. The cursor position
+    /// advances by the scalar's display width.
+    /// - Parameter rune: The unicode scalar to draw.
     public func add(rune: UnicodeScalar)
     {
         applyContext()
@@ -268,7 +294,12 @@ public class Painter {
         add(rune: runes.bottomRight)
     }
 
-    // Returns a painter clipped and offset to the provided rectangle (relative to this painter's view).
+    /// Returns a new painter clipped and offset to the provided rectangle.
+    ///
+    /// Use this to create a sub-region painter for drawing within a specific
+    /// area of the view.
+    /// - Parameter rect: The clipping rectangle in this painter's coordinate space.
+    /// - Returns: A new painter that only draws within the specified region.
     public func clipped(to rect: Rect) -> Painter {
         let newPainter = Painter(for: self.view)
         // Share the same target and attribute state
@@ -410,6 +441,7 @@ public class Painter {
         }
     }
     
+    /// Debug helper method. Currently a no-op in the layer-backed painter.
     public func debug() {
         // No-op in layer-backed painter; kept for API compatibility
     }

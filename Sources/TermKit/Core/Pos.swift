@@ -203,25 +203,41 @@ public class Pos {
         }
     }
     
-    /// Produces a dimension that adds the two specified positions together
+    /// Produces a position that adds the two specified positions together.
+    /// - Parameters:
+    ///   - lhs: The left-hand side position.
+    ///   - rhs: The right-hand side position.
+    /// - Returns: A new position representing the sum of both positions.
     public static func + (lhs:Pos, rhs: Pos) -> Pos
     {
         return PosCombine (left: lhs, right: rhs, add: true)
     }
 
-    /// Produces a dimension that adds the two specified positions together
+    /// Produces a position that adds a position and an integer value.
+    /// - Parameters:
+    ///   - lhs: The position.
+    ///   - rhs: The integer value to add.
+    /// - Returns: A new position representing the sum.
     public static func + (lhs:Pos, rhs: Int) -> Pos
     {
         return PosCombine (left: lhs, right: Pos.at(rhs), add: true)
     }
 
-    /// Produces a dimension that subtracts the second position value from the first
+    /// Produces a position that subtracts the second position value from the first.
+    /// - Parameters:
+    ///   - lhs: The left-hand side position.
+    ///   - rhs: The right-hand side position to subtract.
+    /// - Returns: A new position representing the difference.
     public static func - (lhs:Pos, rhs: Pos) -> Pos
     {
         return PosCombine (left: lhs, right: rhs, add: false)
     }
 
-    /// Produces a dimension that subtracts the second position value from the first
+    /// Produces a position that subtracts an integer value from a position.
+    /// - Parameters:
+    ///   - lhs: The position.
+    ///   - rhs: The integer value to subtract.
+    /// - Returns: A new position representing the difference.
     public static func - (lhs:Pos, rhs: Int) -> Pos
     {
         return PosCombine (left: lhs, right: Pos.at(rhs), add: false)
@@ -263,37 +279,51 @@ public class Pos {
         }
     }
     
-    /// Creates a position object that references the left-side of the provided view
+    /// Creates a position object that references the left-side of the provided view.
+    /// - Parameter view: The view whose left edge position will be used.
+    /// - Returns: A position anchored to the left edge of the specified view.
     public static func left (of view: View) -> Pos
     {
         return PosView (view, side: .X)
     }
 
-    /// Creates a position object that references the colum coordinate of the provided view
+    /// Creates a position object that references the column (x) coordinate of the provided view.
+    /// - Parameter view: The view whose x coordinate will be used.
+    /// - Returns: A position anchored to the x coordinate of the specified view.
+    /// - Note: This is an alias for ``left(of:)``.
     public static func x (of view: View) -> Pos
     {
         return PosView (view, side: .X)
     }
 
-    /// Creates a position object that references the top (y or row) coordinate of the provided view
+    /// Creates a position object that references the top (y or row) coordinate of the provided view.
+    /// - Parameter view: The view whose top edge position will be used.
+    /// - Returns: A position anchored to the top edge of the specified view.
     public static func top (of view: View) -> Pos
     {
         return PosView (view, side: .Y)
     }
-    
-    /// Creates a position object that references the y (row) coordinate of the provided view
+
+    /// Creates a position object that references the y (row) coordinate of the provided view.
+    /// - Parameter view: The view whose y coordinate will be used.
+    /// - Returns: A position anchored to the y coordinate of the specified view.
+    /// - Note: This is an alias for ``top(of:)``.
     public static func y (of view: View) -> Pos
     {
         return PosView (view, side: .Y)
     }
 
-    /// Creates a position object that references the right side coordinate of the provided view
+    /// Creates a position object that references the right side coordinate of the provided view.
+    /// - Parameter view: The view whose right edge position will be used.
+    /// - Returns: A position anchored to the right edge of the specified view.
     public static func right (of view: View) -> Pos
     {
         return PosView (view, side: .Right)
     }
 
-    /// Creates a position object that references the bottom side coordinate of the provided view
+    /// Creates a position object that references the bottom side coordinate of the provided view.
+    /// - Parameter view: The view whose bottom edge position will be used.
+    /// - Returns: A position anchored to the bottom edge of the specified view.
     public static func bottom (of view: View) -> Pos
     {
         return PosView (view, side: .Bottom)

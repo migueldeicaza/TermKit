@@ -39,6 +39,10 @@ open class Window: Toplevel {
         self.init (nil, internalPadding: 0)
     }
     
+    /// Creates a new window with an optional title and internal padding.
+    /// - Parameters:
+    ///   - title: The title to display in the window's title bar.
+    ///   - internalPadding: Space between the window's outer edge and the border.
     public init (_ title: String? = nil, internalPadding: Int = 0)
     {
         self.internalPadding = internalPadding

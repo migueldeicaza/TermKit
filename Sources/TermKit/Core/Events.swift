@@ -205,26 +205,45 @@ public struct MouseFlags: OptionSet, CustomDebugStringConvertible {
         self.rawValue = rawValue
     }
     
-    /// This event is not always 
+    /// Mouse button 1 (left) was pressed.
     public static let button1Pressed        = MouseFlags(rawValue: 0x2)
+    /// Mouse button 1 (left) was released.
     public static let button1Released       = MouseFlags(rawValue: 0x1)
+    /// Mouse button 1 (left) was clicked.
     public static let button1Clicked        = MouseFlags(rawValue: 0x4)
+    /// Mouse button 1 (left) was double-clicked.
     public static let button1DoubleClicked  = MouseFlags(rawValue: 0x8)
+    /// Mouse button 1 (left) was triple-clicked.
     public static let button1TripleClicked  = MouseFlags(rawValue: 0x10)
+    /// Mouse button 2 (middle) was pressed.
     public static let button2Pressed        = MouseFlags(rawValue: 0x80)
+    /// Mouse button 2 (middle) was released.
     public static let button2Released       = MouseFlags(rawValue: 0x40)
+    /// Mouse button 2 (middle) was clicked.
     public static let button2Clicked        = MouseFlags(rawValue: 0x100)
+    /// Mouse button 2 (middle) was double-clicked.
     public static let button2DoubleClicked  = MouseFlags(rawValue: 0x200)
+    /// Mouse button 2 (middle) was triple-clicked.
     public static let button2TrippleClicked = MouseFlags(rawValue: 0x400)
+    /// Mouse button 3 (right) was pressed.
     public static let button3Pressed        = MouseFlags(rawValue: 0x2000)
+    /// Mouse button 3 (right) was released.
     public static let button3Released       = MouseFlags(rawValue: 0x1000)
+    /// Mouse button 3 (right) was clicked.
     public static let button3Clicked        = MouseFlags(rawValue: 0x4000)
+    /// Mouse button 3 (right) was double-clicked.
     public static let button3DoubleClicked  = MouseFlags(rawValue: 0x8000)
+    /// Mouse button 3 (right) was triple-clicked.
     public static let button3TripleClicked  = MouseFlags(rawValue: 0x10000)
+    /// Mouse button 4 was pressed.
     public static let button4Pressed        = MouseFlags(rawValue: 0x80000)
+    /// Mouse button 4 was released.
     public static let button4Released       = MouseFlags(rawValue: 0x40000)
+    /// Mouse button 4 was clicked.
     public static let button4Clicked        = MouseFlags(rawValue: 0x100000)
+    /// Mouse button 4 was double-clicked.
     public static let button4DoubleClicked  = MouseFlags(rawValue: 0x200000)
+    /// Mouse button 4 was triple-clicked.
     public static let button4TripleClicked = MouseFlags(rawValue:  0x400000)
     
     /// The shift key was pressed when the mouse event was produced
@@ -234,6 +253,7 @@ public struct MouseFlags: OptionSet, CustomDebugStringConvertible {
     /// The alt key was pressed when the mouse event was produced
     public static let buttonAlt   = MouseFlags(rawValue: 0x4000000)
     
+    /// Mouse position changed (movement event with no buttons pressed).
     public static let mousePosition = MouseFlags (rawValue: 0x8000000)
 
     static var debugDescriptions: [(Self, String)] = [

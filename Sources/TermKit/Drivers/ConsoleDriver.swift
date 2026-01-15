@@ -78,16 +78,22 @@ public enum Color: Hashable {
     }
 }
 
-/// Describes the flags that can control with additional terminal capabilities for rendering text
+/// Describes the flags that can control additional terminal capabilities for rendering text.
 public struct CellFlags: OptionSet, Hashable {
     public let rawValue: Int8
     public init (rawValue: Int8) { self.rawValue = rawValue }
-    static let bold      = CellFlags (rawValue: 1 << 0)
-    static let underline = CellFlags (rawValue: 1 << 1)
-    static let dim       = CellFlags (rawValue: 1 << 2)
-    static let standout  = CellFlags (rawValue: 1 << 3)
-    static let blink     = CellFlags (rawValue: 1 << 4)
-    static let invert    = CellFlags (rawValue: 1 << 5)
+    /// Renders text in bold.
+    public static let bold      = CellFlags (rawValue: 1 << 0)
+    /// Renders text with an underline.
+    public static let underline = CellFlags (rawValue: 1 << 1)
+    /// Renders text in a dimmed/faint style.
+    public static let dim       = CellFlags (rawValue: 1 << 2)
+    /// Renders text in standout mode (terminal-dependent highlighting).
+    public static let standout  = CellFlags (rawValue: 1 << 3)
+    /// Renders text with a blinking effect.
+    public static let blink     = CellFlags (rawValue: 1 << 4)
+    /// Renders text with inverted foreground and background colors.
+    public static let invert    = CellFlags (rawValue: 1 << 5)
 
 }
 /**

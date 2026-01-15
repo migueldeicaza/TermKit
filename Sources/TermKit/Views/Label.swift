@@ -66,14 +66,23 @@ open class Label: View {
         }
     }
     
-    /// Initializes a Label with the provided string
+    /// Initializes a Label with the provided string.
+    /// - Parameters:
+    ///   - text: The text to display in the label.
+    ///   - align: The text alignment. Defaults to `.left`.
+    ///   - lineBreak: The line breaking mode. Defaults to `.byClipping`.
     public convenience init (_ text: String,
                              align: TextAlignment = .left,
                              lineBreak: LineBreakMode = .byClipping)
     {
         self.init (AttributedString (text: text), align: align)
     }
-    
+
+    /// Initializes a Label with an attributed string.
+    /// - Parameters:
+    ///   - attrStr: The attributed string to display.
+    ///   - align: The text alignment. Defaults to `.left`.
+    ///   - lineBreak: The line breaking mode. Defaults to `.byClipping`.
     public init (_ attrStr: AttributedString,
                  align: TextAlignment = .left,
                  lineBreak: LineBreakMode = .byClipping)

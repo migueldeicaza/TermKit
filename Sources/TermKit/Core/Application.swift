@@ -111,6 +111,14 @@ public class Application {
         driver.size
     }
 
+    /// Creates an attribute with the specified foreground color, background color, and optional cell flags.
+    ///
+    /// Use this method to create attributes for custom drawing operations.
+    /// - Parameters:
+    ///   - fore: The foreground (text) color.
+    ///   - back: The background color.
+    ///   - flags: Optional cell flags such as bold, underline, etc.
+    /// - Returns: An attribute that can be used for drawing.
     public static func makeAttribute(fore: Color, back: Color, flags: CellFlags = []) -> Attribute {
         driver.makeAttribute(fore: fore, back: back, flags: flags)
     }
@@ -728,7 +736,7 @@ public class Application {
      * the main loop, other than exiting the process.   This restores the terminal to its previous
      * state and terminates the process.
      *
-     * - Paramter statusCode: status code passed to the `exit(2)` system call to terminate the process.
+     * - Parameter statusCode: status code passed to the `exit(2)` system call to terminate the process.
      */
     public static func shutdown(statusCode: Int = 0)
     {

@@ -142,6 +142,7 @@ open class StandardDesktop: Toplevel {
         windows.filter { !minimizedWindows.contains(ObjectIdentifier($0)) && $0.superview === desk }
     }
     
+    /// Moves focus to the next visible window in the list.
     public func focusNextWindow() {
         let vis = visibleWindows()
         guard !vis.isEmpty else { return }
@@ -154,6 +155,7 @@ open class StandardDesktop: Toplevel {
         desk.setFocus(next)
     }
     
+    /// Moves focus to the previous visible window in the list.
     public func focusPreviousWindow() {
         let vis = visibleWindows()
         guard !vis.isEmpty else { return }
@@ -166,6 +168,7 @@ open class StandardDesktop: Toplevel {
         desk.setFocus(prev)
     }
     
+    /// Maximizes the currently active window to fill the entire desktop area.
     public func maximizeActiveWindow() {
         guard let w = activeWindow() else { return }
         w.frame = desk.bounds
@@ -173,6 +176,7 @@ open class StandardDesktop: Toplevel {
         desk.setFocus(w)
     }
     
+    /// Minimizes the currently active window, removing it from the desktop view.
     public func minimizeActiveWindow() {
         guard let w = activeWindow() else { return }
         minimizedWindows.insert(ObjectIdentifier(w))
@@ -180,7 +184,20 @@ open class StandardDesktop: Toplevel {
         rebuildWindowsMenu()
     }
     
-    public enum DockPosition { case left, right, top, bottom }
+    /// Specifies the position where a window should be docked on the desktop.
+    public enum DockPosition {
+        /// Dock to the left half of the desktop.
+        case left
+        /// Dock to the right half of the desktop.
+        case right
+        /// Dock to the top half of the desktop.
+        case top
+        /// Dock to the bottom half of the desktop.
+        case bottom
+    }
+
+    /// Docks the currently active window to the specified position.
+    /// - Parameter pos: The position where the window should be docked.
     public func dockActiveWindow(_ pos: DockPosition) {
         guard let w = activeWindow() else { return }
         let b = desk.bounds
@@ -198,6 +215,7 @@ open class StandardDesktop: Toplevel {
         desk.setFocus(w)
     }
     
+    /// Arranges all visible windows in a grid pattern filling the desktop.
     public func tileWindows() {
         let vis = visibleWindows()
         guard !vis.isEmpty else { return }

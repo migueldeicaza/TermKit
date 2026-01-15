@@ -1274,6 +1274,13 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
         childNeedsLayout = false
     }
     
+    /// Performs layout of all subviews.
+    ///
+    /// This method computes the frames of all subviews based on their `x`, `y`,
+    /// `width`, and `height` properties when using computed layout. Subviews are
+    /// laid out in topological order based on their dependencies.
+    ///
+    /// - Throws: `layoutError.recursive` if there is a cyclic dependency in the layout.
     open func layoutSubviews () throws
     {
         if !layoutNeeded {
@@ -1336,15 +1343,21 @@ open class View: Responder, Hashable, CustomDebugStringConvertible {
         childNeedsLayout = false
     }
     
+    /// Called when the mouse pointer enters this view's bounds.
+    /// - Parameter event: The mouse event.
+    /// - Returns: `true` if the event was handled.
     open func mouseEnter(event: MouseEvent) -> Bool {
         // TODO OnMouseEnter
         return true
     }
-    
+
+    /// Called when the mouse pointer leaves this view's bounds.
+    /// - Parameter event: The mouse event.
+    /// - Returns: `true` if the event was handled.
     public func mouseLeave(event: MouseEvent) -> Bool {
         // TODO OnMouseLeave
         return true
-        
+
     }
     
     var oldFocused: View? = nil

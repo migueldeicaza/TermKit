@@ -148,25 +148,41 @@ public class Dim {
         }
     }
     
-    /// Produces a dimension that adds the two specified dimensions together
+    /// Produces a dimension that adds the two specified dimensions together.
+    /// - Parameters:
+    ///   - lhs: The left-hand side dimension.
+    ///   - rhs: The right-hand side dimension.
+    /// - Returns: A new dimension representing the sum of both dimensions.
     public static func + (lhs: Dim, rhs: Dim) -> Dim
     {
         return DimCombine (add: true, left: lhs, right: rhs)
     }
 
-    /// Produces a dimension that subtracts the second dimension value from the first
+    /// Produces a dimension that subtracts the second dimension value from the first.
+    /// - Parameters:
+    ///   - lhs: The left-hand side dimension.
+    ///   - rhs: The right-hand side dimension to subtract.
+    /// - Returns: A new dimension representing the difference.
     public static func - (lhs: Dim, rhs: Dim) -> Dim
     {
         return DimCombine (add: false, left: lhs, right: rhs)
     }
 
-    /// Produces a dimension that adds the two specified dimensions together
+    /// Produces a dimension that adds a dimension and an integer value.
+    /// - Parameters:
+    ///   - lhs: The dimension.
+    ///   - rhs: The integer value to add.
+    /// - Returns: A new dimension representing the sum.
     public static func + (lhs: Dim, rhs: Int) -> Dim
     {
         return DimCombine (add: true, left: lhs, right: Dim.sized(rhs))
     }
 
-    /// Produces a dimension that subtracts the second dimension value from the first
+    /// Produces a dimension that subtracts an integer value from a dimension.
+    /// - Parameters:
+    ///   - lhs: The dimension.
+    ///   - rhs: The integer value to subtract.
+    /// - Returns: A new dimension representing the difference.
     public static func - (lhs: Dim, rhs: Int) -> Dim
     {
         return DimCombine (add: false, left: lhs, right: Dim.sized (rhs))
@@ -208,7 +224,7 @@ public class Dim {
      * There should be no cycles in the references, if there is a cycle, the
      * layout system will throw an error
      *
-     * - Paramter view: the view from which the width will be computed
+     * - Parameter view: the view from which the width will be computed
      */
     public static func width (view: View) -> Dim
     {
@@ -221,7 +237,7 @@ public class Dim {
      * There should be no cycles in the references, if there is a cycle, the
      * layout system will throw an error
      *
-     * - Paramter view: the view from which the width will be computed
+     * - Parameter view: the view from which the height will be computed
      */
     public static func height (view: View) -> Dim
     {
