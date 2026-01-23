@@ -28,11 +28,13 @@ public func termKitWcWidth(_ char: wchar_t) -> Int32 {
 }
 
 /// Cross-platform wcwidth wrapper for UInt32 (UnicodeScalar value)
+/// Only needed on macOS where wchar_t is Int32; on Linux wchar_t is UInt32
+#if os(macOS)
 public func termKitWcWidth(_ char: UInt32) -> Int32 {
-    // Convert UInt32 to wchar_t (which is Int32 on most systems)
     let intValue = Int(char)
     return termKitWcWidth(wchar_t(intValue))
 }
+#endif
 
 /// Extension for Character to get display width
 extension Character {
