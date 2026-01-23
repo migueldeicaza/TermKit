@@ -51,6 +51,27 @@ final class FileLogHandler: LogHandler {
     }
 }
 
+// No-op handler to prevent default console logging when no file is configured.
+final class NullLogHandler: LogHandler {
+    private let label: String
+    public var metadata: Logger.Metadata = [:]
+    public var logLevel: Logger.Level = .debug
+
+    init(label: String) {
+        self.label = label
+    }
+
+    subscript(metadataKey key: String) -> Logger.Metadata.Value? {
+        get { metadata[key] }
+        set { metadata[key] = newValue }
+    }
+
+    func log(level: Logger.Level, message: Logger.Message, metadata: Logger.Metadata?, source: String, file: String, function: String, line: UInt) {
+        _ = label
+        // Intentionally discard all log output.
+    }
+}
+
 enum TermKitLog {
     private static var bootstrapped = false
     private static var loggerInstance: Logger = Logger(label: "TermKit")
@@ -58,15 +79,20 @@ enum TermKitLog {
     static func bootstrapIfNeeded() {
         guard !bootstrapped else { return }
         bootstrapped = true
-        guard let path = ProcessInfo.processInfo.environment["TERMKIT_LOG"] else {
-	    return
-	}
-        let fileURL = URL(fileURLWithPath: path)
+        if let path = ProcessInfo.processInfo.environment["TERMKIT_LOG"], !path.isEmpty {
+            let fileURL = URL(fileURLWithPath: path)
+            LoggingSystem.bootstrap { label in
+                FileLogHandler(label: label, fileURL: fileURL)
+            }
+            loggerInstance = Logger(label: "TermKit")
+            loggerInstance.info("Logging bootstrapped -> \(path)")
+            return
+        }
+
         LoggingSystem.bootstrap { label in
-            FileLogHandler(label: label, fileURL: fileURL)
+            NullLogHandler(label: label)
         }
         loggerInstance = Logger(label: "TermKit")
-        loggerInstance.info("Logging bootstrapped -> \(path)")
     }
 
     static var logger: Logger {
@@ -74,4 +100,3 @@ enum TermKitLog {
         return loggerInstance
     }
 }
-
