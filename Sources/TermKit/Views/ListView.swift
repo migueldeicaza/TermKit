@@ -412,6 +412,11 @@ open class ListView: View {
         return true
     }
     
+    /// The visible height of the list (accounting for borders/padding)
+    private var visibleHeight: Int {
+        return contentFrame.height
+    }
+
     /// Moves the selection to the previous item
     /// - Returns: True if the selection was moved, false otherwise
     public func moveSelectionUp () -> Bool
@@ -422,34 +427,36 @@ open class ListView: View {
         if count == 0 {
             return false
         }
-        
+
+        let height = visibleHeight
         if selected > 0 {
             selectedItem -= 1
             if selected < top {
                 top = selected
-            } else if selected > top + frame.height {
-                top = max (selected - frame.height + 1, 0)
+            } else if selected > top + height {
+                top = max (selected - height + 1, 0)
             }
             setNeedsDisplay()
             return true
         }
         return false
     }
-    
+
     /// Moves the selection to the next item
     /// - Returns: True if the selection was moved, false otherwise
     public func moveSelectionDown () -> Bool
     {
         guard let dataSource else { return false }
-        
+
         let count = dataSource.getCount(listView: self)
         if count == 0 {
             return false
         }
-        
+
+        let height = visibleHeight
         if selected + 1 < count {
             selectedItem += 1
-            if selected >= (top + frame.height) {
+            if selected >= (top + height) {
                 top += 1
             } else if selected < top {
                 top = selected
@@ -469,24 +476,25 @@ open class ListView: View {
         if count == 0 {
             return false
         }
-        
+
+        let height = visibleHeight
         if selected > 0 {
-            selectedItem = max (0, selectedItem-frame.height)
+            selectedItem = max (0, selectedItem - height)
             if selected > count {
                 selectedItem = count - 1
             }
             if selected < top {
                 top = selected
-            } else if selected > top + frame.height {
-                top = max (selected - frame.height + 1, 0)
+            } else if selected > top + height {
+                top = max (selected - height + 1, 0)
             }
             setNeedsDisplay()
             return true
         }
         return false
     }
-    
-    /// Moves the selection one page up
+
+    /// Moves the selection one page down
     /// - Returns: true if this change the selected position, false otherwise
     public func movePageDown () -> Bool {
         guard let dataSource else { return false }
@@ -495,11 +503,12 @@ open class ListView: View {
         if count == 0 {
             return false
         }
-        
+
+        let height = visibleHeight
         if selected + 1 < count {
-            selectedItem = min (selectedItem + frame.height, count-1)
-            if selected >= (top + frame.height) {
-                top = max (0, selected-frame.height+1)
+            selectedItem = min (selectedItem + height, count-1)
+            if selected >= (top + height) {
+                top = max (0, selected - height + 1)
             } else if selected < top {
                 top = selected
             }
